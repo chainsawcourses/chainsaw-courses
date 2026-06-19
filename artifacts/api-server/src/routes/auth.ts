@@ -91,10 +91,11 @@ router.post("/auth/activate", async (req, res) => {
 });
 
 async function resolveUser(activationCode: string, deviceId: string) {
+  const normalizedCode = activationCode.trim().toUpperCase();
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.activationCode, activationCode), isNull(usersTable.deletedAt)));
+    .where(and(eq(usersTable.activationCode, normalizedCode), isNull(usersTable.deletedAt)));
 
   if (!user || user.deviceId !== deviceId) return null;
   return user;
