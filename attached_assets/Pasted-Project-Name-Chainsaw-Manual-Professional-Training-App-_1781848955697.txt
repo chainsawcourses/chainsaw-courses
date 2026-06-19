@@ -1,0 +1,30 @@
+Project Name: Chainsaw Manual Professional Training App
+Objective: Build a secure, high-ticket (£198) vocational training app with sequential video learning, interactive assessments, and device-locked access.
+1. Core Architecture & Tech Stack
+Framework: Use Capacitor with React to ensure a native mobile experience for iOS and Android.
+Database: Use Replit PostgreSQL (Neon) for user progress, quiz scores, and activation code mapping.
+External Integrations:
+Shopify: Connect via Admin API to validate unique activation codes generated at purchase.
+Vimeo: Use the Vimeo Player SDK for high-quality, Adaptive Bitrate Streaming.
+Firebase: Integrate Firebase Remote Config for instant "Headless" updates to video IDs and safety text.
+2. The "Triple-Lock" Security System
+Activation & Bonding: Implement a logic where a Shopify code "bonds" to the first Unique Device ID it encounters. Prevent logins from other devices unless a "Reset" is triggered in the Admin Panel. Use Atomic Transactions in the database to prevent double-use of codes.
+Dynamic Watermarking: Create a persistent, low-opacity overlay on all video playback displaying the current user’s Email Address and Full Name. The watermark must move position every 60 seconds to prevent cropping.
+No Offline Mode: Ensure videos are stream-only to maintain security.
+3. Sequential Learning & Interactive UX
+Progress Locking: Modules must be completed in order. Video 2 remains locked until Video 1 is finished and the associated quiz is passed.
+Heartbeat Progress: Implement a 30-second "Heartbeat" signal that saves video timestamps to the database.
+Micro-Disclaimers: For high-risk videos, trigger a mandatory full-screen modal with a 3-second countdown before the "Play" button is enabled.
+The Mock Test: Build an interactive "Mock Assessment" using a RAG-fenced AI Avatar. The Avatar must only answer questions based on the uploaded Chainsaw Manual PDF.
+4. Legal & Compliance (UK/GDPR)
+Digital Waiver: On first launch, require a full-screen digital waiver with a touch-screen signature. Convert to a PDF and store securely.
+Privacy by Design: Include a "Delete My Account" button (GDPR Right to Erasure).
+5. Admin Control Panel (Web Interface)
+Build a secure, password-protected web dashboard to:
+View student progress and signed waiver PDFs.
+Manually Reset Device Bonds for specific activation codes.
+Update high-level app settings via Firebase Remote Config.
+6. Visual Identity
+Primary Brand Color: #E27226 (Chainsaw Manual Orange).
+Branding: Match the rugged, professional aesthetic of chainsawmanual.com.
+Accessibility: Ensure all buttons meet WCAG 2.1 AA standards (minimum 44px touch targets).

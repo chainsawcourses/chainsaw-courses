@@ -1,22 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Chainsaw Manual Training App API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Activation and user authentication
+  - name: modules
+    description: Training modules and videos
+  - name: progress
+    description: Learning progress tracking
+  - name: quizzes
+    description: Module quizzes and assessments
+  - name: waiver
+    description: Digital waiver management
+  - name: ai
+    description: AI mock assessment
+  - name: admin
+    description: Admin panel operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,494 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/activate:
+    post:
+      operationId: activateCode
+      tags: [auth]
+      summary: Activate a Shopify purchase code and bond it to a device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivateInput"
+      responses:
+        "200":
+          description: Activation successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivationResult"
+        "400":
+          description: Invalid or already-used code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Code bonded to another device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user profile
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/delete-account:
+    delete:
+      operationId: deleteAccount
+      tags: [auth]
+      summary: GDPR right to erasure - delete account and all data
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /modules:
+    get:
+      operationId: listModules
+      tags: [modules]
+      summary: List all training modules with lock status for the current user
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of modules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Module"
+
+  /modules/{moduleId}:
+    get:
+      operationId: getModule
+      tags: [modules]
+      summary: Get a specific module with video details
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Module detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModuleDetail"
+        "403":
+          description: Module locked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /progress/heartbeat:
+    post:
+      operationId: saveHeartbeat
+      tags: [progress]
+      summary: Save 30-second heartbeat with video timestamp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HeartbeatInput"
+      responses:
+        "200":
+          description: Heartbeat saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /progress/complete-video:
+    post:
+      operationId: completeVideo
+      tags: [progress]
+      summary: Mark a video as completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteVideoInput"
+      responses:
+        "200":
+          description: Video marked complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /progress/summary:
+    get:
+      operationId: getProgressSummary
+      tags: [progress]
+      summary: Get overall training progress summary
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Progress summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressSummary"
+
+  /quizzes/{moduleId}:
+    get:
+      operationId: getQuiz
+      tags: [quizzes]
+      summary: Get quiz questions for a module
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Quiz questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quiz"
+
+  /quizzes/{moduleId}/submit:
+    post:
+      operationId: submitQuiz
+      tags: [quizzes]
+      summary: Submit quiz answers
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuizSubmission"
+      responses:
+        "200":
+          description: Quiz result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuizResult"
+
+  /waiver:
+    get:
+      operationId: getWaiver
+      tags: [waiver]
+      summary: Get waiver status for current user
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Waiver status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WaiverStatus"
+
+    post:
+      operationId: signWaiver
+      tags: [waiver]
+      summary: Sign the digital waiver with signature data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WaiverInput"
+      responses:
+        "200":
+          description: Waiver signed and PDF created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /ai/chat:
+    post:
+      operationId: sendAiMessage
+      tags: [ai]
+      summary: Send a message to the AI avatar (RAG on chainsaw manual)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiChatInput"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiChatResponse"
+
+  /ai/chat-history:
+    get:
+      operationId: getChatHistory
+      tags: [ai]
+      summary: Get AI chat history for current session
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResult"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/students:
+    get:
+      operationId: listStudents
+      tags: [admin]
+      summary: List all students with their progress
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentSummary"
+
+  /admin/students/{studentId}:
+    get:
+      operationId: getStudent
+      tags: [admin]
+      summary: Get detailed student info including progress and waiver
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDetail"
+
+  /admin/students/{studentId}/reset-device:
+    post:
+      operationId: resetDeviceBond
+      tags: [admin]
+      summary: Reset device bond for a student (allow login from new device)
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Device bond reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get high-level platform statistics
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/codes:
+    post:
+      operationId: createActivationCode
+      tags: [admin]
+      summary: Create a new activation code (for manual issuance)
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActivationCodeInput"
+      responses:
+        "201":
+          description: Activation code created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivationCode"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +531,431 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    ActivateInput:
+      type: object
+      required: [code, deviceId, fullName, email]
+      properties:
+        code:
+          type: string
+        deviceId:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+
+    ActivationResult:
+      type: object
+      required: [success, userId, fullName, email]
+      properties:
+        success:
+          type: boolean
+        userId:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        waiverRequired:
+          type: boolean
+
+    UserProfile:
+      type: object
+      required: [id, fullName, email, activatedAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        activatedAt:
+          type: string
+        waiverSigned:
+          type: boolean
+        deviceId:
+          type: string
+
+    Module:
+      type: object
+      required: [id, title, description, order, isLocked, isCompleted, duration]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        order:
+          type: integer
+        isLocked:
+          type: boolean
+        isCompleted:
+          type: boolean
+        quizPassed:
+          type: boolean
+        duration:
+          type: integer
+        thumbnailUrl:
+          type: ["string", "null"]
+        isHighRisk:
+          type: boolean
+
+    ModuleDetail:
+      type: object
+      required: [id, title, description, order, isLocked, isCompleted, duration, vimeoId]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        order:
+          type: integer
+        isLocked:
+          type: boolean
+        isCompleted:
+          type: boolean
+        quizPassed:
+          type: boolean
+        duration:
+          type: integer
+        vimeoId:
+          type: string
+        thumbnailUrl:
+          type: ["string", "null"]
+        isHighRisk:
+          type: boolean
+        lastTimestamp:
+          type: ["integer", "null"]
+        safetyText:
+          type: ["string", "null"]
+
+    HeartbeatInput:
+      type: object
+      required: [moduleId, timestamp, deviceId, activationCode]
+      properties:
+        moduleId:
+          type: integer
+        timestamp:
+          type: integer
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+
+    CompleteVideoInput:
+      type: object
+      required: [moduleId, deviceId, activationCode]
+      properties:
+        moduleId:
+          type: integer
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+
+    ProgressSummary:
+      type: object
+      required: [totalModules, completedModules, quizzesPassed, percentComplete, currentModuleId]
+      properties:
+        totalModules:
+          type: integer
+        completedModules:
+          type: integer
+        quizzesPassed:
+          type: integer
+        percentComplete:
+          type: integer
+        currentModuleId:
+          type: ["integer", "null"]
+        certificateEarned:
+          type: boolean
+
+    Quiz:
+      type: object
+      required: [moduleId, moduleTitle, questions]
+      properties:
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        passingScore:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizQuestion"
+
+    QuizQuestion:
+      type: object
+      required: [id, question, options]
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+
+    QuizSubmission:
+      type: object
+      required: [deviceId, activationCode, answers]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAnswer"
+
+    QuizAnswer:
+      type: object
+      required: [questionId, selectedOption]
+      properties:
+        questionId:
+          type: integer
+        selectedOption:
+          type: integer
+
+    QuizResult:
+      type: object
+      required: [passed, score, passingScore, correct, total]
+      properties:
+        passed:
+          type: boolean
+        score:
+          type: integer
+        passingScore:
+          type: integer
+        correct:
+          type: integer
+        total:
+          type: integer
+        feedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizFeedback"
+
+    QuizFeedback:
+      type: object
+      required: [questionId, correct, correctOption]
+      properties:
+        questionId:
+          type: integer
+        correct:
+          type: boolean
+        correctOption:
+          type: integer
+
+    WaiverStatus:
+      type: object
+      required: [signed]
+      properties:
+        signed:
+          type: boolean
+        signedAt:
+          type: ["string", "null"]
+        pdfUrl:
+          type: ["string", "null"]
+
+    WaiverInput:
+      type: object
+      required: [deviceId, activationCode, signatureData, agreedToTerms]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        signatureData:
+          type: string
+        agreedToTerms:
+          type: boolean
+
+    AiChatInput:
+      type: object
+      required: [message, deviceId, activationCode]
+      properties:
+        message:
+          type: string
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+
+    AiChatResponse:
+      type: object
+      required: [reply, isOnTopic]
+      properties:
+        reply:
+          type: string
+        isOnTopic:
+          type: boolean
+
+    ChatMessage:
+      type: object
+      required: [id, role, content, createdAt]
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+
+    AdminLoginResult:
+      type: object
+      required: [success, token]
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+
+    StudentSummary:
+      type: object
+      required: [id, fullName, email, activatedAt, completedModules, totalModules, waiverSigned]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        activatedAt:
+          type: string
+        activationCode:
+          type: string
+        deviceBonded:
+          type: boolean
+        completedModules:
+          type: integer
+        totalModules:
+          type: integer
+        quizzesPassed:
+          type: integer
+        waiverSigned:
+          type: boolean
+        lastActivity:
+          type: ["string", "null"]
+
+    StudentDetail:
+      type: object
+      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, waiverSigned]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        activatedAt:
+          type: string
+        activationCode:
+          type: string
+        deviceId:
+          type: string
+        deviceBonded:
+          type: boolean
+        waiverSigned:
+          type: boolean
+        waiverSignedAt:
+          type: ["string", "null"]
+        waiverPdfUrl:
+          type: ["string", "null"]
+        completedModules:
+          type: integer
+        quizResults:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentQuizResult"
+        lastActivity:
+          type: ["string", "null"]
+
+    StudentQuizResult:
+      type: object
+      required: [moduleId, moduleTitle, passed, score, attemptedAt]
+      properties:
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        passed:
+          type: boolean
+        score:
+          type: integer
+        attemptedAt:
+          type: string
+
+    AdminStats:
+      type: object
+      required: [totalStudents, activeThisWeek, completionRate, waiversSigned, codesUsed, codesTotal]
+      properties:
+        totalStudents:
+          type: integer
+        activeThisWeek:
+          type: integer
+        completionRate:
+          type: integer
+        waiversSigned:
+          type: integer
+        codesUsed:
+          type: integer
+        codesTotal:
+          type: integer
+
+    ActivationCodeInput:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+        notes:
+          type: string
+
+    ActivationCode:
+      type: object
+      required: [id, code, isUsed, createdAt]
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        isUsed:
+          type: boolean
+        createdAt:
+          type: string
+        notes:
+          type: ["string", "null"]

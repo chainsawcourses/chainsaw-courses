@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Chainsaw Manual Training App"
+version = "1.0.0"
+id = "artifacts/chainsaw-training"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19478
+
+[services.development]
+run = "pnpm --filter @workspace/chainsaw-training run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/chainsaw-training", "run", "build" ]
+publicDir = "artifacts/chainsaw-training/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19478"
+BASE_PATH = "/"
