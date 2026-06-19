@@ -17,7 +17,8 @@ router.post("/auth/activate", async (req, res) => {
     res.status(400).json({ error: "Invalid request body" });
     return;
   }
-  const { code, deviceId, fullName, email } = parse.data;
+  const { code: rawCode, deviceId, fullName, email } = parse.data;
+  const code = rawCode.trim().toUpperCase();
 
   try {
     const result = await db.transaction(async (tx) => {

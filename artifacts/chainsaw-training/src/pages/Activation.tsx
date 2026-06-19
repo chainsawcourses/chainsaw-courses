@@ -96,8 +96,9 @@ export default function Activation() {
                       <FormControl>
                         <Input 
                           placeholder="e.g. CHT-XYZ-123" 
-                          {...field} 
-                          className="font-mono bg-secondary/50 border-input h-12 uppercase" 
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                          className="font-mono bg-secondary/50 border-input h-12" 
                         />
                       </FormControl>
                       <FormMessage />
