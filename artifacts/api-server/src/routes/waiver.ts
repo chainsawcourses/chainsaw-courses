@@ -52,10 +52,18 @@ router.post("/waiver", async (req, res) => {
     return;
   }
 
-  const { deviceId, activationCode, signatureData, agreedToTerms } = parse.data;
+  const { signatureData, agreedToTerms } = parse.data;
 
   if (!agreedToTerms) {
     res.status(400).json({ error: "Must agree to terms" });
+    return;
+  }
+
+  const deviceId = (req.headers["deviceid"] as string) || parse.data.deviceId;
+  const activationCode = (req.headers["activationcode"] as string) || parse.data.activationCode;
+
+  if (!deviceId || !activationCode) {
+    res.status(401).json({ error: "Missing auth" });
     return;
   }
 
