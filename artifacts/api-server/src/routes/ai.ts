@@ -5,7 +5,7 @@ import { SendAiMessageBody } from "@workspace/api-zod";
 import { eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 
 const router = Router();
 
@@ -29,6 +29,12 @@ Key topics you cover:
 - First aid requirements when working with chainsaws
 - Storage, transportation, and refuelling procedures
 - Environmental considerations and working near utilities`;
+
+function getGeminiClient(): GoogleGenAI | null {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  return new GoogleGenAI({ apiKey });
+}
 
 router.post("/ai/chat", async (req, res) => {
   const parse = SendAiMessageBody.safeParse(req.body);
@@ -62,31 +68,27 @@ router.post("/ai/chat", async (req, res) => {
     let reply: string;
     let isOnTopic = true;
 
-    const openaiBaseUrl = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
-    const openaiApiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    const gemini = getGeminiClient();
 
-    if (openaiBaseUrl && openaiApiKey) {
-      const openai = new OpenAI({
-        baseURL: openaiBaseUrl,
-        apiKey: openaiApiKey,
-      });
-
-      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-        { role: "system", content: CHAINSAW_SYSTEM_PROMPT },
+    if (gemini) {
+      const contents = [
         ...recentHistory.slice(0, -1).map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
         })),
-        { role: "user", content: message },
+        { role: "user", parts: [{ text: message }] },
       ];
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-5-mini",
-        messages,
-        max_tokens: 500,
+      const response = await gemini.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents,
+        config: {
+          systemInstruction: CHAINSAW_SYSTEM_PROMPT,
+          maxOutputTokens: 8192,
+        },
       });
 
-      reply = completion.choices[0]?.message?.content ?? "I was unable to generate a response. Please try again.";
+      reply = response.text ?? "I was unable to generate a response. Please try again.";
       isOnTopic = !reply.includes("I can only answer questions related to chainsaw");
     } else {
       const chainsaw_topics = [
