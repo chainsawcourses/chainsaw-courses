@@ -1,0 +1,154 @@
+import { Router } from "express";
+import { db } from "@workspace/db";
+import { modulesTable, userProgressTable } from "@workspace/db";
+import { eq, asc, and } from "drizzle-orm";
+import { resolveUser } from "./auth";
+import { logger } from "../lib/logger";
+
+const router = Router();
+
+router.get("/modules", async (req, res) => {
+  const deviceId = req.headers["deviceid"] as string;
+  const activationCode = req.headers["activationcode"] as string;
+
+  if (!deviceId || !activationCode) {
+    res.status(401).json({ error: "Missing auth headers" });
+    return;
+  }
+
+  const user = await resolveUser(activationCode, deviceId);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const modules = await db
+      .select()
+      .from(modulesTable)
+      .where(eq(modulesTable.isActive, true))
+      .orderBy(asc(modulesTable.order));
+
+    const progressRecords = await db
+      .select()
+      .from(userProgressTable)
+      .where(eq(userProgressTable.userId, user.id));
+
+    const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
+
+    const result = modules.map((mod, idx) => {
+      const progress = progressMap.get(mod.id);
+      const prevMod = idx > 0 ? modules[idx - 1] : null;
+      const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
+
+      const isLocked =
+        idx > 0 ? !(prevProgress?.videoCompleted && prevProgress?.quizPassed) : false;
+
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        isLocked,
+        isCompleted: !!(progress?.videoCompleted && progress?.quizPassed),
+        quizPassed: !!progress?.quizPassed,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    logger.error({ err }, "Error fetching modules");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/modules/:moduleId", async (req, res) => {
+  const deviceId = req.headers["deviceid"] as string;
+  const activationCode = req.headers["activationcode"] as string;
+  const moduleId = parseInt(req.params.moduleId);
+
+  if (!deviceId || !activationCode) {
+    res.status(401).json({ error: "Missing auth headers" });
+    return;
+  }
+
+  const user = await resolveUser(activationCode, deviceId);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const [mod] = await db
+      .select()
+      .from(modulesTable)
+      .where(eq(modulesTable.id, moduleId));
+
+    if (!mod) {
+      res.status(404).json({ error: "Module not found" });
+      return;
+    }
+
+    const allModules = await db
+      .select()
+      .from(modulesTable)
+      .where(eq(modulesTable.isActive, true))
+      .orderBy(asc(modulesTable.order));
+
+    const modIndex = allModules.findIndex((m) => m.id === moduleId);
+    const prevMod = modIndex > 0 ? allModules[modIndex - 1] : null;
+
+    let isLocked = false;
+    if (prevMod) {
+      const [prevProgress] = await db
+        .select()
+        .from(userProgressTable)
+        .where(
+          and(
+            eq(userProgressTable.userId, user.id),
+            eq(userProgressTable.moduleId, prevMod.id)
+          )
+        );
+      isLocked = !(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+    }
+
+    if (isLocked) {
+      res.status(403).json({ error: "Module is locked. Complete the previous module first." });
+      return;
+    }
+
+    const [myProgress] = await db
+      .select()
+      .from(userProgressTable)
+      .where(
+        and(
+          eq(userProgressTable.userId, user.id),
+          eq(userProgressTable.moduleId, moduleId)
+        )
+      );
+
+    res.json({
+      id: mod.id,
+      title: mod.title,
+      description: mod.description,
+      order: mod.order,
+      isLocked: false,
+      isCompleted: !!(myProgress?.videoCompleted && myProgress?.quizPassed),
+      quizPassed: !!myProgress?.quizPassed,
+      duration: mod.duration,
+      vimeoId: mod.vimeoId,
+      thumbnailUrl: mod.thumbnailUrl ?? null,
+      isHighRisk: mod.isHighRisk,
+      lastTimestamp: myProgress?.lastTimestamp ?? null,
+      safetyText: mod.safetyText ?? null,
+    });
+  } catch (err) {
+    logger.error({ err }, "Error fetching module");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+export default router;
