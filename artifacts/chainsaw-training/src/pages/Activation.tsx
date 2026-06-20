@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -59,10 +59,14 @@ export default function Activation() {
           }
         },
         onError: (err) => {
+          const status = (err as any)?.status;
+          const isBondError = status === 409;
           toast({
             variant: "destructive",
             title: "Activation Failed",
-            description: err.response?.data?.error || "Invalid code or device bond.",
+            description: isBondError
+              ? "This code is already linked to another device. Go to the Admin Panel to reset it."
+              : err.response?.data?.error || "Invalid activation code.",
           });
         },
       }
@@ -152,9 +156,12 @@ export default function Activation() {
           </CardContent>
         </Card>
         
-        <div className="mt-8 text-center text-xs text-muted-foreground font-mono opacity-50">
-          <p>DEVICE ID: {deviceId || "INITIALIZING..."}</p>
-          <p className="mt-1">AUTHORIZATION REQUIRED</p>
+        <div className="mt-8 text-center text-xs text-muted-foreground font-mono">
+          <p className="opacity-50">DEVICE ID: {deviceId || "INITIALIZING..."}</p>
+          <p className="mt-1 opacity-50">AUTHORIZATION REQUIRED</p>
+          <Link href="/admin" className="mt-4 inline-block text-primary hover:underline opacity-70 hover:opacity-100 transition-opacity">
+            → Admin Panel
+          </Link>
         </div>
       </div>
     </div>
