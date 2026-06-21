@@ -131,7 +131,7 @@ export default function TrainingModule() {
             variant="ghost"
             size="sm"
             className="font-mono text-xs text-muted-foreground hover:text-destructive w-[80px]"
-            onClick={() => { clearSession(); setLocation("/"); }}
+            onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
           >
             <LogOut className="w-3 h-3 mr-1" /> LOG OUT
           </Button>
