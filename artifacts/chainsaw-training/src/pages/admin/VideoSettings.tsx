@@ -29,16 +29,16 @@ function extractVimeoId(input: string): string {
 
 export default function VideoSettings() {
   const [, setLocation] = useLocation();
-  const { adminToken } = useAdminSession();
+  const { adminToken, isReady } = useAdminSession();
   const { toast } = useToast();
   const [modules, setModules] = useState<ModuleVideo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!adminToken) {
+    if (isReady && !adminToken) {
       setLocation("/admin");
     }
-  }, [adminToken, setLocation]);
+  }, [isReady, adminToken, setLocation]);
 
   useEffect(() => {
     if (!adminToken) return;

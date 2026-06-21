@@ -12,7 +12,7 @@ import { useAdminSession } from "../../contexts/AdminContext";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
-  const { adminToken, clearToken } = useAdminSession();
+  const { adminToken, isReady, clearToken } = useAdminSession();
   
   const { data: stats } = useGetAdminStats({ query: { enabled: !!adminToken } });
   const { data: students, refetch: refetchStudents } = useListStudents({ query: { enabled: !!adminToken } });
@@ -24,10 +24,10 @@ export default function AdminDashboard() {
   const [generatedCode, setGeneratedCode] = useState("");
 
   useEffect(() => {
-    if (!adminToken) {
+    if (isReady && !adminToken) {
       setLocation("/admin");
     }
-  }, [adminToken, setLocation]);
+  }, [isReady, adminToken, setLocation]);
 
   const handleLogout = () => {
     clearToken();

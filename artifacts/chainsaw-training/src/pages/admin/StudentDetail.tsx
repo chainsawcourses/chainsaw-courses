@@ -13,7 +13,7 @@ export default function StudentDetail() {
   const studentId = id ? parseInt(id) : 0;
   
   const [, setLocation] = useLocation();
-  const { adminToken } = useAdminSession();
+  const { adminToken, isReady } = useAdminSession();
   const { toast } = useToast();
 
   const { data: student, isLoading, refetch } = useGetStudent(studentId, {
@@ -22,10 +22,10 @@ export default function StudentDetail() {
   const resetBond = useResetDeviceBond(studentId);
 
   useEffect(() => {
-    if (!adminToken) {
+    if (isReady && !adminToken) {
       setLocation("/admin");
     }
-  }, [adminToken, setLocation]);
+  }, [isReady, adminToken, setLocation]);
 
   const handleResetDevice = () => {
     if (confirm("Are you sure you want to clear this device bond? The student will need to re-authenticate on a new device.")) {
