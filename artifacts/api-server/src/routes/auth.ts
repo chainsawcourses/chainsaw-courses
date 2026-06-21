@@ -42,7 +42,15 @@ router.post("/auth/activate", async (req, res) => {
         }
 
         if (existingUser.deviceId !== deviceId) {
-          return { error: "This code is bonded to another device. Contact support to reset.", status: 409 };
+          // Allow re-bonding if admin has reset the device bond
+          if (existingUser.deviceId.startsWith("RESET_")) {
+            await tx
+              .update(usersTable)
+              .set({ deviceId })
+              .where(eq(usersTable.id, existingUser.id));
+          } else {
+            return { error: "This code is bonded to another device. Contact support to reset.", status: 409 };
+          }
         }
 
         const [waiver] = await tx

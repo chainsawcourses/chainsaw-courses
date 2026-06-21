@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ShieldAlert, CheckCircle2, LogOut } from "lucide-react";
 import { useGetModule, useCompleteVideo, useSaveHeartbeat } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer } from "@/components/VimeoPlayer";
@@ -15,7 +15,7 @@ export default function TrainingModule() {
   
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { activationCode, deviceId } = useUserSession();
+  const { activationCode, deviceId, clearSession } = useUserSession();
 
   const { data: module, isLoading } = useGetModule(id, {
     query: { enabled: !!activationCode && !!deviceId && !!id }
@@ -127,7 +127,14 @@ export default function TrainingModule() {
           <div className="font-mono text-sm font-bold uppercase truncate max-w-[50vw]">
             {remoteModule?.title || module.title}
           </div>
-          <div className="w-[80px]" /> {/* Spacer for centering */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="font-mono text-xs text-muted-foreground hover:text-destructive w-[80px]"
+            onClick={() => { clearSession(); setLocation("/"); }}
+          >
+            <LogOut className="w-3 h-3 mr-1" /> LOG OUT
+          </Button>
         </div>
       </header>
 

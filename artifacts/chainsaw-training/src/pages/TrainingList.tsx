@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut } from "lucide-react";
 import { useListModules, useGetProgressSummary } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useRemoteConfig } from "@/hooks/useRemoteConfig";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName } = useUserSession();
+  const { activationCode, deviceId, fullName, clearSession } = useUserSession();
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
     query: { enabled: !!activationCode && !!deviceId }
@@ -48,10 +48,18 @@ export default function TrainingList() {
             <div className="w-2 h-6 bg-primary" />
             <h1 className="font-mono font-black tracking-tighter text-lg uppercase">Chainsaw Manual</h1>
           </div>
-          <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-4">
+          <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
             <Button variant="outline" size="sm" className="font-mono text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
               <Link href="/mock-test">MOCK EXAM</Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="font-mono text-xs text-muted-foreground hover:text-destructive"
+              onClick={() => { clearSession(); setLocation("/"); }}
+            >
+              <LogOut className="w-3 h-3 mr-1" /> LOG OUT
             </Button>
           </div>
         </div>
