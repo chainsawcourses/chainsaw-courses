@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award } from "lucide-react";
 import { useListModules, useGetProgressSummary } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { useRemoteConfig } from "@/hooks/useRemoteConfig";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
@@ -19,6 +20,8 @@ export default function TrainingList() {
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
     query: { enabled: !!activationCode && !!deviceId }
   });
+
+  const { modulesConfig } = useRemoteConfig();
 
   useEffect(() => {
     if (!activationCode || !deviceId) {
@@ -103,30 +106,31 @@ export default function TrainingList() {
           </h2>
           
           <div className="space-y-3">
-            {modules?.map((module, index) => (
-              <Card 
-                key={module.id} 
+            {modules?.map((module, index) => {
+              const rc = modulesConfig.find((m) => m.id === module.id);
+              const title = rc?.title || module.title;
+              const description = rc?.description || module.description;
+              return <Card
+                key={module.id}
                 className={`border-border transition-all duration-200 ${module.isLocked ? 'opacity-50 grayscale hover:opacity-50 bg-background' : 'hover:border-primary/50 bg-card/40 hover:bg-card/80'}`}
               >
                 <CardContent className="p-0 sm:flex items-stretch">
                   <div className="sm:w-48 h-32 sm:h-auto bg-secondary relative shrink-0 border-b sm:border-b-0 sm:border-r border-border flex items-center justify-center overflow-hidden">
                     {module.thumbnailUrl ? (
-                      <img src={module.thumbnailUrl} alt={module.title} className="w-full h-full object-cover opacity-80" />
+                      <img src={module.thumbnailUrl} alt={title} className="w-full h-full object-cover opacity-80" />
                     ) : (
                       <div className="font-mono text-4xl font-black text-muted/30">{String(index + 1).padStart(2, '0')}</div>
                     )}
-                    
                     {module.isLocked && (
                       <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] flex items-center justify-center">
                         <Lock className="w-8 h-8 text-muted-foreground" />
                       </div>
                     )}
                   </div>
-                  
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-4 mb-2">
-                        <h3 className="font-bold text-lg leading-tight font-mono uppercase">{module.title}</h3>
+                        <h3 className="font-bold text-lg leading-tight font-mono uppercase">{title}</h3>
                         <div className="flex gap-2 shrink-0">
                           {module.isHighRisk && (
                             <Badge variant="destructive" className="font-mono text-[10px] rounded-none py-0.5">
@@ -145,14 +149,12 @@ export default function TrainingList() {
                           )}
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{module.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
                     </div>
-                    
                     <div className="flex items-center justify-between mt-4">
                       <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
                         {Math.floor(module.duration / 60)} MIN {module.duration % 60} SEC
                       </div>
-                      
                       {!module.isLocked && (
                         <div className="flex gap-2">
                           {module.isCompleted && !module.quizPassed && (
@@ -167,7 +169,6 @@ export default function TrainingList() {
                           </Button>
                         </div>
                       )}
-                      
                       {module.isLocked && (
                         <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none">
                           LOCKED
@@ -176,8 +177,8 @@ export default function TrainingList() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>;
+            })}
           </div>
         </div>
       </main>

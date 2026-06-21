@@ -7,6 +7,7 @@ import { useGetModule, useCompleteVideo, useSaveHeartbeat } from "@workspace/api
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer } from "@/components/VimeoPlayer";
 import { useToast } from "@/hooks/use-toast";
+import { useRemoteConfig } from "@/hooks/useRemoteConfig";
 
 export default function TrainingModule() {
   const { moduleId } = useParams();
@@ -19,6 +20,9 @@ export default function TrainingModule() {
   const { data: module, isLoading } = useGetModule(id, {
     query: { enabled: !!activationCode && !!deviceId && !!id }
   });
+
+  const { modulesConfig } = useRemoteConfig();
+  const remoteModule = modulesConfig.find((m) => m.id === id);
   
   const completeVideo = useCompleteVideo();
   const saveHeartbeat = useSaveHeartbeat();
@@ -121,17 +125,17 @@ export default function TrainingModule() {
             </Link>
           </Button>
           <div className="font-mono text-sm font-bold uppercase truncate max-w-[50vw]">
-            {module.title}
+            {remoteModule?.title || module.title}
           </div>
           <div className="w-[80px]" /> {/* Spacer for centering */}
         </div>
       </header>
 
       <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 py-6 gap-6">
-        {canPlay && module.vimeoId ? (
+        {canPlay && (remoteModule?.vimeoId || module.vimeoId) ? (
           <div className="flex-1 flex flex-col justify-center max-h-[80vh]">
             <VimeoPlayer 
-              vimeoId={module.vimeoId} 
+              vimeoId={remoteModule?.vimeoId || module.vimeoId!} 
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleVideoEnded}
             />
@@ -146,8 +150,8 @@ export default function TrainingModule() {
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card/30 p-6 rounded-lg border border-border">
           <div>
-            <h2 className="text-xl font-bold font-mono uppercase mb-2">{module.title}</h2>
-            <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
+            <h2 className="text-xl font-bold font-mono uppercase mb-2">{remoteModule?.title || module.title}</h2>
+            <p className="text-muted-foreground text-sm max-w-2xl">{remoteModule?.description || module.description}</p>
           </div>
           
           <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
