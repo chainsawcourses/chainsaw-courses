@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut } from "lucide-react";
+import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut, Video } from "lucide-react";
 import { useGetAdminStats, useListStudents, useCreateActivationCode } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -59,9 +59,16 @@ export default function AdminDashboard() {
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <ShieldAlert className="w-5 h-5 mr-2" /> OVERSEER
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
-            <LogOut className="w-4 h-4 mr-2" /> LOGOUT
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <Link href="/admin/videos">
+                <Video className="w-4 h-4 mr-2" /> VIDEO SETTINGS
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
+              <LogOut className="w-4 h-4 mr-2" /> LOGOUT
+            </Button>
+          </div>
         </div>
       </header>
 

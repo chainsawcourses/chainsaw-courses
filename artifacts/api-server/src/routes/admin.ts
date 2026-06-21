@@ -304,4 +304,42 @@ router.post("/admin/codes", async (req, res) => {
   }
 });
 
+router.get("/admin/modules", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const modules = await db
+      .select({ id: modulesTable.id, title: modulesTable.title, vimeoId: modulesTable.vimeoId, order: modulesTable.order })
+      .from(modulesTable)
+      .orderBy(modulesTable.order);
+    res.json(modules);
+  } catch (err) {
+    logger.error({ err }, "Error fetching modules");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.patch("/admin/modules/:moduleId", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const moduleId = parseInt(req.params.moduleId);
+  const { vimeoId } = req.body as { vimeoId?: string };
+  if (!vimeoId || typeof vimeoId !== "string" || !vimeoId.trim()) {
+    res.status(400).json({ error: "vimeoId is required" });
+    return;
+  }
+  try {
+    await db.update(modulesTable).set({ vimeoId: vimeoId.trim() }).where(eq(modulesTable.id, moduleId));
+    logger.info({ moduleId, vimeoId }, "Module vimeoId updated by admin");
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error updating module vimeoId");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

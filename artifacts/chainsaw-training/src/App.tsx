@@ -16,6 +16,7 @@ import MockTest from "@/pages/MockTest";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import StudentDetail from "@/pages/admin/StudentDetail";
+import VideoSettings from "@/pages/admin/VideoSettings";
 
 // Ensure tailwind generates the dark class by adding it to html
 if (typeof document !== "undefined") {
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/admin" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/students/:id" component={StudentDetail} />
+      <Route path="/admin/videos" component={VideoSettings} />
 
       <Route component={NotFound} />
     </Switch>
