@@ -75,14 +75,14 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         onLoad={() => setIframeLoaded(true)}
       />
 
-      {/* Fullscreen toggle button */}
+      {/* Fullscreen toggle button — always visible so it works above the iframe */}
       <button
         onClick={toggleFullscreen}
-        className="absolute bottom-3 right-3 z-50 bg-black/60 hover:bg-black/80 text-white rounded p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-sm"
+        className="absolute bottom-3 right-3 z-50 bg-black/50 hover:bg-black/80 text-white rounded p-2 transition-colors duration-150 backdrop-blur-sm"
         title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
       >
-        {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
       </button>
 
       {/* Dynamic watermark */}
