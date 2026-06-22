@@ -19,7 +19,7 @@ export default function StudentDetail() {
   const { data: student, isLoading, refetch } = useGetStudent(studentId, {
     query: { enabled: !!adminToken && !!studentId }
   });
-  const resetBond = useResetDeviceBond(studentId);
+  const resetBond = useResetDeviceBond();
 
   useEffect(() => {
     if (isReady && !adminToken) {
@@ -29,7 +29,7 @@ export default function StudentDetail() {
 
   const handleResetDevice = () => {
     if (confirm("Are you sure you want to clear this device bond? The student will need to re-authenticate on a new device.")) {
-      resetBond.mutate(undefined, {
+      resetBond.mutate({ studentId }, {
         onSuccess: () => {
           toast({ title: "Bond Cleared", description: "Device bond has been reset." });
           refetch();
