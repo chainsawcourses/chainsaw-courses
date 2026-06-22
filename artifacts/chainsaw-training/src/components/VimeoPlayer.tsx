@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 
 interface VimeoPlayerProps {
@@ -12,16 +13,23 @@ function buildEmbedUrl(vimeoId: string): string {
   const slash = vimeoId.indexOf("/");
   const id = slash === -1 ? vimeoId : vimeoId.slice(0, slash);
   const hash = slash === -1 ? "" : vimeoId.slice(slash + 1);
-  const params = new URLSearchParams({ title: "0", byline: "0", portrait: "0", transparent: "0" });
+  const params = new URLSearchParams({
+    title: "0",
+    byline: "0",
+    portrait: "0",
+    transparent: "0",
+    share: "0",
+  });
   if (hash) params.set("h", hash);
   return `https://player.vimeo.com/video/${id}?${params}`;
 }
 
 export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps) {
   const { fullName, email } = useUserSession();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [watermarkPos, setWatermarkPos] = useState({ top: "50%", left: "50%" });
-  const iframeLoadedRef = useRef(false);
-  const [, forceRender] = useState(0);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const move = () => setWatermarkPos({
@@ -33,10 +41,28 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, []);
+
   const src = buildEmbedUrl(vimeoId);
 
   return (
-    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl">
+    <div
+      ref={containerRef}
+      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl group"
+    >
       <iframe
         key={vimeoId}
         src={src}
@@ -46,11 +72,23 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
         title="Training Video"
-        onLoad={() => { iframeLoadedRef.current = true; forceRender(n => n + 1); }}
+        onLoad={() => setIframeLoaded(true)}
       />
-      {iframeLoadedRef.current && (
+
+      {/* Fullscreen toggle button */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute bottom-3 right-3 z-50 bg-black/60 hover:bg-black/80 text-white rounded p-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 backdrop-blur-sm"
+        title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      >
+        {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+      </button>
+
+      {/* Dynamic watermark */}
+      {iframeLoaded && (
         <div
-          className="pointer-events-none absolute text-white/15 font-mono text-sm uppercase tracking-wider font-bold mix-blend-overlay z-50 whitespace-nowrap transition-all duration-1000 ease-in-out"
+          className="pointer-events-none absolute text-white/15 font-mono text-sm uppercase tracking-wider font-bold mix-blend-overlay z-40 whitespace-nowrap transition-all duration-1000 ease-in-out"
           style={{ top: watermarkPos.top, left: watermarkPos.left, transform: "translate(-50%, -50%)" }}
         >
           {fullName} - {email}
