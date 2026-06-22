@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 
 interface VimeoPlayerProps {
@@ -8,7 +8,6 @@ interface VimeoPlayerProps {
   onEnded?: () => void;
 }
 
-// vimeoId may be "1234567890" or "1234567890/abcdef1234" (id/hash)
 function buildEmbedUrl(vimeoId: string): string {
   const slash = vimeoId.indexOf("/");
   const id = slash === -1 ? vimeoId : vimeoId.slice(0, slash);
@@ -19,6 +18,7 @@ function buildEmbedUrl(vimeoId: string): string {
     portrait: "0",
     transparent: "0",
     share: "0",
+    api: "1",
   });
   if (hash) params.set("h", hash);
   return `https://player.vimeo.com/video/${id}?${params}`;
@@ -27,10 +27,47 @@ function buildEmbedUrl(vimeoId: string): string {
 export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [watermarkPos, setWatermarkPos] = useState({ top: "50%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+  const [tapFlash, setTapFlash] = useState<"play" | "pause" | null>(null);
 
+  // Vimeo postMessage helper
+  const sendCommand = useCallback((method: string, value?: unknown) => {
+    if (!iframeRef.current?.contentWindow) return;
+    iframeRef.current.contentWindow.postMessage(
+      JSON.stringify(value !== undefined ? { method, value } : { method }),
+      "https://player.vimeo.com"
+    );
+  }, []);
+
+  // Listen for Vimeo events via postMessage
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!String(e.origin).includes("vimeo.com")) return;
+      try {
+        const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (data.event === "ready") {
+          sendCommand("addEventListener", "pause");
+          sendCommand("addEventListener", "play");
+          sendCommand("addEventListener", "timeupdate");
+          sendCommand("addEventListener", "finish");
+        }
+        if (data.event === "pause") setIsPaused(true);
+        if (data.event === "play") setIsPaused(false);
+        if (data.event === "timeupdate") onTimeUpdate?.(data.data?.seconds ?? 0);
+        if (data.event === "finish") { setIsPaused(true); onEnded?.(); }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [sendCommand, onTimeUpdate, onEnded]);
+
+  // Watermark movement
   useEffect(() => {
     const move = () => setWatermarkPos({
       top: `${Math.floor(Math.random() * 80) + 10}%`,
@@ -41,6 +78,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     return () => clearInterval(id);
   }, []);
 
+  // Fullscreen change tracking
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFsChange);
@@ -56,14 +94,26 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     }
   }, []);
 
+  const handleTap = useCallback(() => {
+    if (isPaused) {
+      sendCommand("play");
+      setTapFlash("play");
+    } else {
+      sendCommand("pause");
+      setTapFlash("pause");
+    }
+    setTimeout(() => setTapFlash(null), 600);
+  }, [isPaused, sendCommand]);
+
   const src = buildEmbedUrl(vimeoId);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl group"
+      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl"
     >
       <iframe
+        ref={iframeRef}
         key={vimeoId}
         src={src}
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
@@ -75,7 +125,25 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         onLoad={() => setIframeLoaded(true)}
       />
 
-      {/* Fullscreen toggle button — always visible so it works above the iframe */}
+      {/* Tap-to-play/pause overlay — leaves bottom 56px for Vimeo's own controls */}
+      <div
+        className="absolute inset-x-0 top-0 z-40 cursor-pointer"
+        style={{ bottom: 56 }}
+        onClick={handleTap}
+      />
+
+      {/* Tap flash animation */}
+      {tapFlash && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
+          <div className="bg-black/40 rounded-full p-5 animate-ping-once">
+            {tapFlash === "play"
+              ? <Play className="w-10 h-10 text-white fill-white" />
+              : <Pause className="w-10 h-10 text-white fill-white" />}
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen button */}
       <button
         onClick={toggleFullscreen}
         className="absolute bottom-3 right-3 z-50 bg-black/50 hover:bg-black/80 text-white rounded p-2 transition-colors duration-150 backdrop-blur-sm"
