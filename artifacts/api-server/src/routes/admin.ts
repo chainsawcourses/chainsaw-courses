@@ -311,7 +311,7 @@ router.get("/admin/modules", async (req, res) => {
   }
   try {
     const modules = await db
-      .select({ id: modulesTable.id, title: modulesTable.title, vimeoId: modulesTable.vimeoId, order: modulesTable.order, contentType: modulesTable.contentType })
+      .select({ id: modulesTable.id, title: modulesTable.title, vimeoId: modulesTable.vimeoId, pdfUrl: modulesTable.pdfUrl, order: modulesTable.order, contentType: modulesTable.contentType })
       .from(modulesTable)
       .orderBy(modulesTable.order);
     res.json(modules);
@@ -327,9 +327,23 @@ router.patch("/admin/modules/:moduleId", async (req, res) => {
     return;
   }
   const moduleId = parseInt(req.params.moduleId);
-  const { vimeoId } = req.body as { vimeoId?: string };
+  const { vimeoId, pdfUrl } = req.body as { vimeoId?: string; pdfUrl?: string };
+
+  if (pdfUrl !== undefined) {
+    // PDF URL update
+    try {
+      await db.update(modulesTable).set({ pdfUrl: pdfUrl.trim() || null }).where(eq(modulesTable.id, moduleId));
+      logger.info({ moduleId, pdfUrl }, "Module pdfUrl updated by admin");
+      res.json({ success: true });
+    } catch (err) {
+      logger.error({ err }, "Error updating module pdfUrl");
+      res.status(500).json({ error: "Internal server error" });
+    }
+    return;
+  }
+
   if (!vimeoId || typeof vimeoId !== "string" || !vimeoId.trim()) {
-    res.status(400).json({ error: "vimeoId is required" });
+    res.status(400).json({ error: "vimeoId or pdfUrl is required" });
     return;
   }
   try {
