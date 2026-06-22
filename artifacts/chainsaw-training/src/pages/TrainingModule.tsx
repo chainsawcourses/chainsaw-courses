@@ -136,10 +136,10 @@ export default function TrainingModule() {
       </header>
 
       <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 py-6 gap-6">
-        {canPlay && (remoteModule?.vimeoId || module.vimeoId) ? (
+        {canPlay && (module?.vimeoId || remoteModule?.vimeoId) ? (
           <div className="flex-1 flex flex-col justify-center max-h-[80vh]">
             <VimeoPlayer 
-              vimeoId={remoteModule?.vimeoId || module.vimeoId!} 
+              vimeoId={module.vimeoId! || remoteModule?.vimeoId!} 
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleVideoEnded}
             />
