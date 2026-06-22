@@ -41,16 +41,19 @@ router.get("/modules", async (req, res) => {
       const prevMod = idx > 0 ? modules[idx - 1] : null;
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
-      const isLocked =
-        idx > 0 ? !(prevProgress?.videoCompleted && prevProgress?.quizPassed) : false;
+      // Unlock next module when previous video is completed (quiz is optional, not a gate)
+      const isLocked = idx > 0 ? !prevProgress?.videoCompleted : false;
 
       return {
         id: mod.id,
         title: mod.title,
         description: mod.description,
         order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
         isLocked,
-        isCompleted: !!(progress?.videoCompleted && progress?.quizPassed),
+        isCompleted: !!progress?.videoCompleted,
         quizPassed: !!progress?.quizPassed,
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
@@ -112,12 +115,36 @@ router.get("/modules/:moduleId", async (req, res) => {
             eq(userProgressTable.moduleId, prevMod.id)
           )
         );
-      isLocked = !(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      isLocked = !prevProgress?.videoCompleted;
     }
 
     if (isLocked) {
       res.status(403).json({ error: "Module is locked. Complete the previous module first." });
       return;
+    }
+
+    // Auto-complete PDF modules when accessed
+    if (mod.contentType === "pdf") {
+      const [existing] = await db
+        .select()
+        .from(userProgressTable)
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+
+      if (existing) {
+        await db
+          .update(userProgressTable)
+          .set({ videoCompleted: true, quizPassed: true, completedAt: new Date(), updatedAt: new Date() })
+          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+      } else {
+        await db.insert(userProgressTable).values({
+          userId: user.id,
+          moduleId,
+          videoCompleted: true,
+          quizPassed: true,
+          lastTimestamp: 0,
+          completedAt: new Date(),
+        });
+      }
     }
 
     const [myProgress] = await db
@@ -135,11 +162,15 @@ router.get("/modules/:moduleId", async (req, res) => {
       title: mod.title,
       description: mod.description,
       order: mod.order,
+      category: mod.category,
+      subCategory: mod.subCategory ?? null,
+      contentType: mod.contentType,
       isLocked: false,
-      isCompleted: !!(myProgress?.videoCompleted && myProgress?.quizPassed),
+      isCompleted: !!myProgress?.videoCompleted,
       quizPassed: !!myProgress?.quizPassed,
       duration: mod.duration,
       vimeoId: mod.vimeoId,
+      pdfUrl: mod.pdfUrl ?? null,
       thumbnailUrl: mod.thumbnailUrl ?? null,
       isHighRisk: mod.isHighRisk,
       lastTimestamp: myProgress?.lastTimestamp ?? null,

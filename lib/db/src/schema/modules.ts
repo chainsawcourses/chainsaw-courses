@@ -13,6 +13,10 @@ export const modulesTable = pgTable("modules", {
   isHighRisk: boolean("is_high_risk").notNull().default(false),
   safetyText: text("safety_text"),
   isActive: boolean("is_active").notNull().default(true),
+  category: text("category").notNull().default("COURSE REQUIREMENTS"),
+  subCategory: text("sub_category"),
+  contentType: text("content_type").notNull().default("video"),
+  pdfUrl: text("pdf_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

@@ -11,6 +11,10 @@ export interface Module {
   title: string;
   description: string;
   order: number;
+  category: string;
+  /** @nullable */
+  subCategory?: string | null;
+  contentType: string;
   isLocked: boolean;
   isCompleted: boolean;
   quizPassed?: boolean;

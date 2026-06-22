@@ -311,7 +311,7 @@ router.get("/admin/modules", async (req, res) => {
   }
   try {
     const modules = await db
-      .select({ id: modulesTable.id, title: modulesTable.title, vimeoId: modulesTable.vimeoId, order: modulesTable.order })
+      .select({ id: modulesTable.id, title: modulesTable.title, vimeoId: modulesTable.vimeoId, order: modulesTable.order, contentType: modulesTable.contentType })
       .from(modulesTable)
       .orderBy(modulesTable.order);
     res.json(modules);

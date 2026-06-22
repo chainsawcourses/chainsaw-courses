@@ -57,12 +57,14 @@ export default function VideoSettings() {
       .then((r) => r.json())
       .then((data: { id: number; title: string; order: number; vimeoId: string }[]) => {
         setModules(
-          data.map((m) => ({
-            ...m,
-            inputValue: m.vimeoId === "76979871" ? "" : m.vimeoId,
-            saving: false,
-            saved: false,
-          }))
+          data
+            .filter((m) => (m as { contentType?: string }).contentType !== "pdf")
+            .map((m) => ({
+              ...m,
+              inputValue: m.vimeoId === "76979871" ? "" : m.vimeoId,
+              saving: false,
+              saved: false,
+            }))
         );
         setLoading(false);
       })

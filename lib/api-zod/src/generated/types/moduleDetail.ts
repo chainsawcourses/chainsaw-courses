@@ -11,11 +11,17 @@ export interface ModuleDetail {
   title: string;
   description: string;
   order: number;
+  category: string;
+  /** @nullable */
+  subCategory?: string | null;
+  contentType: string;
   isLocked: boolean;
   isCompleted: boolean;
   quizPassed?: boolean;
   duration: number;
   vimeoId: string;
+  /** @nullable */
+  pdfUrl?: string | null;
   /** @nullable */
   thumbnailUrl?: string | null;
   isHighRisk?: boolean;

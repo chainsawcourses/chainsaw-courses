@@ -1,33 +1,52 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut } from "lucide-react";
-import { useListModules, useGetProgressSummary } from "@workspace/api-client-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText } from "lucide-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
-import { useRemoteConfig } from "@/hooks/useRemoteConfig";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, clearSession } = useUserSession();
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
-    query: { enabled: !!activationCode && !!deviceId }
-  });
-  
-  const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
-    query: { enabled: !!activationCode && !!deviceId }
+    query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
-  const { modulesConfig } = useRemoteConfig();
+  const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
+    query: { queryKey: getGetProgressSummaryQueryKey(), enabled: !!activationCode && !!deviceId }
+  });
 
   useEffect(() => {
-    if (!activationCode || !deviceId) {
-      setLocation("/");
-    }
+    if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
+
+  // Group modules by category → sub-category, preserving DB order
+  const grouped = useMemo(() => {
+    if (!modules) return [];
+    const categoryOrder: string[] = [];
+    const categoryMap = new Map<string, Map<string | null, typeof modules>>();
+    modules.forEach((mod) => {
+      if (!categoryMap.has(mod.category)) {
+        categoryMap.set(mod.category, new Map());
+        categoryOrder.push(mod.category);
+      }
+      const catMap = categoryMap.get(mod.category)!;
+      const key = mod.subCategory ?? null;
+      if (!catMap.has(key)) catMap.set(key, []);
+      catMap.get(key)!.push(mod);
+    });
+    return categoryOrder.map((cat) => ({
+      category: cat,
+      subGroups: Array.from(categoryMap.get(cat)!.entries()).map(([sub, mods]) => ({
+        subCategory: sub,
+        modules: mods,
+      })),
+    }));
+  }, [modules]);
 
   if (isLoadingModules || isLoadingSummary) {
     return (
@@ -53,12 +72,8 @@ export default function TrainingList() {
             <Button variant="outline" size="sm" className="font-mono text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
               <Link href="/mock-test">MOCK EXAM</Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="font-mono text-xs text-muted-foreground hover:text-destructive"
-              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
-            >
+            <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive"
+              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
               <LogOut className="w-3 h-3 mr-1" /> LOG OUT
             </Button>
           </div>
@@ -66,7 +81,7 @@ export default function TrainingList() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
-        
+
         {/* Progress Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="bg-secondary/20 border-border md:col-span-2">
@@ -85,7 +100,6 @@ export default function TrainingList() {
               <Progress value={summary?.percentComplete || 0} className="h-3 bg-secondary" />
             </CardContent>
           </Card>
-          
           <Card className="bg-secondary/20 border-border">
             <CardContent className="p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border pb-2">
@@ -106,88 +120,98 @@ export default function TrainingList() {
           </Card>
         </div>
 
-        {/* Module List */}
-        <div>
-          <h2 className="text-xl font-mono font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full" />
-            Training Modules
-          </h2>
-          
-          <div className="space-y-3">
-            {modules?.map((module, index) => {
-              const rc = modulesConfig.find((m) => m.id === module.id);
-              const title = rc?.title || module.title;
-              const description = rc?.description || module.description;
-              return <Card
-                key={module.id}
-                className={`border-border transition-all duration-200 ${module.isLocked ? 'opacity-50 grayscale hover:opacity-50 bg-background' : 'hover:border-primary/50 bg-card/40 hover:bg-card/80'}`}
-              >
-                <CardContent className="p-0 sm:flex items-stretch">
-                  <div className="sm:w-48 h-32 sm:h-auto bg-secondary relative shrink-0 border-b sm:border-b-0 sm:border-r border-border flex items-center justify-center overflow-hidden">
-                    {module.thumbnailUrl ? (
-                      <img src={module.thumbnailUrl} alt={title} className="w-full h-full object-cover opacity-80" />
-                    ) : (
-                      <div className="font-mono text-4xl font-black text-muted/30">{String(index + 1).padStart(2, '0')}</div>
-                    )}
-                    {module.isLocked && (
-                      <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] flex items-center justify-center">
-                        <Lock className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-start justify-between gap-4 mb-2">
-                        <h3 className="font-bold text-lg leading-tight font-mono uppercase">{title}</h3>
-                        <div className="flex gap-2 shrink-0">
-                          {module.isHighRisk && (
-                            <Badge variant="destructive" className="font-mono text-[10px] rounded-none py-0.5">
-                              <ShieldAlert className="w-3 h-3 mr-1" /> HIGH RISK
-                            </Badge>
-                          )}
-                          {module.isCompleted && !module.quizPassed && (
-                            <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground border-muted-foreground rounded-none">
-                              VIDEO DONE
-                            </Badge>
-                          )}
-                          {module.quizPassed && (
-                            <Badge variant="outline" className="font-mono text-[10px] text-primary border-primary rounded-none">
-                              <CheckCircle className="w-3 h-3 mr-1" /> PASSED
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+        {/* Grouped Module List */}
+        <div className="space-y-10">
+          {grouped.map(({ category, subGroups }) => (
+            <div key={category}>
+              {/* Category heading */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-1 h-6 bg-primary" />
+                <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">{category}</h2>
+              </div>
+
+              {subGroups.map(({ subCategory, modules: mods }) => (
+                <div key={subCategory ?? "__root__"} className="mb-6">
+                  {/* Sub-category heading */}
+                  {subCategory && (
+                    <div className="flex items-center gap-2 mb-3 ml-4">
+                      <div className="w-3 h-px bg-border" />
+                      <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-semibold">{subCategory}</h3>
+                      <div className="flex-1 h-px bg-border" />
                     </div>
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                        {Math.floor(module.duration / 60)} MIN {module.duration % 60} SEC
-                      </div>
-                      {!module.isLocked && (
-                        <div className="flex gap-2">
-                          {module.isCompleted && !module.quizPassed && (
-                            <Button size="sm" variant="outline" className="h-8 font-mono text-xs border-primary text-primary" asChild>
-                              <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
-                            </Button>
-                          )}
-                          <Button size="sm" className="h-8 font-mono text-xs" asChild>
-                            <Link href={`/training/${module.id}`}>
-                              <PlayCircle className="w-3 h-3 mr-2" /> {module.isCompleted ? 'REWATCH' : 'START'}
-                            </Link>
-                          </Button>
-                        </div>
-                      )}
-                      {module.isLocked && (
-                        <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none">
-                          LOCKED
-                        </Button>
-                      )}
-                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    {mods.map((module) => {
+                      const isPdf = module.contentType === "pdf";
+                      return (
+                        <Card
+                          key={module.id}
+                          className={`border-border transition-all duration-150 ${
+                            module.isLocked
+                              ? "opacity-40 bg-background"
+                              : "hover:border-primary/40 bg-card/40 hover:bg-card/70"
+                          }`}
+                        >
+                          <CardContent className="p-4 flex items-center gap-4">
+                            {/* Icon / status indicator */}
+                            <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                              {module.isLocked ? (
+                                <Lock className="w-4 h-4 text-muted-foreground" />
+                              ) : module.isCompleted ? (
+                                <CheckCircle className="w-4 h-4 text-primary" />
+                              ) : isPdf ? (
+                                <FileText className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
+
+                            {/* Title + badges */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
+                                {isPdf && (
+                                  <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
+                                )}
+                                {module.isHighRisk && !module.isLocked && (
+                                  <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
+                                    <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> HIGH RISK
+                                  </Badge>
+                                )}
+                                {module.isCompleted && (
+                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
+                            </div>
+
+                            {/* Action button */}
+                            {!module.isLocked && (
+                              <div className="shrink-0">
+                                <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                                  <Link href={`/training/${module.id}`}>
+                                    {isPdf ? (
+                                      <><FileText className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
+                                    ) : (
+                                      <><PlayCircle className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "REWATCH" : "START"}</>
+                                    )}
+                                  </Link>
+                                </Button>
+                              </div>
+                            )}
+                            {module.isLocked && (
+                              <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
-                </CardContent>
-              </Card>;
-            })}
-          </div>
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </main>
     </div>

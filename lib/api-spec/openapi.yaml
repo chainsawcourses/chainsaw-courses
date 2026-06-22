@@ -596,7 +596,7 @@ components:
 
     Module:
       type: object
-      required: [id, title, description, order, isLocked, isCompleted, duration]
+      required: [id, title, description, order, isLocked, isCompleted, duration, category, contentType]
       properties:
         id:
           type: integer
@@ -606,6 +606,12 @@ components:
           type: string
         order:
           type: integer
+        category:
+          type: string
+        subCategory:
+          type: ["string", "null"]
+        contentType:
+          type: string
         isLocked:
           type: boolean
         isCompleted:
@@ -621,7 +627,7 @@ components:
 
     ModuleDetail:
       type: object
-      required: [id, title, description, order, isLocked, isCompleted, duration, vimeoId]
+      required: [id, title, description, order, isLocked, isCompleted, duration, vimeoId, category, contentType]
       properties:
         id:
           type: integer
@@ -631,6 +637,12 @@ components:
           type: string
         order:
           type: integer
+        category:
+          type: string
+        subCategory:
+          type: ["string", "null"]
+        contentType:
+          type: string
         isLocked:
           type: boolean
         isCompleted:
@@ -641,6 +653,8 @@ components:
           type: integer
         vimeoId:
           type: string
+        pdfUrl:
+          type: ["string", "null"]
         thumbnailUrl:
           type: ["string", "null"]
         isHighRisk:
