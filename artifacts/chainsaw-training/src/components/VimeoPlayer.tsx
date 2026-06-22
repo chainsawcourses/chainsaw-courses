@@ -55,7 +55,6 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   }, []);
 
   const src = `https://player.vimeo.com/video/${vimeoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
-  const vimeoUrl = `https://vimeo.com/${vimeoId}`;
 
   return (
     <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl">
@@ -73,16 +72,8 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
       {loadError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-10 gap-4 p-6 text-center">
           <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
-            Video blocked in preview — open the app in a full browser tab to watch.
+            Video unavailable in preview — open the app in a new browser tab to watch.
           </p>
-          <a
-            href={vimeoUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="font-mono text-xs text-primary underline"
-          >
-            Or watch directly on Vimeo →
-          </a>
         </div>
       )}
 

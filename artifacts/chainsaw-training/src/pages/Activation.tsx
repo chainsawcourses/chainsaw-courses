@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,14 @@ const formSchema = z.object({
 export default function Activation() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { deviceId, setSession } = useUserSession();
+  const { deviceId, activationCode, setSession } = useUserSession();
+
+  // If already logged in, go straight to training
+  useEffect(() => {
+    if (activationCode) {
+      setLocation("/training");
+    }
+  }, [activationCode, setLocation]);
   const activateCode = useActivateCode();
 
   const form = useForm<z.infer<typeof formSchema>>({
