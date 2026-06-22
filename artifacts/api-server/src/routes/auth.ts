@@ -31,6 +31,39 @@ router.post("/auth/activate", async (req, res) => {
         return { error: "Invalid activation code", status: 400 };
       }
 
+      // Unlimited codes: look up by code + deviceId; if found login, else create new user
+      if (activation.isUnlimited) {
+        const [existingUser] = await tx
+          .select()
+          .from(usersTable)
+          .where(and(eq(usersTable.activationCode, code), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+
+        if (existingUser) {
+          const [waiver] = await tx.select().from(waiversTable).where(eq(waiversTable.userId, existingUser.id));
+          return {
+            success: true,
+            userId: existingUser.id,
+            fullName: existingUser.fullName,
+            email: existingUser.email,
+            waiverRequired: !waiver,
+          };
+        }
+
+        // New device — create a fresh user for this device (don't mark code as used)
+        const [newUser] = await tx
+          .insert(usersTable)
+          .values({ activationCode: code, fullName, email, deviceId })
+          .returning();
+
+        return {
+          success: true,
+          userId: newUser.id,
+          fullName: newUser.fullName,
+          email: newUser.email,
+          waiverRequired: true,
+        };
+      }
+
       if (activation.isUsed) {
         const [existingUser] = await tx
           .select()

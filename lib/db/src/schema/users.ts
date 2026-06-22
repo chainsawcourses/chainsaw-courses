@@ -6,13 +6,14 @@ export const activationCodesTable = pgTable("activation_codes", {
   id: serial("id").primaryKey(),
   code: text("code").notNull().unique(),
   isUsed: boolean("is_used").notNull().default(false),
+  isUnlimited: boolean("is_unlimited").notNull().default(false),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const usersTable = pgTable("users", {
   id: serial("id").primaryKey(),
-  activationCode: text("activation_code").notNull().unique(),
+  activationCode: text("activation_code").notNull(),
   fullName: text("full_name").notNull(),
   email: text("email").notNull(),
   deviceId: text("device_id").notNull(),
