@@ -19,11 +19,22 @@ interface ModuleVideo {
 
 function extractVimeoId(input: string): string {
   const trimmed = input.trim();
-  // Already just a number
-  if (/^\d+$/.test(trimmed)) return trimmed;
-  // URL like https://vimeo.com/123456789 or https://vimeo.com/channels/x/123456789
-  const match = trimmed.match(/vimeo\.com\/(?:[^/]+\/)*(\d+)/);
-  if (match) return match[1];
+
+  // Already just a number or number/hash
+  if (/^\d+(\/[a-f0-9]+)?$/.test(trimmed)) return trimmed;
+
+  // Embed URL: player.vimeo.com/video/1234567890?h=abcdef1234
+  const embedMatch = trimmed.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-f0-9]+))?/);
+  if (embedMatch) return embedMatch[2] ? `${embedMatch[1]}/${embedMatch[2]}` : embedMatch[1];
+
+  // Private link: vimeo.com/1234567890/abcdef1234
+  const privateMatch = trimmed.match(/vimeo\.com\/(\d+)\/([a-f0-9]{8,})/);
+  if (privateMatch) return `${privateMatch[1]}/${privateMatch[2]}`;
+
+  // Public URL: vimeo.com/123456789 or vimeo.com/channels/x/123456789
+  const publicMatch = trimmed.match(/vimeo\.com\/(?:[^/]+\/)*(\d+)/);
+  if (publicMatch) return publicMatch[1];
+
   return trimmed;
 }
 
@@ -111,9 +122,12 @@ export default function VideoSettings() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-4">
-        <div className="mb-6">
+        <div className="mb-6 space-y-2">
           <p className="text-muted-foreground text-sm font-mono">
-            Paste your Vimeo video link for each module below and click SAVE. You can find the link by opening your video on Vimeo and copying the URL from your browser.
+            Paste a Vimeo link for each module and click SAVE. For best results, use the <strong className="text-foreground">embed code URL</strong> from Vimeo (contains a hash like <code className="text-primary">?h=abc123</code>).
+          </p>
+          <p className="text-muted-foreground text-xs font-mono">
+            In Vimeo: open your video → Share → Embed → copy the <code className="text-primary">src="..."</code> URL from the iframe code. This includes the required privacy hash.
           </p>
         </div>
 
@@ -131,7 +145,7 @@ export default function VideoSettings() {
               <CardContent>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Paste your Vimeo link here, e.g. https://vimeo.com/123456789"
+                    placeholder="e.g. https://player.vimeo.com/video/123456789?h=abc123def0"
                     value={mod.inputValue}
                     onChange={(e) =>
                       setModules((prev) =>
