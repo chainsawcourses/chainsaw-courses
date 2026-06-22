@@ -31,7 +31,7 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     clearToken();
-    setLocation("/admin");
+    setLocation("/");
   };
 
   const handleCreateCode = () => {
