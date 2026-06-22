@@ -135,7 +135,37 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <div className="sm:hidden divide-y divide-border">
+              {filteredStudents?.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground font-mono text-sm">NO RECORDS FOUND</div>
+              )}
+              {filteredStudents?.map((student) => (
+                <div key={student.id} className="p-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-sm truncate">{student.fullName}</div>
+                    <div className="text-xs text-muted-foreground truncate">{student.email}</div>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
+                      <span className="text-muted-foreground">·</span>
+                      {student.waiverSigned ? (
+                        <Badge variant="outline" className="text-primary border-primary text-[10px] font-mono rounded-none py-0">SIGNED</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none py-0">MISSING</Badge>
+                      )}
+                      <span className="text-muted-foreground">·</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">{student.completedModules}/{student.totalModules}</span>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="font-mono text-xs h-9 px-4 shrink-0" asChild>
+                    <Link href={`/admin/students/${student.id}`}>VIEW</Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
               <Table>
                 <TableHeader className="bg-secondary/30">
                   <TableRow className="border-border">
@@ -159,8 +189,8 @@ export default function AdminDashboard() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary" 
+                            <div
+                              className="h-full bg-primary"
                               style={{ width: `${(student.completedModules / (student.totalModules || 1)) * 100}%` }}
                             />
                           </div>
