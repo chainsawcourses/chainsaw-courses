@@ -19,6 +19,7 @@ function buildEmbedUrl(vimeoId: string): string {
     transparent: "0",
     share: "0",
     api: "1",
+    playsinline: "1",
   });
   if (hash) params.set("h", hash);
   return `https://player.vimeo.com/video/${id}?${params}`;
@@ -54,6 +55,13 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           sendCommand("addEventListener", "play");
           sendCommand("addEventListener", "timeupdate");
           sendCommand("addEventListener", "finish");
+          // Request available text tracks so we can enable them
+          sendCommand("getTextTracks");
+        }
+        // Auto-enable first available subtitle/caption track
+        if (data.method === "getTextTracks" && Array.isArray(data.value) && data.value.length > 0) {
+          const track = data.value[0];
+          sendCommand("enableTextTrack", track.language);
         }
         if (data.event === "pause") setIsPaused(true);
         if (data.event === "play") setIsPaused(false);
