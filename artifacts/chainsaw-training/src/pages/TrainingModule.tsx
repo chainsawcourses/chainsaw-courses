@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -59,21 +59,18 @@ export default function TrainingModule() {
     setCanPlay(true);
   };
 
-  const handleTimeUpdate = (currentTime: number) => {
-    // Only send heartbeat every 30s-ish, handled mostly by interval but we can trigger it
-    // Actually, requirement says use setInterval(30s). Let's do that below.
-  };
+  const handleTimeUpdate = useCallback((_currentTime: number) => {
+    // heartbeat is handled by the interval below
+  }, []);
 
   useEffect(() => {
     if (!canPlay || !deviceId || !activationCode) return;
     
-    // Send heartbeat every 30s
-    let lastTime = 0;
     const interval = setInterval(() => {
       saveHeartbeat.mutate({
         data: {
           moduleId: id,
-          timestamp: lastTime, // ideally we'd track actual player time here, simplified for now
+          timestamp: 0,
           deviceId,
           activationCode
         }
@@ -81,9 +78,9 @@ export default function TrainingModule() {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, [canPlay, deviceId, activationCode, id, saveHeartbeat]);
+  }, [canPlay, deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleVideoEnded = () => {
+  const handleVideoEnded = useCallback(() => {
     setVideoCompleted(true);
     if (!deviceId || !activationCode) return;
     
@@ -104,7 +101,7 @@ export default function TrainingModule() {
         }
       }
     );
-  };
+  }, [deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading || !module) {
     return (
