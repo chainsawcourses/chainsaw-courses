@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, ShieldAlert, MonitorSmartphone, FileSignature, CheckCircle, XCircle } from "lucide-react";
-import { useGetStudent, useResetDeviceBond } from "@workspace/api-client-react";
+import { useGetStudent, useResetDeviceBond, getGetStudentQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,7 +17,7 @@ export default function StudentDetail() {
   const { toast } = useToast();
 
   const { data: student, isLoading, refetch } = useGetStudent(studentId, {
-    query: { enabled: !!adminToken && !!studentId }
+    query: { queryKey: getGetStudentQueryKey(studentId), enabled: !!adminToken && !!studentId }
   });
   const resetBond = useResetDeviceBond();
 

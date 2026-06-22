@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
-import { useGetQuiz, useSubmitQuiz, QuizResult } from "@workspace/api-client-react";
+import { useGetQuiz, useSubmitQuiz, QuizResult, getGetQuizQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function Quiz() {
@@ -14,10 +14,10 @@ export default function Quiz() {
   const { activationCode, deviceId } = useUserSession();
 
   const { data: quiz, isLoading } = useGetQuiz(id, {
-    query: { enabled: !!activationCode && !!deviceId && !!id }
+    query: { queryKey: getGetQuizQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
   });
-  
-  const submitQuiz = useSubmitQuiz(id);
+
+  const submitQuiz = useSubmitQuiz();
 
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -42,7 +42,7 @@ export default function Quiz() {
   const questions = quiz.questions || [];
   const currentQuestion = questions[currentQuestionIdx];
   const isLastQuestion = currentQuestionIdx === questions.length - 1;
-  const progress = ((currentQuestionIdx) / questions.length) * 100;
+  const progress = (currentQuestionIdx / questions.length) * 100;
 
   const handleSelectOption = (optionIdx: number) => {
     setAnswers(prev => ({ ...prev, [currentQuestion.id]: optionIdx }));
@@ -58,7 +58,7 @@ export default function Quiz() {
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode) return;
-    
+
     const formattedAnswers = Object.entries(answers).map(([qId, optIdx]) => ({
       questionId: parseInt(qId),
       selectedOption: optIdx
@@ -66,6 +66,7 @@ export default function Quiz() {
 
     submitQuiz.mutate(
       {
+        moduleId: id,
         data: {
           deviceId,
           activationCode,
@@ -90,23 +91,34 @@ export default function Quiz() {
             ) : (
               <XCircle className="w-20 h-20 text-destructive mb-6" />
             )}
-            
+
             <h1 className="text-3xl font-black font-mono uppercase tracking-wide mb-2">
-              {result.passed ? "Assessment Passed" : "Assessment Failed"}
+              {result.passed ? "Module Passed" : "Assessment Failed"}
             </h1>
-            
-            <p className="text-muted-foreground font-mono mb-8">
-              SCORE: {result.score}% (REQUIRED: {result.passingScore}%)
+
+            <p className="text-muted-foreground font-mono mb-2">
+              You scored {result.correct} out of {result.total} ({result.score}%)
             </p>
+
+            {!result.passed && (
+              <p className="text-sm text-muted-foreground font-mono mb-8">
+                You must answer all questions correctly to proceed. Please review the module and try again.
+              </p>
+            )}
+            {result.passed && (
+              <p className="text-sm text-primary font-mono mb-8">
+                You answered every question correctly. Well done — the next module is now unlocked.
+              </p>
+            )}
 
             <div className="flex gap-4 w-full">
               {!result.passed ? (
-                <Button 
+                <Button
                   onClick={() => {
                     setResult(null);
                     setCurrentQuestionIdx(0);
                     setAnswers({});
-                  }} 
+                  }}
                   className="w-full h-14 font-mono font-bold tracking-widest"
                 >
                   <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
@@ -142,6 +154,10 @@ export default function Quiz() {
 
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
         <div className="flex-1 flex flex-col justify-center">
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
+            100% required to pass — all questions must be answered correctly
+          </p>
+
           <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">
             {currentQuestion.question}
           </h2>
@@ -152,8 +168,8 @@ export default function Quiz() {
                 key={idx}
                 onClick={() => handleSelectOption(idx)}
                 className={`w-full text-left p-4 sm:p-6 rounded-lg border-2 transition-all font-mono text-sm sm:text-base ${
-                  currentAnswer === idx 
-                    ? "border-primary bg-primary/10 text-foreground" 
+                  currentAnswer === idx
+                    ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card hover:border-primary/50 text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -171,8 +187,8 @@ export default function Quiz() {
         </div>
 
         <div className="mt-8 shrink-0 flex justify-end">
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="h-14 px-8 font-mono font-bold tracking-widest"
             disabled={!canProceed || submitQuiz.isPending}
             onClick={handleNext}

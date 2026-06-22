@@ -32,6 +32,7 @@ export default function Waiver() {
       const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [countdown]);
 
   const handleScroll = () => {

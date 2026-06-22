@@ -7,15 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut, Video } from "lucide-react";
-import { useGetAdminStats, useListStudents, useCreateActivationCode } from "@workspace/api-client-react";
+import { useGetAdminStats, useListStudents, useCreateActivationCode, getGetAdminStatsQueryKey, getListStudentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady, clearToken } = useAdminSession();
   
-  const { data: stats } = useGetAdminStats({ query: { enabled: !!adminToken } });
-  const { data: students, refetch: refetchStudents } = useListStudents({ query: { enabled: !!adminToken } });
+  const { data: stats } = useGetAdminStats({ query: { queryKey: getGetAdminStatsQueryKey(), enabled: !!adminToken } });
+  const { data: students, refetch: refetchStudents } = useListStudents({ query: { queryKey: getListStudentsQueryKey(), enabled: !!adminToken } });
   const createCode = useCreateActivationCode();
 
   const [search, setSearch] = useState("");

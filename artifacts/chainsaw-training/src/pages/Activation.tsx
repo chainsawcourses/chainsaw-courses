@@ -73,7 +73,7 @@ export default function Activation() {
             title: "Activation Failed",
             description: isBondError
               ? "This code is already linked to another device. Go to the Admin Panel to reset it."
-              : err.response?.data?.error || "Invalid activation code.",
+              : (err as any)?.response?.data?.error || "Invalid activation code.",
           });
         },
       }

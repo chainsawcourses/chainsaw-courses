@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ShieldAlert, Send, ArrowLeft, Bot, User } from "lucide-react";
-import { useGetChatHistory, useSendAiMessage } from "@workspace/api-client-react";
+import { useGetChatHistory, useSendAiMessage, getGetChatHistoryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function MockTest() {
@@ -12,7 +12,7 @@ export default function MockTest() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { data: history, isLoading: isHistoryLoading, refetch } = useGetChatHistory({
-    query: { enabled: !!activationCode && !!deviceId }
+    query: { queryKey: getGetChatHistoryQueryKey(), enabled: !!activationCode && !!deviceId }
   });
   
   const sendMessage = useSendAiMessage();

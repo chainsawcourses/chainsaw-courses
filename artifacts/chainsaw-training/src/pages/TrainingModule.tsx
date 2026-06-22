@@ -48,6 +48,7 @@ export default function TrainingModule() {
       const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [safetyModalOpen, countdown]);
 
   const handleSafetyAcknowledge = () => { setSafetyModalOpen(false); setCanPlay(true); };

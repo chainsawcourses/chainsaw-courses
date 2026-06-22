@@ -47,6 +47,7 @@ export const SignatureCanvas = forwardRef<SignaturePadRef, SignaturePadProps>(
           padRef.current?.off();
         };
       }
+      return undefined;
     }, [onEnd]);
 
     useImperativeHandle(ref, () => ({
