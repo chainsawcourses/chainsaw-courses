@@ -105,7 +105,7 @@ router.post("/ai/chat", async (req, res) => {
       contents.push({ role: "user", parts: [{ text: message }] });
 
       const response = await gemini.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-1.5-flash",
         contents,
         config: {
           systemInstruction: CHAINSAW_SYSTEM_PROMPT,
