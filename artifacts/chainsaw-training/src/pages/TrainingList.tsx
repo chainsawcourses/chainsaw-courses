@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight, ArrowRight } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -215,162 +215,10 @@ export default function TrainingList() {
           )}
         </div>
 
-        {/* Hazards & Control Measures — collapsible table */}
-        <div>
-          <button
-            onClick={() => setHazardsOpen((o) => !o)}
-            className="w-full flex items-center gap-3 py-3 text-left group"
-          >
-            <div className="w-1 h-6 bg-primary shrink-0" />
-            <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
-              Common Hazards &amp; Control Measures
-            </h2>
-            {hazardsOpen
-              ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
-              : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-            }
-          </button>
-
-          {hazardsOpen && (
-            <Card className="border-border bg-card/60 mt-1 overflow-hidden">
-              <CardContent className="p-0">
-                <p className="px-5 pt-5 pb-3 text-xs text-muted-foreground font-mono leading-relaxed">
-                  There are many different hazards involved with chainsaw use and the best thing you can do is{" "}
-                  <strong className="text-foreground">assume everything wants to hurt you</strong>. With that in mind, prepare yourself,
-                  the machine and the site as best you can to minimise any injuries occurring.
-                </p>
-                <p className="px-5 pb-4 text-xs text-muted-foreground font-mono italic">
-                  Outlined below are examples of hazards and their control measures.
-                </p>
-
-                {/* Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs font-mono border-collapse min-w-[520px]">
-                    <thead>
-                      <tr className="bg-foreground text-background">
-                        <th className="w-8" />
-                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider border-r border-background/20">Hazards</th>
-                        <th className="w-6" />
-                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider border-r border-background/20">Risks</th>
-                        <th className="w-6" />
-                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider">Control Measures</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        {
-                          category: "ON SITE",
-                          rows: [
-                            {
-                              hazard: "Uneven ground, mud, brambles, logs, branches and stumps.",
-                              risk: "Tripping, slipping and falling.",
-                              control: "Wear appropriate footwear, clear work area and keep the site tidy.",
-                            },
-                            {
-                              hazard: "Public footpath, dog walkers, any other 3rd parties.",
-                              risk: "Debris hitting pedestrians.",
-                              control: "Appropriate signs and banksperson if necessary.",
-                            },
-                            {
-                              hazard: "Overhead hanging branches and dead limbs.",
-                              risk: "Injury from falling limbs.",
-                              control: "Avoid working directly beneath hazards and wear protective helmet.",
-                            },
-                          ],
-                        },
-                        {
-                          category: "TASK UNDERTAKEN",
-                          rows: [
-                            {
-                              hazard: "Chainsaw use.",
-                              risk: "Cuts and kickback.",
-                              control: "Use the correct body position, appropriate cutting techniques and suitable PPE.",
-                            },
-                            {
-                              hazard: "Timber movement.",
-                              risk: "Being hit or struck by the timber.",
-                              control: "Secure timber wherever possible, avoid working on steep slopes and prepare escape routes.",
-                            },
-                            {
-                              hazard: "Heavy logs and branches.",
-                              risk: "Musculo-skeletal injuries.",
-                              control: "Use machinery or lifting aids where possible. Use good lifting methods.",
-                            },
-                          ],
-                        },
-                        {
-                          category: "THE CHAINSAW",
-                          rows: [
-                            {
-                              hazard: "Fuel and lubricants.",
-                              risk: "Fire, chemical poisoning.",
-                              control: "Use spill mats and fill up away from flammable sources and watercourses.",
-                            },
-                            {
-                              hazard: "Kickback and cuts.",
-                              risk: "Laceration injuries.",
-                              control: "Wear suitable PPE, adopt the correct body position and use appropriate cutting techniques.",
-                            },
-                            {
-                              hazard: "Vibration, noise, dust, fumes, exhaust, flying debris.",
-                              risk: "Immediate and long term injuries.",
-                              control: "Use a maintained chainsaw and wear suitable PPE.",
-                            },
-                          ],
-                        },
-                      ].map(({ category, rows }, gi) => (
-                        rows.map((row, ri) => (
-                          <tr
-                            key={`${gi}-${ri}`}
-                            className={`border-t border-border ${gi % 2 === 0 ? "bg-card/40" : "bg-secondary/20"}`}
-                          >
-                            {/* Rotated category label — only on first row of group */}
-                            {ri === 0 && (
-                              <td
-                                rowSpan={rows.length}
-                                className="border-r border-border text-center align-middle w-8 p-0"
-                                style={{ borderTop: gi > 0 ? "2px solid hsl(var(--primary))" : undefined }}
-                              >
-                                <div
-                                  className="text-primary font-black uppercase tracking-widest"
-                                  style={{
-                                    writingMode: "vertical-rl",
-                                    transform: "rotate(180deg)",
-                                    fontSize: "0.6rem",
-                                    letterSpacing: "0.15em",
-                                    padding: "8px 4px",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {category}
-                                </div>
-                              </td>
-                            )}
-                            <td className="py-2.5 px-3 align-top text-muted-foreground border-r border-border leading-relaxed">{row.hazard}</td>
-                            <td className="px-1 align-middle text-center text-primary">
-                              <ArrowRight className="w-3 h-3 mx-auto" />
-                            </td>
-                            <td className="py-2.5 px-3 align-top text-muted-foreground border-r border-border leading-relaxed">{row.risk}</td>
-                            <td className="px-1 align-middle text-center text-primary">
-                              <ArrowRight className="w-3 h-3 mx-auto" />
-                            </td>
-                            <td className="py-2.5 px-3 align-top text-muted-foreground leading-relaxed">{row.control}</td>
-                          </tr>
-                        ))
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
         {/* Grouped Module List */}
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
             <div key={category}>
-              {/* Category heading */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-1 h-6 bg-primary" />
                 <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">{category}</h2>
@@ -389,64 +237,166 @@ export default function TrainingList() {
                   <div className="space-y-2">
                     {mods.map((module) => {
                       const isPdf = module.contentType === "pdf";
+                      const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
                       return (
-                        <Card
-                          key={module.id}
-                          className={`border-border transition-all duration-150 ${
-                            module.isLocked
-                              ? "opacity-40 bg-card/30"
-                              : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
-                          }`}
-                        >
-                          <CardContent className="p-4 flex items-center gap-4">
-                            <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
-                              {module.isLocked ? (
-                                <Lock className="w-4 h-4 text-muted-foreground" />
-                              ) : module.isCompleted ? (
-                                <CheckCircle className="w-4 h-4 text-primary" />
-                              ) : isPdf ? (
-                                <FileText className="w-4 h-4 text-muted-foreground" />
-                              ) : (
-                                <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                        <div key={module.id}>
+                          <Card
+                            className={`border-border transition-all duration-150 ${
+                              module.isLocked
+                                ? "opacity-40 bg-card/30"
+                                : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
+                            }`}
+                          >
+                            <CardContent className="p-4 flex items-center gap-4">
+                              <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                                {module.isLocked ? (
+                                  <Lock className="w-4 h-4 text-muted-foreground" />
+                                ) : module.isCompleted ? (
+                                  <CheckCircle className="w-4 h-4 text-primary" />
+                                ) : isPdf ? (
+                                  <FileText className="w-4 h-4 text-muted-foreground" />
+                                ) : (
+                                  <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                                )}
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
+                                  {isPdf && (
+                                    <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
+                                  )}
+                                  {module.isHighRisk && !module.isLocked && (
+                                    <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
+                                      <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> HIGH RISK
+                                    </Badge>
+                                  )}
+                                  {module.isCompleted && (
+                                    <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
+                              </div>
+
+                              {!module.isLocked && (
+                                <div className="shrink-0">
+                                  <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                                    <Link href={`/training/${module.id}`}>
+                                      {isPdf ? (
+                                        <><FileText className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
+                                      ) : (
+                                        <><PlayCircle className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "REWATCH" : "START"}</>
+                                      )}
+                                    </Link>
+                                  </Button>
+                                </div>
+                              )}
+                              {module.isLocked && (
+                                <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                              )}
+                            </CardContent>
+                          </Card>
+
+                          {/* Hazards table — injected after "5 Steps To Risk Assessment" */}
+                          {isRiskAssessment && (
+                            <div className="mt-2">
+                              <button
+                                onClick={() => setHazardsOpen((o) => !o)}
+                                className="w-full flex items-center gap-3 py-2.5 text-left group"
+                              >
+                                <div className="w-1 h-5 bg-primary shrink-0" />
+                                <span className="font-mono font-black uppercase tracking-widest text-sm text-foreground flex-1">
+                                  Common Hazards &amp; Control Measures
+                                </span>
+                                {hazardsOpen
+                                  ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
+                                  : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                                }
+                              </button>
+
+                              {hazardsOpen && (
+                                <Card className="border-border bg-card/60 overflow-hidden">
+                                  <CardContent className="p-0">
+                                    <p className="px-4 pt-4 pb-2 text-[11px] text-muted-foreground font-mono leading-relaxed">
+                                      There are many different hazards involved with chainsaw use and the best thing you can do is{" "}
+                                      <strong className="text-foreground">assume everything wants to hurt you</strong>. Prepare yourself, the machine and the site to minimise injuries.
+                                    </p>
+
+                                    <table className="w-full font-mono border-collapse table-fixed">
+                                      <colgroup>
+                                        <col style={{ width: 28 }} />
+                                        <col style={{ width: "29%" }} />
+                                        <col style={{ width: "26%" }} />
+                                        <col />
+                                      </colgroup>
+                                      <thead>
+                                        <tr className="bg-foreground text-background">
+                                          <th className="py-2 px-0" />
+                                          <th className="py-2 px-2 text-left font-bold uppercase tracking-wide text-[10px] border-r border-background/20">Hazards</th>
+                                          <th className="py-2 px-2 text-left font-bold uppercase tracking-wide text-[10px] border-r border-background/20">Risks</th>
+                                          <th className="py-2 px-2 text-left font-bold uppercase tracking-wide text-[10px]">Control Measures</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {[
+                                          {
+                                            category: "ON SITE",
+                                            rows: [
+                                              { hazard: "Uneven ground, mud, brambles, logs, branches and stumps.", risk: "Tripping, slipping and falling.", control: "Wear appropriate footwear, clear work area and keep the site tidy." },
+                                              { hazard: "Public footpath, dog walkers, any other 3rd parties.", risk: "Debris hitting pedestrians.", control: "Appropriate signs and banksperson if necessary." },
+                                              { hazard: "Overhead hanging branches and dead limbs.", risk: "Injury from falling limbs.", control: "Avoid working directly beneath hazards and wear protective helmet." },
+                                            ],
+                                          },
+                                          {
+                                            category: "TASK",
+                                            rows: [
+                                              { hazard: "Chainsaw use.", risk: "Cuts and kickback.", control: "Use the correct body position, appropriate cutting techniques and suitable PPE." },
+                                              { hazard: "Timber movement.", risk: "Being hit or struck by the timber.", control: "Secure timber wherever possible, avoid working on steep slopes and prepare escape routes." },
+                                              { hazard: "Heavy logs and branches.", risk: "Musculo-skeletal injuries.", control: "Use machinery or lifting aids where possible. Use good lifting methods." },
+                                            ],
+                                          },
+                                          {
+                                            category: "CHAINSAW",
+                                            rows: [
+                                              { hazard: "Fuel and lubricants.", risk: "Fire, chemical poisoning.", control: "Use spill mats and fill up away from flammable sources and watercourses." },
+                                              { hazard: "Kickback and cuts.", risk: "Laceration injuries.", control: "Wear suitable PPE, adopt the correct body position and use appropriate cutting techniques." },
+                                              { hazard: "Vibration, noise, dust, fumes, exhaust, flying debris.", risk: "Immediate and long term injuries.", control: "Use a maintained chainsaw and wear suitable PPE." },
+                                            ],
+                                          },
+                                        ].map(({ category, rows }, gi) =>
+                                          rows.map((row, ri) => (
+                                            <tr
+                                              key={`${gi}-${ri}`}
+                                              className={`border-t border-border ${gi % 2 === 0 ? "bg-card/40" : "bg-secondary/20"}`}
+                                            >
+                                              {ri === 0 && (
+                                                <td
+                                                  rowSpan={rows.length}
+                                                  className="border-r border-border text-center align-middle p-0"
+                                                  style={{ borderTop: gi > 0 ? "2px solid hsl(var(--primary))" : undefined }}
+                                                >
+                                                  <div
+                                                    className="text-primary font-black uppercase"
+                                                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: "0.5rem", letterSpacing: "0.12em", padding: "6px 3px", whiteSpace: "nowrap" }}
+                                                  >
+                                                    {category}
+                                                  </div>
+                                                </td>
+                                              )}
+                                              <td className="py-2 px-2 align-top text-[10px] text-muted-foreground border-r border-border leading-snug">{row.hazard}</td>
+                                              <td className="py-2 px-2 align-top text-[10px] text-muted-foreground border-r border-border leading-snug">{row.risk}</td>
+                                              <td className="py-2 px-2 align-top text-[10px] text-muted-foreground leading-snug">{row.control}</td>
+                                            </tr>
+                                          ))
+                                        )}
+                                      </tbody>
+                                    </table>
+                                  </CardContent>
+                                </Card>
                               )}
                             </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
-                                {isPdf && (
-                                  <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
-                                )}
-                                {module.isHighRisk && !module.isLocked && (
-                                  <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
-                                    <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> HIGH RISK
-                                  </Badge>
-                                )}
-                                {module.isCompleted && (
-                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
-                            </div>
-
-                            {!module.isLocked && (
-                              <div className="shrink-0">
-                                <Button size="sm" className="h-8 font-mono text-xs" asChild>
-                                  <Link href={`/training/${module.id}`}>
-                                    {isPdf ? (
-                                      <><FileText className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
-                                    ) : (
-                                      <><PlayCircle className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "REWATCH" : "START"}</>
-                                    )}
-                                  </Link>
-                                </Button>
-                              </div>
-                            )}
-                            {module.isLocked && (
-                              <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
-                            )}
-                          </CardContent>
-                        </Card>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
