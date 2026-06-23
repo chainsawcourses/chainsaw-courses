@@ -29,7 +29,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [watermarkPos, setWatermarkPos] = useState({ top: "50%", left: "50%" });
+  const [watermarkPos, setWatermarkPos] = useState({ top: "30%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
@@ -55,13 +55,10 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           sendCommand("addEventListener", "play");
           sendCommand("addEventListener", "timeupdate");
           sendCommand("addEventListener", "finish");
-          // Request available text tracks so we can enable them
           sendCommand("getTextTracks");
         }
-        // Auto-enable first available subtitle/caption track
         if (data.method === "getTextTracks" && Array.isArray(data.value) && data.value.length > 0) {
-          const track = data.value[0];
-          sendCommand("enableTextTrack", track.language);
+          sendCommand("enableTextTrack", data.value[0].language);
         }
         if (data.event === "pause") setIsPaused(true);
         if (data.event === "play") setIsPaused(false);
@@ -75,12 +72,16 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     return () => window.removeEventListener("message", handler);
   }, [sendCommand, onTimeUpdate, onEnded]);
 
-  // Watermark movement
+  // Watermark movement — avoid centre so it doesn't clash with play button
   useEffect(() => {
-    const move = () => setWatermarkPos({
-      top: `${Math.floor(Math.random() * 80) + 10}%`,
-      left: `${Math.floor(Math.random() * 80) + 10}%`,
-    });
+    const move = () => {
+      const zones = [
+        { top: `${10 + Math.random() * 20}%`, left: `${10 + Math.random() * 80}%` },
+        { top: `${70 + Math.random() * 20}%`, left: `${10 + Math.random() * 80}%` },
+      ];
+      const zone = zones[Math.floor(Math.random() * zones.length)];
+      setWatermarkPos(zone);
+    };
     move();
     const id = setInterval(move, 60000);
     return () => clearInterval(id);
@@ -133,12 +134,30 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         onLoad={() => setIframeLoaded(true)}
       />
 
-      {/* Tap-to-play/pause overlay — leaves bottom 56px for Vimeo's own controls */}
+      {/* Tap overlay — covers everything above the Vimeo controls bar */}
       <div
         className="absolute inset-x-0 top-0 z-40 cursor-pointer"
         style={{ bottom: 56 }}
         onClick={handleTap}
       />
+
+      {/* Big centre play button — visible when paused, fades when playing, click handled by tap overlay */}
+      <div
+        className="absolute inset-x-0 top-0 z-[45] flex items-center justify-center pointer-events-none"
+        style={{ bottom: 56 }}
+      >
+        <div
+          style={{
+            transition: "opacity 0.35s ease, transform 0.35s ease",
+            opacity: isPaused ? 1 : 0,
+            transform: isPaused ? "scale(1)" : "scale(0.8)",
+          }}
+        >
+          <div className="bg-black/55 backdrop-blur-sm rounded-full p-5 border-2 border-white/30 shadow-2xl">
+            <Play className="w-14 h-14 text-white fill-white" style={{ marginLeft: 4 }} />
+          </div>
+        </div>
+      </div>
 
       {/* Tap flash animation */}
       {tapFlash && (
@@ -161,13 +180,24 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
       </button>
 
-      {/* Dynamic watermark */}
+      {/* Dynamic watermark — repositions every 60s, avoids centre */}
       {iframeLoaded && (
         <div
-          className="pointer-events-none absolute text-white/15 font-mono text-sm uppercase tracking-wider font-bold mix-blend-overlay z-40 whitespace-nowrap transition-all duration-1000 ease-in-out"
-          style={{ top: watermarkPos.top, left: watermarkPos.left, transform: "translate(-50%, -50%)" }}
+          className="pointer-events-none absolute z-40 whitespace-nowrap transition-all duration-1000 ease-in-out"
+          style={{
+            top: watermarkPos.top,
+            left: watermarkPos.left,
+            transform: "translate(-50%, -50%)",
+            fontFamily: "monospace",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.75)",
+            textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
+          }}
         >
-          {fullName} - {email}
+          {fullName} · {email}
         </div>
       )}
     </div>
