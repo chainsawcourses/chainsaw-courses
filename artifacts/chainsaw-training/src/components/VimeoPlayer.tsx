@@ -40,6 +40,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const seekBarRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const durationRef = useRef(0);
+  const isReadyRef = useRef(false);
 
   const [watermarkPos, setWatermarkPos] = useState({ top: "30%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -63,9 +64,9 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
       try {
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         if (data.event === "ready") {
+          isReadyRef.current = true;
           sendCommand("addEventListener", "pause");
           sendCommand("addEventListener", "play");
-          sendCommand("addEventListener", "timeupdate");
           sendCommand("addEventListener", "finish");
           sendCommand("getDuration");
           sendCommand("getTextTracks");
@@ -74,22 +75,33 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           durationRef.current = data.value;
           setDuration(data.value);
         }
+        if (data.method === "getCurrentTime" && typeof data.value === "number") {
+          if (!isDraggingRef.current) {
+            setCurrentTime(data.value);
+            onTimeUpdate?.(data.value);
+          }
+        }
         if (data.method === "getTextTracks" && Array.isArray(data.value) && data.value.length > 0) {
           sendCommand("enableTextTrack", data.value[0].language);
         }
         if (data.event === "pause") setIsPaused(true);
         if (data.event === "play") setIsPaused(false);
-        if (data.event === "timeupdate") {
-          const t = data.data?.seconds ?? 0;
-          if (!isDraggingRef.current) setCurrentTime(t);
-          onTimeUpdate?.(t);
-        }
         if (data.event === "finish") { setIsPaused(true); onEnded?.(); }
       } catch { /* ignore */ }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, [sendCommand, onTimeUpdate, onEnded]);
+
+  // Poll getCurrentTime every 250 ms — more reliable than timeupdate postMessage events
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (isReadyRef.current && !isDraggingRef.current) {
+        sendCommand("getCurrentTime");
+      }
+    }, 250);
+    return () => clearInterval(id);
+  }, [sendCommand]);
 
   useEffect(() => {
     const move = () => {
