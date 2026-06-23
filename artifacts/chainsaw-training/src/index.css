@@ -156,3 +156,25 @@
 .animate-ping-once {
   animation: ping-once 0.6s ease-out forwards;
 }
+
+/* Vimeo iframe — fills container, portrait-cropped on mobile */
+.vimeo-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* On portrait phones: 9:16 container, crop sides of 16:9 video to fill height */
+@media (max-width: 639px) and (orientation: portrait) {
+  .vimeo-portrait-container {
+    aspect-ratio: 9 / 16;
+  }
+  .vimeo-iframe {
+    /* Scale iframe wide enough so video height fills the 9:16 container */
+    /* (16/9)^2 ≈ 3.16× wider, centred with negative left offset */
+    width: 316%;
+    left: -108%;
+  }
+}

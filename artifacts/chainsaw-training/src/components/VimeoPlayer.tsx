@@ -118,13 +118,13 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl"
+      className="vimeo-portrait-container relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border shadow-2xl"
     >
       <iframe
         ref={iframeRef}
         key={vimeoId}
         src={src}
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+        className="vimeo-iframe"
         frameBorder="0"
         allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
         referrerPolicy="strict-origin-when-cross-origin"
