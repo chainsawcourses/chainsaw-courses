@@ -13,6 +13,9 @@ export default function TrainingList() {
   const { activationCode, deviceId, fullName, clearSession } = useUserSession();
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [hazardsOpen, setHazardsOpen] = useState(false);
+  const [hazardsViewed, setHazardsViewed] = useState(() =>
+    localStorage.getItem("hazards-viewed") === "true"
+  );
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
     query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
@@ -26,8 +29,26 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
+  // Index of "5 Steps To Risk Assessment" in the full ordered module list
+  const riskAssessmentIndex = useMemo(() => {
+    if (!modules) return -1;
+    return modules.findIndex((m) => m.title.toLowerCase().includes("risk assessment"));
+  }, [modules]);
+
+  // Open hazards and mark as viewed (persisted)
+  const handleToggleHazards = () => {
+    setHazardsOpen((o) => {
+      const next = !o;
+      if (next && !hazardsViewed) {
+        setHazardsViewed(true);
+        localStorage.setItem("hazards-viewed", "true");
+      }
+      return next;
+    });
+  };
+
   // Group remaining modules by category → sub-category, preserving DB order
-  // Equipment List module is excluded from the main list (shown in the collapsible above)
+  // Equipment List and Hazards modules are excluded (shown in collapsibles)
   const grouped = useMemo(() => {
     if (!modules) return [];
     const filtered = modules.filter((m) =>
@@ -238,18 +259,21 @@ export default function TrainingList() {
                     {mods.map((module) => {
                       const isPdf = module.contentType === "pdf";
                       const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
+                      const moduleIndex = modules!.findIndex((m) => m.id === module.id);
+                      const needsHazards = riskAssessmentIndex !== -1 && moduleIndex > riskAssessmentIndex && !hazardsViewed;
+                      const effectiveLocked = module.isLocked || needsHazards;
                       return (
                         <div key={module.id}>
                           <Card
                             className={`border-border transition-all duration-150 ${
-                              module.isLocked
+                              effectiveLocked
                                 ? "opacity-40 bg-card/30"
                                 : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
                           >
                             <CardContent className="p-4 flex items-center gap-4">
                               <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
-                                {module.isLocked ? (
+                                {effectiveLocked ? (
                                   <Lock className="w-4 h-4 text-muted-foreground" />
                                 ) : module.isCompleted ? (
                                   <CheckCircle className="w-4 h-4 text-primary" />
@@ -278,7 +302,7 @@ export default function TrainingList() {
                                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
-                              {!module.isLocked && (
+                              {!effectiveLocked && (
                                 <div className="shrink-0">
                                   <Button size="sm" className="h-8 font-mono text-xs" asChild>
                                     <Link href={`/training/${module.id}`}>
@@ -291,7 +315,7 @@ export default function TrainingList() {
                                   </Button>
                                 </div>
                               )}
-                              {module.isLocked && (
+                              {effectiveLocked && (
                                 <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
                               )}
                             </CardContent>
@@ -301,11 +325,11 @@ export default function TrainingList() {
                           {isRiskAssessment && (
                             <div className="mt-2">
                               <button
-                                onClick={() => setHazardsOpen((o) => !o)}
-                                className="w-full flex items-center gap-3 py-2.5 text-left group"
+                                onClick={handleToggleHazards}
+                                className="w-full flex items-center gap-3 py-3 text-left group"
                               >
-                                <div className="w-1 h-5 bg-primary shrink-0" />
-                                <span className="font-mono font-black uppercase tracking-widest text-sm text-foreground flex-1">
+                                <div className="w-1 h-6 bg-primary shrink-0" />
+                                <span className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
                                   Common Hazards &amp; Control Measures
                                 </span>
                                 {hazardsOpen
