@@ -84,16 +84,10 @@ export default function Activation() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1
-            className="text-3xl font-black font-mono tracking-tighter text-primary uppercase"
-            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.8)" }}
-          >
+          <h1 className="text-3xl font-black font-mono tracking-tighter text-primary uppercase">
             Chainsaw Manual
           </h1>
-          <p
-            className="uppercase tracking-widest text-xs mt-2 font-mono text-white"
-            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}
-          >
+          <p className="uppercase tracking-widest text-xs mt-2 font-mono text-muted-foreground">
             Professional Training Portal
           </p>
         </div>
