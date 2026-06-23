@@ -25,13 +25,8 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
-  // Separate out the Equipment List module
-  const equipmentModule = useMemo(
-    () => modules?.find((m) => m.title.toLowerCase().includes("equipment")),
-    [modules]
-  );
-
   // Group remaining modules by category → sub-category, preserving DB order
+  // Equipment List module is excluded from the main list (shown in the collapsible above)
   const grouped = useMemo(() => {
     if (!modules) return [];
     const filtered = modules.filter((m) => !m.title.toLowerCase().includes("equipment"));
@@ -129,54 +124,92 @@ export default function TrainingList() {
         </div>
 
         {/* Equipment List — collapsible, always accessible */}
-        {equipmentModule && (
-          <div>
-            <button
-              onClick={() => setEquipmentOpen((o) => !o)}
-              className="w-full flex items-center gap-3 py-3 text-left group"
-            >
-              <div className="w-1 h-6 bg-primary shrink-0" />
-              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
-                Equipment Reference List
-              </h2>
-              <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1.5 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
-              {equipmentOpen
-                ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
-                : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-              }
-            </button>
+        <div>
+          <button
+            onClick={() => setEquipmentOpen((o) => !o)}
+            className="w-full flex items-center gap-3 py-3 text-left group"
+          >
+            <div className="w-1 h-6 bg-primary shrink-0" />
+            <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
+              Tools & Equipment Needed
+            </h2>
+            {equipmentOpen
+              ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
+              : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+            }
+          </button>
 
-            {equipmentOpen && (
-              <Card className="border-border bg-card/60 mt-1">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
-                    {equipmentModule.isCompleted
-                      ? <CheckCircle className="w-4 h-4 text-primary" />
-                      : <FileText className="w-4 h-4 text-muted-foreground" />
-                    }
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-bold text-sm uppercase tracking-wide">{equipmentModule.title}</span>
-                      {equipmentModule.isCompleted && (
-                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{equipmentModule.description}</p>
-                  </div>
-                  <div className="shrink-0">
-                    <Button size="sm" className="h-8 font-mono text-xs" asChild>
-                      <Link href={`/training/${equipmentModule.id}`}>
-                        <FileText className="w-3 h-3 mr-1.5" />
-                        {equipmentModule.isCompleted ? "VIEW" : "OPEN"}
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
+          {equipmentOpen && (
+            <Card className="border-border bg-card/60 mt-1">
+              <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
+
+                <div>
+                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
+                  <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
+                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                    {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
+                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
+                </div>
+
+                <div>
+                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
+                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                    {[
+                      "Sufficient workspace to safely accommodate yourself.",
+                      "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
+                      "Hand cleaning facilities.",
+                      "An outside area dedicated to fueling and starting the chainsaw.",
+                      "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
+                    ].map(item => (
+                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
+                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                    {[
+                      "Eye protection","Gloves",
+                      "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
+                      "Combination Spanner (combi-spanner)","Star spanner or allen keys",
+                      "Guide bar groove scraper","Hook or wire","Pliers","Grease","Mild detergent",
+                      "De-greaser and rag for cleaning surfaces and spills.",
+                    ].map(item => (
+                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                    ))}
+                    <li className="flex items-start gap-2 mt-2">
+                      <span className="text-primary mt-0.5">—</span>
+                      <span>
+                        <span className="font-semibold text-foreground">Sharpening Kit</span> to include: correct round file for chain, file guide, flat file, depth gauge setting tool, calipers.
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
+                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                    {[
+                      "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
+                      "Correctly mixed fuel or appropriate batteries.",
+                      "Chain oil.",
+                      "Access to the relevant chainsaw operator's manual.",
+                      "Optional lifting aids to help in the training and assessment.",
+                      "Waste disposal facilities.",
+                    ].map(item => (
+                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
         {/* Grouped Module List */}
         <div className="space-y-10">
