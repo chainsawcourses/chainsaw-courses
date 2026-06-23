@@ -79,7 +79,7 @@ export default function TrainingModule() {
 
   if (isLoading || !module) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
         Loading...
       </div>
@@ -89,7 +89,7 @@ export default function TrainingModule() {
   const isPdf = module.contentType === "pdf";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-10 shrink-0">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">

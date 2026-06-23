@@ -32,7 +32,7 @@ export default function Quiz() {
 
   if (isLoading || !quiz) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
         <div className="text-primary font-mono tracking-widest uppercase">Loading Assessment...</div>
       </div>
@@ -83,8 +83,8 @@ export default function Quiz() {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-2xl border-border bg-card/50">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-2xl border-border bg-card/80 backdrop-blur-sm">
           <CardContent className="p-8 text-center flex flex-col items-center">
             {result.passed ? (
               <CheckCircle2 className="w-20 h-20 text-primary mb-6" />
@@ -139,8 +139,8 @@ export default function Quiz() {
   const canProceed = currentAnswer !== undefined;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-10 shrink-0">
+    <div className="min-h-screen flex flex-col">
+      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10 shrink-0">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
             {quiz.moduleTitle}

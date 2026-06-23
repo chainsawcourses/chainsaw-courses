@@ -1,16 +1,17 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, clearSession } = useUserSession();
+  const [equipmentOpen, setEquipmentOpen] = useState(false);
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
     query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
@@ -24,12 +25,19 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
-  // Group modules by category → sub-category, preserving DB order
+  // Separate out the Equipment List module
+  const equipmentModule = useMemo(
+    () => modules?.find((m) => m.title.toLowerCase().includes("equipment")),
+    [modules]
+  );
+
+  // Group remaining modules by category → sub-category, preserving DB order
   const grouped = useMemo(() => {
     if (!modules) return [];
+    const filtered = modules.filter((m) => !m.title.toLowerCase().includes("equipment"));
     const categoryOrder: string[] = [];
     const categoryMap = new Map<string, Map<string | null, typeof modules>>();
-    modules.forEach((mod) => {
+    filtered.forEach((mod) => {
       if (!categoryMap.has(mod.category)) {
         categoryMap.set(mod.category, new Map());
         categoryOrder.push(mod.category);
@@ -50,7 +58,7 @@ export default function TrainingList() {
 
   if (isLoadingModules || isLoadingSummary) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
           Loading Modules...
@@ -60,8 +68,8 @@ export default function TrainingList() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-10">
+    <div className="min-h-screen pb-20">
+      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-6 bg-primary" />
@@ -84,7 +92,7 @@ export default function TrainingList() {
 
         {/* Progress Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-secondary/20 border-border md:col-span-2">
+          <Card className="bg-card/60 border-border md:col-span-2">
             <CardContent className="p-6 flex flex-col justify-center h-full">
               <div className="flex justify-between items-end mb-4">
                 <div>
@@ -100,7 +108,7 @@ export default function TrainingList() {
               <Progress value={summary?.percentComplete || 0} className="h-3 bg-secondary" />
             </CardContent>
           </Card>
-          <Card className="bg-secondary/20 border-border">
+          <Card className="bg-card/60 border-border">
             <CardContent className="p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border pb-2">
                 <span className="text-xs font-mono text-muted-foreground uppercase">Modules</span>
@@ -120,6 +128,56 @@ export default function TrainingList() {
           </Card>
         </div>
 
+        {/* Equipment List — collapsible, always accessible */}
+        {equipmentModule && (
+          <div>
+            <button
+              onClick={() => setEquipmentOpen((o) => !o)}
+              className="w-full flex items-center gap-3 py-3 text-left group"
+            >
+              <div className="w-1 h-6 bg-primary shrink-0" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
+                Equipment Reference List
+              </h2>
+              <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1.5 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
+              {equipmentOpen
+                ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
+                : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+              }
+            </button>
+
+            {equipmentOpen && (
+              <Card className="border-border bg-card/60 mt-1">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                    {equipmentModule.isCompleted
+                      ? <CheckCircle className="w-4 h-4 text-primary" />
+                      : <FileText className="w-4 h-4 text-muted-foreground" />
+                    }
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono font-bold text-sm uppercase tracking-wide">{equipmentModule.title}</span>
+                      {equipmentModule.isCompleted && (
+                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{equipmentModule.description}</p>
+                  </div>
+                  <div className="shrink-0">
+                    <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                      <Link href={`/training/${equipmentModule.id}`}>
+                        <FileText className="w-3 h-3 mr-1.5" />
+                        {equipmentModule.isCompleted ? "VIEW" : "OPEN"}
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
         {/* Grouped Module List */}
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
@@ -132,7 +190,6 @@ export default function TrainingList() {
 
               {subGroups.map(({ subCategory, modules: mods }) => (
                 <div key={subCategory ?? "__root__"} className="mb-6">
-                  {/* Sub-category heading */}
                   {subCategory && (
                     <div className="flex items-center gap-2 mb-3 ml-4">
                       <div className="w-3 h-px bg-border" />
@@ -149,12 +206,11 @@ export default function TrainingList() {
                           key={module.id}
                           className={`border-border transition-all duration-150 ${
                             module.isLocked
-                              ? "opacity-40 bg-background"
-                              : "hover:border-primary/40 bg-card/40 hover:bg-card/70"
+                              ? "opacity-40 bg-card/30"
+                              : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
                           }`}
                         >
                           <CardContent className="p-4 flex items-center gap-4">
-                            {/* Icon / status indicator */}
                             <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
                               {module.isLocked ? (
                                 <Lock className="w-4 h-4 text-muted-foreground" />
@@ -167,7 +223,6 @@ export default function TrainingList() {
                               )}
                             </div>
 
-                            {/* Title + badges */}
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
                                 <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
@@ -186,7 +241,6 @@ export default function TrainingList() {
                               <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                             </div>
 
-                            {/* Action button */}
                             {!module.isLocked && (
                               <div className="shrink-0">
                                 <Button size="sm" className="h-8 font-mono text-xs" asChild>

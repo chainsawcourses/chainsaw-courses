@@ -80,10 +80,14 @@ export default function Waiver() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl flex flex-col h-[90vh]">
         <div className="mb-4">
-          <h1 className="text-2xl font-black font-mono tracking-tighter text-destructive uppercase">MANDATORY SAFETY WAIVER</h1>
+          <div className="mb-3">
+            <h1 className="text-2xl font-black font-mono tracking-tighter text-primary uppercase">Chainsaw Manual</h1>
+            <p className="text-muted-foreground uppercase tracking-widest text-xs font-mono">Professional Training Portal</p>
+          </div>
+          <h2 className="text-xl font-black font-mono tracking-tighter text-destructive uppercase">MANDATORY SAFETY WAIVER</h2>
           <p className="text-muted-foreground uppercase tracking-wider text-xs mt-1 font-mono">
             Read carefully before proceeding
           </p>
