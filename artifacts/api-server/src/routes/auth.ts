@@ -136,9 +136,9 @@ async function resolveUser(activationCode: string, deviceId: string) {
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.activationCode, normalizedCode), isNull(usersTable.deletedAt)));
+    .where(and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
 
-  if (!user || user.deviceId !== deviceId) return null;
+  if (!user) return null;
   return user;
 }
 
