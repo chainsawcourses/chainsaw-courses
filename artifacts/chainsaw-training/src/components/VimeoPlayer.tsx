@@ -18,6 +18,7 @@ function buildEmbedUrl(vimeoId: string): string {
     portrait: "0",
     transparent: "0",
     share: "0",
+    controls: "0",
     api: "1",
     playsinline: "1",
   });
@@ -37,6 +38,8 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const seekBarRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const durationRef = useRef(0);
 
   const [watermarkPos, setWatermarkPos] = useState({ top: "30%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -45,9 +48,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const [tapFlash, setTapFlash] = useState<"play" | "pause" | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
 
-  // Vimeo postMessage helper
   const sendCommand = useCallback((method: string, value?: unknown) => {
     if (!iframeRef.current?.contentWindow) return;
     iframeRef.current.contentWindow.postMessage(
@@ -56,7 +57,6 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     );
   }, []);
 
-  // Listen for Vimeo events via postMessage
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!String(e.origin).includes("vimeo.com")) return;
@@ -71,6 +71,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           sendCommand("getTextTracks");
         }
         if (data.method === "getDuration" && typeof data.value === "number") {
+          durationRef.current = data.value;
           setDuration(data.value);
         }
         if (data.method === "getTextTracks" && Array.isArray(data.value) && data.value.length > 0) {
@@ -80,19 +81,16 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         if (data.event === "play") setIsPaused(false);
         if (data.event === "timeupdate") {
           const t = data.data?.seconds ?? 0;
-          if (!isSeeking) setCurrentTime(t);
+          if (!isDraggingRef.current) setCurrentTime(t);
           onTimeUpdate?.(t);
         }
         if (data.event === "finish") { setIsPaused(true); onEnded?.(); }
-      } catch {
-        // ignore
-      }
+      } catch { /* ignore */ }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [sendCommand, onTimeUpdate, onEnded, isSeeking]);
+  }, [sendCommand, onTimeUpdate, onEnded]);
 
-  // Watermark movement — stay in top/bottom zones to avoid centre
   useEffect(() => {
     const move = () => {
       const zones = [
@@ -106,7 +104,6 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     return () => clearInterval(id);
   }, []);
 
-  // Fullscreen change tracking
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFsChange);
@@ -133,23 +130,61 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     setTimeout(() => setTapFlash(null), 600);
   }, [isPaused, sendCommand]);
 
-  // Seek bar interaction
-  const seekTo = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-    if (!seekBarRef.current || duration <= 0) return;
+  // Compute seek position from a clientX value
+  const clientXToTime = useCallback((clientX: number) => {
+    if (!seekBarRef.current || durationRef.current <= 0) return null;
     const rect = seekBarRef.current.getBoundingClientRect();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const t = pct * duration;
+    return pct * durationRef.current;
+  }, []);
+
+  const applySeek = useCallback((clientX: number) => {
+    const t = clientXToTime(clientX);
+    if (t === null) return;
     setCurrentTime(t);
     sendCommand("setCurrentTime", t);
-  }, [duration, sendCommand]);
+  }, [clientXToTime, sendCommand]);
 
-  const pct = duration > 0 ? (currentTime / duration) * 100 : 0;
+  // Mouse seek handlers
+  const onSeekMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    applySeek(e.clientX);
+  }, [applySeek]);
+
+  const onSeekMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    applySeek(e.clientX);
+  }, [applySeek]);
+
+  const onSeekMouseUp = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    applySeek(e.clientX);
+  }, [applySeek]);
+
+  // Touch seek handlers
+  const onSeekTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    applySeek(e.touches[0].clientX);
+  }, [applySeek]);
+
+  const onSeekTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!isDraggingRef.current) return;
+    applySeek(e.touches[0].clientX);
+  }, [applySeek]);
+
+  const onSeekTouchEnd = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    isDraggingRef.current = false;
+    if (e.changedTouches.length > 0) applySeek(e.changedTouches[0].clientX);
+  }, [applySeek]);
+
+  const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   const src = buildEmbedUrl(vimeoId);
 
   return (
     <div ref={containerRef}>
-      {/* Video container */}
+      {/* Video */}
       <div className="vimeo-portrait-container relative w-full aspect-video bg-black rounded-t-lg overflow-hidden border-x border-t border-border shadow-2xl">
         <iframe
           ref={iframeRef}
@@ -164,30 +199,23 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           onLoad={() => setIframeLoaded(true)}
         />
 
-        {/* Full-video tap overlay — now covers the whole frame including where Vimeo controls were */}
-        <div
-          className="absolute inset-0 z-40 cursor-pointer"
-          onClick={handleTap}
-        />
+        {/* Tap overlay — full frame */}
+        <div className="absolute inset-0 z-40 cursor-pointer" onClick={handleTap} />
 
-        {/* Big centre play button */}
-        <div
-          className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none"
-        >
-          <div
-            style={{
-              transition: "opacity 0.35s ease, transform 0.35s ease",
-              opacity: isPaused ? 1 : 0,
-              transform: isPaused ? "scale(1)" : "scale(0.8)",
-            }}
-          >
+        {/* Centre play button */}
+        <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+          <div style={{
+            transition: "opacity 0.3s ease, transform 0.3s ease",
+            opacity: isPaused ? 1 : 0,
+            transform: isPaused ? "scale(1)" : "scale(0.8)",
+          }}>
             <div className="bg-black/55 backdrop-blur-sm rounded-full p-5 border-2 border-white/30 shadow-2xl">
               <Play className="w-14 h-14 text-white fill-white" style={{ marginLeft: 4 }} />
             </div>
           </div>
         </div>
 
-        {/* Tap flash animation */}
+        {/* Tap flash */}
         {tapFlash && (
           <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
             <div className="bg-black/40 rounded-full p-5 animate-ping-once">
@@ -198,7 +226,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           </div>
         )}
 
-        {/* Dynamic watermark */}
+        {/* Watermark */}
         {iframeLoaded && (
           <div
             className="pointer-events-none absolute z-40 whitespace-nowrap transition-all duration-1000 ease-in-out"
@@ -220,8 +248,8 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         )}
       </div>
 
-      {/* Custom controls bar — always fully visible, never cropped */}
-      <div className="flex items-center gap-3 px-3 py-2 bg-black/85 backdrop-blur-sm rounded-b-lg border-x border-b border-border shadow-2xl">
+      {/* Controls bar — plain HTML, always fully visible */}
+      <div className="flex items-center gap-3 px-3 py-2 bg-black/85 backdrop-blur-sm rounded-b-lg border-x border-b border-border">
         {/* Play / Pause */}
         <button
           onClick={handleTap}
@@ -236,31 +264,30 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         {/* Seek bar */}
         <div
           ref={seekBarRef}
-          className="relative flex-1 h-2 bg-white/20 rounded-full cursor-pointer group"
-          onClick={seekTo}
-          onMouseDown={() => setIsSeeking(true)}
-          onMouseUp={() => setIsSeeking(false)}
-          onMouseLeave={() => setIsSeeking(false)}
-          onMouseMove={(e) => { if (isSeeking) seekTo(e); }}
-          onTouchStart={() => setIsSeeking(true)}
-          onTouchEnd={() => setIsSeeking(false)}
-          onTouchMove={(e) => { if (isSeeking) seekTo(e); }}
+          className="relative flex-1 h-3 bg-white/20 rounded-full cursor-pointer select-none"
+          onMouseDown={onSeekMouseDown}
+          onMouseMove={onSeekMouseMove}
+          onMouseUp={onSeekMouseUp}
+          onMouseLeave={(e) => { if (isDraggingRef.current) onSeekMouseUp(e); }}
+          onTouchStart={onSeekTouchStart}
+          onTouchMove={onSeekTouchMove}
+          onTouchEnd={onSeekTouchEnd}
         >
-          {/* Filled portion */}
+          {/* Filled */}
           <div
-            className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-[width] duration-150"
+            className="absolute left-0 top-0 h-full bg-orange-500 rounded-full"
             style={{ width: `${pct}%` }}
           />
-          {/* Scrubber thumb */}
+          {/* Thumb */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ left: `calc(${pct}% - 7px)` }}
+            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md"
+            style={{ left: `calc(${pct}% - 8px)` }}
           />
         </div>
 
-        {/* Time display */}
+        {/* Time */}
         <span className="shrink-0 text-white/70 text-xs font-mono tabular-nums">
-          {formatTime(currentTime)}&nbsp;/&nbsp;{formatTime(duration)}
+          {formatTime(currentTime)}&thinsp;/&thinsp;{formatTime(duration)}
         </span>
 
         {/* Fullscreen */}
