@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight, ArrowRight } from "lucide-react";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -12,6 +12,7 @@ export default function TrainingList() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, clearSession } = useUserSession();
   const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [hazardsOpen, setHazardsOpen] = useState(false);
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
     query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
@@ -29,7 +30,10 @@ export default function TrainingList() {
   // Equipment List module is excluded from the main list (shown in the collapsible above)
   const grouped = useMemo(() => {
     if (!modules) return [];
-    const filtered = modules.filter((m) => !m.title.toLowerCase().includes("equipment"));
+    const filtered = modules.filter((m) =>
+      !m.title.toLowerCase().includes("equipment") &&
+      !m.title.toLowerCase().includes("hazard")
+    );
     const categoryOrder: string[] = [];
     const categoryMap = new Map<string, Map<string | null, typeof modules>>();
     filtered.forEach((mod) => {
@@ -206,6 +210,157 @@ export default function TrainingList() {
                   </ul>
                 </div>
 
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Hazards & Control Measures — collapsible table */}
+        <div>
+          <button
+            onClick={() => setHazardsOpen((o) => !o)}
+            className="w-full flex items-center gap-3 py-3 text-left group"
+          >
+            <div className="w-1 h-6 bg-primary shrink-0" />
+            <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
+              Common Hazards &amp; Control Measures
+            </h2>
+            {hazardsOpen
+              ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
+              : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+            }
+          </button>
+
+          {hazardsOpen && (
+            <Card className="border-border bg-card/60 mt-1 overflow-hidden">
+              <CardContent className="p-0">
+                <p className="px-5 pt-5 pb-3 text-xs text-muted-foreground font-mono leading-relaxed">
+                  There are many different hazards involved with chainsaw use and the best thing you can do is{" "}
+                  <strong className="text-foreground">assume everything wants to hurt you</strong>. With that in mind, prepare yourself,
+                  the machine and the site as best you can to minimise any injuries occurring.
+                </p>
+                <p className="px-5 pb-4 text-xs text-muted-foreground font-mono italic">
+                  Outlined below are examples of hazards and their control measures.
+                </p>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs font-mono border-collapse min-w-[520px]">
+                    <thead>
+                      <tr className="bg-foreground text-background">
+                        <th className="w-8" />
+                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider border-r border-background/20">Hazards</th>
+                        <th className="w-6" />
+                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider border-r border-background/20">Risks</th>
+                        <th className="w-6" />
+                        <th className="py-2.5 px-3 text-left font-bold uppercase tracking-wider">Control Measures</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          category: "ON SITE",
+                          rows: [
+                            {
+                              hazard: "Uneven ground, mud, brambles, logs, branches and stumps.",
+                              risk: "Tripping, slipping and falling.",
+                              control: "Wear appropriate footwear, clear work area and keep the site tidy.",
+                            },
+                            {
+                              hazard: "Public footpath, dog walkers, any other 3rd parties.",
+                              risk: "Debris hitting pedestrians.",
+                              control: "Appropriate signs and banksperson if necessary.",
+                            },
+                            {
+                              hazard: "Overhead hanging branches and dead limbs.",
+                              risk: "Injury from falling limbs.",
+                              control: "Avoid working directly beneath hazards and wear protective helmet.",
+                            },
+                          ],
+                        },
+                        {
+                          category: "TASK UNDERTAKEN",
+                          rows: [
+                            {
+                              hazard: "Chainsaw use.",
+                              risk: "Cuts and kickback.",
+                              control: "Use the correct body position, appropriate cutting techniques and suitable PPE.",
+                            },
+                            {
+                              hazard: "Timber movement.",
+                              risk: "Being hit or struck by the timber.",
+                              control: "Secure timber wherever possible, avoid working on steep slopes and prepare escape routes.",
+                            },
+                            {
+                              hazard: "Heavy logs and branches.",
+                              risk: "Musculo-skeletal injuries.",
+                              control: "Use machinery or lifting aids where possible. Use good lifting methods.",
+                            },
+                          ],
+                        },
+                        {
+                          category: "THE CHAINSAW",
+                          rows: [
+                            {
+                              hazard: "Fuel and lubricants.",
+                              risk: "Fire, chemical poisoning.",
+                              control: "Use spill mats and fill up away from flammable sources and watercourses.",
+                            },
+                            {
+                              hazard: "Kickback and cuts.",
+                              risk: "Laceration injuries.",
+                              control: "Wear suitable PPE, adopt the correct body position and use appropriate cutting techniques.",
+                            },
+                            {
+                              hazard: "Vibration, noise, dust, fumes, exhaust, flying debris.",
+                              risk: "Immediate and long term injuries.",
+                              control: "Use a maintained chainsaw and wear suitable PPE.",
+                            },
+                          ],
+                        },
+                      ].map(({ category, rows }, gi) => (
+                        rows.map((row, ri) => (
+                          <tr
+                            key={`${gi}-${ri}`}
+                            className={`border-t border-border ${gi % 2 === 0 ? "bg-card/40" : "bg-secondary/20"}`}
+                          >
+                            {/* Rotated category label — only on first row of group */}
+                            {ri === 0 && (
+                              <td
+                                rowSpan={rows.length}
+                                className="border-r border-border text-center align-middle w-8 p-0"
+                                style={{ borderTop: gi > 0 ? "2px solid hsl(var(--primary))" : undefined }}
+                              >
+                                <div
+                                  className="text-primary font-black uppercase tracking-widest"
+                                  style={{
+                                    writingMode: "vertical-rl",
+                                    transform: "rotate(180deg)",
+                                    fontSize: "0.6rem",
+                                    letterSpacing: "0.15em",
+                                    padding: "8px 4px",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {category}
+                                </div>
+                              </td>
+                            )}
+                            <td className="py-2.5 px-3 align-top text-muted-foreground border-r border-border leading-relaxed">{row.hazard}</td>
+                            <td className="px-1 align-middle text-center text-primary">
+                              <ArrowRight className="w-3 h-3 mx-auto" />
+                            </td>
+                            <td className="py-2.5 px-3 align-top text-muted-foreground border-r border-border leading-relaxed">{row.risk}</td>
+                            <td className="px-1 align-middle text-center text-primary">
+                              <ArrowRight className="w-3 h-3 mx-auto" />
+                            </td>
+                            <td className="py-2.5 px-3 align-top text-muted-foreground leading-relaxed">{row.control}</td>
+                          </tr>
+                        ))
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </CardContent>
             </Card>
           )}
