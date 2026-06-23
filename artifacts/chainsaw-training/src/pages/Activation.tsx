@@ -81,14 +81,24 @@ export default function Activation() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-black font-mono tracking-tighter text-primary uppercase">Chainsaw Manual</h1>
-          <p className="text-muted-foreground uppercase tracking-widest text-xs mt-2 font-mono">Professional Training Portal</p>
+          <h1
+            className="text-3xl font-black font-mono tracking-tighter text-primary uppercase"
+            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.8)" }}
+          >
+            Chainsaw Manual
+          </h1>
+          <p
+            className="uppercase tracking-widest text-xs mt-2 font-mono text-white"
+            style={{ textShadow: "0 1px 6px rgba(0,0,0,0.8)" }}
+          >
+            Professional Training Portal
+          </p>
         </div>
         
-        <Card className="border-border bg-card/50 backdrop-blur">
+        <Card className="border-border bg-card/80 backdrop-blur-sm">
           <CardHeader className="space-y-1 text-center border-b border-border mb-6 pb-6">
             <CardTitle className="text-2xl font-mono uppercase tracking-wide">System Activation</CardTitle>
             <CardDescription className="font-mono text-xs">

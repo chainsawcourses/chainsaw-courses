@@ -62,6 +62,15 @@ function App() {
       <UserProvider>
         <AdminProvider>
           <TooltipProvider>
+            {/* Background image + white wash, behind all content */}
+            <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
+              <img
+                src={`${import.meta.env.BASE_URL}bg.jpg`}
+                alt=""
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.75)" }} />
+            </div>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <Router />
             </WouterRouter>
