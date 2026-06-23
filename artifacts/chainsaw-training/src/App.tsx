@@ -19,9 +19,9 @@ import StudentDetail from "@/pages/admin/StudentDetail";
 import VideoSettings from "@/pages/admin/VideoSettings";
 import PdfSettings from "@/pages/admin/PdfSettings";
 
-// Ensure tailwind generates the dark class by adding it to html
+// Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
-  document.documentElement.classList.add("dark");
+  document.documentElement.classList.remove("dark");
 }
 
 const queryClient = new QueryClient({
