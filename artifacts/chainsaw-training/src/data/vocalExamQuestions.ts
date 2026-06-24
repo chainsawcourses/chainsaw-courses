@@ -918,6 +918,20 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
 
   {
     id: 66,
+    question: "When would you use a bore cut when cross cutting timber?",
+    prompts: [{
+      prompt: "When would you use a bore cut when cross cutting timber?",
+      threshold: 2,
+      keyPoints: [
+        { label: "Timber diameter is larger than the guidebar — cannot cut through in one pass", keywords: ["larger than", "bigger than", "longer bar", "too large", "diameter larger", "can't cut through", "one pass"] },
+        { label: "Timber under tension — to prevent the bar being pinched or trapped", keywords: ["tension", "pinch", "trapped", "under tension", "prevent pinch", "stop bar getting trapped", "avoid trapping"] },
+        { label: "Working in confined space — to avoid the kickback zone at the nose", keywords: ["confined", "tight space", "kickback zone", "nose", "tip of bar", "restricted", "nose kickback"] },
+      ],
+    }],
+  },
+
+  {
+    id: 67,
     question: "Once you've cut your timber, how are you going to move it safely?",
     prompts: [{
       prompt: "Once you've cut your timber, how are you going to move it safely?",
@@ -930,7 +944,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   },
 
   {
-    id: 67,
+    id: 68,
     question: "How do you make moving and working more ergonomic?",
     prompts: [{
       prompt: "How do you make moving and working more ergonomic?",
@@ -944,7 +958,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   },
 
   {
-    id: 68,
+    id: 69,
     question: "How are you going to make sure your timber stacks are stable?",
     prompts: [{
       prompt: "How are you going to make sure your timber stacks are stable?",
@@ -958,7 +972,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   },
 
   {
-    id: 69,
+    id: 70,
     question: "What else do you need to think about when stacking lots of different timber?",
     prompts: [{
       prompt: "What else do you need to think about when stacking lots of different timber?",
@@ -969,6 +983,72 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
         { label: "Access for machinery — leave sufficient space for vehicles or equipment", keywords: ["access", "machinery", "vehicle", "space", "room for", "equipment access", "forwarder"] },
         { label: "Stability considerations — heavier or longer pieces at the base", keywords: ["stability", "heavy at bottom", "base", "heavier", "longer at base", "stable stack"] },
       ],
+    }],
+  },
+
+  {
+    id: 71,
+    question: "Before you start your saw, what checks do you need to do?",
+    prompts: [{
+      prompt: "Before you start your saw, what checks do you need to do?",
+      threshold: 4,
+      keyPoints: [
+        { label: "Check fuel level and bar oil level", keywords: ["fuel", "fuel level", "oil level", "bar oil", "check fuel", "check oil"] },
+        { label: "Check bar and chain condition — tension, sharpness, lubrication", keywords: ["bar", "chain", "tension", "sharp", "lubrication", "bar condition", "chain condition", "chain tension"] },
+        { label: "Check all nuts and bolts are tight", keywords: ["nuts", "bolts", "tight", "secure", "fixings", "tighten", "not loose"] },
+        { label: "Check all safety features are present and working — chain brake, guards", keywords: ["safety features", "chain brake", "guards", "present", "working", "functional"] },
+        { label: "Check PPE is correct and in good condition", keywords: ["ppe", "personal protective", "chainsaw trousers", "helmet", "visor", "gloves", "boots", "protective equipment"] },
+        { label: "Check the area is clear of hazards and bystanders", keywords: ["area clear", "exclusion zone", "bystander", "hazard free", "clear area", "people clear", "site clear"] },
+      ],
+    }],
+  },
+
+  {
+    id: 72,
+    question: "What functional checks do you need to perform before you actually use your saw?",
+    prompts: [{
+      prompt: "What functional checks do you need to perform before you actually use your saw?",
+      threshold: 3,
+      keyPoints: [
+        { label: "Start the saw and test the chain brake — manual activation and inertia", keywords: ["start the saw", "test chain brake", "chain brake", "manual", "inertia", "test brake"] },
+        { label: "Check the chain does not move at idle speed", keywords: ["idle", "chain doesn't move", "chain not move", "idle speed", "chain at idle", "not moving at idle"] },
+        { label: "Test the throttle trigger lockout", keywords: ["throttle lockout", "trigger lockout", "throttle trigger", "lockout", "trigger test"] },
+        { label: "Check the chain oiler is working — bar oil reaching the chain", keywords: ["chain oiler", "oiler", "oil reaching", "bar oil", "oil flow", "oiling system", "oil throwing"] },
+        { label: "Check the anti-vibration system is functioning", keywords: ["anti-vibration", "vibration", "av system", "vibration system", "anti vibration"] },
+      ],
+    }],
+  },
+
+  {
+    id: 73,
+    question: "With all checks done and everything in good condition and working correctly, you are ready to undertake the practical assessment.",
+    prompts: [{
+      prompt: "With all checks done and everything in good condition and working correctly, you are ready to undertake the practical assessment for using and cutting with a chainsaw. Ensure you have another person with you at all times when using a chainsaw. This is non-negotiable.",
+      threshold: 0,
+      isAction: true,
+      keyPoints: [],
+    }],
+  },
+
+  {
+    id: 74,
+    question: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts.",
+    prompts: [{
+      prompt: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts, all whilst maintaining a good, safe work position — keep your head out the way!",
+      threshold: 0,
+      isAction: true,
+      keyPoints: [],
+    }],
+  },
+
+  {
+    id: 75,
+    question: "Good luck.",
+    prompts: [{
+      prompt: "Good luck.",
+      threshold: 0,
+      isAction: true,
+      keyPoints: [],
     }],
   },
 
