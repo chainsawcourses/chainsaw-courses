@@ -59,6 +59,7 @@ export default function MockTest() {
   const finalTranscriptRef = useRef("");
   const isRecordingRef = useRef(false);
   const recognitionRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const question = VOCAL_EXAM_QUESTIONS[questionIdx];
   const prompt = question.prompts[promptIdx];
@@ -68,15 +69,20 @@ export default function MockTest() {
   // Running question count (1-indexed position considering all prompts)
   const overallProgress = questionIdx + 1;
 
-  // ── TTS ──────────────────────────────────────────────────────────────────
+  // ── Audio helpers ─────────────────────────────────────────────────────
   const stopSpeaking = useCallback(() => {
     if (hasSpeechSynthesis()) window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
     setIsSpeaking(false);
   }, []);
 
-  const speakText = useCallback((text: string) => {
+  // TTS fallback
+  const speakViaTTS = useCallback((text: string) => {
     if (!hasSpeechSynthesis()) return;
-    stopSpeaking();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = "en-GB";
     utter.rate = 0.88;
@@ -90,9 +96,44 @@ export default function MockTest() {
     utter.onend = () => setIsSpeaking(false);
     utter.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utter);
-  }, [stopSpeaking]);
+  }, []);
 
-  // ── Auto-read prompt when entering prompt phase ───────────────────────
+  // Play recorded audio file, falling back to TTS if the file doesn't exist yet
+  const playPrompt = useCallback((qIdx: number, pIdx: number) => {
+    stopSpeaking();
+    const q = VOCAL_EXAM_QUESTIONS[qIdx];
+    const p = q.prompts[pIdx];
+    const totalP = q.prompts.length;
+    const id = String(q.id).padStart(2, "0");
+    const src =
+      totalP > 1
+        ? `${import.meta.env.BASE_URL}audio/q${id}-p${pIdx + 1}.wav`
+        : `${import.meta.env.BASE_URL}audio/q${id}.wav`;
+
+    const audio = new Audio(src);
+    audioRef.current = audio;
+    audio.onplay = () => setIsSpeaking(true);
+    audio.onended = () => { setIsSpeaking(false); audioRef.current = null; };
+    audio.onerror = () => {
+      // File not uploaded yet — fall back to browser TTS
+      audioRef.current = null;
+      const prefix =
+        totalP > 1
+          ? `Part ${pIdx + 1} of ${totalP}. `
+          : `Question ${qIdx + 1} of ${TOTAL}. `;
+      speakViaTTS(prefix + p.prompt);
+    };
+    audio.play().catch(() => {
+      audioRef.current = null;
+      const prefix =
+        totalP > 1
+          ? `Part ${pIdx + 1} of ${totalP}. `
+          : `Question ${qIdx + 1} of ${TOTAL}. `;
+      speakViaTTS(prefix + p.prompt);
+    });
+  }, [stopSpeaking, speakViaTTS]);
+
+  // ── Auto-play prompt when entering prompt phase ───────────────────────
   useEffect(() => {
     if (phase === "prompt") {
       finalTranscriptRef.current = "";
@@ -100,14 +141,7 @@ export default function MockTest() {
       setInterimTranscript("");
       setMicError(null);
       setLastPromptResult(null);
-
-      const q = VOCAL_EXAM_QUESTIONS[questionIdx];
-      const p = q.prompts[promptIdx];
-      const prefix =
-        isMultiPrompt
-          ? `Part ${promptIdx + 1} of ${totalPrompts}. `
-          : `Question ${questionIdx + 1} of ${TOTAL}. `;
-      speakText(prefix + p.prompt);
+      playPrompt(questionIdx, promptIdx);
     }
     if (phase !== "prompt") stopSpeaking();
   }, [phase, questionIdx, promptIdx]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -371,7 +405,7 @@ export default function MockTest() {
                     variant="outline"
                     size="sm"
                     className="font-mono text-xs gap-1.5"
-                    onClick={() => speakText(prompt.prompt)}
+                    onClick={() => playPrompt(questionIdx, promptIdx)}
                   >
                     <Volume2 className="w-3 h-3" />Read again
                   </Button>
