@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed-quiz": "tsx ./src/seed-quiz-questions.ts",
+    "add-battery-module": "tsx ./src/add-battery-chainsaw-module.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
