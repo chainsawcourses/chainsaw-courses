@@ -248,7 +248,7 @@ export default function MockTest() {
     currentPromptResultsRef.current = [...currentPromptResultsRef.current, result];
     setLastPromptResult(result);
     setPhase("prompt-review");
-  }, [stopRecording, interimTranscript, prompt]);
+  }, [stopRecording, interimTranscript, typedText, prompt]);
 
   // ── Submit action (auto-pass, no scoring) ─────────────────────────────
   const submitAction = useCallback(() => {
