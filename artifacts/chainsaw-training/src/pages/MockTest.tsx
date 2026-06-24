@@ -252,6 +252,15 @@ export default function MockTest() {
     setPhase("prompt-review");
   }, [stopRecording, interimTranscript, prompt]);
 
+  // ── Submit action (auto-pass, no scoring) ─────────────────────────────
+  const submitAction = useCallback(() => {
+    stopSpeaking();
+    const result: PromptResult = { transcript: "", matched: [], passed: true };
+    currentPromptResultsRef.current = [...currentPromptResultsRef.current, result];
+    setLastPromptResult(result);
+    setPhase("prompt-review");
+  }, [stopSpeaking]);
+
   // ── Next: advance to next prompt or next question ─────────────────────
   const handleNext = useCallback(() => {
     const q = VOCAL_EXAM_QUESTIONS[questionIdx];
@@ -349,9 +358,10 @@ export default function MockTest() {
                 NPTC Oral Exam Practice
               </h2>
               <p className="text-muted-foreground font-mono text-sm leading-relaxed">
-                {TOTAL} questions from the City &amp; Guilds 0039-20 assessment schedule.
-                Each question is read aloud. Speak your answer clearly, then submit.
-                Key points are revealed after each answer.
+                {TOTAL} questions and practical actions from the NPTC assessment schedule.
+                Each question is read aloud — speak your answer clearly, then submit.
+                Key points are revealed after each answer. Practical actions just require
+                a tap to continue.
               </p>
               <p className="text-muted-foreground font-mono text-xs opacity-60">
                 Microphone required · Chrome or Edge recommended
@@ -394,8 +404,8 @@ export default function MockTest() {
                 </p>
               )}
               {!isMultiPrompt && (
-                <p className="font-mono text-xs text-primary uppercase tracking-widest">
-                  Question {questionIdx + 1} of {TOTAL}
+                <p className={`font-mono text-xs uppercase tracking-widest ${prompt.isAction ? "text-amber-500" : "text-primary"}`}>
+                  {prompt.isAction ? `Action ${questionIdx + 1} of ${TOTAL}` : `Question ${questionIdx + 1} of ${TOTAL}`}
                 </p>
               )}
               <h2 className="font-mono font-bold text-base leading-snug">{prompt.prompt}</h2>
@@ -407,7 +417,7 @@ export default function MockTest() {
                     className="font-mono text-xs gap-1.5"
                     onClick={() => playPrompt(questionIdx, promptIdx)}
                   >
-                    <Volume2 className="w-3 h-3" />Read again
+                    <Volume2 className="w-3 h-3" />Play again
                   </Button>
                 ) : (
                   <Button
@@ -422,68 +432,90 @@ export default function MockTest() {
               </div>
             </div>
 
-            {/* Live transcript */}
-            <div className="rounded-lg border border-border bg-card/40 min-h-[120px] p-4">
-              {(transcript || interimTranscript) ? (
-                <p className="font-mono text-sm leading-relaxed">
-                  <span className="text-foreground">{transcript}</span>
-                  {interimTranscript && (
-                    <span className="text-muted-foreground/50"> {interimTranscript}</span>
-                  )}
-                </p>
-              ) : (
-                <p className="font-mono text-sm text-muted-foreground/40 italic">
-                  {isRecording ? "Listening… speak your answer" : "Your answer will appear here"}
-                </p>
-              )}
-            </div>
-
-            {/* Mic error */}
-            {micError && (
-              <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg p-3">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <p className="font-mono text-xs text-destructive">{micError}</p>
+            {/* ACTION — no mic, just a continue button */}
+            {prompt.isAction ? (
+              <div className="space-y-4">
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-center">
+                  <p className="font-mono text-sm text-amber-400 font-bold uppercase tracking-widest">
+                    Practical Action
+                  </p>
+                  <p className="font-mono text-xs text-muted-foreground mt-1">
+                    Perform the action, then tap continue when ready.
+                  </p>
+                </div>
+                <Button
+                  className="w-full font-mono font-black uppercase tracking-widest"
+                  onClick={submitAction}
+                >
+                  Done — Continue <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
+            ) : (
+              <>
+                {/* Live transcript */}
+                <div className="rounded-lg border border-border bg-card/40 min-h-[120px] p-4">
+                  {(transcript || interimTranscript) ? (
+                    <p className="font-mono text-sm leading-relaxed">
+                      <span className="text-foreground">{transcript}</span>
+                      {interimTranscript && (
+                        <span className="text-muted-foreground/50"> {interimTranscript}</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="font-mono text-sm text-muted-foreground/40 italic">
+                      {isRecording ? "Listening… speak your answer" : "Your answer will appear here"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Mic error */}
+                {micError && (
+                  <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+                    <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                    <p className="font-mono text-xs text-destructive">{micError}</p>
+                  </div>
+                )}
+
+                {/* Controls */}
+                <div className="flex gap-3">
+                  {!isRecording ? (
+                    <Button
+                      className="flex-1 font-mono font-black uppercase tracking-widest gap-2"
+                      onClick={startRecording}
+                    >
+                      <Mic className="w-4 h-4" />
+                      {transcript ? "Record More" : "Start Recording"}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="destructive"
+                      className="flex-1 font-mono font-black uppercase tracking-widest gap-2 animate-pulse"
+                      onClick={stopRecording}
+                    >
+                      <MicOff className="w-4 h-4" />Stop Recording
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="font-mono font-black uppercase tracking-widest"
+                    disabled={(!transcript && !interimTranscript) || isRecording}
+                    onClick={() => submitAnswer(false)}
+                  >
+                    Submit
+                  </Button>
+                </div>
+
+                {/* Skip */}
+                <div className="text-center">
+                  <button
+                    className="font-mono text-xs text-muted-foreground/40 underline hover:text-muted-foreground"
+                    onClick={() => submitAnswer(true)}
+                  >
+                    Skip this {isMultiPrompt ? "part" : "question"}
+                  </button>
+                </div>
+              </>
             )}
-
-            {/* Controls */}
-            <div className="flex gap-3">
-              {!isRecording ? (
-                <Button
-                  className="flex-1 font-mono font-black uppercase tracking-widest gap-2"
-                  onClick={startRecording}
-                >
-                  <Mic className="w-4 h-4" />
-                  {transcript ? "Record More" : "Start Recording"}
-                </Button>
-              ) : (
-                <Button
-                  variant="destructive"
-                  className="flex-1 font-mono font-black uppercase tracking-widest gap-2 animate-pulse"
-                  onClick={stopRecording}
-                >
-                  <MicOff className="w-4 h-4" />Stop Recording
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                className="font-mono font-black uppercase tracking-widest"
-                disabled={(!transcript && !interimTranscript) || isRecording}
-                onClick={() => submitAnswer(false)}
-              >
-                Submit
-              </Button>
-            </div>
-
-            {/* Skip */}
-            <div className="text-center">
-              <button
-                className="font-mono text-xs text-muted-foreground/40 underline hover:text-muted-foreground"
-                onClick={() => submitAnswer(true)}
-              >
-                Skip this {isMultiPrompt ? "part" : "question"}
-              </button>
-            </div>
           </div>
         )}
 
@@ -505,61 +537,73 @@ export default function MockTest() {
                 </p>
               )}
               {!isMultiPrompt && (
-                <p className="font-mono text-xs text-primary uppercase tracking-widest">
-                  Question {questionIdx + 1} of {TOTAL} — Review
+                <p className={`font-mono text-xs uppercase tracking-widest ${prompt.isAction ? "text-amber-500" : "text-primary"}`}>
+                  {prompt.isAction ? `Action ${questionIdx + 1} of ${TOTAL}` : `Question ${questionIdx + 1} of ${TOTAL} — Review`}
                 </p>
               )}
               <p className="font-mono text-sm font-bold leading-snug">{prompt.prompt}</p>
             </div>
 
-            {/* Transcript */}
-            <Card className="border-border bg-card/40">
-              <CardContent className="p-4 space-y-1">
-                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Your answer</p>
-                <p className="font-mono text-sm leading-relaxed">
-                  {lastPromptResult.transcript || (
-                    <span className="italic text-muted-foreground/50">No answer recorded</span>
-                  )}
+            {/* ACTION review — simple acknowledgement, no scoring */}
+            {prompt.isAction ? (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-center">
+                <CheckCircle className="w-6 h-6 text-amber-400 mx-auto mb-2" />
+                <p className="font-mono text-sm text-amber-400 font-bold uppercase tracking-widest">
+                  Action Acknowledged
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            ) : (
+              <>
+                {/* Transcript */}
+                <Card className="border-border bg-card/40">
+                  <CardContent className="p-4 space-y-1">
+                    <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Your answer</p>
+                    <p className="font-mono text-sm leading-relaxed">
+                      {lastPromptResult.transcript || (
+                        <span className="italic text-muted-foreground/50">No answer recorded</span>
+                      )}
+                    </p>
+                  </CardContent>
+                </Card>
 
-            {/* Key points */}
-            <div className="space-y-2">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
-                Assessment criteria
-              </p>
-              {prompt.keyPoints.map((kp, i) => (
+                {/* Key points */}
+                <div className="space-y-2">
+                  <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+                    Assessment criteria
+                  </p>
+                  {prompt.keyPoints.map((kp, i) => (
+                    <div
+                      key={i}
+                      className={`flex items-start gap-2.5 rounded-lg p-3 border text-sm font-mono leading-snug ${
+                        lastPromptResult.matched[i]
+                          ? "bg-green-500/8 border-green-500/25 text-foreground"
+                          : "bg-destructive/5 border-destructive/20 text-muted-foreground"
+                      }`}
+                    >
+                      {lastPromptResult.matched[i] ? (
+                        <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-destructive/60 shrink-0 mt-0.5" />
+                      )}
+                      {kp.label}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pass/fail for this prompt */}
                 <div
-                  key={i}
-                  className={`flex items-start gap-2.5 rounded-lg p-3 border text-sm font-mono leading-snug ${
-                    lastPromptResult.matched[i]
-                      ? "bg-green-500/8 border-green-500/25 text-foreground"
-                      : "bg-destructive/5 border-destructive/20 text-muted-foreground"
+                  className={`rounded-lg p-4 text-center font-mono font-black uppercase tracking-widest text-sm border ${
+                    lastPromptResult.passed
+                      ? "bg-green-500/10 border-green-500/30 text-green-400"
+                      : "bg-destructive/10 border-destructive/30 text-destructive"
                   }`}
                 >
-                  {lastPromptResult.matched[i] ? (
-                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-destructive/60 shrink-0 mt-0.5" />
-                  )}
-                  {kp.label}
+                  {lastPromptResult.passed
+                    ? `✓ Passed — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`
+                    : `✗ Not yet — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`}
                 </div>
-              ))}
-            </div>
-
-            {/* Pass/fail for this prompt */}
-            <div
-              className={`rounded-lg p-4 text-center font-mono font-black uppercase tracking-widest text-sm border ${
-                lastPromptResult.passed
-                  ? "bg-green-500/10 border-green-500/30 text-green-400"
-                  : "bg-destructive/10 border-destructive/30 text-destructive"
-              }`}
-            >
-              {lastPromptResult.passed
-                ? `✓ Passed — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`
-                : `✗ Not yet — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`}
-            </div>
+              </>
+            )}
 
             {/* If this is the last prompt of a multi-part, show overall question result preview */}
             {isMultiPrompt && promptIdx + 1 === totalPrompts && (() => {
@@ -638,12 +682,12 @@ export default function MockTest() {
                         : <XCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />}
                       <p className="font-mono text-xs font-bold leading-snug">Q{qi + 1}: {q.question}</p>
                     </div>
-                    {/* Show failed prompts */}
-                    {qr.promptResults.some((pr) => !pr.passed) && (
+                    {/* Show failed prompts (skip action items) */}
+                    {qr.promptResults.some((pr, pi) => !pr.passed && !q.prompts[pi]?.isAction) && (
                       <div className="pl-6 space-y-1">
                         {q.prompts.map((p, pi) => {
                           const pr = qr.promptResults[pi];
-                          if (!pr || pr.passed) return null;
+                          if (!pr || pr.passed || p.isAction) return null;
                           const missed = p.keyPoints
                             .filter((_, ki) => !pr.matched[ki])
                             .map((kp) => kp.label);
