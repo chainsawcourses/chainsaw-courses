@@ -160,8 +160,8 @@ export default function TrainingList() {
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
 
         {/* Page title */}
-        <div className="pb-2 border-b border-border">
-          <h1 className="font-black tracking-tighter text-3xl uppercase leading-tight text-primary">
+        <div className="pb-2 border-b border-border text-center">
+          <h1 className="font-black tracking-tighter text-xl uppercase leading-tight text-primary">
             Maintenance &amp; Cross Cutting
           </h1>
         </div>
