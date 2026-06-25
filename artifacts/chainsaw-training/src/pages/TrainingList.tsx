@@ -205,6 +205,7 @@ export default function TrainingList() {
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
+          <p className="font-black tracking-tighter text-xs uppercase text-foreground mb-0.5">Chainsaw Courses</p>
           <h1 className="font-black tracking-tighter text-xl uppercase leading-tight text-primary">
             Maintenance &amp; Cross Cutting
           </h1>
