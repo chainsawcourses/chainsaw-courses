@@ -92,8 +92,12 @@ export default function TrainingList() {
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-6 bg-primary" />
-            <h1 className="font-mono font-black tracking-tighter text-lg uppercase">Chainsaw Manual</h1>
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Chainsaw Courses"
+              className="h-10 w-auto object-contain"
+            />
+            <h1 className="font-black tracking-tighter text-lg uppercase">Chainsaw Courses</h1>
           </div>
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>

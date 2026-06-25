@@ -83,9 +83,16 @@ export default function Waiver() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-3xl flex flex-col h-[90vh]">
         <div className="mb-4">
-          <div className="mb-3">
-            <h1 className="text-2xl font-black font-mono tracking-tighter text-primary uppercase">Chainsaw Manual</h1>
-            <p className="text-muted-foreground uppercase tracking-widest text-xs font-mono">Professional Training Portal</p>
+          <div className="mb-3 flex items-center gap-3">
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Chainsaw Courses"
+              className="h-12 w-auto object-contain"
+            />
+            <div>
+              <h1 className="text-2xl font-black tracking-tighter text-primary uppercase">Chainsaw Courses</h1>
+              <p className="text-muted-foreground uppercase tracking-widest text-xs">Professional Training Portal</p>
+            </div>
           </div>
           <h2 className="text-xl font-black font-mono tracking-tighter text-destructive uppercase">MANDATORY SAFETY WAIVER</h2>
           <p className="text-muted-foreground uppercase tracking-wider text-xs mt-1 font-mono">
@@ -111,7 +118,7 @@ export default function Waiver() {
             
             <p>5. I accept full responsibility for my own safety and the safety of those around me when applying the techniques demonstrated in this manual.</p>
             
-            <p>6. The creators, producers, and distributors of the Chainsaw Manual Professional Training App accept no liability for any injury, loss, or damage resulting directly or indirectly from the use of the information contained within this platform.</p>
+            <p>6. The creators, producers, and distributors of the Chainsaw Courses Professional Training App accept no liability for any injury, loss, or damage resulting directly or indirectly from the use of the information contained within this platform.</p>
             
             <div className="h-[20vh]" /> {/* Spacing to ensure scrolling works */}
           </div>

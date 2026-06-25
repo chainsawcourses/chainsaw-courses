@@ -84,10 +84,17 @@ export default function Activation() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-black font-mono tracking-tighter text-primary uppercase">
-            Chainsaw Manual
-          </h1>
-          <p className="uppercase tracking-widest text-xs mt-2 font-mono text-muted-foreground">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Chainsaw Courses"
+              className="h-16 w-auto object-contain"
+            />
+            <h1 className="text-3xl font-black tracking-tighter text-primary uppercase leading-none">
+              Chainsaw Courses
+            </h1>
+          </div>
+          <p className="uppercase tracking-widest text-xs mt-2 text-muted-foreground">
             Professional Training Portal
           </p>
         </div>
