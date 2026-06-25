@@ -48,13 +48,20 @@ export default function TrainingList() {
     });
   };
 
+  // Course Requirements modules — rendered separately below the equipment collapsible
+  const courseReqModules = useMemo(
+    () => (modules ?? []).filter((m) => m.category === "COURSE REQUIREMENTS"),
+    [modules]
+  );
+
   // Group remaining modules by category → sub-category, preserving DB order
-  // Equipment List and Hazards modules are excluded (shown in collapsibles)
+  // Equipment List, Course Requirements and Hazards modules are excluded (shown separately)
   const grouped = useMemo(() => {
     if (!modules) return [];
     const filtered = modules.filter((m) =>
       !m.title.toLowerCase().includes("equipment") &&
-      !m.title.toLowerCase().includes("hazard")
+      !m.title.toLowerCase().includes("hazard") &&
+      m.category !== "COURSE REQUIREMENTS"
     );
     const categoryOrder: string[] = [];
     const categoryMap = new Map<string, Map<string | null, typeof modules>>();
@@ -239,6 +246,71 @@ export default function TrainingList() {
             </Card>
           )}
         </div>
+
+        {/* Course Requirements — modules from DB category */}
+        {courseReqModules.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 py-1">
+              <div className="w-1 h-6 bg-primary shrink-0" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Requirements</h2>
+            </div>
+            {courseReqModules.map((module) => {
+              const isPdf = module.contentType === "pdf";
+              return (
+                <Card
+                  key={module.id}
+                  className={`border-border transition-all duration-150 ${
+                    module.isLocked
+                      ? "opacity-40 bg-card/30"
+                      : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
+                  }`}
+                >
+                  <CardContent className="p-4 flex items-center gap-4">
+                    <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                      {module.isLocked ? (
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                      ) : module.isCompleted ? (
+                        <CheckCircle className="w-4 h-4 text-primary" />
+                      ) : isPdf ? (
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
+                        {isPdf && (
+                          <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
+                        )}
+                        {module.isCompleted && (
+                          <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
+                    </div>
+                    {!module.isLocked && (
+                      <div className="shrink-0">
+                        <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                          <Link href={`/training/${module.id}`}>
+                            {isPdf ? (
+                              <><FileText className="w-3 h-3 mr-1.5" />{module.isCompleted ? "VIEW" : "OPEN"}</>
+                            ) : (
+                              <><PlayCircle className="w-3 h-3 mr-1.5" />{module.isCompleted ? "REWATCH" : "START"}</>
+                            )}
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                    {module.isLocked && (
+                      <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
         {/* Modules / Quizzes / Status */}
         <Card className="bg-card/60 border-border">
