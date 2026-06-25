@@ -128,6 +128,16 @@ export default function TrainingList() {
                     Qualification Handbook
                   </a>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="uppercase tracking-wider cursor-pointer"
+                  >
+                    Assessment Schedule
+                  </a>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
