@@ -173,19 +173,38 @@ export default function TrainingList() {
           </h1>
         </div>
 
-        {/* Overall Progress — compact strip */}
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0">Progress</span>
-          <div className="flex-1">
+        {/* Modules / Quizzes / Status + Progress */}
+        <Card className="bg-card/60 border-border">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex gap-4">
+              <div className="flex-1 flex flex-col gap-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Modules</span>
+                  <span className="font-mono font-bold text-xs">{summary?.completedModules || 0} / {summary?.totalModules || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Quizzes Passed</span>
+                  <span className="font-mono font-bold text-xs">{summary?.quizzesPassed || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Status</span>
+                  <span className={`font-mono font-bold text-xs ${summary?.certificateEarned ? 'text-primary' : 'text-muted-foreground'}`}>
+                    {summary?.certificateEarned ? 'COMPLETE' : 'IN PROGRESS'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center pl-4 border-l border-border min-w-[64px]">
+                <span className="font-mono font-black text-2xl text-primary leading-none">{summary?.percentComplete || 0}%</span>
+                {summary?.certificateEarned && (
+                  <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono text-[9px] py-0 mt-1">
+                    <Award className="w-2.5 h-2.5 mr-0.5" /> CERTIFIED
+                  </Badge>
+                )}
+              </div>
+            </div>
             <Progress value={summary?.percentComplete || 0} className="h-1.5 bg-secondary" />
-          </div>
-          <span className="font-mono font-black text-xs text-primary shrink-0">{summary?.percentComplete || 0}%</span>
-          {summary?.certificateEarned && (
-            <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono text-[9px] py-0 shrink-0">
-              <Award className="w-2.5 h-2.5 mr-0.5" /> CERTIFIED
-            </Badge>
-          )}
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Tools & Equipment Needed — collapsible, at top */}
         <div>
@@ -338,26 +357,6 @@ export default function TrainingList() {
             })}
           </div>
         )}
-
-        {/* Modules / Quizzes / Status */}
-        <Card className="bg-card/60 border-border">
-          <CardContent className="p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-border pb-2">
-              <span className="text-xs font-mono text-muted-foreground uppercase">Modules</span>
-              <span className="font-mono font-bold">{summary?.completedModules || 0} / {summary?.totalModules || 0}</span>
-            </div>
-            <div className="flex justify-between items-center border-b border-border pb-2">
-              <span className="text-xs font-mono text-muted-foreground uppercase">Quizzes Passed</span>
-              <span className="font-mono font-bold">{summary?.quizzesPassed || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-mono text-muted-foreground uppercase">Status</span>
-              <span className={`font-mono font-bold text-xs ${summary?.certificateEarned ? 'text-primary' : 'text-muted-foreground'}`}>
-                {summary?.certificateEarned ? 'COMPLETE' : 'IN PROGRESS'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Grouped Module List */}
         <div className="space-y-10">
