@@ -145,12 +145,15 @@ export default function TrainingModule() {
           <>
             {/* Video player — capped height so info panel stays visible without scrolling */}
             <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "38vh" }}>
+              {/* pointer-events-none when overlay is active so iframe doesn't swallow clicks */}
               {canPlay && module.vimeoId ? (
-                <VimeoPlayer
-                  vimeoId={module.vimeoId}
-                  onTimeUpdate={handleTimeUpdate}
-                  onEnded={handleVideoEnded}
-                />
+                <div className={(videoCompleted || module.isCompleted) ? "pointer-events-none" : ""}>
+                  <VimeoPlayer
+                    vimeoId={module.vimeoId}
+                    onTimeUpdate={handleTimeUpdate}
+                    onEnded={handleVideoEnded}
+                  />
+                </div>
               ) : (
                 <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
                   <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs">
