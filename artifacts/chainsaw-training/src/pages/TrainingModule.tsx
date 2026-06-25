@@ -145,46 +145,61 @@ export default function TrainingModule() {
         {/* ── VIDEO MODULE ── */}
         {!isPdf && (
           <>
-            {canPlay && module.vimeoId ? (
-              <div className="flex-1 flex flex-col justify-center max-h-[80vh]">
+            {/* Video player — capped height so info panel stays visible */}
+            <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "45vh" }}>
+              {canPlay && module.vimeoId ? (
                 <VimeoPlayer
                   vimeoId={module.vimeoId}
                   onTimeUpdate={handleTimeUpdate}
                   onEnded={handleVideoEnded}
                 />
-              </div>
-            ) : (
-              <div className="flex-1 flex items-center justify-center bg-secondary/20 border border-border rounded-lg aspect-video">
-                <div className="text-center font-mono text-muted-foreground uppercase tracking-widest">
-                  {safetyModalOpen ? "SAFETY ACKNOWLEDGMENT REQUIRED" : "INITIALIZING PLAYER..."}
+              ) : (
+                <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
+                  <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs">
+                    {safetyModalOpen ? "SAFETY ACKNOWLEDGMENT REQUIRED" : "INITIALIZING PLAYER..."}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card/30 p-6 rounded-lg border border-border">
+              {/* Take Quiz overlay — shown when video ends and quiz not yet passed */}
+              {(videoCompleted || module.isCompleted) && !module.quizPassed && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg">
+                  <Link href={`/quiz/${module.id}`}>
+                    <Button size="lg" className="font-mono tracking-widest text-base h-14 px-10 shadow-lg">
+                      TAKE QUIZ
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
+              {/* Quiz passed overlay indicator */}
+              {module.quizPassed && (videoCompleted || module.isCompleted) && (
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-full">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                  <span className="font-mono text-xs text-primary font-bold uppercase">Quiz Passed</span>
+                </div>
+              )}
+            </div>
+
+            {/* Module info panel */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card/30 p-5 rounded-lg border border-border">
               <div>
-                <h2 className="text-xl font-bold font-mono uppercase mb-2">{module.title}</h2>
+                <h2 className="text-lg font-bold font-mono uppercase mb-1">{module.title}</h2>
                 <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
               </div>
               <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
-                {(videoCompleted || module.isCompleted) && !module.quizPassed ? (
-                  <Button className="w-full sm:w-auto font-mono tracking-widest h-12" asChild>
+                {module.quizPassed ? (
+                  <div className="flex items-center text-primary font-mono font-bold text-sm">
+                    <CheckCircle2 className="w-4 h-4 mr-1.5" /> QUIZ PASSED
+                  </div>
+                ) : (videoCompleted || module.isCompleted) ? (
+                  <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
                     <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
                   </Button>
-                ) : module.quizPassed ? (
-                  <div className="flex items-center text-primary font-mono font-bold">
-                    <CheckCircle2 className="w-5 h-5 mr-2" /> QUIZ PASSED
-                  </div>
                 ) : (
-                  <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider text-right">
-                    {videoCompleted || module.isCompleted ? (
-                      <Button className="w-full sm:w-auto font-mono tracking-widest h-12" asChild>
-                        <Link href="/training">CONTINUE <ChevronRight className="w-4 h-4 ml-1" /></Link>
-                      </Button>
-                    ) : (
-                      <>WATCH VIDEO<br />TO CONTINUE</>
-                    )}
-                  </div>
+                  <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider text-right">
+                    Watch video<br />to continue
+                  </span>
                 )}
               </div>
             </div>
