@@ -4,10 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowLeft, Mic, MicOff, Volume2, VolumeX, CheckCircle,
-  XCircle, ChevronRight, RotateCcw, ClipboardList, AlertCircle, Keyboard
+  XCircle, ChevronRight, RotateCcw, ClipboardList, AlertCircle, Keyboard,
+  BookOpen, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestions";
+import { useUserSession } from "../contexts/UserContext";
+
+interface HazardRef {
+  id: number;
+  category: string;
+  hazard: string;
+  controlMeasure: string;
+  orderIdx: number;
+}
+
+const HAZARD_QUESTION_MAP: Record<number, "site" | "chainsaw" | "job"> = {
+  2: "site",
+  3: "chainsaw",
+  4: "job",
+};
 
 type Phase = "intro" | "prompt" | "prompt-review" | "results";
 
@@ -60,6 +76,12 @@ export default function MockTest() {
   // Typed answer (alternative / supplement to mic)
   const [typedText, setTypedText] = useState("");
 
+  // Hazard reference (Q2/Q3/Q4)
+  const { activationCode, deviceId } = useUserSession();
+  const [hazardRefs, setHazardRefs] = useState<HazardRef[]>([]);
+  const [hazardRefOpen, setHazardRefOpen] = useState(false);
+  const [hazardRefLoading, setHazardRefLoading] = useState(false);
+
   const finalTranscriptRef = useRef("");
   const isRecordingRef = useRef(false);
   const recognitionRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
@@ -72,6 +94,27 @@ export default function MockTest() {
 
   // Running question count (1-indexed position considering all prompts)
   const overallProgress = questionIdx + 1;
+
+  // Fetch hazard reference when entering review for Q2/Q3/Q4
+  useEffect(() => {
+    const category = HAZARD_QUESTION_MAP[question.id];
+    if (phase !== "prompt-review" || !category || !activationCode || !deviceId) {
+      setHazardRefs([]);
+      return;
+    }
+    setHazardRefLoading(true);
+    setHazardRefOpen(false);
+    fetch(`/api/hazards/${category}`, {
+      headers: {
+        "activationcode": activationCode,
+        "deviceid": deviceId,
+      },
+    })
+      .then((r) => r.json())
+      .then((data: HazardRef[]) => setHazardRefs(data))
+      .catch(() => setHazardRefs([]))
+      .finally(() => setHazardRefLoading(false));
+  }, [phase, question.id, activationCode, deviceId]);
 
   // ── Audio helpers ─────────────────────────────────────────────────────
   const stopSpeaking = useCallback(() => {
@@ -604,6 +647,43 @@ export default function MockTest() {
                     </div>
                   ))}
                 </div>
+
+                {/* Hazard reference panel — shown for Q2/Q3/Q4 */}
+                {HAZARD_QUESTION_MAP[question.id] && (
+                  <div className="rounded-lg border border-blue-500/25 bg-blue-500/5 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setHazardRefOpen((o) => !o)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-left"
+                    >
+                      <span className="flex items-center gap-2 font-mono text-xs text-blue-400 uppercase tracking-widest font-bold">
+                        <BookOpen className="w-4 h-4" />
+                        {hazardRefLoading
+                          ? "Loading reference list…"
+                          : `View full ${HAZARD_QUESTION_MAP[question.id]} hazard reference (${hazardRefs.length})`}
+                      </span>
+                      {hazardRefOpen ? (
+                        <ChevronUp className="w-4 h-4 text-blue-400 shrink-0" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-blue-400 shrink-0" />
+                      )}
+                    </button>
+                    {hazardRefOpen && hazardRefs.length > 0 && (
+                      <div className="border-t border-blue-500/20 divide-y divide-blue-500/10 max-h-96 overflow-y-auto">
+                        {hazardRefs.map((h) => (
+                          <div key={h.id} className="px-4 py-3 space-y-1">
+                            <p className="font-mono text-xs font-bold text-foreground leading-snug">
+                              {h.orderIdx}. {h.hazard}
+                            </p>
+                            <p className="font-mono text-xs text-muted-foreground leading-snug">
+                              ↳ {h.controlMeasure}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Pass/fail for this prompt */}
                 <div

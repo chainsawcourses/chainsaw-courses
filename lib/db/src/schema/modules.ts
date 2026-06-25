@@ -58,6 +58,16 @@ export const chatMessagesTable = pgTable("chat_messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const hazardReferenceTable = pgTable("hazard_reference", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(), // 'site' | 'chainsaw' | 'job'
+  hazard: text("hazard").notNull(),
+  controlMeasure: text("control_measure").notNull(),
+  orderIdx: integer("order_idx").notNull().default(0),
+});
+
+export type HazardReference = typeof hazardReferenceTable.$inferSelect;
+
 export const insertModuleSchema = createInsertSchema(modulesTable).omit({ id: true, createdAt: true });
 export const insertUserProgressSchema = createInsertSchema(userProgressTable).omit({ id: true, updatedAt: true });
 export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).omit({ id: true });
