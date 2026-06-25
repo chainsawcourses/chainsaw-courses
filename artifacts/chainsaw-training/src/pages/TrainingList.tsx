@@ -103,8 +103,9 @@ export default function TrainingList() {
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="font-mono text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                  NPTC RESOURCES <ChevronDown className="w-3 h-3 ml-1" />
+                <Button variant="outline" size="sm" className="font-mono border-primary text-primary hover:bg-primary hover:text-primary-foreground flex flex-col items-center leading-none py-1 h-auto" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
+                  <span>NPTC</span>
+                  <span className="flex items-center gap-0.5">RESOURCES <ChevronDown className="w-2.5 h-2.5" /></span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="font-mono text-xs min-w-[200px]">
@@ -141,9 +142,9 @@ export default function TrainingList() {
               </DropdownMenuContent>
             </DropdownMenu>
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
-            <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive"
+            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5" style={{fontSize: "0.6rem"}}
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-              <LogOut className="w-3 h-3 mr-1" /> LOG OUT
+              <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
             </Button>
           </div>
         </div>
