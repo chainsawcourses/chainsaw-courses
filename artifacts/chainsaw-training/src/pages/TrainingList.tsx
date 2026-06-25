@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -100,6 +101,25 @@ export default function TrainingList() {
             <h1 className="font-black tracking-tighter text-lg uppercase">Chainsaw Courses</h1>
           </div>
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="font-mono text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  NPTC RESOURCES <ChevronDown className="w-3 h-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="font-mono text-xs min-w-[180px]">
+                <DropdownMenuItem asChild>
+                  <a
+                    href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="uppercase tracking-wider cursor-pointer"
+                  >
+                    NPTC Overview
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
             <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive"
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
