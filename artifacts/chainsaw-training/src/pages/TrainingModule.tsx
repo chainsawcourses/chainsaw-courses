@@ -145,8 +145,8 @@ export default function TrainingModule() {
         {/* ── VIDEO MODULE ── */}
         {!isPdf && (
           <>
-            {/* Video player — capped height so info panel stays visible */}
-            <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "45vh" }}>
+            {/* Video player — capped height so info panel stays visible without scrolling */}
+            <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "38vh" }}>
               {canPlay && module.vimeoId ? (
                 <VimeoPlayer
                   vimeoId={module.vimeoId}
@@ -189,9 +189,14 @@ export default function TrainingModule() {
               </div>
               <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
                 {module.quizPassed ? (
-                  <div className="flex items-center text-primary font-mono font-bold text-sm">
-                    <CheckCircle2 className="w-4 h-4 mr-1.5" /> QUIZ PASSED
-                  </div>
+                  <>
+                    <div className="flex items-center text-primary font-mono font-bold text-sm">
+                      <CheckCircle2 className="w-4 h-4 mr-1.5" /> QUIZ PASSED
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto font-mono tracking-widest text-xs" asChild>
+                      <Link href={`/quiz/${module.id}`}>ASSESSMENT QUESTIONS</Link>
+                    </Button>
+                  </>
                 ) : (videoCompleted || module.isCompleted) ? (
                   <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
                     <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
