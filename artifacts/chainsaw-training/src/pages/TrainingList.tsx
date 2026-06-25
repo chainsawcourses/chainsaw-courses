@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,17 +7,25 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, clearSession } = useUserSession();
   const [equipmentOpen, setEquipmentOpen] = useState(false);
+  const [equipmentScrolled, setEquipmentScrolled] = useState(false);
+  const [equipmentAcknowledged, setEquipmentAcknowledged] = useState(() =>
+    localStorage.getItem("equipment-acknowledged") === "true"
+  );
+  const equipmentScrollRef = useRef<HTMLDivElement>(null);
   const [hazardsOpen, setHazardsOpen] = useState(false);
   const [hazardsViewed, setHazardsViewed] = useState(() =>
     localStorage.getItem("hazards-viewed") === "true"
   );
+
+  const queryClient = useQueryClient();
+  const completeVideo = useCompleteVideo();
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
     query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
@@ -25,6 +34,34 @@ export default function TrainingList() {
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
     query: { queryKey: getGetProgressSummaryQueryKey(), enabled: !!activationCode && !!deviceId }
   });
+
+  const equipmentListModule = useMemo(
+    () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
+    [modules]
+  );
+
+  const handleEquipmentScroll = useCallback(() => {
+    const el = equipmentScrollRef.current;
+    if (!el) return;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
+      setEquipmentScrolled(true);
+    }
+  }, []);
+
+  const handleEquipmentAcknowledge = useCallback(() => {
+    if (!equipmentListModule || !deviceId || !activationCode) return;
+    completeVideo.mutate(
+      { data: { moduleId: equipmentListModule.id, deviceId, activationCode } },
+      {
+        onSuccess: () => {
+          localStorage.setItem("equipment-acknowledged", "true");
+          setEquipmentAcknowledged(true);
+          queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+        },
+      }
+    );
+  }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
   useEffect(() => {
     if (!activationCode || !deviceId) setLocation("/");
@@ -50,7 +87,7 @@ export default function TrainingList() {
 
   // Course Requirements modules — rendered separately below the equipment collapsible
   const courseReqModules = useMemo(
-    () => (modules ?? []).filter((m) => m.category === "COURSE REQUIREMENTS"),
+    () => (modules ?? []).filter((m) => m.category === "COURSE REQUIREMENTS" && m.contentType !== "pdf"),
     [modules]
   );
 
@@ -224,72 +261,100 @@ export default function TrainingList() {
 
           {equipmentOpen && (
             <Card className="border-border bg-card/60 mt-1">
-              <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
+              {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
+              <div
+                ref={equipmentScrollRef}
+                onScroll={handleEquipmentScroll}
+                className="max-h-72 overflow-y-auto"
+              >
+                <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
+                  <div>
+                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
+                    <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
+                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                      {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
+                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
+                  </div>
 
-                <div>
-                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
-                  <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
-                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                    {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
-                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                    ))}
-                  </ul>
-                  <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
-                </div>
+                  <div>
+                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
+                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                      {[
+                        "Sufficient workspace to safely accommodate yourself.",
+                        "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
+                        "Hand cleaning facilities.",
+                        "An outside area dedicated to fueling and starting the chainsaw.",
+                        "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
+                      ].map(item => (
+                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
 
-                <div>
-                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
-                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                    {[
-                      "Sufficient workspace to safely accommodate yourself.",
-                      "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
-                      "Hand cleaning facilities.",
-                      "An outside area dedicated to fueling and starting the chainsaw.",
-                      "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
-                    ].map(item => (
-                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
+                  <div>
+                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
+                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                      {[
+                        "Eye protection","Gloves",
+                        "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
+                        "Combination Spanner (combi-spanner)","Star spanner or allen keys",
+                        "Guide bar groove scraper","Hook or wire","Pliers","Grease","Mild detergent",
+                        "De-greaser and rag for cleaning surfaces and spills.",
+                      ].map(item => (
+                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                      ))}
+                      <li className="flex items-start gap-2 mt-2">
+                        <span className="text-primary mt-0.5">—</span>
+                        <span>
+                          <span className="font-semibold text-foreground">Sharpening Kit</span> to include: correct round file for chain, file guide, flat file, depth gauge setting tool, calipers.
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
 
-                <div>
-                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
-                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                    {[
-                      "Eye protection","Gloves",
-                      "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
-                      "Combination Spanner (combi-spanner)","Star spanner or allen keys",
-                      "Guide bar groove scraper","Hook or wire","Pliers","Grease","Mild detergent",
-                      "De-greaser and rag for cleaning surfaces and spills.",
-                    ].map(item => (
-                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                    ))}
-                    <li className="flex items-start gap-2 mt-2">
-                      <span className="text-primary mt-0.5">—</span>
-                      <span>
-                        <span className="font-semibold text-foreground">Sharpening Kit</span> to include: correct round file for chain, file guide, flat file, depth gauge setting tool, calipers.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
+                  <div>
+                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
+                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                      {[
+                        "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
+                        "Correctly mixed fuel or appropriate batteries.",
+                        "Chain oil.",
+                        "Access to the relevant chainsaw operator's manual.",
+                        "Optional lifting aids to help in the training and assessment.",
+                        "Waste disposal facilities.",
+                      ].map(item => (
+                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </CardContent>
+              </div>
 
-                <div>
-                  <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
-                  <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                    {[
-                      "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
-                      "Correctly mixed fuel or appropriate batteries.",
-                      "Chain oil.",
-                      "Access to the relevant chainsaw operator's manual.",
-                      "Optional lifting aids to help in the training and assessment.",
-                      "Waste disposal facilities.",
-                    ].map(item => (
-                      <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-
-              </CardContent>
+              {/* Acknowledge footer */}
+              <div className="border-t border-border px-6 py-3 flex items-center justify-between gap-4 bg-card/80">
+                {equipmentAcknowledged ? (
+                  <span className="font-mono text-xs text-primary flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
+                  </span>
+                ) : (
+                  <>
+                    <span className="font-mono text-[10px] text-muted-foreground">
+                      {equipmentScrolled ? "You can now confirm you have read this list." : "Scroll to the bottom to continue."}
+                    </span>
+                    <Button
+                      size="sm"
+                      className="h-7 font-mono text-xs shrink-0"
+                      disabled={!equipmentScrolled || completeVideo.isPending}
+                      onClick={handleEquipmentAcknowledge}
+                    >
+                      {completeVideo.isPending ? "Saving…" : "Read & Understood"}
+                    </Button>
+                  </>
+                )}
+              </div>
             </Card>
           )}
         </div>
