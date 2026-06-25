@@ -103,18 +103,18 @@ export default function TrainingList() {
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="font-mono border-primary text-primary hover:bg-primary hover:text-primary-foreground flex flex-col items-center leading-none py-1 h-auto" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
+                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-start leading-none py-1 h-auto px-0" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
                   <span>NPTC</span>
                   <span className="flex items-center gap-0.5">RESOURCES <ChevronDown className="w-2.5 h-2.5" /></span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="font-mono text-xs min-w-[200px]">
+              <DropdownMenuContent align="start" className="font-mono text-xs min-w-[210px]">
                 <DropdownMenuItem asChild>
                   <a
                     href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="uppercase tracking-wider cursor-pointer"
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
                   >
                     NPTC Course Overview
                   </a>
@@ -124,7 +124,7 @@ export default function TrainingList() {
                     href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="uppercase tracking-wider cursor-pointer"
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
                   >
                     Qualification Handbook
                   </a>
@@ -134,7 +134,7 @@ export default function TrainingList() {
                     href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="uppercase tracking-wider cursor-pointer"
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
                   >
                     Assessment Schedule
                   </a>
@@ -152,45 +152,7 @@ export default function TrainingList() {
 
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
 
-        {/* Progress Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-card/60 border-border md:col-span-2">
-            <CardContent className="p-6 flex flex-col justify-center h-full">
-              <div className="flex justify-between items-end mb-4">
-                <div>
-                  <div className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-1">Overall Progress</div>
-                  <div className="text-4xl font-black font-mono">{summary?.percentComplete || 0}%</div>
-                </div>
-                {summary?.certificateEarned && (
-                  <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono">
-                    <Award className="w-3 h-3 mr-1" /> CERTIFIED
-                  </Badge>
-                )}
-              </div>
-              <Progress value={summary?.percentComplete || 0} className="h-3 bg-secondary" />
-            </CardContent>
-          </Card>
-          <Card className="bg-card/60 border-border">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="text-xs font-mono text-muted-foreground uppercase">Modules</span>
-                <span className="font-mono font-bold">{summary?.completedModules || 0} / {summary?.totalModules || 0}</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-border pb-2">
-                <span className="text-xs font-mono text-muted-foreground uppercase">Quizzes Passed</span>
-                <span className="font-mono font-bold">{summary?.quizzesPassed || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-mono text-muted-foreground uppercase">Status</span>
-                <span className={`font-mono font-bold text-xs ${summary?.certificateEarned ? 'text-primary' : 'text-muted-foreground'}`}>
-                  {summary?.certificateEarned ? 'COMPLETE' : 'IN PROGRESS'}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Equipment List — collapsible, always accessible */}
+        {/* Tools & Equipment Needed — collapsible, at top */}
         <div>
           <button
             onClick={() => setEquipmentOpen((o) => !o)}
@@ -277,6 +239,44 @@ export default function TrainingList() {
             </Card>
           )}
         </div>
+
+        {/* Modules / Quizzes / Status */}
+        <Card className="bg-card/60 border-border">
+          <CardContent className="p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-border pb-2">
+              <span className="text-xs font-mono text-muted-foreground uppercase">Modules</span>
+              <span className="font-mono font-bold">{summary?.completedModules || 0} / {summary?.totalModules || 0}</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-border pb-2">
+              <span className="text-xs font-mono text-muted-foreground uppercase">Quizzes Passed</span>
+              <span className="font-mono font-bold">{summary?.quizzesPassed || 0}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-mono text-muted-foreground uppercase">Status</span>
+              <span className={`font-mono font-bold text-xs ${summary?.certificateEarned ? 'text-primary' : 'text-muted-foreground'}`}>
+                {summary?.certificateEarned ? 'COMPLETE' : 'IN PROGRESS'}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Overall Progress */}
+        <Card className="bg-card/60 border-border">
+          <CardContent className="p-6 flex flex-col justify-center">
+            <div className="flex justify-between items-end mb-4">
+              <div>
+                <div className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-1">Overall Progress</div>
+                <div className="text-4xl font-black font-mono">{summary?.percentComplete || 0}%</div>
+              </div>
+              {summary?.certificateEarned && (
+                <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono">
+                  <Award className="w-3 h-3 mr-1" /> CERTIFIED
+                </Badge>
+              )}
+            </div>
+            <Progress value={summary?.percentComplete || 0} className="h-3 bg-secondary" />
+          </CardContent>
+        </Card>
 
         {/* Grouped Module List */}
         <div className="space-y-10">
