@@ -8,7 +8,9 @@ import {
   BookOpen, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { useSearch } from "wouter";
 import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestions";
+import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { useUserSession } from "../contexts/UserContext";
 
 interface HazardRef {
@@ -51,8 +53,6 @@ const hasSpeechRecognition = () =>
 
 const hasSpeechSynthesis = () =>
   typeof window !== "undefined" && "speechSynthesis" in window;
-
-const TOTAL = VOCAL_EXAM_QUESTIONS.length;
 
 const FIREBASE_AUDIO_BASE =
   "https://firebasestorage.googleapis.com/v0/b/chainsaw-courses.firebasestorage.app/o";
@@ -136,6 +136,17 @@ const AUDIO_FILES: Record<number, string> = {
 };
 
 export default function MockTest() {
+  const search = useSearch();
+  const moduleId = new URLSearchParams(search).get("module");
+  const activeQuestions = (() => {
+    if (!moduleId) return VOCAL_EXAM_QUESTIONS;
+    const id = Number(moduleId);
+    const ids = MODULE_QUESTION_MAP[id];
+    if (!ids || ids.length === 0) return VOCAL_EXAM_QUESTIONS;
+    const idSet = new Set(ids);
+    return VOCAL_EXAM_QUESTIONS.filter((q) => idSet.has(q.id));
+  })();
+
   const [phase, setPhase] = useState<Phase>("intro");
   const [questionIdx, setQuestionIdx] = useState(0);
   const [promptIdx, setPromptIdx] = useState(0);
@@ -168,7 +179,7 @@ export default function MockTest() {
   const recognitionRef = useRef<InstanceType<typeof window.SpeechRecognition> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const question = VOCAL_EXAM_QUESTIONS[questionIdx];
+  const question = activeQuestions[questionIdx];
   const prompt = question.prompts[promptIdx];
   const totalPrompts = question.prompts.length;
   const isMultiPrompt = totalPrompts > 1;
@@ -229,7 +240,7 @@ export default function MockTest() {
   // Play recorded audio file, falling back to TTS if the file doesn't exist yet
   const playPrompt = useCallback((qIdx: number, pIdx: number) => {
     stopSpeaking();
-    const q = VOCAL_EXAM_QUESTIONS[qIdx];
+    const q = activeQuestions[qIdx];
     const p = q.prompts[pIdx];
     const filename = AUDIO_FILES[q.id];
     const src = filename
@@ -387,7 +398,7 @@ export default function MockTest() {
 
   // ── Next: advance to next prompt or next question ─────────────────────
   const handleNext = useCallback(() => {
-    const q = VOCAL_EXAM_QUESTIONS[questionIdx];
+    const q = activeQuestions[questionIdx];
 
     if (promptIdx + 1 < q.prompts.length) {
       // More prompts for this question
@@ -402,7 +413,7 @@ export default function MockTest() {
       setQuestionResults(newQResults);
       currentPromptResultsRef.current = [];
 
-      if (questionIdx + 1 >= TOTAL) {
+      if (questionIdx + 1 >= activeQuestions.length) {
         setPhase("results");
       } else {
         setQuestionIdx((i) => i + 1);
@@ -433,6 +444,7 @@ export default function MockTest() {
 
   // ── Derived ───────────────────────────────────────────────────────────
   const passCount = questionResults.filter((r) => r.passed).length;
+  const TOTAL = activeQuestions.length;
   const allPassed = questionResults.length === TOTAL && questionResults.every((r) => r.passed);
 
   // Progress bar width
@@ -483,7 +495,10 @@ export default function MockTest() {
                 NPTC Oral Exam Practice
               </h2>
               <p className="text-muted-foreground font-mono text-sm leading-relaxed">
-                {TOTAL} questions and practical actions from the NPTC assessment schedule.
+                {moduleId
+                  ? <>{TOTAL} question{TOTAL !== 1 ? "s" : ""} from this module's section of the NPTC assessment.</>
+                  : <>{TOTAL} questions and practical actions from the NPTC assessment schedule.</>
+                }{" "}
                 Each question is read aloud — speak your answer clearly, then submit.
                 Key points are revealed after each answer. Practical actions just require
                 a tap to continue.
@@ -850,7 +865,7 @@ export default function MockTest() {
             {/* Per-question summary */}
             <div className="space-y-2">
               <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Question results</p>
-              {VOCAL_EXAM_QUESTIONS.map((q, qi) => {
+              {activeQuestions.map((q, qi) => {
                 const qr = questionResults[qi];
                 if (!qr) return null;
                 return (

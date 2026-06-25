@@ -179,7 +179,7 @@ export default function TrainingModule() {
                       </Button>
                     )}
                     <Button size="sm" variant="outline" className="font-mono tracking-widest w-full bg-black/40 border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                      <Link href="/mock-test">ASSESSMENT QUESTIONS</Link>
+                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
                     </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs" onClick={handleBackToCourse}>
                       ← BACK TO COURSE
@@ -202,7 +202,7 @@ export default function TrainingModule() {
                       <CheckCircle2 className="w-4 h-4 mr-1.5" /> QUIZ PASSED
                     </div>
                     <Button variant="outline" size="sm" className="w-full sm:w-auto font-mono tracking-widest text-xs" asChild>
-                      <Link href={`/quiz/${module.id}`}>ASSESSMENT QUESTIONS</Link>
+                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
                     </Button>
                   </>
                 ) : (videoCompleted || module.isCompleted) ? (
