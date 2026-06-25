@@ -101,9 +101,6 @@ export default function TrainingList() {
           </div>
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
-            <Button variant="outline" size="sm" className="font-mono text-xs border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
-              <Link href="/mock-test">MOCK EXAM</Link>
-            </Button>
             <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive"
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
               <LogOut className="w-3 h-3 mr-1" /> LOG OUT
@@ -433,6 +430,13 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
+      <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center">
+          <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
+            <Link href="/mock-test">MOCK ASSESSMENT</Link>
+          </Button>
+        </div>
+      </div>
       </main>
     </div>
   );

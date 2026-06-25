@@ -451,7 +451,7 @@ export default function MockTest() {
               <ArrowLeft className="w-4 h-4 mr-2" />EXIT
             </Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase tracking-widest">NPTC MOCK EXAM</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-widest">NPTC MOCK ASSESSMENT</div>
           {(phase === "prompt" || phase === "prompt-review") ? (
             <div className="font-mono text-xs text-muted-foreground tabular-nums">
               Q{overallProgress}/{TOTAL}
