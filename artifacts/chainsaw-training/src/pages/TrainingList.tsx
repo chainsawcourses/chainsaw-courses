@@ -107,7 +107,7 @@ export default function TrainingList() {
                   NPTC RESOURCES <ChevronDown className="w-3 h-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="font-mono text-xs min-w-[180px]">
+              <DropdownMenuContent align="end" className="font-mono text-xs min-w-[200px]">
                 <DropdownMenuItem asChild>
                   <a
                     href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
@@ -115,7 +115,17 @@ export default function TrainingList() {
                     rel="noopener noreferrer"
                     className="uppercase tracking-wider cursor-pointer"
                   >
-                    NPTC Overview
+                    NPTC Course Overview
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="uppercase tracking-wider cursor-pointer"
+                  >
+                    Qualification Handbook
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
