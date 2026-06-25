@@ -65,15 +65,13 @@ export default function TrainingModule() {
   const handleVideoEnded = useCallback(() => {
     setVideoCompleted(true);
     if (!deviceId || !activationCode) return;
-    completeVideo.mutate(
-      { data: { moduleId: id, deviceId, activationCode } },
-      {
-        onSuccess: () => {
-          toast({ title: "Module Completed", description: "Well done — you can now proceed to the next module." });
-        }
-      }
-    );
+    completeVideo.mutate({ data: { moduleId: id, deviceId, activationCode } });
   }, [deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleBackToCourse = useCallback(() => {
+    sessionStorage.setItem("scrollAfterModule", String(id));
+    setLocation("/training");
+  }, [id, setLocation]);
 
   const handleTimeUpdate = useCallback((_t: number) => {}, []);
 
@@ -161,22 +159,29 @@ export default function TrainingModule() {
                 </div>
               )}
 
-              {/* Take Quiz overlay — shown when video ends and quiz not yet passed */}
-              {(videoCompleted || module.isCompleted) && !module.quizPassed && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-lg">
-                  <Link href={`/quiz/${module.id}`}>
-                    <Button size="lg" className="font-mono tracking-widest text-base h-14 px-10 shadow-lg">
-                      TAKE QUIZ
-                    </Button>
-                  </Link>
-                </div>
-              )}
+              {/* Completion overlay — shown when video ends */}
+              {(videoCompleted || module.isCompleted) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 rounded-lg p-4 text-center">
+                  <div className="flex items-center gap-2 text-primary">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="font-mono font-bold text-sm uppercase tracking-wide">
+                      {module.quizPassed ? "Module Complete" : "Well done — module complete!"}
+                    </span>
+                  </div>
 
-              {/* Quiz passed overlay indicator */}
-              {module.quizPassed && (videoCompleted || module.isCompleted) && (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-full">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                  <span className="font-mono text-xs text-primary font-bold uppercase">Quiz Passed</span>
+                  <div className="flex flex-col gap-2 w-full max-w-[220px]">
+                    {!module.quizPassed && (
+                      <Button size="sm" className="font-mono tracking-widest w-full" asChild>
+                        <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
+                      </Button>
+                    )}
+                    <Button size="sm" variant="outline" className="font-mono tracking-widest w-full bg-black/40 border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
+                      <Link href="/mock-test">ASSESSMENT QUESTIONS</Link>
+                    </Button>
+                    <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs" onClick={handleBackToCourse}>
+                      ← BACK TO COURSE
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

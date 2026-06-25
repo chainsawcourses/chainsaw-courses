@@ -67,6 +67,21 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
+  // After returning from a completed video, scroll to the next unlocked module
+  useEffect(() => {
+    const completedId = sessionStorage.getItem("scrollAfterModule");
+    if (!completedId || !modules) return;
+    sessionStorage.removeItem("scrollAfterModule");
+    const completedIdx = modules.findIndex((m) => m.id === parseInt(completedId));
+    if (completedIdx === -1) return;
+    const nextModule = modules.slice(completedIdx + 1).find((m) => !m.isLocked);
+    if (!nextModule) return;
+    setTimeout(() => {
+      const el = document.getElementById(`module-${nextModule.id}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 400);
+  }, [modules]);
+
   // Index of "5 Steps To Risk Assessment" in the full ordered module list
   const riskAssessmentIndex = useMemo(() => {
     if (!modules) return -1;
@@ -451,7 +466,7 @@ export default function TrainingList() {
                       const needsHazards = riskAssessmentIndex !== -1 && moduleIndex > riskAssessmentIndex && !hazardsViewed;
                       const effectiveLocked = module.isLocked || needsHazards;
                       return (
-                        <div key={module.id}>
+                        <div key={module.id} id={`module-${module.id}`}>
                           <Card
                             className={`border-border transition-all duration-150 ${
                               effectiveLocked
