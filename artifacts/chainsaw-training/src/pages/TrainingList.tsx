@@ -161,12 +161,9 @@ export default function TrainingList() {
 
         {/* Page title */}
         <div className="pb-2 border-b border-border">
-          <h1 className="font-black tracking-tighter text-3xl uppercase leading-tight">
-            Chainsaw Course
-          </h1>
-          <p className="font-black tracking-tighter text-3xl uppercase leading-tight text-primary">
+          <h1 className="font-black tracking-tighter text-3xl uppercase leading-tight text-primary">
             Maintenance &amp; Cross Cutting
-          </p>
+          </h1>
         </div>
 
         {/* Tools & Equipment Needed — collapsible, at top */}
