@@ -714,28 +714,29 @@ export default function MockTest() {
                   </CardContent>
                 </Card>
 
-                {/* Key points */}
+                {/* Key points — only show correct ones */}
                 <div className="space-y-2">
                   <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
-                    Assessment criteria
+                    Points you covered
                   </p>
-                  {prompt.keyPoints.map((kp, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-start gap-2.5 rounded-lg p-3 border text-sm font-mono leading-snug ${
-                        lastPromptResult.matched[i]
-                          ? "bg-green-500/8 border-green-500/25 text-foreground"
-                          : "bg-destructive/5 border-destructive/20 text-muted-foreground"
-                      }`}
-                    >
-                      {lastPromptResult.matched[i] ? (
-                        <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-destructive/60 shrink-0 mt-0.5" />
-                      )}
-                      {kp.label}
+                  {prompt.keyPoints.filter((_, i) => lastPromptResult.matched[i]).length === 0 ? (
+                    <div className="flex items-center gap-2.5 rounded-lg p-3 border border-destructive/20 bg-destructive/5 text-sm font-mono text-muted-foreground">
+                      <XCircle className="w-4 h-4 text-destructive/60 shrink-0" />
+                      No key points identified in your answer
                     </div>
-                  ))}
+                  ) : (
+                    prompt.keyPoints.map((kp, i) =>
+                      lastPromptResult.matched[i] ? (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2.5 rounded-lg p-3 border bg-green-500/8 border-green-500/25 text-foreground text-sm font-mono leading-snug"
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                          {kp.label}
+                        </div>
+                      ) : null
+                    )
+                  )}
                 </div>
 
                 {/* Hazard reference panel — shown for Q2/Q3/Q4 */}
