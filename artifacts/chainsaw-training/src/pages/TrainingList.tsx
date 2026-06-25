@@ -98,7 +98,8 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 h-16 grid grid-cols-3 items-center">
+          {/* Left — logo + brand */}
           <div className="flex items-center gap-2">
             <img
               src={`${import.meta.env.BASE_URL}logo.png`}
@@ -107,15 +108,17 @@ export default function TrainingList() {
             />
             <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
-          <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
+
+          {/* Centre — NPTC Resources */}
+          <div className="flex justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-start leading-none py-1 h-auto px-0" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
+                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
                   <span>NPTC</span>
                   <span className="flex items-center gap-0.5">RESOURCES <ChevronDown className="w-2.5 h-2.5" /></span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="font-mono text-xs min-w-[210px]">
+              <DropdownMenuContent align="center" className="font-mono text-xs min-w-[210px]">
                 <DropdownMenuItem asChild>
                   <a
                     href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
@@ -148,6 +151,10 @@ export default function TrainingList() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+
+          {/* Right — operator + logout */}
+          <div className="flex items-center justify-end gap-3 font-mono text-xs text-muted-foreground uppercase tracking-wider">
             <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
             <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5" style={{fontSize: "0.6rem"}}
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
