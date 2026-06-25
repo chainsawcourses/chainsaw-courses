@@ -103,9 +103,9 @@ export default function TrainingList() {
             <img
               src={`${import.meta.env.BASE_URL}logo.png`}
               alt="Chainsaw Courses"
-              className="h-10 w-auto object-contain"
+              className="h-7 w-auto object-contain"
             />
-            <h1 className="font-black tracking-tighter text-lg uppercase">Chainsaw Courses</h1>
+            <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
           <div className="font-mono text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-3">
             <DropdownMenu>
@@ -158,6 +158,16 @@ export default function TrainingList() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
+
+        {/* Page title */}
+        <div className="pb-2 border-b border-border">
+          <h1 className="font-black tracking-tighter text-3xl uppercase leading-tight">
+            Chainsaw Course
+          </h1>
+          <p className="font-black tracking-tighter text-3xl uppercase leading-tight text-primary">
+            Maintenance &amp; Cross Cutting
+          </p>
+        </div>
 
         {/* Tools & Equipment Needed — collapsible, at top */}
         <div>
