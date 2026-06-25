@@ -166,11 +166,25 @@ export default function TrainingList() {
 
       <main className="max-w-5xl mx-auto px-4 pt-8 space-y-8">
 
-        {/* Page title */}
+        {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
           <h1 className="font-black tracking-tighter text-xl uppercase leading-tight text-primary">
             Maintenance &amp; Cross Cutting
           </h1>
+        </div>
+
+        {/* Overall Progress — compact strip */}
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0">Progress</span>
+          <div className="flex-1">
+            <Progress value={summary?.percentComplete || 0} className="h-1.5 bg-secondary" />
+          </div>
+          <span className="font-mono font-black text-xs text-primary shrink-0">{summary?.percentComplete || 0}%</span>
+          {summary?.certificateEarned && (
+            <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono text-[9px] py-0 shrink-0">
+              <Award className="w-2.5 h-2.5 mr-0.5" /> CERTIFIED
+            </Badge>
+          )}
         </div>
 
         {/* Tools & Equipment Needed — collapsible, at top */}
@@ -279,21 +293,21 @@ export default function TrainingList() {
                       : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
                   }`}
                 >
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                  <CardContent className="p-2.5 flex items-center gap-3">
+                    <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
                       {module.isLocked ? (
-                        <Lock className="w-4 h-4 text-muted-foreground" />
+                        <Lock className="w-3 h-3 text-muted-foreground" />
                       ) : module.isCompleted ? (
-                        <CheckCircle className="w-4 h-4 text-primary" />
+                        <CheckCircle className="w-3 h-3 text-primary" />
                       ) : isPdf ? (
-                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <FileText className="w-3 h-3 text-muted-foreground" />
                       ) : (
-                        <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                        <PlayCircle className="w-3 h-3 text-muted-foreground" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
                         {isPdf && (
                           <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                         )}
@@ -301,23 +315,22 @@ export default function TrainingList() {
                           <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                     </div>
                     {!module.isLocked && (
                       <div className="shrink-0">
-                        <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                        <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                           <Link href={`/training/${module.id}`}>
                             {isPdf ? (
-                              <><FileText className="w-3 h-3 mr-1.5" />{module.isCompleted ? "VIEW" : "OPEN"}</>
+                              <><FileText className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "VIEW" : "OPEN"}</>
                             ) : (
-                              <><PlayCircle className="w-3 h-3 mr-1.5" />{module.isCompleted ? "REWATCH" : "START"}</>
+                              <><PlayCircle className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "REWATCH" : "START"}</>
                             )}
                           </Link>
                         </Button>
                       </div>
                     )}
                     {module.isLocked && (
-                      <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                      <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
                     )}
                   </CardContent>
                 </Card>
@@ -346,24 +359,6 @@ export default function TrainingList() {
           </CardContent>
         </Card>
 
-        {/* Overall Progress */}
-        <Card className="bg-card/60 border-border">
-          <CardContent className="p-6 flex flex-col justify-center">
-            <div className="flex justify-between items-end mb-4">
-              <div>
-                <div className="text-sm font-mono text-muted-foreground uppercase tracking-wider mb-1">Overall Progress</div>
-                <div className="text-4xl font-black font-mono">{summary?.percentComplete || 0}%</div>
-              </div>
-              {summary?.certificateEarned && (
-                <Badge variant="default" className="bg-primary hover:bg-primary text-primary-foreground font-mono">
-                  <Award className="w-3 h-3 mr-1" /> CERTIFIED
-                </Badge>
-              )}
-            </div>
-            <Progress value={summary?.percentComplete || 0} className="h-3 bg-secondary" />
-          </CardContent>
-        </Card>
-
         {/* Grouped Module List */}
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
@@ -383,7 +378,7 @@ export default function TrainingList() {
                     </div>
                   )}
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {mods.map((module) => {
                       const isPdf = module.contentType === "pdf";
                       const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
@@ -399,22 +394,22 @@ export default function TrainingList() {
                                 : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
                           >
-                            <CardContent className="p-4 flex items-center gap-4">
-                              <div className="shrink-0 w-10 h-10 rounded flex items-center justify-center bg-secondary/60">
+                            <CardContent className="p-2.5 flex items-center gap-3">
+                              <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
                                 {effectiveLocked ? (
-                                  <Lock className="w-4 h-4 text-muted-foreground" />
+                                  <Lock className="w-3 h-3 text-muted-foreground" />
                                 ) : module.isCompleted ? (
-                                  <CheckCircle className="w-4 h-4 text-primary" />
+                                  <CheckCircle className="w-3 h-3 text-primary" />
                                 ) : isPdf ? (
-                                  <FileText className="w-4 h-4 text-muted-foreground" />
+                                  <FileText className="w-3 h-3 text-muted-foreground" />
                                 ) : (
-                                  <PlayCircle className="w-4 h-4 text-muted-foreground" />
+                                  <PlayCircle className="w-3 h-3 text-muted-foreground" />
                                 )}
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="font-mono font-bold text-sm uppercase tracking-wide truncate">{module.title}</span>
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
                                   {isPdf && (
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
@@ -427,24 +422,24 @@ export default function TrainingList() {
                                     <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
+                                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
                               {!effectiveLocked && (
                                 <div className="shrink-0">
-                                  <Button size="sm" className="h-8 font-mono text-xs" asChild>
+                                  <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                     <Link href={`/training/${module.id}`}>
                                       {isPdf ? (
-                                        <><FileText className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
+                                        <><FileText className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
                                       ) : (
-                                        <><PlayCircle className="w-3 h-3 mr-1.5" /> {module.isCompleted ? "REWATCH" : "START"}</>
+                                        <><PlayCircle className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "REWATCH" : "START"}</>
                                       )}
                                     </Link>
                                   </Button>
                                 </div>
                               )}
                               {effectiveLocked && (
-                                <Button size="sm" variant="ghost" className="h-8 font-mono text-xs text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                                <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
                               )}
                             </CardContent>
                           </Card>
