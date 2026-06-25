@@ -54,6 +54,9 @@ const hasSpeechSynthesis = () =>
 
 const TOTAL = VOCAL_EXAM_QUESTIONS.length;
 
+const FIREBASE_AUDIO_BASE =
+  "https://firebasestorage.googleapis.com/v0/b/chainsaw-courses.firebasestorage.app/o";
+
 export default function MockTest() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -150,12 +153,7 @@ export default function MockTest() {
     stopSpeaking();
     const q = VOCAL_EXAM_QUESTIONS[qIdx];
     const p = q.prompts[pIdx];
-    const totalP = q.prompts.length;
-    const id = String(q.id).padStart(2, "0");
-    const src =
-      totalP > 1
-        ? `${import.meta.env.BASE_URL}audio/q${id}-p${pIdx + 1}.wav`
-        : `${import.meta.env.BASE_URL}audio/q${id}.wav`;
+    const src = `${FIREBASE_AUDIO_BASE}/${q.id}.wav?alt=media`;
 
     const audio = new Audio(src);
     audioRef.current = audio;
