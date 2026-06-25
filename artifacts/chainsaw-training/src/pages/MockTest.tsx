@@ -306,7 +306,7 @@ export default function MockTest() {
           if (event.results[i].isFinal) {
             finalTranscriptRef.current +=
               (finalTranscriptRef.current ? " " : "") + text;
-            setTranscript(finalTranscriptRef.current);
+            setTypedText(prev => (prev ? prev + " " : "") + text);
           } else {
             interim = text;
           }
@@ -361,10 +361,10 @@ export default function MockTest() {
   // ── Submit answer ─────────────────────────────────────────────────────
   const submitAnswer = useCallback((skipAnswer = false) => {
     stopRecording();
-    const spokenText = (finalTranscriptRef.current + " " + interimTranscript).trim();
+    const flush = interimTranscript.trim();
     const fullTranscript = skipAnswer
       ? ""
-      : [spokenText, typedText].filter(Boolean).join(" ").trim();
+      : (typedText + (flush ? " " + flush : "")).trim();
 
     const matched = matchKeyPoints(fullTranscript, prompt);
     const matchedCount = matched.filter(Boolean).length;
@@ -577,18 +577,40 @@ export default function MockTest() {
               </div>
             ) : (
               <>
-                {/* Live transcript */}
-                <div className="rounded-lg border border-border bg-card/40 min-h-[80px] p-4">
-                  {(transcript || interimTranscript) ? (
-                    <p className="font-mono text-sm leading-relaxed">
-                      <span className="text-foreground">{transcript}</span>
-                      {interimTranscript && (
-                        <span className="text-muted-foreground/50"> {interimTranscript}</span>
-                      )}
+                {/* Single answer box — speech appends here, user can also type */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+                      {isRecording
+                        ? <><Mic className="w-3 h-3 text-primary animate-pulse" />Listening — speak or type</>
+                        : <><Keyboard className="w-3 h-3" />Speak or type your answer</>
+                      }
                     </p>
-                  ) : (
-                    <p className="font-mono text-sm text-muted-foreground/40 italic">
-                      {isRecording ? "Listening… speak your answer" : "Your spoken answer will appear here"}
+                    {typedText && (
+                      <button
+                        className="font-mono text-[10px] text-muted-foreground/40 hover:text-muted-foreground underline"
+                        onClick={() => { setTypedText(""); finalTranscriptRef.current = ""; }}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <Textarea
+                    className="font-mono text-sm resize-none bg-card/40 min-h-[100px]"
+                    rows={4}
+                    placeholder="Tap 'Start Recording' to speak, or type your key points here…"
+                    value={typedText + (interimTranscript ? " " + interimTranscript : "")}
+                    onChange={(e) => {
+                      const val = interimTranscript
+                        ? e.target.value.replace(new RegExp("\\s*" + interimTranscript.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"), "")
+                        : e.target.value;
+                      setTypedText(val);
+                      finalTranscriptRef.current = val;
+                    }}
+                  />
+                  {interimTranscript && (
+                    <p className="font-mono text-[10px] text-muted-foreground/40 italic">
+                      Recognising: {interimTranscript}…
                     </p>
                   )}
                 </div>
@@ -601,7 +623,7 @@ export default function MockTest() {
                       onClick={startRecording}
                     >
                       <Mic className="w-4 h-4" />
-                      {transcript ? "Record More" : "Start Recording"}
+                      {typedText ? "Record More" : "Start Recording"}
                     </Button>
                   ) : (
                     <Button
@@ -621,21 +643,6 @@ export default function MockTest() {
                     <p className="font-mono text-xs text-destructive">{micError}</p>
                   </div>
                 )}
-
-                {/* Typed answer */}
-                <div className="space-y-2">
-                  <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                    <Keyboard className="w-3 h-3" />Or type your answer
-                  </p>
-                  <Textarea
-                    className="font-mono text-sm resize-none bg-card/40"
-                    rows={3}
-                    placeholder="Type key points here…"
-                    value={typedText}
-                    onChange={(e) => setTypedText(e.target.value)}
-                    disabled={isRecording}
-                  />
-                </div>
 
                 {/* Submit */}
                 <Button
