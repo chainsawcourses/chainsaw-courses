@@ -57,6 +57,84 @@ const TOTAL = VOCAL_EXAM_QUESTIONS.length;
 const FIREBASE_AUDIO_BASE =
   "https://firebasestorage.googleapis.com/v0/b/chainsaw-courses.firebasestorage.app/o";
 
+const AUDIO_FILES: Record<number, string> = {
+  1:  "1riskassessment.wav",
+  2:  "2site hazards.wav",
+  3:  "3chainsaw hazrds.wav",
+  4:  "4job to be done.wav",
+  5:  "5emergency information.wav",
+  6:  "6health safety.wav",
+  7:  "7puwer.wav",
+  8:  "8industry guidance.wav",
+  9:  "9manufacturers spec.wav",
+  10: "10safety features.wav",
+  11: "11broken or faulty.wav",
+  12: "12battery advantages.wav",
+  13: "13battery disadvantages.wav",
+  14: "14battery maintenance.wav",
+  15: "15take off top cover.wav",
+  16: "16whats this copy 3.wav",
+  17: "17whatdo.wav",
+  18: "18.maintainit.wav",
+  19: "19whats this copy 2.wav",
+  20: "20whatdo copy.wav",
+  21: "21spark maintainit.wav",
+  22: "22cooling.wav",
+  23: "23maintain cooling.wav",
+  24: "24whats this copy.wav",
+  25: "25whatdo copy 2.wav",
+  26: "26.maintainit copy.wav",
+  27: "27fuel filter.wav",
+  28: "28oil filter.wav",
+  29: "29take off recoil.wav",
+  30: "30recoildamage.wav",
+  31: "31take off side cover.wav",
+  32: "32whats this.wav",
+  33: "33whatdo sprocketwav.wav",
+  34: "34wear damage.wav",
+  35: "35remove sprocket.wav",
+  36: "36chain brake.wav",
+  37: "37whatdo.wav",
+  38: "38wear damage chain brake.wav",
+  39: "39guidebar.wav",
+  40: "40guidebar problems.wav",
+  41: "41barmaintain.wav",
+  42: "42 reassemble.wav",
+  43: "43vice.wav",
+  44: "44chain id.wav",
+  45: "45replace chain.wav",
+  46: "46cutterprofile.wav",
+  47: "47cutterprofile2.wav",
+  48: "48cutterprofileuses.wav",
+  49: "49topplate.wav",
+  50: "50file size.wav",
+  51: "51where sharpening.wav",
+  52: "52whats this depth gauge.wav",
+  53: "53whatdo.wav",
+  54: "54 depth gauge setting.wav",
+  55: "55cutters.wav",
+  56: "56wornchain.wav",
+  57: "57waste.wav",
+  58: "58 distance xcut.wav",
+  59: "59bio security.wav",
+  60: "60environment.wav",
+  61: "61compression.wav",
+  62: "62compression.wav",
+  63: "63stuck.wav",
+  64: "64oversized.wav",
+  65: "65hightension.wav",
+  66: "66borecut.wav",
+  67: "67move safely.wav",
+  68: "68ergonmic.wav",
+  69: "69timberstack.wav",
+  70: "70timberstack2.wav",
+  71: "71prestart.wav",
+  72: "72preuse.wav",
+  73: "73summary1.wav",
+  74: "74prep.wav",
+  75: "75goodluck.wav",
+};
+
 export default function MockTest() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -153,14 +231,21 @@ export default function MockTest() {
     stopSpeaking();
     const q = VOCAL_EXAM_QUESTIONS[qIdx];
     const p = q.prompts[pIdx];
-    const src = `${FIREBASE_AUDIO_BASE}/${q.id}.wav?alt=media`;
+    const filename = AUDIO_FILES[q.id];
+    const src = filename
+      ? `${FIREBASE_AUDIO_BASE}/${encodeURIComponent(filename)}?alt=media`
+      : null;
+
+    if (!src) {
+      speakViaTTS(p.prompt);
+      return;
+    }
 
     const audio = new Audio(src);
     audioRef.current = audio;
     audio.onplay = () => setIsSpeaking(true);
     audio.onended = () => { setIsSpeaking(false); audioRef.current = null; };
     audio.onerror = () => {
-      // File not uploaded yet — fall back to browser TTS (prompt text only, no position prefix)
       audioRef.current = null;
       speakViaTTS(p.prompt);
     };
