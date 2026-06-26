@@ -145,9 +145,9 @@ export default function TrainingModule() {
           <>
             {/* Video player — capped height so info panel stays visible without scrolling */}
             <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "38vh" }}>
-              {/* pointer-events-none when overlay is active so iframe doesn't swallow clicks */}
+              {/* pointer-events-none only when the completion overlay is active (video just ended this session) */}
               {canPlay && module.vimeoId ? (
-                <div className={(videoCompleted || module.isCompleted) ? "pointer-events-none" : ""}>
+                <div className={videoCompleted ? "pointer-events-none" : ""}>
                   <VimeoPlayer
                     vimeoId={module.vimeoId}
                     onTimeUpdate={handleTimeUpdate}
@@ -162,13 +162,13 @@ export default function TrainingModule() {
                 </div>
               )}
 
-              {/* Completion overlay — shown when video ends */}
-              {(videoCompleted || module.isCompleted) && (
+              {/* Completion overlay — only shown when video ends in this session */}
+              {videoCompleted && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 rounded-lg p-4 text-center">
                   <div className="flex items-center gap-2 text-primary">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="font-mono font-bold text-sm uppercase tracking-wide">
-                      {module.quizPassed ? "Module Complete" : "Well done — module complete!"}
+                      Well done — video complete!
                     </span>
                   </div>
 
@@ -206,9 +206,14 @@ export default function TrainingModule() {
                     </Button>
                   </>
                 ) : (videoCompleted || module.isCompleted) ? (
-                  <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
-                    <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
-                  </Button>
+                  <>
+                    <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
+                      <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto font-mono tracking-widest text-xs" asChild>
+                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
+                    </Button>
+                  </>
                 ) : (
                   <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider text-right">
                     Watch video<br />to continue
