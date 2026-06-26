@@ -135,7 +135,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What is the Health and Safety at Work Act all about?",
     prompts: [{
       prompt: "So what is the Health and Safety at Work Act all about?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Employees must take reasonable care of their own and others' safety", keywords: ["reasonable care", "care of others", "own safety", "other people", "duty of care"] },
         { label: "Follow training and instructions received", keywords: ["follow training", "follow your training", "trained", "act on training", "training received", "instructions"] },
@@ -150,7 +150,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Under PUWER, what does it say about the equipment?",
     prompts: [{
       prompt: "Under the Provision and Use of Work Equipment Regulations — PUWER — what does it say about the equipment?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Equipment must be maintained in an efficient state and good repair", keywords: ["maintained", "maintenance", "kept in good", "serviceable", "good repair", "efficient state"] },
         { label: "Equipment must be fit for purpose and suitable for the task", keywords: ["fit for purpose", "suitable", "appropriate", "right tool", "adequate", "fit for"] },
@@ -165,7 +165,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Who provides industry guidance for tree work?",
     prompts: [{
       prompt: "Who provides industry guidance for tree work?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "FISA — Forest Industry Safety Accord", keywords: ["fisa", "forest industry safety accord", "forest industry"] },
         { label: "AFAG — Arboricultural Forestry Advisory Group", keywords: ["afag", "arboricultural forestry advisory", "advisory group"] },
@@ -180,7 +180,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Why is it important to maintain the saw to the manufacturer's specifications?",
     prompts: [{
       prompt: "Why is it important to maintain the saw to the manufacturer's specifications?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Ensures the machine is safe to use and reduces the risk of accidents", keywords: ["safe to use", "safety", "safe operation", "operator safety", "reduces risk", "prevent accident"] },
         { label: "Reduces machinery downtime and costly repairs", keywords: ["downtime", "repair", "breakdown", "out of service", "reliability", "less repair"] },
@@ -195,7 +195,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "The manufacturer has installed safety features on the saw — run through where they are and what they do.",
     prompts: [{
       prompt: "The manufacturer has installed safety features on the saw. Just run through where they are and what they do.",
-      threshold: 7,
+      threshold: 4,
       keyPoints: [
         { label: "Combined chain brake and front hand guard — stops chain on kickback, protects hand", keywords: ["chain brake", "front hand guard", "hand guard", "brake stop", "stops the chain", "front guard"] },
         { label: "Throttle trigger lockout — prevents accidental throttle operation", keywords: ["throttle lockout", "trigger lockout", "accidental throttle", "throttle safety", "lock out", "throttle trigger"] },
@@ -216,7 +216,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "If you find one of the safety features is broken or missing, what will you do?",
     prompts: [{
       prompt: "If you find one of the safety features is broken or missing, what will you do?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Stop work immediately and take the saw out of service", keywords: ["stop work", "cease work", "take out of service", "do not use", "withdraw", "stop using", "out of service"] },
         { label: "Tag it / report it to your supervisor or employer", keywords: ["tag", "report", "supervisor", "employer", "inform", "label", "notify", "report it"] },
@@ -230,7 +230,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What are the advantages of using battery chainsaws?",
     prompts: [{
       prompt: "What are the advantages of using battery chainsaws?",
-      threshold: 4,
+      threshold: 1,
       keyPoints: [
         { label: "Quieter operation — reduced noise levels", keywords: ["quieter", "reduced noise", "less noise", "lower noise", "quiet", "less sound"] },
         { label: "Zero exhaust emissions — no fumes", keywords: ["no emission", "zero emission", "no exhaust", "no fumes", "clean", "emission free", "no fume"] },
@@ -248,7 +248,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What are the disadvantages of using battery chainsaws?",
     prompts: [{
       prompt: "What are the disadvantages of using battery chainsaws?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Limited run time — battery capacity restricts working time", keywords: ["limited run", "battery life", "run time", "capacity", "run out", "limited time"] },
         { label: "Less power available for heavy or large-diameter timber", keywords: ["less power", "not as powerful", "heavy timber", "large diameter", "power limitation"] },
@@ -266,7 +266,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What maintenance might you do with the batteries, the saw and charger?",
     prompts: [{
       prompt: "What maintenance might you do with the batteries, the saw and charger?",
-      threshold: 4,
+      threshold: 2,
       keyPoints: [
         { label: "Inspect battery for damage, cracks or deformation", keywords: ["inspect battery", "check battery", "battery damage", "crack", "deform", "battery condition"] },
         { label: "Clean battery contacts and guide tracks", keywords: ["clean contacts", "battery contacts", "guide track", "terminal", "clean terminal", "track clean"] },
@@ -318,7 +318,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you maintain it? (air filter)",
     prompts: [{
       prompt: "And how do you maintain it?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Remove and clean — tap out, wash or blow out debris", keywords: ["clean", "tap out", "wash", "blow out", "remove debris", "clean filter"] },
         { label: "Inspect the filter housing and gasket for damage", keywords: ["inspect housing", "gasket", "housing", "housing damage", "filter housing"] },
@@ -356,7 +356,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What are you looking for and how would you maintain it? (spark plug)",
     prompts: [{
       prompt: "Can you tell me what you're looking for and how you'd maintain it?",
-      threshold: 3,
+      threshold: 2,
       keyPoints: [
         { label: "Check electrode condition and gap — use a feeler gauge", keywords: ["electrode", "gap", "feeler gauge", "check gap", "electrode gap", "electrode condition"] },
         { label: "Look for fouling — carbon deposits, sooty or oily residue", keywords: ["fouling", "carbon", "sooty", "oily", "deposit", "black", "contamination"] },
@@ -383,7 +383,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you maintain the cooling system?",
     prompts: [{
       prompt: "So how do you maintain the cooling system?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Remove debris from the cylinder fins — brush or compressed air", keywords: ["remove debris", "clean fins", "debris from fins", "brush", "compressed air", "fin clean", "cylinder fin"] },
         { label: "Check and clear the flywheel housing and air intake", keywords: ["flywheel", "air intake", "housing", "clear intake", "flywheel housing"] },
@@ -420,7 +420,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you maintain it? (exhaust)",
     prompts: [{
       prompt: "And how do you maintain it?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Check fixings — nuts and bolts are secure", keywords: ["nuts", "bolts", "fixings", "secure", "tighten", "check bolts", "fixing check"] },
         { label: "Check / clean the spark arrestor", keywords: ["spark arrestor", "spark arrester", "arrestor", "clean arrestor", "carbon build"] },
@@ -434,7 +434,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What is in here that you need to maintain and how would you do it? (fuel tank)",
     prompts: [{
       prompt: "What is in here that you need to maintain and how would you do it?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Fuel filter — located in the fuel tank", keywords: ["fuel filter", "filter in fuel", "fuel tank filter", "in the tank", "fuel pick-up"] },
         { label: "Remove, inspect and clean or replace the fuel filter", keywords: ["remove filter", "replace fuel filter", "clean filter", "new filter", "change filter"] },
@@ -447,7 +447,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What is in here that you need to maintain and how would you do it? (oil tank)",
     prompts: [{
       prompt: "So what is in here that you need to maintain and how would you do it?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Oil filter — located in the bar oil tank", keywords: ["oil filter", "filter in oil", "bar oil tank", "oil tank filter", "oil pick-up"] },
         { label: "Remove, inspect and clean or replace the oil filter", keywords: ["remove oil filter", "replace oil filter", "clean oil filter", "new oil filter", "change oil filter"] },
@@ -471,7 +471,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Where would you expect to find damage? (recoil starter)",
     prompts: [{
       prompt: "Where would you expect to find damage?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Pull cord / rope — look for fraying, wear or knotting", keywords: ["pull cord", "rope", "cord", "fray", "wear on cord", "knotting", "cord damage"] },
         { label: "Recoil spring / coil spring — check for breakage or distortion", keywords: ["recoil spring", "coil spring", "spring", "broken spring", "spring damage"] },
@@ -520,7 +520,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you check for any wear or damage? (sprocket)",
     prompts: [{
       prompt: "How do you check for any wear or damage?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Check for hooked or wolf-teeth — look for sharp, curved points", keywords: ["hooked", "wolf teeth", "hook", "curved teeth", "sharp point", "worn tooth", "teeth shape"] },
         { label: "Check the needle bearing / drum for wear", keywords: ["needle bearing", "bearing", "drum", "needle cage", "bearing wear"] },
@@ -534,7 +534,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "If you need to replace the sprocket, how are you going to do that?",
     prompts: [{
       prompt: "If you need to replace the sprocket, how are you going to do that?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Use a clutch removal tool to remove the clutch", keywords: ["clutch removal", "removal tool", "remove clutch", "clutch tool", "spanner"] },
         { label: "Remove the needle bearing and spacers carefully", keywords: ["needle bearing", "needle cage", "bearing", "spacer", "remove bearing"] },
@@ -561,7 +561,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What does the chain brake do?",
     prompts: [{
       prompt: "What does it do?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Stops the chain rapidly — activated manually or by inertia on kickback", keywords: ["stops the chain", "halt chain", "chain stops", "inertia", "kickback", "activated"] },
         { label: "The brake band clamps around the clutch drum to arrest the chain", keywords: ["brake band", "clutch drum", "band clamp", "drum", "arrest", "clamp"] },
@@ -574,7 +574,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you check the chain brake for any wear or damage?",
     prompts: [{
       prompt: "How do you check for any wear or damage?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Check the brake band for wear — check thickness", keywords: ["brake band", "band wear", "band thickness", "band condition", "check band"] },
         { label: "Check the front hand guard for damage or cracks", keywords: ["front hand guard", "guard damage", "guard crack", "hand guard condition"] },
@@ -588,7 +588,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "This is your guidebar — what signs of wear or damage are you looking for?",
     prompts: [{
       prompt: "This is your guidebar — what signs of wear or damage are you looking for?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Uneven or burred rails", keywords: ["uneven rail", "burred", "rail condition", "burr", "rail wear", "uneven wear", "rail bur"] },
         { label: "Groove depth — worn groove", keywords: ["groove depth", "groove wear", "worn groove", "groove", "groove check"] },
@@ -604,7 +604,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "If the bar shows excessive wear or damage, what problems might you get?",
     prompts: [{
       prompt: "So if the bar shows excessive wear or damage, what problems might you get?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Chainsaw will not cut in a straight line — it will drift", keywords: ["not cut straight", "drift", "deviate", "wander", "pull to one side", "doesn't cut straight"] },
         { label: "Overheating of the bar and poor lubrication", keywords: ["overheat", "heat up", "poor lubrication", "dry chain", "lubrication problem", "hot bar"] },
@@ -618,7 +618,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How are you going to maintain your bar?",
     prompts: [{
       prompt: "How are you going to maintain your bar?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Clean the groove and clear the oil holes", keywords: ["clean groove", "clear oil hole", "oil hole", "groove clean", "clear the groove", "oil port"] },
         { label: "Remove burrs from the rails with a flat file", keywords: ["remove burr", "deburr", "flat file", "file the rail", "burr removal", "dress rails"] },
@@ -655,7 +655,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you identify your chain?",
     prompts: [{
       prompt: "How do you identify your chain?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Pitch — the measurement of the chain drive links", keywords: ["pitch", "chain pitch"] },
         { label: "Gauge — the width of the drive link", keywords: ["gauge", "chain gauge", "drive link gauge"] },
@@ -670,7 +670,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What information do you need to replace your chain?",
     prompts: [{
       prompt: "What information do you need to replace your chain?",
-      threshold: 4,
+      threshold: 2,
       keyPoints: [
         { label: "Pitch of the chain", keywords: ["pitch"] },
         { label: "Gauge of the chain", keywords: ["gauge"] },
@@ -783,7 +783,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Why does the depth gauge need to be set correctly, and what's the danger in setting it too low?",
     prompts: [{
       prompt: "And why does it need to be set correctly, and what's the danger in setting it too low?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Controls chip size and cutting efficiency — optimum cutting speed", keywords: ["chip size", "cutting efficiency", "optimum speed", "cutting speed", "optimum cutting"] },
         { label: "Set too low: increased kickback risk — chain grabs aggressively into the wood", keywords: ["too low", "kickback", "grab", "aggressive", "chain grab", "danger too low", "excessive kickback"] },
@@ -796,7 +796,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Why do you want to keep all your cutters the same size and the angles all the same?",
     prompts: [{
       prompt: "Why do you want to keep all your cutters the same size and the angles all the same?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Ensures the saw cuts in a straight line — balanced load on all cutters", keywords: ["straight line", "balanced", "equal load", "cuts straight", "even load", "balance"] },
         { label: "Reduces vibration and wear — even distribution of cutting force", keywords: ["reduce vibration", "less vibration", "even wear", "equal wear", "smooth operation", "reduce wear"] },
@@ -809,7 +809,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What problems might you get if you use a really worn or badly sharpened chain?",
     prompts: [{
       prompt: "What problems might you get if you use a really worn or badly sharpened chain?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Increased risk of kickback", keywords: ["kickback", "kick back", "kick-back", "increased kickback"] },
         { label: "Chain will not cut in a straight line — drifts to one side", keywords: ["drift", "not cut straight", "wander", "pull to one side", "doesn't cut straight"] },
@@ -824,7 +824,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you dispose of your contaminated chainsaw waste and your litter?",
     prompts: [{
       prompt: "How do you dispose of your contaminated chainsaw waste and your litter?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Collect oil-contaminated waste separately — take to a licensed waste facility", keywords: ["contaminated waste", "oil waste", "licensed facility", "licensed tip", "waste facility", "waste oil", "separate waste"] },
         { label: "Never bury or burn contaminated waste", keywords: ["never bury", "do not bury", "not burn", "do not burn", "bury", "incinerate"] },
@@ -852,7 +852,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What bio-security measures might you put in place?",
     prompts: [{
       prompt: "What bio-security measures might you put in place?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Clean and disinfect tools, equipment and footwear before and after entering a site", keywords: ["clean tools", "disinfect", "clean boots", "footwear", "clean equipment", "clean and disinfect"] },
         { label: "Avoid moving potentially infected plant material off site", keywords: ["infected material", "infected", "plant material", "move material", "spread disease", "not move"] },
@@ -866,7 +866,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What environmental factors do you need to consider?",
     prompts: [{
       prompt: "What environmental factors do you need to consider?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Wildlife and protected species — nesting birds, bats, badgers", keywords: ["wildlife", "protected species", "nesting bird", "bat", "badger", "ecology", "nesting season"] },
         { label: "Watercourses — prevent oil or fuel pollution of streams and ponds", keywords: ["watercourse", "stream", "pond", "river", "pollution", "oil spill", "fuel spill near water"] },
@@ -906,7 +906,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What are you going to do if you get your saw stuck or pinched?",
     prompts: [{
       prompt: "What are you going to do if you get your saw stuck, or pinched?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Do not force the saw — switch it off", keywords: ["do not force", "switch off", "turn off", "don't force", "stop the saw", "kill switch"] },
         { label: "Use a felling wedge or bar to open the cut", keywords: ["wedge", "felling wedge", "bar", "lever", "open the cut", "use a wedge"] },
@@ -921,7 +921,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How are you going to cross cut a piece of timber that's slightly larger than your guidebar?",
     prompts: [{
       prompt: "How are you going to cross cut a piece of timber that's slightly larger than your guidebar?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Cut from one side then reposition and cut from the opposite side to meet in the middle", keywords: ["one side", "opposite side", "cut from both sides", "reposition", "both sides", "meet in middle"] },
         { label: "Ensure the two cuts align — use a straight edge or score the timber first", keywords: ["align", "score", "mark", "straight edge", "guide", "ensure cuts meet"] },
@@ -934,7 +934,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How are you going to cut timber that's under high tension?",
     prompts: [{
       prompt: "How are you going to cut timber that's under high tension?",
-      threshold: 3,
+      threshold: 1,
       keyPoints: [
         { label: "Identify compression and tension zones before cutting", keywords: ["identify compression", "identify tension", "compression zone", "tension zone", "assess before cutting"] },
         { label: "Overbuck from the top (compression side) or underbuck from below (tension side) as appropriate", keywords: ["overbuck", "underbuck", "top cut", "undercut", "cut from above", "cut from below"] },
@@ -949,7 +949,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "When would you use a bore cut when cross cutting timber?",
     prompts: [{
       prompt: "When would you use a bore cut when cross cutting timber?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Timber diameter is larger than the guidebar — cannot cut through in one pass", keywords: ["larger than", "bigger than", "longer bar", "too large", "diameter larger", "can't cut through", "one pass"] },
         { label: "Timber under tension — to prevent the bar being pinched or trapped", keywords: ["tension", "pinch", "trapped", "under tension", "prevent pinch", "stop bar getting trapped", "avoid trapping"] },
@@ -963,7 +963,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Once you've cut your timber, how are you going to move it safely?",
     prompts: [{
       prompt: "Once you've cut your timber, how are you going to move it safely?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Use appropriate tools — cant hook, timber jack, or cant dog", keywords: ["cant hook", "timber jack", "cant dog", "peavey", "mechanical aid", "log moving tool"] },
         { label: "Assess the weight — team lift if too heavy, correct manual handling posture", keywords: ["assess weight", "team lift", "manual handling", "correct posture", "back straight", "not too heavy"] },
@@ -976,7 +976,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you make moving and working more ergonomic?",
     prompts: [{
       prompt: "How do you make moving and working more ergonomic?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Use the correct tools and mechanical aids to reduce manual effort", keywords: ["correct tools", "mechanical aid", "cant hook", "reduce manual", "use equipment", "right tool"] },
         { label: "Plan your movements — minimise unnecessary handling and twisting", keywords: ["plan movements", "minimise handling", "avoid twisting", "plan", "unnecessary lifting", "minimise"] },
@@ -990,7 +990,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How are you going to make sure your timber stacks are stable?",
     prompts: [{
       prompt: "How are you going to make sure your timber stacks are stable?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Use stacking stakes / binders — secure the stack", keywords: ["stacking stake", "binder", "stake", "secure stack", "binding", "stacking binder"] },
         { label: "Stack on firm, level ground", keywords: ["firm ground", "level ground", "flat ground", "stable ground", "solid base"] },
@@ -1004,7 +1004,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What else do you need to think about when stacking lots of different timber?",
     prompts: [{
       prompt: "What else do you need to think about when stacking lots of different timber?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Sort and stack by species / length / size for ease of identification", keywords: ["sort", "species", "length", "size", "identification", "same length", "group by"] },
         { label: "Bio-security — do not mix potentially infected species or sites", keywords: ["bio-security", "biosecurity", "infected", "mix species", "different sites", "disease spread"] },
@@ -1019,7 +1019,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Before you start your saw, what checks do you need to do?",
     prompts: [{
       prompt: "Before you start your saw, what checks do you need to do?",
-      threshold: 4,
+      threshold: 2,
       keyPoints: [
         { label: "Check fuel level and bar oil level", keywords: ["fuel", "fuel level", "oil level", "bar oil", "check fuel", "check oil"] },
         { label: "Check bar and chain condition — tension, sharpness, lubrication", keywords: ["bar", "chain", "tension", "sharp", "lubrication", "bar condition", "chain condition", "chain tension"] },
@@ -1036,7 +1036,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What functional checks do you need to perform before you actually use your saw?",
     prompts: [{
       prompt: "What functional checks do you need to perform before you actually use your saw?",
-      threshold: 3,
+      threshold: 2,
       keyPoints: [
         { label: "Start the saw and test the chain brake — manual activation and inertia", keywords: ["start the saw", "test chain brake", "chain brake", "manual", "inertia", "test brake"] },
         { label: "Check the chain does not move at idle speed", keywords: ["idle", "chain doesn't move", "chain not move", "idle speed", "chain at idle", "not moving at idle"] },
