@@ -76,13 +76,15 @@ router.post("/progress/complete-video", async (req, res) => {
     if (existing.length > 0) {
       await db
         .update(userProgressTable)
-        .set({ videoCompleted: true, updatedAt: new Date() })
+        .set({ videoCompleted: true, quizPassed: true, completedAt: new Date(), updatedAt: new Date() })
         .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
     } else {
       await db.insert(userProgressTable).values({
         userId: user.id,
         moduleId,
         videoCompleted: true,
+        quizPassed: true,
+        completedAt: new Date(),
       });
     }
 
@@ -128,7 +130,7 @@ router.get("/progress/summary", async (req, res) => {
 
     for (const mod of modules) {
       const p = progressMap.get(mod.id);
-      if (p?.videoCompleted && p?.quizPassed) {
+      if (p?.videoCompleted) {
         completedModules++;
         quizzesPassed++;
       } else if (!currentModuleId) {

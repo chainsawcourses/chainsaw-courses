@@ -41,8 +41,8 @@ router.get("/modules", async (req, res) => {
       const prevMod = idx > 0 ? modules[idx - 1] : null;
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
-      // Both video AND quiz must be completed to unlock the next module
-      const isLocked = idx > 0 ? !(prevProgress?.videoCompleted && prevProgress?.quizPassed) : false;
+      // Video completion alone unlocks the next module (no separate quiz required)
+      const isLocked = idx > 0 ? !prevProgress?.videoCompleted : false;
 
       return {
         id: mod.id,
@@ -53,7 +53,7 @@ router.get("/modules", async (req, res) => {
         subCategory: mod.subCategory ?? null,
         contentType: mod.contentType,
         isLocked,
-        isCompleted: !!(progress?.videoCompleted && progress?.quizPassed),
+        isCompleted: !!progress?.videoCompleted,
         quizPassed: !!progress?.quizPassed,
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
@@ -115,7 +115,7 @@ router.get("/modules/:moduleId", async (req, res) => {
             eq(userProgressTable.moduleId, prevMod.id)
           )
         );
-      isLocked = !(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      isLocked = !prevProgress?.videoCompleted;
     }
 
     if (isLocked) {
@@ -166,7 +166,7 @@ router.get("/modules/:moduleId", async (req, res) => {
       subCategory: mod.subCategory ?? null,
       contentType: mod.contentType,
       isLocked: false,
-      isCompleted: !!(myProgress?.videoCompleted && myProgress?.quizPassed),
+      isCompleted: !!myProgress?.videoCompleted,
       quizPassed: !!myProgress?.quizPassed,
       duration: mod.duration,
       vimeoId: mod.vimeoId,

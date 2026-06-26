@@ -463,7 +463,7 @@ export default function MockTest() {
               <ArrowLeft className="w-4 h-4 mr-2" />EXIT
             </Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase tracking-widest">NPTC MOCK ASSESSMENT</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-widest">TAKE ASSESSMENT QUIZ</div>
           {(phase === "prompt" || phase === "prompt-review") ? (
             <div className="font-mono text-xs text-muted-foreground tabular-nums">
               Q{overallProgress}/{TOTAL}
@@ -492,7 +492,7 @@ export default function MockTest() {
             </div>
             <div className="space-y-2 max-w-sm">
               <h2 className="font-mono font-black uppercase tracking-widest text-lg">
-                NPTC Oral Exam Practice
+                Take Assessment Quiz
               </h2>
               <p className="text-muted-foreground font-mono text-sm leading-relaxed">
                 {moduleId

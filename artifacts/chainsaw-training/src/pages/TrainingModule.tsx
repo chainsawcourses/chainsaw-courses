@@ -173,13 +173,8 @@ export default function TrainingModule() {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full max-w-[220px]">
-                    {!module.quizPassed && (
-                      <Button size="sm" className="font-mono tracking-widest w-full" asChild>
-                        <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
-                      </Button>
-                    )}
-                    <Button size="sm" variant="outline" className="font-mono tracking-widest w-full bg-black/40 border-white/30 text-white hover:bg-white/10 hover:text-white" asChild>
-                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
+                    <Button size="sm" className="font-mono tracking-widest w-full" asChild>
+                      <Link href={`/mock-test?module=${module.id}`}>TAKE ASSESSMENT</Link>
                     </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs" onClick={handleBackToCourse}>
                       ← BACK TO COURSE
@@ -196,22 +191,15 @@ export default function TrainingModule() {
                 <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
               </div>
               <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
-                {module.quizPassed ? (
+                {(videoCompleted || module.isCompleted) ? (
                   <>
-                    <div className="flex items-center text-primary font-mono font-bold text-sm">
-                      <CheckCircle2 className="w-4 h-4 mr-1.5" /> QUIZ PASSED
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto font-mono tracking-widest text-xs" asChild>
-                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
-                    </Button>
-                  </>
-                ) : (videoCompleted || module.isCompleted) ? (
-                  <>
+                    {module.isCompleted && (
+                      <div className="flex items-center text-primary font-mono font-bold text-sm">
+                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> VIDEO COMPLETE
+                      </div>
+                    )}
                     <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
-                      <Link href={`/quiz/${module.id}`}>TAKE QUIZ</Link>
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full sm:w-auto font-mono tracking-widest text-xs" asChild>
-                      <Link href={`/mock-test?module=${module.id}`}>ASSESSMENT QUESTIONS</Link>
+                      <Link href={`/mock-test?module=${module.id}`}>TAKE ASSESSMENT</Link>
                     </Button>
                   </>
                 ) : (
