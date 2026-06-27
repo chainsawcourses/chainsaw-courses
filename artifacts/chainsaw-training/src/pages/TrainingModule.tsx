@@ -143,8 +143,8 @@ export default function TrainingModule() {
         {/* ── VIDEO MODULE ── */}
         {!isPdf && (
           <>
-            {/* Video player — capped height so info panel stays visible without scrolling */}
-            <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "38vh" }}>
+            {/* Video player */}
+            <div className="relative w-full max-w-3xl mx-auto">
               {/* pointer-events-none only when the completion overlay is active (video just ended this session) */}
               {(() => {
                 const hasRealVideo = module.vimeoId && module.vimeoId !== "76979871";
