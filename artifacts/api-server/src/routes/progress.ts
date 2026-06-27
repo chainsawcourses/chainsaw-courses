@@ -5,6 +5,7 @@ import { SaveHeartbeatBody, CompleteVideoBody } from "@workspace/api-zod";
 import { eq, and, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { z } from "zod";
 
 const router = Router();
 
@@ -76,21 +77,75 @@ router.post("/progress/complete-video", async (req, res) => {
     if (existing.length > 0) {
       await db
         .update(userProgressTable)
-        .set({ videoCompleted: true, quizPassed: true, completedAt: new Date(), updatedAt: new Date() })
+        .set({ videoCompleted: true, updatedAt: new Date() })
         .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
     } else {
       await db.insert(userProgressTable).values({
         userId: user.id,
         moduleId,
         videoCompleted: true,
-        quizPassed: true,
-        completedAt: new Date(),
       });
     }
 
     res.json({ success: true, message: "Video marked complete" });
   } catch (err) {
     logger.error({ err }, "Error completing video" );
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+const CompleteAssessmentBody = z.object({
+  moduleId: z.number(),
+  deviceId: z.string(),
+  activationCode: z.string(),
+  passed: z.boolean(),
+  score: z.number().optional(),
+});
+
+router.post("/progress/complete-assessment", async (req, res) => {
+  const parse = CompleteAssessmentBody.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+
+  const { moduleId, deviceId, activationCode, passed, score } = parse.data;
+  const user = await resolveUser(activationCode, deviceId);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  if (!passed) {
+    res.json({ success: true, message: "Assessment result recorded (not passed)" });
+    return;
+  }
+
+  try {
+    const existing = await db
+      .select()
+      .from(userProgressTable)
+      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+
+    if (existing.length > 0) {
+      await db
+        .update(userProgressTable)
+        .set({ quizPassed: true, quizScore: score ?? null, completedAt: new Date(), updatedAt: new Date() })
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+    } else {
+      await db.insert(userProgressTable).values({
+        userId: user.id,
+        moduleId,
+        quizPassed: true,
+        quizScore: score ?? null,
+        completedAt: new Date(),
+      });
+    }
+
+    logger.info({ moduleId }, "Assessment passed and recorded");
+    res.json({ success: true, message: "Assessment pass recorded" });
+  } catch (err) {
+    logger.error({ err }, "Error recording assessment result");
     res.status(500).json({ error: "Internal server error" });
   }
 });

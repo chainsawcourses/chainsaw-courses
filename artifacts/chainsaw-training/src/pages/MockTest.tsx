@@ -162,6 +162,7 @@ export default function MockTest() {
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isGrading, setIsGrading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
 
@@ -369,23 +370,58 @@ export default function MockTest() {
     setIsRecording(false);
   }, []);
 
-  // ── Submit answer ─────────────────────────────────────────────────────
-  const submitAnswer = useCallback((skipAnswer = false) => {
+  // ── Submit answer (async: keyword-match first, AI fallback if needed) ──
+  const submitAnswer = useCallback(async (skipAnswer = false) => {
     stopRecording();
     const flush = interimTranscript.trim();
     const fullTranscript = skipAnswer
       ? ""
       : (typedText + (flush ? " " + flush : "")).trim();
 
-    const matched = matchKeyPoints(fullTranscript, prompt);
-    const matchedCount = matched.filter(Boolean).length;
+    // Fast-path: keyword matching
+    const keywordMatched = matchKeyPoints(fullTranscript, prompt);
+    const keywordPassCount = keywordMatched.filter(Boolean).length;
+    const keywordPassed = keywordPassCount >= prompt.threshold;
+
+    let finalMatched = keywordMatched;
+
+    // If keyword matching didn't fully pass AND there's a meaningful answer, ask AI
+    if (!keywordPassed && fullTranscript.length > 8 && activationCode && deviceId) {
+      setIsGrading(true);
+      try {
+        const resp = await fetch("/api/ai/grade-answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transcript: fullTranscript,
+            promptText: prompt.prompt,
+            keyPoints: prompt.keyPoints.map((kp) => ({ keywords: kp.keywords })),
+            deviceId,
+            activationCode,
+          }),
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (Array.isArray(data.matched) && data.matched.length === prompt.keyPoints.length) {
+            // Accept a key point if EITHER keyword OR AI says it's covered
+            finalMatched = keywordMatched.map((km: boolean, i: number) => km || Boolean(data.matched[i]));
+          }
+        }
+      } catch {
+        // Fall back to keyword result silently
+      } finally {
+        setIsGrading(false);
+      }
+    }
+
+    const matchedCount = finalMatched.filter(Boolean).length;
     const passed = matchedCount >= prompt.threshold;
-    const result: PromptResult = { transcript: fullTranscript, matched, passed };
+    const result: PromptResult = { transcript: fullTranscript, matched: finalMatched, passed };
 
     currentPromptResultsRef.current = [...currentPromptResultsRef.current, result];
     setLastPromptResult(result);
     setPhase("prompt-review");
-  }, [stopRecording, interimTranscript, typedText, prompt]);
+  }, [stopRecording, interimTranscript, typedText, prompt, activationCode, deviceId]);
 
   // ── Submit action (auto-pass, no scoring) ─────────────────────────────
   const submitAction = useCallback(() => {
@@ -414,6 +450,18 @@ export default function MockTest() {
       currentPromptResultsRef.current = [];
 
       if (questionIdx + 1 >= activeQuestions.length) {
+        // Exam finished — record result to server if this is a module assessment
+        if (moduleId && activationCode && deviceId) {
+          const finalPassCount = newQResults.filter((r) => r.passed).length;
+          const finalTotal = newQResults.length;
+          const overallPassed = finalTotal > 0 && finalPassCount / finalTotal >= 0.8;
+          const score = finalTotal > 0 ? Math.round((finalPassCount / finalTotal) * 100) : 0;
+          fetch("/api/progress/complete-assessment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ moduleId: Number(moduleId), deviceId, activationCode, passed: overallPassed, score }),
+          }).catch(() => {});
+        }
         setPhase("results");
       } else {
         setQuestionIdx((i) => i + 1);
@@ -421,7 +469,7 @@ export default function MockTest() {
         setPhase("prompt");
       }
     }
-  }, [questionIdx, promptIdx, questionResults]);
+  }, [questionIdx, promptIdx, questionResults, moduleId, activationCode, deviceId]);
 
   // ── Restart ───────────────────────────────────────────────────────────
   const handleRestart = useCallback(() => {
@@ -446,6 +494,8 @@ export default function MockTest() {
   const passCount = questionResults.filter((r) => r.passed).length;
   const TOTAL = activeQuestions.length;
   const allPassed = questionResults.length === TOTAL && questionResults.every((r) => r.passed);
+  // 80% pass threshold for unlocking the next module
+  const overallPassed = questionResults.length === TOTAL && TOTAL > 0 && passCount / TOTAL >= 0.8;
 
   // Progress bar width
   const progressPct =
@@ -662,16 +712,20 @@ export default function MockTest() {
                 {/* Submit */}
                 <Button
                   className="w-full font-mono font-black uppercase tracking-widest"
-                  disabled={(!transcript && !interimTranscript && !typedText) || isRecording}
+                  disabled={(!transcript && !interimTranscript && !typedText) || isRecording || isGrading}
                   onClick={() => submitAnswer(false)}
                 >
-                  Submit Answer
+                  {isGrading
+                    ? <><span className="animate-pulse">AI Grading…</span></>
+                    : "Submit Answer"
+                  }
                 </Button>
 
                 {/* Skip */}
                 <div className="text-center">
                   <button
-                    className="font-mono text-xs text-muted-foreground/40 underline hover:text-muted-foreground"
+                    className="font-mono text-xs text-muted-foreground/40 underline hover:text-muted-foreground disabled:opacity-30 disabled:pointer-events-none"
+                    disabled={isGrading}
                     onClick={() => submitAnswer(true)}
                   >
                     Skip this {isMultiPrompt ? "part" : "question"}
@@ -842,22 +896,32 @@ export default function MockTest() {
           <div className="py-6 space-y-6">
             <div className="text-center space-y-3">
               <div className={`w-20 h-20 rounded-full mx-auto flex items-center justify-center ${
-                allPassed ? "bg-green-500/10" : "bg-destructive/10"
+                overallPassed ? "bg-green-500/10" : "bg-destructive/10"
               }`}>
-                {allPassed
+                {overallPassed
                   ? <CheckCircle className="w-10 h-10 text-green-500" />
                   : <XCircle className="w-10 h-10 text-destructive" />}
               </div>
               <h2 className="font-mono font-black uppercase tracking-widest text-xl">
-                {allPassed ? "All Passed" : "Exam Complete"}
+                {overallPassed ? "Assessment Passed" : "Assessment Incomplete"}
               </h2>
               <p className="font-mono text-3xl font-black tabular-nums">
                 {passCount} / {TOTAL}
               </p>
               <p className="font-mono text-sm text-muted-foreground">questions passed</p>
-              {!allPassed && (
+              {overallPassed && moduleId ? (
+                <div className="inline-flex items-center gap-2 rounded-lg px-4 py-2 bg-green-500/10 border border-green-500/25 font-mono text-xs text-green-400 font-bold uppercase tracking-widest">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Next module unlocked
+                </div>
+              ) : !overallPassed ? (
                 <p className="font-mono text-xs text-muted-foreground/60 max-w-xs mx-auto">
-                  The real NPTC assessment requires all questions to be passed. Review the missed points below and retake.
+                  Score 80% or more to unlock the next module. Review the missed points below and retake.
+                </p>
+              ) : null}
+              {overallPassed && !allPassed && (
+                <p className="font-mono text-xs text-muted-foreground/50 max-w-xs mx-auto">
+                  Note: the real NPTC exam requires 100%. Keep practising to reach that standard.
                 </p>
               )}
             </div>

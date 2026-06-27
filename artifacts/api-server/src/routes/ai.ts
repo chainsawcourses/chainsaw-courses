@@ -6,6 +6,7 @@ import { eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { GoogleGenAI } from "@google/genai";
+import { z } from "zod";
 
 const router = Router();
 
@@ -128,6 +129,78 @@ router.post("/ai/chat", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error in AI chat");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+const GradeAnswerBody = z.object({
+  transcript: z.string(),
+  promptText: z.string(),
+  keyPoints: z.array(z.object({ keywords: z.array(z.string()) })),
+  deviceId: z.string(),
+  activationCode: z.string(),
+});
+
+router.post("/ai/grade-answer", async (req, res) => {
+  const parse = GradeAnswerBody.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+
+  const { transcript, promptText, keyPoints, deviceId, activationCode } = parse.data;
+  const user = await resolveUser(activationCode, deviceId);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const gemini = getGeminiClient();
+  if (!gemini || !transcript.trim()) {
+    res.json({ matched: keyPoints.map(() => false), fallback: true });
+    return;
+  }
+
+  const keyPointsText = keyPoints
+    .map((kp: { keywords: string[] }, i: number) => `${i + 1}. Concepts: ${kp.keywords.slice(0, 6).join(", ")}`)
+    .join("\n");
+
+  const gradingPrompt = `You are an NPTC chainsaw safety examiner grading a student's spoken answer.
+
+Question: "${promptText}"
+Student's answer: "${transcript}"
+
+Decide whether the student's answer covers each key concept below.
+Be GENEROUS — accept synonyms, paraphrasing, colloquial phrasing, and partial answers that show genuine understanding.
+Examples of acceptable equivalents:
+- "clean and inspect connections and batteries" covers battery maintenance
+- "checking for damage or wear" covers inspection
+- "make sure it's off before working on it" covers isolation/lockout
+
+Key concepts (one per line):
+${keyPointsText}
+
+Reply ONLY with a JSON array of booleans in the same order, nothing else.
+Example: [true, false, true]`;
+
+  try {
+    const response = await gemini.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: [{ role: "user", parts: [{ text: gradingPrompt }] }],
+      config: { maxOutputTokens: 256 },
+    });
+
+    const text = response.text?.trim() ?? "[]";
+    const match = text.match(/\[[\s\S]*?\]/);
+    const parsed = match ? JSON.parse(match[0]) : null;
+    const matched =
+      Array.isArray(parsed) && parsed.length === keyPoints.length
+        ? parsed.map(Boolean)
+        : keyPoints.map(() => false);
+
+    res.json({ matched });
+  } catch (err) {
+    logger.error({ err }, "Error in AI grade-answer");
+    res.json({ matched: keyPoints.map(() => false), fallback: true });
   }
 });
 

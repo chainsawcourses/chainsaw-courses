@@ -41,8 +41,8 @@ router.get("/modules", async (req, res) => {
       const prevMod = idx > 0 ? modules[idx - 1] : null;
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
-      // Video completion alone unlocks the next module (no separate quiz required)
-      const isLocked = idx > 0 ? !prevProgress?.videoCompleted : false;
+      // Both video AND assessment must be passed to unlock the next module
+      const isLocked = idx > 0 ? !(prevProgress?.videoCompleted && prevProgress?.quizPassed) : false;
 
       return {
         id: mod.id,
@@ -115,7 +115,7 @@ router.get("/modules/:moduleId", async (req, res) => {
             eq(userProgressTable.moduleId, prevMod.id)
           )
         );
-      isLocked = !prevProgress?.videoCompleted;
+      isLocked = !(prevProgress?.videoCompleted && prevProgress?.quizPassed);
     }
 
     if (isLocked) {
