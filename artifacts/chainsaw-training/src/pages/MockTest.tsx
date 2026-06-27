@@ -454,7 +454,7 @@ export default function MockTest() {
         if (moduleId && activationCode && deviceId) {
           const finalPassCount = newQResults.filter((r) => r.passed).length;
           const finalTotal = newQResults.length;
-          const overallPassed = finalTotal > 0 && finalPassCount / finalTotal >= 0.8;
+          const overallPassed = finalTotal > 0 && finalPassCount === finalTotal;
           const score = finalTotal > 0 ? Math.round((finalPassCount / finalTotal) * 100) : 0;
           fetch("/api/progress/complete-assessment", {
             method: "POST",
@@ -494,8 +494,8 @@ export default function MockTest() {
   const passCount = questionResults.filter((r) => r.passed).length;
   const TOTAL = activeQuestions.length;
   const allPassed = questionResults.length === TOTAL && questionResults.every((r) => r.passed);
-  // 80% pass threshold for unlocking the next module
-  const overallPassed = questionResults.length === TOTAL && TOTAL > 0 && passCount / TOTAL >= 0.8;
+  // All questions must be passed to unlock the next module
+  const overallPassed = questionResults.length === TOTAL && TOTAL > 0 && passCount === TOTAL;
 
   // Progress bar width
   const progressPct =
@@ -916,14 +916,9 @@ export default function MockTest() {
                 </div>
               ) : !overallPassed ? (
                 <p className="font-mono text-xs text-muted-foreground/60 max-w-xs mx-auto">
-                  Score 80% or more to unlock the next module. Review the missed points below and retake.
+                  All questions must be passed to unlock the next module. Review the missed points below and retake.
                 </p>
               ) : null}
-              {overallPassed && !allPassed && (
-                <p className="font-mono text-xs text-muted-foreground/50 max-w-xs mx-auto">
-                  Note: the real NPTC exam requires 100%. Keep practising to reach that standard.
-                </p>
-              )}
             </div>
 
             {/* Per-question summary */}
