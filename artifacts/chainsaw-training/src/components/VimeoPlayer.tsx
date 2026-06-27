@@ -8,7 +8,7 @@ interface VimeoPlayerProps {
   onEnded?: () => void;
 }
 
-function buildEmbedUrl(vimeoId: string): string {
+function buildEmbedUrl(vimeoId: string, nativeControls: boolean): string {
   const slash = vimeoId.indexOf("/");
   const id = slash === -1 ? vimeoId : vimeoId.slice(0, slash);
   const hash = slash === -1 ? "" : vimeoId.slice(slash + 1);
@@ -18,6 +18,7 @@ function buildEmbedUrl(vimeoId: string): string {
     portrait: "0",
     transparent: "0",
     share: "0",
+    controls: nativeControls ? "1" : "0",
     api: "1",
     playsinline: "1",
   });
@@ -45,6 +46,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
+  const isPausedRef = useRef(true);           // ref copy avoids stale closures in handleTap
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -52,11 +54,15 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   // On touch-primary devices the tap overlay must be pointer-events-none so
   // touches reach the Vimeo iframe directly (iOS requires a real user gesture
   // on the media element — postMessage("play") does NOT satisfy it).
+  // On desktop (hover: hover) we use controls=0 so Vimeo's bar is hidden and
+  // our custom overlay + controls bar handle everything.
   const isHoverDevice = useRef(
     typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches
   );
 
-  const src = buildEmbedUrl(vimeoId);
+  // Desktop → controls=0 (our custom UI handles play/pause, Vimeo bar hidden)
+  // Mobile  → controls=1 (Vimeo's native controls handle the required user gesture)
+  const src = buildEmbedUrl(vimeoId, !isHoverDevice.current);
 
   const sendCommand = useCallback((method: string, value?: unknown) => {
     if (!iframeRef.current?.contentWindow) return;
@@ -118,9 +124,9 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
             onTimeUpdate?.(data.value);
           }
         }
-        if (data.event === "pause") setIsPaused(true);
-        if (data.event === "play")  setIsPaused(false);
-        if (data.event === "finish") { setIsPaused(true); onEnded?.(); }
+        if (data.event === "pause")  { isPausedRef.current = true;  setIsPaused(true); }
+        if (data.event === "play")   { isPausedRef.current = false; setIsPaused(false); }
+        if (data.event === "finish") { isPausedRef.current = true;  setIsPaused(true); onEnded?.(); }
       } catch { /* ignore */ }
     };
     window.addEventListener("message", handler);
@@ -163,11 +169,12 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
       : containerRef.current.requestFullscreen().catch(() => {});
   }, []);
 
-  // Tap overlay handler (desktop only — see isHoverDevice)
+  // Tap overlay handler (desktop only — see isHoverDevice).
+  // Reads isPausedRef (not state) to avoid stale-closure misses.
   const handleTap = useCallback(() => {
     if (!isReadyRef.current) return;
-    sendCommand(isPaused ? "play" : "pause");
-  }, [isPaused, sendCommand]);
+    sendCommand(isPausedRef.current ? "play" : "pause");
+  }, [sendCommand]);
 
   // Seek helpers
   const clientXToTime = useCallback((clientX: number) => {
