@@ -30,7 +30,8 @@ export const MODULE_QUESTION_MAP: Record<number, number[]> = {
   28: [44, 45],                              // Replacing The Chain (Q42/Q43 excluded as actions)
   29: [49, 50, 51, 52, 53, 54, 55, 56, 57], // Chain Sharpening
   42: [],                                    // Kickback (new module — questions TBD)
-  30: [69, 70],                              // Stacking (moved to after Bore Cutting)
+  30: [69, 70],                              // Stacking
+  43: [],                                    // Additional Cuts (new module — questions TBD)
   31: [58, 68],                              // Work Positioning
   32: [71],                                  // Pre-Start Checks
   33: [71],                                  // Starting The Chainsaw (Q43 excluded as action)
