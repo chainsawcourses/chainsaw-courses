@@ -118,6 +118,9 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           durationRef.current = data.value;
           setDuration(data.value);
         }
+        if (data.method === "getPaused" && typeof data.value === "boolean") {
+          sendCommand(data.value ? "play" : "pause");
+        }
         if (data.method === "getCurrentTime" && typeof data.value === "number") {
           if (!isDraggingRef.current) {
             setCurrentTime(data.value);
@@ -170,10 +173,11 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   }, []);
 
   // Tap overlay handler (desktop only — see isHoverDevice).
-  // Reads isPausedRef (not state) to avoid stale-closure misses.
+  // Asks Vimeo for the actual pause state rather than trusting our tracked
+  // state — avoids any race between event arrival and tap timing.
   const handleTap = useCallback(() => {
     if (!isReadyRef.current) return;
-    sendCommand(isPausedRef.current ? "play" : "pause");
+    sendCommand("getPaused");
   }, [sendCommand]);
 
   // Seek helpers
