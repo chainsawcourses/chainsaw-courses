@@ -18,6 +18,7 @@ export const MODULE_QUESTION_MAP: Record<number, number[]> = {
   17: [22, 23],                              // Cooling System
   18: [24, 25, 26],                          // Exhaust
   19: [27, 28],                              // Fuel & Oil Filters
+  41: [],                                    // The Oiling System (new module — questions TBD)
   20: [30],                                  // Recoil Starter (Q29 is a physical action — excluded)
   21: [],                                    // Clutch Assembly (Q31 is a physical action only)
   22: [32, 33, 34, 35],                      // Sprocket
@@ -28,7 +29,8 @@ export const MODULE_QUESTION_MAP: Record<number, number[]> = {
   27: [44, 45, 46, 47, 48],                  // Identifying The Chain
   28: [44, 45],                              // Replacing The Chain (Q42/Q43 excluded as actions)
   29: [49, 50, 51, 52, 53, 54, 55, 56, 57], // Chain Sharpening
-  30: [69, 70],                              // Stacking
+  42: [],                                    // Kickback (new module — questions TBD)
+  30: [69, 70],                              // Stacking (moved to after Bore Cutting)
   31: [58, 68],                              // Work Positioning
   32: [71],                                  // Pre-Start Checks
   33: [71],                                  // Starting The Chainsaw (Q43 excluded as action)
