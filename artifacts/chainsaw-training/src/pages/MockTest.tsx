@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +8,6 @@ import {
   BookOpen, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useSearch } from "wouter";
 import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestions";
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { useUserSession } from "../contexts/UserContext";
@@ -136,8 +135,12 @@ const AUDIO_FILES: Record<number, string> = {
 };
 
 export default function MockTest() {
-  const search = useSearch();
-  const moduleId = new URLSearchParams(search).get("module");
+  // Read module ID directly from the browser URL — more reliable than wouter's
+  // useSearch() which can return an empty string when a base path is configured.
+  const moduleId = useMemo(
+    () => new URLSearchParams(window.location.search).get("module"),
+    []
+  );
   const activeQuestions = (() => {
     if (!moduleId) return VOCAL_EXAM_QUESTIONS;
     const id = Number(moduleId);
