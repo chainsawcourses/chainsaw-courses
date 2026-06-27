@@ -47,6 +47,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
   const isPausedRef = useRef(true);           // ref copy avoids stale closures in handleTap
+  const [hasEnded, setHasEnded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -127,10 +128,11 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           }
         }
         if (data.event === "pause")  { isPausedRef.current = true;  setIsPaused(true); }
-        if (data.event === "play")   { isPausedRef.current = false; setIsPaused(false); }
+        if (data.event === "play")   { isPausedRef.current = false; setIsPaused(false); setHasEnded(false); }
         if (data.event === "finish") {
           isPausedRef.current = true;
           setIsPaused(true);
+          setHasEnded(true);
           if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
           onEnded?.();
         }
@@ -232,12 +234,12 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           onClick={handleTap}
         />
 
-        {/* Centre play indicator */}
+        {/* Centre play indicator — hidden when video has ended */}
         <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
           <div style={{
             transition: "opacity 0.3s ease, transform 0.3s ease",
-            opacity: isPaused ? 1 : 0,
-            transform: isPaused ? "scale(1)" : "scale(0.8)",
+            opacity: isPaused && !hasEnded ? 1 : 0,
+            transform: isPaused && !hasEnded ? "scale(1)" : "scale(0.8)",
           }}>
             <div className="bg-black/55 backdrop-blur-sm rounded-full p-5 border-2 border-white/30 shadow-2xl">
               <Play className="w-14 h-14 text-white fill-white" style={{ marginLeft: 4 }} />
