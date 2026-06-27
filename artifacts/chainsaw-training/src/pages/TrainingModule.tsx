@@ -146,21 +146,31 @@ export default function TrainingModule() {
             {/* Video player — capped height so info panel stays visible without scrolling */}
             <div className="relative w-full max-w-3xl mx-auto" style={{ maxHeight: "38vh" }}>
               {/* pointer-events-none only when the completion overlay is active (video just ended this session) */}
-              {canPlay && module.vimeoId ? (
-                <div className={videoCompleted ? "pointer-events-none" : ""}>
-                  <VimeoPlayer
-                    vimeoId={module.vimeoId}
-                    onTimeUpdate={handleTimeUpdate}
-                    onEnded={handleVideoEnded}
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
-                  <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs">
-                    {safetyModalOpen ? "SAFETY ACKNOWLEDGMENT REQUIRED" : "INITIALIZING PLAYER..."}
+              {(() => {
+                const hasRealVideo = module.vimeoId && module.vimeoId !== "76979871";
+                if (canPlay && hasRealVideo) {
+                  return (
+                    <div className={videoCompleted ? "pointer-events-none" : ""}>
+                      <VimeoPlayer
+                        vimeoId={module.vimeoId!}
+                        onTimeUpdate={handleTimeUpdate}
+                        onEnded={handleVideoEnded}
+                      />
+                    </div>
+                  );
+                }
+                return (
+                  <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
+                    <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs space-y-1">
+                      {safetyModalOpen
+                        ? <span>SAFETY ACKNOWLEDGMENT REQUIRED</span>
+                        : !hasRealVideo
+                          ? <><span>VIDEO NOT YET UPLOADED</span><br /><span className="text-[10px] opacity-60 normal-case tracking-normal">Admin: add this video in Video Settings</span></>
+                          : <span>INITIALIZING PLAYER...</span>}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Completion overlay — only shown when video ends in this session */}
               {videoCompleted && (

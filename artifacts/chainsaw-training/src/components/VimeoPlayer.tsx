@@ -49,6 +49,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const [tapFlash, setTapFlash] = useState<"play" | "pause" | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const sendCommand = useCallback((method: string, value?: unknown) => {
     if (!iframeRef.current?.contentWindow) return;
@@ -58,6 +59,19 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     );
   }, []);
 
+  // Timeout: if the player doesn't become ready within 14s, flag an error
+  useEffect(() => {
+    setLoadError(null);
+    isReadyRef.current = false;
+    const t = setTimeout(() => {
+      if (!isReadyRef.current) {
+        setLoadError("Video failed to load. Check Vimeo privacy settings — ensure the video is set to embed anywhere, or add your domain to Vimeo's allowed list.");
+      }
+    }, 14000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vimeoId]);
+
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!String(e.origin).includes("vimeo.com")) return;
@@ -65,11 +79,21 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         const data = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         if (data.event === "ready") {
           isReadyRef.current = true;
+          setLoadError(null);
           sendCommand("addEventListener", "pause");
           sendCommand("addEventListener", "play");
           sendCommand("addEventListener", "finish");
+          sendCommand("addEventListener", "error");
           sendCommand("getDuration");
           sendCommand("getTextTracks");
+        }
+        if (data.event === "error") {
+          const code = data.data?.code ?? data.code;
+          if (code === 5) {
+            setLoadError("This video is private or domain-restricted. In Vimeo, go to your video's Privacy settings and set 'Where can this be embedded?' to Anywhere.");
+          } else {
+            setLoadError(`Vimeo error (code ${code ?? "unknown"}). Check the video exists and is not password-protected.`);
+          }
         }
         if (data.method === "getDuration" && typeof data.value === "number") {
           durationRef.current = data.value;
@@ -235,6 +259,20 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
                 ? <Play className="w-10 h-10 text-white fill-white" />
                 : <Pause className="w-10 h-10 text-white fill-white" />}
             </div>
+          </div>
+        )}
+
+        {/* Load error overlay */}
+        {loadError && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-6 text-center gap-3">
+            <div className="text-destructive font-mono font-bold text-sm uppercase tracking-widest">⚠ VIDEO UNAVAILABLE</div>
+            <p className="text-white/80 text-xs font-mono leading-relaxed max-w-xs">{loadError}</p>
+            <button
+              onClick={() => { setLoadError(null); if (iframeRef.current) iframeRef.current.src = src; }}
+              className="mt-2 text-xs font-mono text-primary underline underline-offset-2"
+            >
+              Retry
+            </button>
           </div>
         )}
 

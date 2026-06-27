@@ -3,9 +3,20 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video } from "lucide-react";
+import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
+
+const PLACEHOLDER_ID = "76979871";
+
+function buildPreviewUrl(vimeoId: string): string {
+  const slash = vimeoId.indexOf("/");
+  const id = slash === -1 ? vimeoId : vimeoId.slice(0, slash);
+  const hash = slash === -1 ? "" : vimeoId.slice(slash + 1);
+  const params = new URLSearchParams({ title: "0", byline: "0", portrait: "0", controls: "1" });
+  if (hash) params.set("h", hash);
+  return `https://player.vimeo.com/video/${id}?${params}`;
+}
 
 interface ModuleVideo {
   id: number;
@@ -15,6 +26,7 @@ interface ModuleVideo {
   inputValue: string;
   saving: boolean;
   saved: boolean;
+  previewOpen: boolean;
 }
 
 function extractVimeoId(input: string): string {
@@ -61,9 +73,10 @@ export default function VideoSettings() {
             .filter((m) => (m as { contentType?: string }).contentType !== "pdf")
             .map((m) => ({
               ...m,
-              inputValue: m.vimeoId === "76979871" ? "" : m.vimeoId,
+              inputValue: m.vimeoId === PLACEHOLDER_ID ? "" : m.vimeoId,
               saving: false,
               saved: false,
+              previewOpen: false,
             }))
         );
         setLoading(false);
@@ -144,14 +157,14 @@ export default function VideoSettings() {
                   <span>{mod.title}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <div className="flex gap-2">
                   <Input
                     placeholder="e.g. https://player.vimeo.com/video/123456789?h=abc123def0"
                     value={mod.inputValue}
                     onChange={(e) =>
                       setModules((prev) =>
-                        prev.map((m) => m.id === mod.id ? { ...m, inputValue: e.target.value, saved: false } : m)
+                        prev.map((m) => m.id === mod.id ? { ...m, inputValue: e.target.value, saved: false, previewOpen: false } : m)
                       )
                     }
                     className="font-mono text-sm bg-background flex-1"
@@ -171,10 +184,39 @@ export default function VideoSettings() {
                     )}
                   </Button>
                 </div>
-                {mod.vimeoId && mod.vimeoId !== "76979871" && !mod.saved && (
-                  <p className="text-xs text-muted-foreground font-mono mt-2 opacity-60">
-                    Current: vimeo.com/{mod.vimeoId}
-                  </p>
+
+                {/* Preview / status row */}
+                {mod.vimeoId && mod.vimeoId !== PLACEHOLDER_ID ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground font-mono opacity-60">
+                        Current: vimeo.com/{mod.vimeoId}
+                      </p>
+                      <button
+                        onClick={() => setModules((prev) => prev.map((m) => m.id === mod.id ? { ...m, previewOpen: !m.previewOpen } : m))}
+                        className="flex items-center gap-1 text-xs font-mono text-primary hover:underline"
+                      >
+                        {mod.previewOpen ? <><ChevronUp className="w-3 h-3" /> HIDE PREVIEW</> : <><Play className="w-3 h-3" /> TEST PREVIEW</>}
+                      </button>
+                    </div>
+                    {mod.previewOpen && (
+                      <div className="rounded-lg overflow-hidden border border-border">
+                        <iframe
+                          key={mod.vimeoId}
+                          src={buildPreviewUrl(mod.vimeoId)}
+                          className="w-full aspect-video"
+                          allow="autoplay; fullscreen"
+                          allowFullScreen
+                          title={`Preview: ${mod.title}`}
+                        />
+                        <p className="text-[10px] font-mono text-muted-foreground text-center py-1 bg-muted/30">
+                          If the video shows a Vimeo error, go to Vimeo → Privacy → "Where can this be embedded?" → set to <strong>Anywhere</strong>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-amber-500/80 font-mono">No video uploaded yet</p>
                 )}
               </CardContent>
             </Card>
