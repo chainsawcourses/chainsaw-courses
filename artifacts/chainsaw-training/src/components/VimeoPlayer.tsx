@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Maximize2, Minimize2, Play } from "lucide-react";
+import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 
 interface VimeoPlayerProps {
@@ -25,17 +25,36 @@ function buildEmbedUrl(vimeoId: string): string {
   return `https://player.vimeo.com/video/${id}?${params}`;
 }
 
+function formatTime(s: number): string {
+  if (!isFinite(s) || s < 0) return "0:00";
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, "0")}`;
+}
+
 export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const seekBarRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const durationRef = useRef(0);
   const isReadyRef = useRef(false);
 
   const [watermarkPos, setWatermarkPos] = useState({ top: "15%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // On touch-primary devices the tap overlay must be pointer-events-none so
+  // touches reach the Vimeo iframe directly (iOS requires a real user gesture
+  // on the media element — postMessage("play") does NOT satisfy it).
+  const isHoverDevice = useRef(
+    typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches
+  );
 
   const src = buildEmbedUrl(vimeoId);
 
@@ -47,10 +66,13 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
     );
   }, []);
 
-  // Reset error + ready state when video changes
+  // Reset state when video changes
   useEffect(() => {
     setLoadError(null);
     setIsPaused(true);
+    setCurrentTime(0);
+    setDuration(0);
+    durationRef.current = 0;
     isReadyRef.current = false;
     const t = setTimeout(() => {
       if (!isReadyRef.current) {
@@ -63,7 +85,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vimeoId]);
 
-  // Vimeo postMessage event listener
+  // Vimeo postMessage listener
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!String(e.origin).includes("vimeo.com")) return;
@@ -76,40 +98,44 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           sendCommand("addEventListener", "play");
           sendCommand("addEventListener", "finish");
           sendCommand("addEventListener", "error");
+          sendCommand("getDuration");
         }
         if (data.event === "error") {
           const code = data.data?.code ?? data.code;
-          if (code === 5) {
-            setLoadError(
-              "This video is private or domain-restricted. In Vimeo, go to Settings → Privacy → set 'Where can this be embedded?' to Anywhere."
-            );
-          } else {
-            setLoadError(
-              `Video unavailable (Vimeo error ${code ?? "unknown"}). Check the video exists and is not password-protected.`
-            );
+          setLoadError(
+            code === 5
+              ? "This video is private or domain-restricted. In Vimeo, go to Settings → Privacy → set 'Where can this be embedded?' to Anywhere."
+              : `Video unavailable (Vimeo error ${code ?? "unknown"}). Check the video exists and is not password-protected.`
+          );
+        }
+        if (data.method === "getDuration" && typeof data.value === "number") {
+          durationRef.current = data.value;
+          setDuration(data.value);
+        }
+        if (data.method === "getCurrentTime" && typeof data.value === "number") {
+          if (!isDraggingRef.current) {
+            setCurrentTime(data.value);
+            onTimeUpdate?.(data.value);
           }
         }
         if (data.event === "pause") setIsPaused(true);
-        if (data.event === "play") setIsPaused(false);
+        if (data.event === "play")  setIsPaused(false);
         if (data.event === "finish") { setIsPaused(true); onEnded?.(); }
-        if (data.method === "getCurrentTime" && typeof data.value === "number") {
-          onTimeUpdate?.(data.value);
-        }
       } catch { /* ignore */ }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
   }, [sendCommand, onTimeUpdate, onEnded]);
 
-  // Poll getCurrentTime every 30s for the heartbeat
+  // Poll current time every 250 ms for the seek bar display
   useEffect(() => {
     const id = setInterval(() => {
-      if (isReadyRef.current) sendCommand("getCurrentTime");
-    }, 30000);
+      if (isReadyRef.current && !isDraggingRef.current) sendCommand("getCurrentTime");
+    }, 250);
     return () => clearInterval(id);
   }, [sendCommand]);
 
-  // Roaming watermark — moves every 60s
+  // Roaming watermark
   useEffect(() => {
     const move = () => {
       const zones = [
@@ -125,23 +151,50 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
 
   // Fullscreen
   useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", onFsChange);
-    return () => document.removeEventListener("fullscreenchange", onFsChange);
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
 
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return;
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
-    }
+    document.fullscreenElement
+      ? document.exitFullscreen().catch(() => {})
+      : containerRef.current.requestFullscreen().catch(() => {});
   }, []);
+
+  // Tap overlay handler (desktop only — see isHoverDevice)
+  const handleTap = useCallback(() => {
+    if (!isReadyRef.current) return;
+    sendCommand(isPaused ? "play" : "pause");
+  }, [isPaused, sendCommand]);
+
+  // Seek helpers
+  const clientXToTime = useCallback((clientX: number) => {
+    if (!seekBarRef.current || durationRef.current <= 0) return null;
+    const rect = seekBarRef.current.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)) * durationRef.current;
+  }, []);
+
+  const applySeek = useCallback((clientX: number) => {
+    const t = clientXToTime(clientX);
+    if (t === null) return;
+    setCurrentTime(t);
+    sendCommand("setCurrentTime", t);
+  }, [clientXToTime, sendCommand]);
+
+  const onSeekMouseDown  = useCallback((e: React.MouseEvent<HTMLDivElement>)  => { isDraggingRef.current = true;  applySeek(e.clientX); }, [applySeek]);
+  const onSeekMouseMove  = useCallback((e: React.MouseEvent<HTMLDivElement>)  => { if (isDraggingRef.current) applySeek(e.clientX); }, [applySeek]);
+  const onSeekMouseUp    = useCallback((e: React.MouseEvent<HTMLDivElement>)  => { if (!isDraggingRef.current) return; isDraggingRef.current = false; applySeek(e.clientX); }, [applySeek]);
+  const onSeekTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>)  => { isDraggingRef.current = true;  applySeek(e.touches[0].clientX); }, [applySeek]);
+  const onSeekTouchMove  = useCallback((e: React.TouchEvent<HTMLDivElement>)  => { e.preventDefault(); if (isDraggingRef.current) applySeek(e.touches[0].clientX); }, [applySeek]);
+  const onSeekTouchEnd   = useCallback((e: React.TouchEvent<HTMLDivElement>)  => { isDraggingRef.current = false; if (e.changedTouches.length) applySeek(e.changedTouches[0].clientX); }, [applySeek]);
+
+  const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   return (
     <div ref={containerRef}>
-      {/* Video */}
+      {/* ── Video frame ── */}
       <div className="vimeo-portrait-container relative w-full aspect-video bg-black rounded-t-lg overflow-hidden border-x border-t border-border shadow-2xl">
         <iframe
           ref={iframeRef}
@@ -155,14 +208,23 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           onLoad={() => setIframeLoaded(true)}
         />
 
-        {/* Centre play indicator — pointer-events-none so it never blocks Vimeo's touch targets */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+        {/* Tap overlay — pointer-events-auto on hover (desktop) devices only.
+            On touch-only devices (iOS/Android) it is pointer-events-none so
+            fingers reach Vimeo's native play button directly.              */}
+        <div
+          className="absolute inset-0 z-40 cursor-pointer"
+          style={{ pointerEvents: isHoverDevice.current ? "auto" : "none" }}
+          onClick={handleTap}
+        />
+
+        {/* Centre play indicator */}
+        <div className="absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
           <div style={{
-            transition: "opacity 0.35s ease, transform 0.35s ease",
+            transition: "opacity 0.3s ease, transform 0.3s ease",
             opacity: isPaused ? 1 : 0,
-            transform: isPaused ? "scale(1)" : "scale(0.75)",
+            transform: isPaused ? "scale(1)" : "scale(0.8)",
           }}>
-            <div className="bg-black/50 backdrop-blur-sm rounded-full p-5 border-2 border-white/30 shadow-2xl">
+            <div className="bg-black/55 backdrop-blur-sm rounded-full p-5 border-2 border-white/30 shadow-2xl">
               <Play className="w-14 h-14 text-white fill-white" style={{ marginLeft: 4 }} />
             </div>
           </div>
@@ -171,7 +233,7 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         {/* Roaming watermark */}
         {iframeLoaded && !loadError && (
           <div
-            className="pointer-events-none absolute z-10 whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
+            className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
             style={{
               top: watermarkPos.top,
               left: watermarkPos.left,
@@ -191,30 +253,55 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
 
         {/* Error overlay */}
         {loadError && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/90 p-6 text-center gap-3">
-            <div className="text-destructive font-mono font-bold text-sm uppercase tracking-widest">
-              ⚠ VIDEO UNAVAILABLE
-            </div>
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-6 text-center gap-3">
+            <div className="text-destructive font-mono font-bold text-sm uppercase tracking-widest">⚠ VIDEO UNAVAILABLE</div>
             <p className="text-white/80 text-xs font-mono leading-relaxed max-w-sm">{loadError}</p>
             <button
-              onClick={() => {
-                setLoadError(null);
-                isReadyRef.current = false;
-                if (iframeRef.current) iframeRef.current.src = src;
-              }}
+              onClick={() => { setLoadError(null); isReadyRef.current = false; if (iframeRef.current) iframeRef.current.src = src; }}
               className="mt-2 text-xs font-mono text-primary underline underline-offset-2"
-            >
-              Retry
-            </button>
+            >Retry</button>
           </div>
         )}
       </div>
 
-      {/* Bottom bar — fullscreen button only */}
-      <div className="flex items-center justify-end px-3 py-2 bg-black/85 backdrop-blur-sm rounded-b-lg border-x border-b border-border">
+      {/* ── Controls bar ── */}
+      <div className="flex items-center gap-3 px-3 py-2 bg-black/85 backdrop-blur-sm rounded-b-lg border-x border-b border-border">
+        {/* Play / Pause */}
+        <button
+          onClick={handleTap}
+          className="shrink-0 text-white hover:text-orange-400 transition-colors"
+          aria-label={isPaused ? "Play" : "Pause"}
+        >
+          {isPaused
+            ? <Play  className="w-5 h-5 fill-white" />
+            : <Pause className="w-5 h-5 fill-white" />}
+        </button>
+
+        {/* Seek bar */}
+        <div
+          ref={seekBarRef}
+          className="relative flex-1 h-3 bg-white/20 rounded-full cursor-pointer select-none"
+          onMouseDown={onSeekMouseDown}
+          onMouseMove={onSeekMouseMove}
+          onMouseUp={onSeekMouseUp}
+          onMouseLeave={(e) => { if (isDraggingRef.current) onSeekMouseUp(e); }}
+          onTouchStart={onSeekTouchStart}
+          onTouchMove={onSeekTouchMove}
+          onTouchEnd={onSeekTouchEnd}
+        >
+          <div className="absolute left-0 top-0 h-full bg-orange-500 rounded-full" style={{ width: `${pct}%` }} />
+          <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md" style={{ left: `calc(${pct}% - 8px)` }} />
+        </div>
+
+        {/* Time */}
+        <span className="shrink-0 text-white/70 text-xs font-mono tabular-nums">
+          {formatTime(currentTime)}&thinsp;/&thinsp;{formatTime(duration)}
+        </span>
+
+        {/* Fullscreen */}
         <button
           onClick={toggleFullscreen}
-          className="text-white/70 hover:text-white transition-colors"
+          className="shrink-0 text-white/70 hover:text-white transition-colors"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
