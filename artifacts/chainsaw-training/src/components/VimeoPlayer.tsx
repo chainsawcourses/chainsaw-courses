@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle, type ForwardedRef } from "react";
 import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
+
+export interface VimeoPlayerHandle {
+  replay: () => void;
+}
 
 interface VimeoPlayerProps {
   vimeoId: string;
@@ -33,7 +37,7 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps) {
+export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -71,6 +75,14 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
       "https://player.vimeo.com"
     );
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    replay: () => {
+      sendCommand("setCurrentTime", 0);
+      sendCommand("play");
+      setHasEnded(false);
+    },
+  }), [sendCommand]);
 
   // Reset state when video changes
   useEffect(() => {
@@ -326,4 +338,4 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
       </div>
     </div>
   );
-}
+});

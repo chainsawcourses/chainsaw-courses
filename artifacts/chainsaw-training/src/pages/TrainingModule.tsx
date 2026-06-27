@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, ShieldAlert, CheckCircle2, LogOut, FileText, ExternalLink, ChevronRight } from "lucide-react";
+import { ArrowLeft, ShieldAlert, CheckCircle2, LogOut, FileText, ExternalLink, ChevronRight, RotateCcw } from "lucide-react";
 import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
-import { VimeoPlayer } from "@/components/VimeoPlayer";
+import { VimeoPlayer, type VimeoPlayerHandle } from "@/components/VimeoPlayer";
 import { useToast } from "@/hooks/use-toast";
 
 export default function TrainingModule() {
@@ -22,6 +22,8 @@ export default function TrainingModule() {
 
   const completeVideo = useCompleteVideo();
   const saveHeartbeat = useSaveHeartbeat();
+
+  const playerRef = useRef<VimeoPlayerHandle>(null);
 
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(3);
@@ -72,6 +74,11 @@ export default function TrainingModule() {
     sessionStorage.setItem("scrollAfterModule", String(id));
     setLocation("/training");
   }, [id, setLocation]);
+
+  const handleReplay = useCallback(() => {
+    setVideoCompleted(false);
+    playerRef.current?.replay();
+  }, []);
 
   const handleTimeUpdate = useCallback((_t: number) => {}, []);
 
@@ -152,6 +159,7 @@ export default function TrainingModule() {
                   return (
                     <div>
                       <VimeoPlayer
+                        ref={playerRef}
                         vimeoId={module.vimeoId!}
                         onTimeUpdate={handleTimeUpdate}
                         onEnded={handleVideoEnded}
@@ -174,7 +182,7 @@ export default function TrainingModule() {
 
               {/* Completion overlay — only shown when video ends in this session */}
               {videoCompleted && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 rounded-lg p-4 text-center">
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/75 rounded-lg p-4 text-center">
                   <div className="flex items-center gap-2 text-primary">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="font-mono font-bold text-sm uppercase tracking-wide">
@@ -186,8 +194,8 @@ export default function TrainingModule() {
                     <Button size="sm" className="font-mono tracking-widest w-full" asChild>
                       <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
                     </Button>
-                    <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs" onClick={handleBackToCourse}>
-                      ← BACK TO COURSE
+                    <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs gap-1.5" onClick={handleReplay}>
+                      <RotateCcw className="w-3 h-3" /> REPLAY VIDEO
                     </Button>
                   </div>
                 </div>
