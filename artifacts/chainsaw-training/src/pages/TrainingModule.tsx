@@ -150,7 +150,7 @@ export default function TrainingModule() {
                 const hasRealVideo = module.vimeoId && module.vimeoId !== "76979871";
                 if (canPlay && hasRealVideo) {
                   return (
-                    <div className={videoCompleted ? "pointer-events-none" : ""}>
+                    <div>
                       <VimeoPlayer
                         vimeoId={module.vimeoId!}
                         onTimeUpdate={handleTimeUpdate}

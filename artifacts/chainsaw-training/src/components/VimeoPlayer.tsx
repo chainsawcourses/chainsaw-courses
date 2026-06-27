@@ -51,18 +51,17 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // On touch-primary devices the tap overlay must be pointer-events-none so
-  // touches reach the Vimeo iframe directly (iOS requires a real user gesture
-  // on the media element — postMessage("play") does NOT satisfy it).
-  // On desktop (hover: hover) we use controls=0 so Vimeo's bar is hidden and
-  // our custom overlay + controls bar handle everything.
-  const isHoverDevice = useRef(
-    typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches
+  // iOS Safari cannot start video playback via postMessage from an overlay div —
+  // it requires a direct user gesture on the media element itself.
+  // Every other platform (Android Chrome, all desktop browsers) handles it fine.
+  // We detect iOS once at mount; the result never changes during the component lifetime.
+  const isIOS = useRef(
+    typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent)
   );
 
-  // Desktop → controls=0 (our custom UI handles play/pause, Vimeo bar hidden)
-  // Mobile  → controls=1 (Vimeo's native controls handle the required user gesture)
-  const src = buildEmbedUrl(vimeoId, !isHoverDevice.current);
+  // iOS → controls=1 so Vimeo's own play button is touchable; overlay is transparent
+  // All others → controls=0 (Vimeo bar hidden); our overlay handles play/pause
+  const src = buildEmbedUrl(vimeoId, isIOS.current);
 
   const sendCommand = useCallback((method: string, value?: unknown) => {
     if (!iframeRef.current?.contentWindow) return;
@@ -129,7 +128,12 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
         }
         if (data.event === "pause")  { isPausedRef.current = true;  setIsPaused(true); }
         if (data.event === "play")   { isPausedRef.current = false; setIsPaused(false); }
-        if (data.event === "finish") { isPausedRef.current = true;  setIsPaused(true); onEnded?.(); }
+        if (data.event === "finish") {
+          isPausedRef.current = true;
+          setIsPaused(true);
+          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+          onEnded?.();
+        }
       } catch { /* ignore */ }
     };
     window.addEventListener("message", handler);
@@ -219,12 +223,12 @@ export function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps
           onLoad={() => setIframeLoaded(true)}
         />
 
-        {/* Tap overlay — pointer-events-auto on hover (desktop) devices only.
-            On touch-only devices (iOS/Android) it is pointer-events-none so
-            fingers reach Vimeo's native play button directly.              */}
+        {/* Tap overlay — active on all non-iOS platforms (desktop + Android).
+            On iOS the overlay is transparent so fingers reach Vimeo's native
+            play button, which satisfies iOS Safari's gesture requirement.   */}
         <div
           className="absolute inset-0 z-40 cursor-pointer"
-          style={{ pointerEvents: isHoverDevice.current ? "auto" : "none" }}
+          style={{ pointerEvents: isIOS.current ? "none" : "auto" }}
           onClick={handleTap}
         />
 
