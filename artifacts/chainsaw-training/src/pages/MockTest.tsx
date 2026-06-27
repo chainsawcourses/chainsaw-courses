@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestions";
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { useUserSession } from "../contexts/UserContext";
+import { useListModules } from "@workspace/api-client-react";
 
 interface HazardRef {
   id: number;
@@ -135,6 +136,8 @@ const AUDIO_FILES: Record<number, string> = {
 };
 
 export default function MockTest() {
+  const [, setLocation] = useLocation();
+
   // Read module ID directly from the browser URL — more reliable than wouter's
   // useSearch() which can return an empty string when a base path is configured.
   const moduleId = useMemo(
@@ -145,6 +148,17 @@ export default function MockTest() {
     () => new URLSearchParams(window.location.search).get("title"),
     []
   );
+
+  const { data: allModules } = useListModules();
+
+  // Find the next module in sequence after the current one
+  const nextModule = useMemo(() => {
+    if (!moduleId || !allModules) return null;
+    const currentId = Number(moduleId);
+    const sorted = [...allModules].sort((a, b) => a.order - b.order);
+    const idx = sorted.findIndex((m) => m.id === currentId);
+    return idx >= 0 && idx < sorted.length - 1 ? sorted[idx + 1] : null;
+  }, [moduleId, allModules]);
   const activeQuestions = (() => {
     if (!moduleId) return VOCAL_EXAM_QUESTIONS;
     const id = Number(moduleId);
@@ -974,12 +988,29 @@ export default function MockTest() {
               })}
             </div>
 
-            <Button
-              className="w-full font-mono font-black uppercase tracking-widest"
-              onClick={handleRestart}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />Retake Exam
-            </Button>
+            {overallPassed && nextModule ? (
+              <Button
+                className="w-full font-mono font-black uppercase tracking-widest"
+                onClick={() => setLocation(`/training/${nextModule.id}`)}
+              >
+                <ChevronRight className="w-4 h-4 mr-2" />Next Module
+              </Button>
+            ) : overallPassed ? (
+              <Button
+                variant="outline"
+                className="w-full font-mono font-black uppercase tracking-widest"
+                onClick={() => setLocation("/training")}
+              >
+                <ChevronRight className="w-4 h-4 mr-2" />Back to Course
+              </Button>
+            ) : (
+              <Button
+                className="w-full font-mono font-black uppercase tracking-widest"
+                onClick={handleRestart}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />Retake Exam
+              </Button>
+            )}
           </div>
         )}
       </main>
