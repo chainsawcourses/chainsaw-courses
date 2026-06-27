@@ -184,7 +184,7 @@ export default function TrainingModule() {
 
                   <div className="flex flex-col gap-2 w-full max-w-[220px]">
                     <Button size="sm" className="font-mono tracking-widest w-full" asChild>
-                      <Link href={`/mock-test?module=${module.id}`}>{module.title} Questions</Link>
+                      <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
                     </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs" onClick={handleBackToCourse}>
                       ← BACK TO COURSE
@@ -209,7 +209,7 @@ export default function TrainingModule() {
                       </div>
                     )}
                     <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
-                      <Link href={`/mock-test?module=${module.id}`}>{module.title} Questions</Link>
+                      <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
                     </Button>
                   </>
                 ) : (

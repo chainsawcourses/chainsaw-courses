@@ -141,6 +141,10 @@ export default function MockTest() {
     () => new URLSearchParams(window.location.search).get("module"),
     []
   );
+  const moduleTitle = useMemo(
+    () => new URLSearchParams(window.location.search).get("title"),
+    []
+  );
   const activeQuestions = (() => {
     if (!moduleId) return VOCAL_EXAM_QUESTIONS;
     const id = Number(moduleId);
@@ -545,12 +549,12 @@ export default function MockTest() {
             </div>
             <div className="space-y-2 max-w-sm">
               <h2 className="font-mono font-black uppercase tracking-widest text-lg">
-                Take Assessment Quiz
+                {moduleTitle ? `${moduleTitle} Quiz` : "Take Assessment Quiz"}
               </h2>
               <p className="text-muted-foreground font-mono text-sm leading-relaxed">
                 {moduleId
-                  ? <>{TOTAL} question{TOTAL !== 1 ? "s" : ""} from this module's section of the NPTC assessment.</>
-                  : <>{TOTAL} questions and practical actions from the NPTC assessment schedule.</>
+                  ? <>{TOTAL} question{TOTAL !== 1 ? "s" : ""} from this module's section of the assessment.</>
+                  : <>{TOTAL} questions and practical actions from the assessment schedule.</>
                 }{" "}
                 Each question is read aloud — speak your answer clearly, then submit.
                 Key points are revealed after each answer. Practical actions just require
@@ -573,7 +577,7 @@ export default function MockTest() {
               className="font-mono font-black uppercase tracking-widest px-10"
               onClick={() => setPhase("prompt")}
             >
-              Begin Exam
+              Begin Questions
             </Button>
           </div>
         )}
