@@ -448,13 +448,15 @@ export default function TrainingList() {
               {category !== "CHAINSAW COMPONENTS" && (
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-1 h-6 bg-primary" />
-                  <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">{category}</h2>
+                  <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">
+                    {category === "ASSESSMENT MODULES" ? "Standards & Regulations" : category}
+                  </h2>
                 </div>
               )}
 
               {subGroups.map(({ subCategory, modules: mods }) => (
                 <div key={subCategory ?? "__root__"} className="mb-6">
-                  {subCategory && (
+                  {subCategory && subCategory !== "Standards & Regulations" && (
                     <div className="flex items-center gap-2 mb-3 ml-4">
                       <div className="w-3 h-px bg-border" />
                       <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground font-semibold">{subCategory}</h3>
