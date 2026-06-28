@@ -259,122 +259,6 @@ export default function TrainingList() {
           </CardContent>
         </Card>
 
-        {/* Tools & Equipment Needed — collapsible, at top */}
-        <div>
-          <button
-            onClick={() => setEquipmentOpen((o) => !o)}
-            className="w-full flex items-center gap-3 py-3 text-left group"
-          >
-            <div className="w-1 h-6 bg-primary shrink-0" />
-            <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
-              Tools & Equipment Needed
-            </h2>
-            {equipmentOpen
-              ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
-              : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-            }
-          </button>
-
-          {equipmentOpen && (
-            <Card className="border-border bg-card/60 mt-1">
-              {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
-              <div
-                ref={equipmentScrollRef}
-                onScroll={handleEquipmentScroll}
-                className="max-h-72 overflow-y-auto"
-              >
-                <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
-                  <div>
-                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
-                    <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
-                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                      {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
-                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                      ))}
-                    </ul>
-                    <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
-                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                      {[
-                        "Sufficient workspace to safely accommodate yourself.",
-                        "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
-                        "Hand cleaning facilities.",
-                        "An outside area dedicated to fueling and starting the chainsaw.",
-                        "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
-                      ].map(item => (
-                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
-                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                      {[
-                        "Eye protection","Gloves",
-                        "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
-                        "Combination Spanner (combi-spanner)","Star spanner or allen keys",
-                        "Guide bar groove scraper","Hook or wire","Pliers","Grease","Mild detergent",
-                        "De-greaser and rag for cleaning surfaces and spills.",
-                      ].map(item => (
-                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                      ))}
-                      <li className="flex items-start gap-2 mt-2">
-                        <span className="text-primary mt-0.5">—</span>
-                        <span>
-                          <span className="font-semibold text-foreground">Sharpening Kit</span> to include: correct round file for chain, file guide, flat file, depth gauge setting tool, calipers.
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
-                    <ul className="space-y-1 text-xs text-muted-foreground list-none">
-                      {[
-                        "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
-                        "Correctly mixed fuel or appropriate batteries.",
-                        "Chain oil.",
-                        "Access to the relevant chainsaw operator's manual.",
-                        "Optional lifting aids to help in the training and assessment.",
-                        "Waste disposal facilities.",
-                      ].map(item => (
-                        <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-              </div>
-
-              {/* Acknowledge footer */}
-              <div className="border-t border-border px-6 py-3 flex items-center justify-between gap-4 bg-card/80">
-                {equipmentAcknowledged ? (
-                  <span className="font-mono text-xs text-primary flex items-center gap-1.5">
-                    <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
-                  </span>
-                ) : (
-                  <>
-                    <span className="font-mono text-[10px] text-muted-foreground">
-                      {equipmentScrolled ? "You can now confirm you have read this list." : "Scroll to the bottom to continue."}
-                    </span>
-                    <Button
-                      size="sm"
-                      className="h-7 font-mono text-xs shrink-0"
-                      disabled={!equipmentScrolled || completeVideo.isPending}
-                      onClick={handleEquipmentAcknowledge}
-                    >
-                      {completeVideo.isPending ? "Saving…" : "Read & Understood"}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </Card>
-          )}
-        </div>
-
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (
           <div className="space-y-2">
@@ -382,6 +266,124 @@ export default function TrainingList() {
               <div className="w-1 h-6 bg-primary shrink-0" />
               <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Requirements</h2>
             </div>
+
+            {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}
+            <div>
+              <button
+                onClick={() => setEquipmentOpen((o) => !o)}
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+                  Tools & Equipment Needed
+                </h3>
+                <div className="flex-1 h-px bg-border" />
+                {equipmentOpen
+                  ? <ChevronDown className="w-3.5 h-3.5 text-primary shrink-0" />
+                  : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                }
+              </button>
+
+              {equipmentOpen && (
+                <Card className="border-border bg-card/60 mt-1">
+                  {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
+                  <div
+                    ref={equipmentScrollRef}
+                    onScroll={handleEquipmentScroll}
+                    className="max-h-72 overflow-y-auto"
+                  >
+                    <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
+                      <div>
+                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
+                        <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
+                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                          {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
+                            <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                          ))}
+                        </ul>
+                        <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
+                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                          {[
+                            "Sufficient workspace to safely accommodate yourself.",
+                            "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
+                            "Hand cleaning facilities.",
+                            "An outside area dedicated to fueling and starting the chainsaw.",
+                            "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
+                          ].map(item => (
+                            <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
+                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                          {[
+                            "Eye protection","Gloves",
+                            "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
+                            "Combination Spanner (combi-spanner)","Star spanner or allen keys",
+                            "Guide bar groove scraper","Hook or wire","Pliers","Grease","Mild detergent",
+                            "De-greaser and rag for cleaning surfaces and spills.",
+                          ].map(item => (
+                            <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                          ))}
+                          <li className="flex items-start gap-2 mt-2">
+                            <span className="text-primary mt-0.5">—</span>
+                            <span>
+                              <span className="font-semibold text-foreground">Sharpening Kit</span> to include: correct round file for chain, file guide, flat file, depth gauge setting tool, calipers.
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
+                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                          {[
+                            "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
+                            "Correctly mixed fuel or appropriate batteries.",
+                            "Chain oil.",
+                            "Access to the relevant chainsaw operator's manual.",
+                            "Optional lifting aids to help in the training and assessment.",
+                            "Waste disposal facilities.",
+                          ].map(item => (
+                            <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </div>
+
+                  {/* Acknowledge footer */}
+                  <div className="border-t border-border px-6 py-3 flex items-center justify-between gap-4 bg-card/80">
+                    {equipmentAcknowledged ? (
+                      <span className="font-mono text-xs text-primary flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
+                      </span>
+                    ) : (
+                      <>
+                        <span className="font-mono text-[10px] text-muted-foreground">
+                          {equipmentScrolled ? "You can now confirm you have read this list." : "Scroll to the bottom to continue."}
+                        </span>
+                        <Button
+                          size="sm"
+                          className="h-7 font-mono text-xs shrink-0"
+                          disabled={!equipmentScrolled || completeVideo.isPending}
+                          onClick={handleEquipmentAcknowledge}
+                        >
+                          {completeVideo.isPending ? "Saving…" : "Read & Understood"}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Card>
+              )}
+            </div>
+
             {courseReqModules.map((module) => {
               const isPdf = module.contentType === "pdf";
               return (
