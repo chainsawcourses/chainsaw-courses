@@ -443,10 +443,12 @@ export default function TrainingList() {
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
             <div key={category}>
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-1 h-6 bg-primary" />
-                <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">{category}</h2>
-              </div>
+              {category !== "CHAINSAW COMPONENTS" && (
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-1 h-6 bg-primary" />
+                  <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">{category}</h2>
+                </div>
+              )}
 
               {subGroups.map(({ subCategory, modules: mods }) => (
                 <div key={subCategory ?? "__root__"} className="mb-6">
@@ -527,20 +529,6 @@ export default function TrainingList() {
                           {/* Hazards table — injected after "5 Steps To Risk Assessment" */}
                           {isRiskAssessment && (
                             <div className="mt-2">
-                              <button
-                                onClick={handleToggleHazards}
-                                className="w-full flex items-center gap-3 py-3 text-left group"
-                              >
-                                <div className="w-1 h-6 bg-primary shrink-0" />
-                                <span className="font-mono font-black uppercase tracking-widest text-base text-foreground flex-1">
-                                  Common Hazards &amp; Control Measures
-                                </span>
-                                {hazardsOpen
-                                  ? <ChevronDown className="w-4 h-4 text-primary shrink-0" />
-                                  : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-                                }
-                              </button>
-
                               {hazardsOpen && (
                                 <Card className="border-border bg-card/60 overflow-hidden">
                                   <CardContent className="p-0">
