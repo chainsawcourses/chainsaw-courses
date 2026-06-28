@@ -446,7 +446,7 @@ export default function TrainingList() {
                         )}
                       </div>
                       {module.isCompleted && (
-                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">DONE</Badge>
+                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
                       )}
                     </div>
                     {!module.isLocked && (
@@ -537,7 +537,7 @@ export default function TrainingList() {
                                   )}
                                 </div>
                                 {module.isCompleted && (
-                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">DONE</Badge>
+                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
                                 )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
