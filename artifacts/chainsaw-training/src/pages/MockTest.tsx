@@ -963,26 +963,43 @@ export default function MockTest() {
                         : <XCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />}
                       <p className="font-mono text-xs font-bold leading-snug">Q{qi + 1}: {q.question}</p>
                     </div>
-                    {/* Show failed prompts (skip action items) */}
-                    {qr.promptResults.some((pr, pi) => !pr.passed && !q.prompts[pi]?.isAction) && (
-                      <div className="pl-6 space-y-1">
-                        {q.prompts.map((p, pi) => {
-                          const pr = qr.promptResults[pi];
-                          if (!pr || pr.passed || p.isAction) return null;
-                          const missed = p.keyPoints
-                            .filter((_, ki) => !pr.matched[ki])
-                            .map((kp) => kp.label);
-                          return (
-                            <div key={pi} className="font-mono text-xs text-muted-foreground">
+                    <div className="pl-6 space-y-2">
+                      {q.prompts.map((p, pi) => {
+                        const pr = qr.promptResults[pi];
+                        if (!pr || p.isAction) return null;
+                        if (pr.passed) {
+                          return pr.transcript ? (
+                            <div key={pi} className="font-mono text-xs text-green-700 dark:text-green-400 italic leading-snug">
                               {q.prompts.length > 1 && (
+                                <span className="not-italic font-bold text-green-600 dark:text-green-500">Part {pi + 1}: </span>
+                              )}
+                              "{pr.transcript}"
+                            </div>
+                          ) : null;
+                        }
+                        const missed = p.keyPoints
+                          .filter((_, ki) => !pr.matched[ki])
+                          .map((kp) => kp.label);
+                        return (
+                          <div key={pi} className="space-y-1">
+                            {pr.transcript && (
+                              <div className="font-mono text-xs text-muted-foreground italic leading-snug">
+                                {q.prompts.length > 1 && (
+                                  <span className="not-italic font-bold text-destructive/70">Part {pi + 1}: </span>
+                                )}
+                                "{pr.transcript}"
+                              </div>
+                            )}
+                            <div className="font-mono text-xs text-muted-foreground">
+                              {q.prompts.length > 1 && !pr.transcript && (
                                 <span className="text-destructive/70">Part {pi + 1}: </span>
                               )}
                               Missed: {missed.join("; ")}
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
