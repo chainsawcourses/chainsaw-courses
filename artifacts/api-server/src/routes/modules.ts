@@ -41,8 +41,11 @@ router.get("/modules", async (req, res) => {
       const prevMod = idx > 0 ? modules[idx - 1] : null;
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
-      // Both video AND assessment must be passed to unlock the next module
-      const isLocked = idx > 0 ? !(prevProgress?.videoCompleted && prevProgress?.quizPassed) : false;
+      // Sequential lock: previous module must be fully complete to access a new module.
+      // Exception: if the student has already watched this module before, always allow re-access.
+      const prevComplete = idx === 0 || !!(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      const alreadyStarted = !!progress?.videoCompleted;
+      const isLocked = !prevComplete && !alreadyStarted;
 
       return {
         id: mod.id,
@@ -115,7 +118,15 @@ router.get("/modules/:moduleId", async (req, res) => {
             eq(userProgressTable.moduleId, prevMod.id)
           )
         );
-      isLocked = !(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      const prevComplete = !!(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      if (!prevComplete) {
+        // Only lock if the student hasn't already watched this module before
+        const [ownProgress] = await db
+          .select()
+          .from(userProgressTable)
+          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+        isLocked = !ownProgress?.videoCompleted;
+      }
     }
 
     if (isLocked) {
