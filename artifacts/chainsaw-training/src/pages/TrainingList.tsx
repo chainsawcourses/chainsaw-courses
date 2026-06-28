@@ -271,32 +271,21 @@ export default function TrainingList() {
               <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Requirements</h2>
             </div>
 
-            {/* Signed Waiver — links to the user's signed PDF */}
+            {/* Signed Waiver — always accessible; user cannot reach this page without signing */}
             <div>
-              {waiverStatus?.pdfUrl ? (
-                <a
-                  href={waiverStatus.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center gap-2 py-2 text-left group ml-4"
-                >
-                  <div className="w-3 h-px bg-border shrink-0" />
-                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1 group-hover:text-primary transition-colors">
-                    Signed Waiver
-                  </h3>
-                  <div className="flex-1 h-px bg-border" />
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-                </a>
-              ) : (
-                <div className="w-full flex items-center gap-2 py-2 ml-4 opacity-40">
-                  <div className="w-3 h-px bg-border shrink-0" />
-                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
-                    Signed Waiver
-                  </h3>
-                  <div className="flex-1 h-px bg-border" />
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                </div>
-              )}
+              <a
+                href={waiverStatus?.pdfUrl ?? "/api/waiver/pdf"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1 group-hover:text-primary transition-colors">
+                  Signed Waiver
+                </h3>
+                <div className="flex-1 h-px bg-border" />
+                <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+              </a>
             </div>
 
             {/* How to Use This E-Learning Course — placeholder */}
