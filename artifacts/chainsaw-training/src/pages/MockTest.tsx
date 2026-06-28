@@ -643,6 +643,15 @@ export default function MockTest() {
               </div>
             </div>
 
+            {/* Question image */}
+            {question.image && (
+              <img
+                src={question.image}
+                alt="Question reference"
+                className="rounded-lg border border-border w-full max-h-72 object-contain bg-black/20"
+              />
+            )}
+
             {/* ACTION — no mic, just a continue button */}
             {prompt.isAction ? (
               <div className="space-y-4">
@@ -781,6 +790,15 @@ export default function MockTest() {
               )}
               <p className="font-mono text-sm font-bold leading-snug">{prompt.prompt}</p>
             </div>
+
+            {/* Question image (review) */}
+            {question.image && (
+              <img
+                src={question.image}
+                alt="Question reference"
+                className="rounded-lg border border-border w-full max-h-56 object-contain bg-black/20"
+              />
+            )}
 
             {/* ACTION review — simple acknowledgement, no scoring */}
             {prompt.isAction ? (

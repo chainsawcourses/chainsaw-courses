@@ -14,6 +14,7 @@ export interface VocalQuestion {
   id: number;
   question: string;
   prompts: VocalPrompt[];
+  image?: string;
 }
 
 export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
@@ -310,6 +311,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 16,
     question: "So what's this?",
+    image: '/question-images/air-filter.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -349,6 +351,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 19,
     question: "So what's this? (spark plug)",
+    image: '/question-images/spark-plug.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -388,6 +391,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 22,
     question: "In conjunction with the flywheel, what do these cylinder fins help do?",
+    image: '/question-images/cooling-system.jpg',
     prompts: [{
       prompt: "In conjunction with the flywheel, what do these cylinder fins help do?",
       threshold: 1,
@@ -414,6 +418,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 24,
     question: "So what's this? (exhaust)",
+    image: '/question-images/exhaust.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -454,6 +459,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 27,
     question: "What is in here that you need to maintain and how would you do it? (fuel tank)",
+    image: '/question-images/fuel-filter.jpg',
     prompts: [{
       prompt: "What is in here that you need to maintain and how would you do it?",
       threshold: 2,
@@ -467,6 +473,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 28,
     question: "What is in here that you need to maintain and how would you do it? (oil tank)",
+    image: '/question-images/oil-filter.jpg',
     prompts: [{
       prompt: "So what is in here that you need to maintain and how would you do it?",
       threshold: 2,
@@ -480,6 +487,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 29,
     question: "This is the recoil housing — can you take it off and de-tension the pull cord please.",
+    image: '/question-images/recoil-starter.jpg',
     prompts: [{
       prompt: "This is the recoil housing, can you take it off and de-tension the pull cord please.",
       threshold: 0,
@@ -517,6 +525,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 32,
     question: "So what's this? (sprocket)",
+    image: '/question-images/sprocket.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -543,7 +552,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you check for any wear or damage? (sprocket)",
     prompts: [{
       prompt: "How do you check for any wear or damage?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Check for hooked or wolf-teeth — look for sharp, curved points", keywords: ["hooked", "wolf teeth", "hook", "curved teeth", "sharp point", "worn tooth", "teeth shape", "look at metal teeth for deep cuts", "deep cuts in teeth", "inspect", "inspect the teeth", "check the teeth", "check"] },
         { label: "Check the needle bearing / drum for wear", keywords: ["needle bearing", "bearing", "drum", "needle cage", "bearing wear", "see if it wobbles", "wobbles when you touch it"] },
@@ -556,6 +565,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 35,
     question: "If you need to replace the sprocket, how are you going to do that?",
+    image: '/question-images/clutch-assembly.jpg',
     prompts: [{
       prompt: "If you need to replace the sprocket, how are you going to do that?",
       threshold: 1,
@@ -571,6 +581,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 36,
     question: "Now on to the chain brake — where would you find it on your saw?",
+    image: '/question-images/chain-brake.jpg',
     prompts: [{
       prompt: "Now on to the chain brake — where would you find it on your saw?",
       threshold: 1,
@@ -596,9 +607,10 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 38,
     question: "How do you check the chain brake for any wear or damage?",
+    image: '/question-images/chain-brake-band.jpg',
     prompts: [{
       prompt: "How do you check for any wear or damage?",
-      threshold: 2,
+      threshold: 1,
       keyPoints: [
         { label: "Check the brake band for wear — check thickness", keywords: ["brake band", "band wear", "band thickness", "band condition", "check band", "metal band not worn too thin", "look at the metal band", "band too thin", "inspect", "check"] },
         { label: "Check the front hand guard for damage or cracks", keywords: ["front hand guard", "guard damage", "guard crack", "hand guard condition", "plastic handle not cracked", "check plastic handle", "inspect the guard"] },
@@ -683,6 +695,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 44,
     question: "How do you identify your chain?",
+    image: '/question-images/chain-id.jpg',
     prompts: [{
       prompt: "How do you identify your chain?",
       threshold: 1,
@@ -698,6 +711,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 45,
     question: "What information do you need to replace your chain?",
+    image: '/question-images/chain.jpg',
     prompts: [{
       prompt: "What information do you need to replace your chain?",
       threshold: 5,
@@ -717,6 +731,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 46,
     question: "What cutter profile do you have on your chain?",
+    image: '/question-images/cutter-profile.jpg',
     prompts: [{
       prompt: "What cutter profile do you have on your chain?",
       threshold: 1,
@@ -729,6 +744,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 47,
     question: "What is the other main type of cutter profile?",
+    image: '/question-images/full-chisel.jpg',
     prompts: [{
       prompt: "What is the other main type of cutter profile?",
       threshold: 1,
@@ -830,7 +846,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Why do you want to keep all your cutters the same size and the angles all the same?",
     prompts: [{
       prompt: "Why do you want to keep all your cutters the same size and the angles all the same?",
-      threshold: 3,
+      threshold: 2,
       keyPoints: [
         { label: "Ensures the saw cuts in a straight line — balanced load on all cutters", keywords: ["straight line", "balanced", "equal load", "cuts straight", "even load", "balance", "cuts in perfectly straight line", "if one side longer saw cuts in curve"] },
         { label: "Reduces vibration and wear — even distribution of cutting force", keywords: ["reduce vibration", "less vibration", "even wear", "equal wear", "smooth operation", "reduce wear", "stops saw from vibrating", "every tooth does same amount of work"] },
@@ -919,6 +935,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 61,
     question: "In this picture, where is the compression found?",
+    image: '/question-images/compression-61.jpg',
     prompts: [{
       prompt: "In this picture, where is the compression found?",
       threshold: 1,
@@ -931,6 +948,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 62,
     question: "And in this picture, where is the compression?",
+    image: '/question-images/compression-62.jpg',
     prompts: [{
       prompt: "And in this picture, where is the compression?",
       threshold: 1,
@@ -995,6 +1013,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
         { label: "Timber diameter is larger than the guidebar — cannot cut through in one pass", keywords: ["larger than", "bigger than", "longer bar", "too large", "diameter larger", "can't cut through", "one pass", "timber too big for bar", "log bigger than guidebar"] },
         { label: "Timber under tension — to prevent the bar being pinched or trapped", keywords: ["tension", "pinch", "trapped", "under tension", "prevent pinch", "stop bar getting trapped", "avoid trapping", "heavy tension", "stop wood from splitting wildly", "barber-chairing"] },
         { label: "Working in confined space — to avoid the kickback zone at the nose", keywords: ["confined", "tight space", "kickback zone", "nose", "tip of bar", "restricted", "nose kickback", "avoid kickback at nose", "confined space"] },
+        { label: "Timber on or near the ground — floor blocks access to the tension side; minimal access", keywords: ["near ground", "on the ground", "floor", "minimal access", "on ground", "near or on ground", "floor is in the way", "tension cut blocked", "cant access tension", "can't access tension", "access near ground", "lying near ground", "close to ground", "access to tensioned side"] },
       ],
     }],
   },
@@ -1019,7 +1038,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you make moving and working more ergonomic?",
     prompts: [{
       prompt: "How do you make moving and working more ergonomic?",
-      threshold: 1,
+      threshold: 2,
       keyPoints: [
         { label: "Use the correct tools and mechanical aids to reduce manual effort", keywords: ["correct tools", "mechanical aid", "cant hook", "reduce manual", "use equipment", "right tool", "use special tools"] },
         { label: "Plan your movements — minimise unnecessary handling and twisting", keywords: ["plan movements", "minimise handling", "avoid twisting", "plan", "unnecessary lifting", "minimise", "don't twist your back", "turn your feet instead of twisting spine", "keep back straight"] },
@@ -1050,7 +1069,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What else do you need to think about when stacking lots of different timber?",
     prompts: [{
       prompt: "What else do you need to think about when stacking lots of different timber?",
-      threshold: 3,
+      threshold: 2,
       keyPoints: [
         { label: "Sort and stack by species / length / size for ease of identification", keywords: ["sort", "species", "length", "size", "identification", "same length", "group by", "sort logs by size", "separate different types", "sort by size so they stack neatly"] },
         { label: "Bio-security — do not mix potentially infected species or sites", keywords: ["bio-security", "biosecurity", "infected", "mix species", "different sites", "disease spread"] },
@@ -1137,6 +1156,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 76,
     question: "What bit of the bar do you need to avoid cutting with?",
+    image: '/question-images/kickback.jpg',
     prompts: [{
       prompt: "What bit of the bar do you need to avoid cutting with?",
       threshold: 1,
