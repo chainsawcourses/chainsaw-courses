@@ -439,15 +439,15 @@ export default function TrainingList() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="flex items-center gap-1.5">
                         <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
                         {isPdf && (
                           <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                         )}
-                        {module.isCompleted && (
-                          <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
-                        )}
                       </div>
+                      {module.isCompleted && (
+                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">DONE</Badge>
+                      )}
                     </div>
                     {!module.isLocked && (
                       <div className="shrink-0">
@@ -525,7 +525,7 @@ export default function TrainingList() {
                               </div>
 
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-1.5">
+                                <div className="flex items-center gap-1.5">
                                   <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
                                   {isPdf && (
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
@@ -535,10 +535,10 @@ export default function TrainingList() {
                                       <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> HIGH RISK
                                     </Badge>
                                   )}
-                                  {module.isCompleted && (
-                                    <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 shrink-0">DONE</Badge>
-                                  )}
                                 </div>
+                                {module.isCompleted && (
+                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">DONE</Badge>
+                                )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
