@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, ChevronDown, ChevronRight } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function TrainingList() {
@@ -33,6 +33,10 @@ export default function TrainingList() {
 
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
     query: { queryKey: getGetProgressSummaryQueryKey(), enabled: !!activationCode && !!deviceId }
+  });
+
+  const { data: waiverStatus } = useGetWaiver({
+    query: { queryKey: getGetWaiverQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
   const equipmentListModule = useMemo(
@@ -265,6 +269,44 @@ export default function TrainingList() {
             <div className="flex items-center gap-3 py-1">
               <div className="w-1 h-6 bg-primary shrink-0" />
               <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Requirements</h2>
+            </div>
+
+            {/* Signed Waiver — links to the user's signed PDF */}
+            <div>
+              {waiverStatus?.pdfUrl ? (
+                <a
+                  href={waiverStatus.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+                >
+                  <div className="w-3 h-px bg-border shrink-0" />
+                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1 group-hover:text-primary transition-colors">
+                    Signed Waiver
+                  </h3>
+                  <div className="flex-1 h-px bg-border" />
+                  <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                </a>
+              ) : (
+                <div className="w-full flex items-center gap-2 py-2 ml-4 opacity-40">
+                  <div className="w-3 h-px bg-border shrink-0" />
+                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+                    Signed Waiver
+                  </h3>
+                  <div className="flex-1 h-px bg-border" />
+                  <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                </div>
+              )}
+            </div>
+
+            {/* How to Use This E-Learning Course — placeholder */}
+            <div className="w-full flex items-center gap-2 py-2 ml-4 opacity-40">
+              <div className="w-3 h-px bg-border shrink-0" />
+              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+                How to Use This E-Learning Course
+              </h3>
+              <div className="flex-1 h-px bg-border" />
+              <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             </div>
 
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}
