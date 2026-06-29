@@ -322,7 +322,7 @@ export default function TrainingList() {
             )}
 
             {/* How to Use This E-Learning Course — placeholder */}
-            <div className="w-full flex items-center gap-2 py-2 ml-4 opacity-40">
+            <div className="w-full flex items-center gap-2 py-2 ml-4">
               <div className="w-3 h-px bg-border shrink-0" />
               <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
                 How to Use This E-Learning Course
