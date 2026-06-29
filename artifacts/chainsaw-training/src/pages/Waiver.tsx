@@ -54,7 +54,6 @@ export default function Waiver() {
   const { deviceId, activationCode } = useUserSession();
   const signWaiver = useSignWaiver();
 
-  const [countdown, setCountdown] = useState(3);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [finalAgreed, setFinalAgreed] = useState(false);
   const signatureRef = useRef<SignaturePadRef>(null);
@@ -68,14 +67,6 @@ export default function Waiver() {
       return;
     }
   }, [activationCode, deviceId, setLocation]);
-
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [countdown]);
 
   const toggle = (id: string) => {
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -144,20 +135,23 @@ export default function Waiver() {
 
         {/* Clauses */}
         <div className="space-y-3 mb-4">
-          {CLAUSES.map((clause) => {
+          {CLAUSES.map((clause, index) => {
             const isChecked = !!checked[clause.id];
+            const prevChecked = index === 0 || !!checked[CLAUSES[index - 1].id];
+            const isLocked = !prevChecked;
             return (
               <Card
                 key={clause.id}
-                className={`border transition-colors duration-200 ${
-                  isChecked
+                className={`border transition-all duration-300 ${
+                  isLocked
+                    ? "opacity-40 pointer-events-none border-border bg-card/50"
+                    : isChecked
                     ? "border-primary/40 bg-primary/5"
                     : "border-border bg-card/50"
                 }`}
               >
                 <CardContent className="p-4">
                   <div className="flex gap-3">
-                    {/* Clause number + status icon */}
                     <div className="shrink-0 mt-0.5">
                       {isChecked ? (
                         <CheckCircle2 className="w-5 h-5 text-primary" />
@@ -174,11 +168,8 @@ export default function Waiver() {
                         {clause.text}
                       </p>
 
-                      {/* Per-clause checkbox */}
-                      <div
-                        className="flex items-center gap-2 cursor-pointer select-none"
-                        onClick={() => toggle(clause.id)}
-                      >
+                      {/* Per-clause checkbox — onCheckedChange only, no onClick on wrapper */}
+                      <div className="flex items-center gap-2 select-none">
                         <Checkbox
                           id={clause.id}
                           checked={isChecked}
@@ -207,10 +198,7 @@ export default function Waiver() {
         >
           <CardContent className="p-5 space-y-5">
             {/* Final checkbox */}
-            <div
-              className="flex items-start gap-3 cursor-pointer select-none"
-              onClick={() => allClausesChecked && setFinalAgreed((v) => !v)}
-            >
+            <div className="flex items-start gap-3 select-none">
               <Checkbox
                 id="final"
                 checked={finalAgreed}
@@ -245,15 +233,11 @@ export default function Waiver() {
 
             <Button
               className="w-full h-14 font-mono font-bold tracking-widest text-sm"
-              disabled={countdown > 0 || !canSign || signWaiver.isPending}
+              disabled={!canSign || signWaiver.isPending}
               onClick={handleSign}
-              variant={countdown > 0 || !canSign ? "secondary" : "default"}
+              variant={!canSign ? "secondary" : "default"}
             >
-              {countdown > 0
-                ? `Please wait (${countdown})`
-                : signWaiver.isPending
-                ? "Submitting…"
-                : "Sign & Continue"}
+              {signWaiver.isPending ? "Submitting…" : "Sign & Continue"}
             </Button>
           </CardContent>
         </Card>
