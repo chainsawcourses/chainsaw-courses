@@ -274,7 +274,7 @@ export default function TrainingList() {
             {/* Signed Waiver — always accessible; user cannot reach this page without signing */}
             <div>
               <a
-                href={waiverStatus?.pdfUrl ?? "/api/waiver/pdf"}
+                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
