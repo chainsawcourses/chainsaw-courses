@@ -19,7 +19,7 @@ export const SignatureCanvas = forwardRef<SignaturePadRef, SignaturePadProps>(
     useEffect(() => {
       if (canvasRef.current) {
         padRef.current = new SignaturePad(canvasRef.current, {
-          penColor: "white",
+          penColor: "black",
           backgroundColor: "transparent",
         });
 
