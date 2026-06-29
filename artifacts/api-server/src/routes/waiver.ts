@@ -117,36 +117,42 @@ router.get("/waiver/pdf", async (req, res) => {
     doc.text(`Date Signed: ${new Date(waiver.signedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}`);
     doc.moveDown(1.5);
 
-    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("IMPORTANT NOTICE & LIABILITY WAIVER");
+    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("IMPORTANT NOTICE & COMPREHENSIVE LIABILITY WAIVER");
     doc.moveDown(0.4);
     doc.fontSize(9).fillColor(dark).font("Helvetica").text(
-      "This online course and physical manual provides technical information on chainsaw maintenance techniques, safety procedures, and general machinery operation.\n\n" +
-      "CRITICAL SAFETY MEMENTO: Chainsaw use is inherently dangerous, and improper handling can result in serious injury or death.\n\n" +
-      "By purchasing, accessing, or utilizing this online course, manual and its associated resources, you explicitly acknowledge and agree to the following conditions:",
+      "This online course, along with its accompanying physical manual, provides technical information and educational guidance on chainsaw maintenance, cross-cutting techniques, safety protocols, and general machinery operation.\n\n" +
+      "CRITICAL SAFETY WARNING: Chainsaw operation and maintenance are inherently hazardous activities. Improper handling, maintenance, or operation can result in severe, life-altering injury or death.\n\n" +
+      "By purchasing, accessing, or utilizing this online course, the companion manual, and any associated resources, you explicitly acknowledge, understand, and agree to the following conditions:",
       { lineGap: 3 }
     );
     doc.moveDown(1);
 
     const clauses: [string, string][] = [
-      ["1. Educational Intent",
-        "This online course and manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify the reader as a trained or certified chainsaw operator."],
+      ["1. Educational Intent Only",
+        "The materials provided within this course and manual serve strictly as theoretical references and study guides designed to support continuing professional development (CPD). They provide general guidance on best practices but do not, under any circumstances, qualify the user as a trained, competent, or certified chainsaw operator."],
       ["2. No Certification Conferred",
-        "Completing or reading this manual does not entitle the buyer to any formal industry certification or practical qualification. Safe chainsaw operation strictly requires practical training, physical field supervision, and verified compliance with legal and industry safety standards."],
+        "Completion of this online course and/or reading the companion manual does not grant any formal industry certification, practical license, or qualification. Safe and lawful chainsaw operation mandates formal practical training, in-person field supervision by qualified instructors, and verified assessment against official industry standards."],
       ["3. Regulatory Compliance",
-        "Operators must maintain complete compliance with local regulations, including: The Health and Safety Law of your country or region (e.g. HSWA); various equipment regulations relating to Chainsaw Use and Operation (e.g. PUWER); and approved Tree Industry Codes of Practice for Chainsaws relevant to your region."],
-      ["4. Personal Protection",
-        "You are solely responsible for ensuring your own safety by wearing correct, certified Personal Protective Equipment (PPE) and following all relevant laws and workplace regulations. You must read the entire manual in full before operating any chainsaw machinery."],
-      ["5. Absolute Sobriety Mandatory",
-        "Do not undertake any chainsaw maintenance or operational activities under the influence of any drugs, alcohol, or impairing medications."],
-      ["6. Prohibition of Lone Working and Mandatory Emergency Supervision",
+        "It is the sole responsibility of the operator to maintain full compliance with all relevant local and national regulations. This includes, but is not limited to:\n" +
+        "• The Health and Safety at Work etc. Act (HSWA) or your regional equivalent.\n" +
+        "• The Provision and Use of Work Equipment Regulations (PUWER) or regional equipment operation laws.\n" +
+        "• Approved arboricultural and forestry codes of practice relevant to your specific jurisdiction."],
+      ["4. Personal Protection & Absolute Sobriety",
+        "You are solely responsible for ensuring your own physical safety. This requires the mandatory use of correct, fully certified Personal Protective Equipment (PPE) at all times. You must review all training materials in full prior to handling any machinery. Furthermore, you must never undertake any chainsaw maintenance, starting, or operational activities while fatigued or under the influence of alcohol, drugs, or impairing medications."],
+      ["5. Exclusion of Liability",
+        "To the maximum extent permitted by law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors entirely disclaim all liability for:\n" +
+        "• Any direct, indirect, or consequential injuries, property damages, or financial losses resulting from the use or application of the techniques demonstrated in this course and manual.\n" +
+        "• Any failure on your part to adhere to established safety procedures, manufacturers' guidelines, legal requirements, or regional best practices.\n" +
+        "• Any subjective misinterpretation or misapplication of the technical information contained within these training materials."],
+      ["6. Disclaimer of Warranties",
+        "All educational materials are provided on an \"as is\" basis, without warranties of any kind regarding their absolute accuracy, completeness, or practical effectiveness in the field. We do not guarantee that adherence to this course or manual will prevent workplace accidents or injuries."],
+      ["7. Prohibition of Lone Working and Mandatory Emergency Supervision",
         "The Candidate explicitly acknowledges, warrants, and agrees that:\n" +
         "• No Lone Operation: The Candidate shall never, under any circumstances, start, operate, or practice with a chainsaw alone, whether performing commercial operations, private cutting, or basic practical field exercises.\n" +
         "• Mandatory Second Competent Person: Whenever a chainsaw is in use, a second competent person must be physically present on-site within a direct line of sight and clear audible range. This individual must remain un-engaged from distracting tasks to ensure uninterrupted safety monitoring.\n" +
         "• First Aid Competency Requirement: The required on-site second person must possess active competency in emergency first aid, explicitly capable of identifying and managing catastrophic trauma injuries and severe haemorrhages associated with chainsaw lacerations.\n" +
         "• Emergency Resource Provision: The supervising competent person must have immediate, unobstructed access to an appropriate trauma first aid kit containing wound dressings and a tourniquet, alongside an active communication device to contact regional emergency services.\n" +
         "• Assumption of Liability for Breaches: Any operation of a chainsaw by the Candidate while working alone constitutes a direct and hazardous breach of this Agreement. The Candidate assumes total, exclusive legal liability for all accidents, injuries, or fatalities arising from lone working and completely indemnifies the Company against any ensuing claims."],
-      ["7. Exclusion of Liability",
-        "To the fullest extent permitted under law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors are not liable for: injuries, damages, or losses resulting from chainsaw use based on this manual; failure to follow established safety procedures, legal requirements, or regional best practices; or any subjective misinterpretation of the technical information contained in this guide."],
     ];
 
     for (const [title, body] of clauses) {
@@ -156,9 +162,7 @@ router.get("/waiver/pdf", async (req, res) => {
     }
 
     doc.fontSize(9).fillColor(mid).font("Helvetica").text(
-      "This manual is provided on an \"as is\" basis, without warranties regarding its accuracy, completeness, or practical effectiveness. " +
-      "We do not guarantee that following this manual will prevent field accidents or injuries. " +
-      "By proceeding, the student confirms they have read this waiver, assume full responsibility for their own actions, and will not hold Overleaf Publishers Ltd liable for any accidents, injuries, undesired results, or legal consequences.",
+      "By proceeding with this course and its materials, you confirm that you have read this waiver in its entirety, that you assume full and absolute responsibility for your own actions and safety, and that you fully release Overleaf Publishers Ltd from any and all liability, claims, or legal consequences.",
       { lineGap: 3 }
     );
     doc.moveDown(1.5);
