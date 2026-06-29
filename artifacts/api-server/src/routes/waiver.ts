@@ -106,16 +106,41 @@ router.get("/waiver/pdf", async (req, res) => {
     doc.text(`Date Signed: ${new Date(waiver.signedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}`);
     doc.moveDown(1.5);
 
-    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("AGREEMENT");
+    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("IMPORTANT NOTICE & LIABILITY WAIVER");
     doc.moveDown(0.4);
     doc.fontSize(9).fillColor(dark).font("Helvetica").text(
-      "By signing this waiver, the student acknowledges that chainsaw operation is a high-risk activity and agrees to:\n\n" +
-      "1. Follow all safety instructions provided throughout the training course.\n" +
-      "2. Wear appropriate Personal Protective Equipment (PPE) at all times when operating a chainsaw.\n" +
-      "3. Not operate a chainsaw under the influence of alcohol, drugs, or medication that may impair judgement.\n" +
-      "4. Accept full personal responsibility for their actions during and after completion of this course.\n" +
-      "5. Acknowledge that this course is educational in nature and does not substitute for formal in-person assessment.\n\n" +
-      "The student confirms they have read, understood, and agreed to all terms and conditions of the Chainsaw Courses training programme.",
+      "This manual provides technical information on chainsaw maintenance techniques, safety procedures, and general machinery operation.\n\n" +
+      "CRITICAL SAFETY MEMENTO: Chainsaw use is inherently dangerous, and improper handling can result in serious injury or death.\n\n" +
+      "By purchasing, accessing, or utilizing this manual and its associated resources, the student explicitly acknowledges and agrees to the following conditions:",
+      { lineGap: 3 }
+    );
+    doc.moveDown(1);
+
+    const clauses: [string, string][] = [
+      ["1. Educational Intent",
+        "This manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify the reader as a trained or certified chainsaw operator."],
+      ["2. No Certification Conferred",
+        "Completing or reading this manual does not entitle the buyer to any formal industry certification or practical qualification. Safe chainsaw operation strictly requires practical training, physical field supervision, and verified compliance with legal and industry safety standards."],
+      ["3. Regulatory Compliance",
+        "Operators must maintain complete compliance with local regulations, including: The Health and Safety Law of your country or region (e.g. HSWA); various equipment regulations relating to Chainsaw Use and Operation (e.g. PUWER); and approved Tree Industry Codes of Practice for Chainsaws relevant to your region."],
+      ["4. Personal Protection",
+        "You are solely responsible for ensuring your own safety by wearing correct, certified Personal Protective Equipment (PPE) and following all relevant laws and workplace regulations. You must read the entire manual in full before operating any chainsaw machinery."],
+      ["5. Absolute Sobriety Mandatory",
+        "Do not undertake any chainsaw maintenance or operational activities under the influence of any drugs, alcohol, or impairing medications."],
+      ["6. Exclusion of Liability",
+        "To the fullest extent permitted under law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors are not liable for: injuries, damages, or losses resulting from chainsaw use based on this manual; failure to follow established safety procedures, legal requirements, or regional best practices; or any subjective misinterpretation of the technical information contained in this guide."],
+    ];
+
+    for (const [title, body] of clauses) {
+      doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(title, { lineGap: 2 });
+      doc.fontSize(9).fillColor(dark).font("Helvetica").text(body, { lineGap: 3 });
+      doc.moveDown(0.7);
+    }
+
+    doc.fontSize(9).fillColor(mid).font("Helvetica").text(
+      "This manual is provided on an \"as is\" basis, without warranties regarding its accuracy, completeness, or practical effectiveness. " +
+      "We do not guarantee that following this manual will prevent field accidents or injuries. " +
+      "By proceeding, the student confirms they have read this waiver, assume full responsibility for their own actions, and will not hold Overleaf Publishers Ltd liable for any accidents, injuries, undesired results, or legal consequences.",
       { lineGap: 3 }
     );
     doc.moveDown(1.5);
@@ -124,17 +149,18 @@ router.get("/waiver/pdf", async (req, res) => {
     doc.moveDown(0.4);
 
     const sigData = waiver.signatureData;
+    const sigBoxY = doc.y;
+    doc.rect(60, sigBoxY, 300, 100).strokeColor("#CCCCCC").lineWidth(1).stroke();
     if (sigData && sigData.startsWith("data:image/png;base64,")) {
       const base64 = sigData.replace("data:image/png;base64,", "");
       const imgBuffer = Buffer.from(base64, "base64");
-      doc.rect(60, doc.y, 300, 100).strokeColor("#CCCCCC").lineWidth(1).stroke();
-      doc.image(imgBuffer, 65, doc.y - 96, { width: 290, height: 90 });
-      doc.moveDown(5.5);
+      doc.image(imgBuffer, 65, sigBoxY + 5, { width: 290, height: 90 });
     } else {
-      doc.rect(60, doc.y, 300, 80).strokeColor("#CCCCCC").lineWidth(1).stroke();
-      doc.fontSize(9).fillColor(mid).text("[Signature on file]", 70, doc.y - 70);
-      doc.moveDown(4);
+      doc.fontSize(9).fillColor(mid).font("Helvetica").text("[Signature on file]", 70, sigBoxY + 40);
     }
+    // Advance cursor past the box
+    doc.text("", 60, sigBoxY + 110);
+    doc.moveDown(0.5);
 
     doc.fontSize(9).fillColor(mid).font("Helvetica").text(
       `Signed electronically on ${new Date(waiver.signedAt).toUTCString()}`,
