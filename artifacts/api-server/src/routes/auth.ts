@@ -31,12 +31,22 @@ router.post("/auth/activate", async (req, res) => {
         return { error: "Invalid activation code", status: 400 };
       }
 
-      // Unlimited codes: look up by code + deviceId; if found login, else create new user
+      // Unlimited codes: look up by code + deviceId + name + email so each
+      // distinct person gets their own user record and must sign their own waiver.
       if (activation.isUnlimited) {
-        const [existingUser] = await tx
+        const normalizedName = fullName.trim().toLowerCase();
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const sameDeviceUsers = await tx
           .select()
           .from(usersTable)
           .where(and(eq(usersTable.activationCode, code), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+
+        const existingUser = sameDeviceUsers.find(
+          (u) =>
+            u.fullName.trim().toLowerCase() === normalizedName &&
+            u.email.trim().toLowerCase() === normalizedEmail
+        );
 
         if (existingUser) {
           const [waiver] = await tx.select().from(waiversTable).where(eq(waiversTable.userId, existingUser.id));
@@ -49,7 +59,7 @@ router.post("/auth/activate", async (req, res) => {
           };
         }
 
-        // New device — create a fresh user for this device (don't mark code as used)
+        // Different person (or new device) — create a fresh user record
         const [newUser] = await tx
           .insert(usersTable)
           .values({ activationCode: code, fullName, email, deviceId })
