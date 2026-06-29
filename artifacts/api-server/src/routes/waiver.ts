@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
@@ -90,9 +92,18 @@ router.get("/waiver/pdf", async (req, res) => {
     const dark = "#1C1C1C";
     const mid = "#555555";
 
-    doc.fontSize(20).fillColor(orange).font("Helvetica-Bold").text("CHAINSAW COURSES", { align: "center" });
-    doc.fontSize(10).fillColor(mid).font("Helvetica").text("PROFESSIONAL TRAINING PORTAL", { align: "center" });
-    doc.moveDown(0.5);
+    // Header: logo + title side by side
+    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
+    const logoSize = 56;
+    const headerY = doc.y;
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 60, headerY, { width: logoSize, height: logoSize });
+    }
+    const textX = fs.existsSync(logoPath) ? 60 + logoSize + 12 : 60;
+    doc.fontSize(22).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 6, { lineBreak: false });
+    doc.fontSize(10).fillColor(mid).font("Helvetica").text("PROFESSIONAL TRAINING PORTAL", textX, headerY + 34, { lineBreak: false });
+    // Advance past the logo block
+    doc.text("", 60, headerY + logoSize + 8);
     doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
     doc.moveDown(1);
 
@@ -127,7 +138,9 @@ router.get("/waiver/pdf", async (req, res) => {
         "You are solely responsible for ensuring your own safety by wearing correct, certified Personal Protective Equipment (PPE) and following all relevant laws and workplace regulations. You must read the entire manual in full before operating any chainsaw machinery."],
       ["5. Absolute Sobriety Mandatory",
         "Do not undertake any chainsaw maintenance or operational activities under the influence of any drugs, alcohol, or impairing medications."],
-      ["6. Exclusion of Liability",
+      ["6. Lone Working",
+        "I understand the significant additional risks of operating a chainsaw as a lone worker. I agree not to operate a chainsaw alone unless a specific lone working risk assessment has been completed, appropriate emergency communication equipment is available, and another person who can summon assistance in the event of an accident has been informed of my location and expected return time, in accordance with HSE lone working guidance."],
+      ["7. Exclusion of Liability",
         "To the fullest extent permitted under law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors are not liable for: injuries, damages, or losses resulting from chainsaw use based on this manual; failure to follow established safety procedures, legal requirements, or regional best practices; or any subjective misinterpretation of the technical information contained in this guide."],
     ];
 

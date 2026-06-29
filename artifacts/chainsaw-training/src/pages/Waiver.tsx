@@ -43,6 +43,12 @@ const CLAUSES = [
   {
     id: "c6",
     number: "6",
+    title: "Lone Working",
+    text: "I understand the significant additional risks of operating a chainsaw as a lone worker. I agree not to operate a chainsaw alone unless a specific lone working risk assessment has been completed, appropriate emergency communication equipment is available, and another person who can summon assistance in the event of an accident has been informed of my location and expected return time, in accordance with HSE lone working guidance.",
+  },
+  {
+    id: "c7",
+    number: "7",
     title: "Exclusion of Liability",
     text: "To the fullest extent permitted under law, I agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors are not liable for: injuries, damages, or losses resulting from chainsaw use based on this manual; failure to follow established safety procedures, legal requirements, or regional best practices; or any subjective misinterpretation of the technical information contained in this guide.",
   },
