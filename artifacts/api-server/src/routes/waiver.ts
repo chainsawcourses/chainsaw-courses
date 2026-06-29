@@ -138,8 +138,13 @@ router.get("/waiver/pdf", async (req, res) => {
         "You are solely responsible for ensuring your own safety by wearing correct, certified Personal Protective Equipment (PPE) and following all relevant laws and workplace regulations. You must read the entire manual in full before operating any chainsaw machinery."],
       ["5. Absolute Sobriety Mandatory",
         "Do not undertake any chainsaw maintenance or operational activities under the influence of any drugs, alcohol, or impairing medications."],
-      ["6. Lone Working",
-        "I understand the significant additional risks of operating a chainsaw as a lone worker. I agree not to operate a chainsaw alone unless a specific lone working risk assessment has been completed, appropriate emergency communication equipment is available, and another person who can summon assistance in the event of an accident has been informed of my location and expected return time, in accordance with HSE lone working guidance."],
+      ["6. Prohibition of Lone Working and Mandatory Emergency Supervision",
+        "The Candidate explicitly acknowledges, warrants, and agrees that:\n" +
+        "• No Lone Operation: The Candidate shall never, under any circumstances, start, operate, or practice with a chainsaw alone, whether performing commercial operations, private cutting, or basic practical field exercises.\n" +
+        "• Mandatory Second Competent Person: Whenever a chainsaw is in use, a second competent person must be physically present on-site within a direct line of sight and clear audible range. This individual must remain un-engaged from distracting tasks to ensure uninterrupted safety monitoring.\n" +
+        "• First Aid Competency Requirement: The required on-site second person must possess active competency in emergency first aid, explicitly capable of identifying and managing catastrophic trauma injuries and severe haemorrhages associated with chainsaw lacerations.\n" +
+        "• Emergency Resource Provision: The supervising competent person must have immediate, unobstructed access to an appropriate trauma first aid kit containing wound dressings and a tourniquet, alongside an active communication device to contact regional emergency services.\n" +
+        "• Assumption of Liability for Breaches: Any operation of a chainsaw by the Candidate while working alone constitutes a direct and hazardous breach of this Agreement. The Candidate assumes total, exclusive legal liability for all accidents, injuries, or fatalities arising from lone working and completely indemnifies the Company against any ensuing claims."],
       ["7. Exclusion of Liability",
         "To the fullest extent permitted under law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors are not liable for: injuries, damages, or losses resulting from chainsaw use based on this manual; failure to follow established safety procedures, legal requirements, or regional best practices; or any subjective misinterpretation of the technical information contained in this guide."],
     ];
