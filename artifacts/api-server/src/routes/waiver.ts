@@ -120,16 +120,16 @@ router.get("/waiver/pdf", async (req, res) => {
     doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("IMPORTANT NOTICE & LIABILITY WAIVER");
     doc.moveDown(0.4);
     doc.fontSize(9).fillColor(dark).font("Helvetica").text(
-      "This manual provides technical information on chainsaw maintenance techniques, safety procedures, and general machinery operation.\n\n" +
+      "This online course and physical manual provides technical information on chainsaw maintenance techniques, safety procedures, and general machinery operation.\n\n" +
       "CRITICAL SAFETY MEMENTO: Chainsaw use is inherently dangerous, and improper handling can result in serious injury or death.\n\n" +
-      "By purchasing, accessing, or utilizing this manual and its associated resources, the student explicitly acknowledges and agrees to the following conditions:",
+      "By purchasing, accessing, or utilizing this online course, manual and its associated resources, you explicitly acknowledge and agree to the following conditions:",
       { lineGap: 3 }
     );
     doc.moveDown(1);
 
     const clauses: [string, string][] = [
       ["1. Educational Intent",
-        "This manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify the reader as a trained or certified chainsaw operator."],
+        "This online course and manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify the reader as a trained or certified chainsaw operator."],
       ["2. No Certification Conferred",
         "Completing or reading this manual does not entitle the buyer to any formal industry certification or practical qualification. Safe chainsaw operation strictly requires practical training, physical field supervision, and verified compliance with legal and industry safety standards."],
       ["3. Regulatory Compliance",

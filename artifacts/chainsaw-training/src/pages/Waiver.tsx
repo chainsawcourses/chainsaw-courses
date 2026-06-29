@@ -14,7 +14,7 @@ const CLAUSES = [
     id: "c1",
     number: "1",
     title: "Educational Intent",
-    text: "I understand that this manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify me as a trained or certified chainsaw operator.",
+    text: "I understand that this online course and manual is intended as a core theoretical reference and study guide to support accredited professional development (CPD) training programmes. It provides general guidance on chainsaw maintenance and cross-cutting techniques but does not qualify me as a trained or certified chainsaw operator.",
   },
   {
     id: "c2",
