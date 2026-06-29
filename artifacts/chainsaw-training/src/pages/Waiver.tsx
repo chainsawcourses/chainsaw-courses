@@ -4,16 +4,58 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useSignWaiver, useGetWaiver } from "@workspace/api-client-react";
+import { useSignWaiver } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { SignatureCanvas, SignaturePadRef } from "@/components/SignaturePad";
+import { ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../lib/firebase";
+
+const WAIVER_PATHS = [
+  "liability waiver.pdf",
+  "liability waiver.PDF",
+  "liability_waiver.pdf",
+  "liability waiver",
+  "documents/liability waiver.pdf",
+  "documents/liability_waiver.pdf",
+];
+
+function useWaiverDocumentUrl() {
+  const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function tryPaths() {
+      for (const path of WAIVER_PATHS) {
+        try {
+          const downloadUrl = await getDownloadURL(ref(storage, path));
+          if (!cancelled) {
+            setUrl(downloadUrl);
+            setLoading(false);
+          }
+          return;
+        } catch {
+          // try next
+        }
+      }
+      if (!cancelled) setLoading(false);
+    }
+
+    tryPaths();
+    return () => { cancelled = true; };
+  }, []);
+
+  return { url, loading };
+}
 
 export default function Waiver() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { deviceId, activationCode } = useUserSession();
   const signWaiver = useSignWaiver();
-  
+  const { url: waiverDocUrl, loading: waiverDocLoading } = useWaiverDocumentUrl();
+
   const [countdown, setCountdown] = useState(3);
   const [agreed, setAgreed] = useState(false);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
@@ -49,7 +91,7 @@ export default function Waiver() {
       toast({ title: "Agreement Required", description: "You must check the agreement box.", variant: "destructive" });
       return;
     }
-    
+
     if (signatureRef.current?.isEmpty()) {
       toast({ title: "Signature Required", description: "Please sign in the box provided.", variant: "destructive" });
       return;
@@ -94,35 +136,44 @@ export default function Waiver() {
               <p className="text-muted-foreground uppercase tracking-widest text-xs">Professional Training Portal</p>
             </div>
           </div>
-          <h2 className="text-xl font-black font-mono tracking-tighter text-destructive uppercase">MANDATORY SAFETY WAIVER</h2>
+          <h2 className="text-xl font-black font-mono tracking-tighter text-destructive uppercase">MANDATORY LIABILITY WAIVER</h2>
           <p className="text-muted-foreground uppercase tracking-wider text-xs mt-1 font-mono">
-            Read carefully before proceeding
+            Read carefully and scroll to the bottom before signing
           </p>
         </div>
-        
+
         <Card className="flex-1 flex flex-col border-border bg-card/50 overflow-hidden">
-          <div 
+          {/* Document area */}
+          <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-sm leading-relaxed text-muted-foreground border-b border-border"
+            className="flex-1 overflow-y-auto border-b border-border"
           >
-            <h2 className="text-foreground font-bold text-base mb-4">UK HEALTH & SAFETY / CHAINSAW OPERATION DISCLAIMER</h2>
-            
-            <p>1. I acknowledge that operating a chainsaw is an inherently dangerous activity that involves significant risk of severe injury, amputation, or death.</p>
-            
-            <p>2. I understand that this digital training platform is supplementary educational material and DOES NOT replace practical, hands-on assessment by a certified NPTC/Lantra instructor.</p>
-            
-            <p>3. I agree to always wear appropriate Personal Protective Equipment (PPE) conforming to current UK HSE guidelines when operating a chainsaw, including but not limited to: chainsaw-resistant trousers, safety helmet with visor and hearing protection, chainsaw-resistant gloves, and appropriate protective footwear.</p>
-            
-            <p>4. I confirm that I am medically fit to undertake training and operate machinery, and I am not under the influence of any medication, drugs, or alcohol that could impair my judgment or physical abilities.</p>
-            
-            <p>5. I accept full responsibility for my own safety and the safety of those around me when applying the techniques demonstrated in this manual.</p>
-            
-            <p>6. The creators, producers, and distributors of the Chainsaw Courses Professional Training App accept no liability for any injury, loss, or damage resulting directly or indirectly from the use of the information contained within this platform.</p>
-            
-            <div className="h-[20vh]" /> {/* Spacing to ensure scrolling works */}
+            {waiverDocLoading ? (
+              <div className="flex items-center justify-center h-full min-h-[200px]">
+                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest animate-pulse">Loading document…</p>
+              </div>
+            ) : waiverDocUrl ? (
+              <iframe
+                src={`${waiverDocUrl}#toolbar=0&navpanes=0`}
+                className="w-full h-full min-h-[400px]"
+                title="Liability Waiver"
+              />
+            ) : (
+              /* Fallback to hardcoded text if document not found in Storage */
+              <div className="p-6 space-y-4 font-mono text-sm leading-relaxed text-muted-foreground">
+                <h2 className="text-foreground font-bold text-base mb-4">UK HEALTH & SAFETY / CHAINSAW OPERATION DISCLAIMER</h2>
+                <p>1. I acknowledge that operating a chainsaw is an inherently dangerous activity that involves significant risk of severe injury, amputation, or death.</p>
+                <p>2. I understand that this digital training platform is supplementary educational material and DOES NOT replace practical, hands-on assessment by a certified NPTC/Lantra instructor.</p>
+                <p>3. I agree to always wear appropriate Personal Protective Equipment (PPE) conforming to current UK HSE guidelines when operating a chainsaw, including but not limited to: chainsaw-resistant trousers, safety helmet with visor and hearing protection, chainsaw-resistant gloves, and appropriate protective footwear.</p>
+                <p>4. I confirm that I am medically fit to undertake training and operate machinery, and I am not under the influence of any medication, drugs, or alcohol that could impair my judgment or physical abilities.</p>
+                <p>5. I accept full responsibility for my own safety and the safety of those around me when applying the techniques demonstrated in this manual.</p>
+                <p>6. The creators, producers, and distributors of the Chainsaw Courses Professional Training App accept no liability for any injury, loss, or damage resulting directly or indirectly from the use of the information contained within this platform.</p>
+                <div className="h-[20vh]" />
+              </div>
+            )}
           </div>
-          
+
           <CardContent className="p-6 bg-secondary/30 shrink-0">
             <div className="mb-6">
               <label className="text-xs font-mono font-bold uppercase tracking-wider text-foreground block mb-2">
@@ -130,9 +181,9 @@ export default function Waiver() {
               </label>
               <SignatureCanvas ref={signatureRef} />
               <div className="flex justify-end mt-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="h-8 font-mono text-xs text-muted-foreground"
                   onClick={() => signatureRef.current?.clear()}
                 >
@@ -142,21 +193,21 @@ export default function Waiver() {
             </div>
 
             <div className="flex items-start space-x-3 mb-6">
-              <Checkbox 
-                id="terms" 
+              <Checkbox
+                id="terms"
                 checked={agreed}
                 onCheckedChange={(c) => setAgreed(c === true)}
                 className="mt-1"
               />
-              <label 
-                htmlFor="terms" 
+              <label
+                htmlFor="terms"
                 className="text-sm font-mono leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground cursor-pointer select-none"
               >
-                I confirm that I have read, understood, and agree to the safety disclaimer above.
+                I confirm that I have read, understood, and agree to the liability waiver above.
               </label>
             </div>
 
-            <Button 
+            <Button
               className="w-full h-14 font-mono font-bold tracking-widest text-sm"
               disabled={countdown > 0 || !agreed || signWaiver.isPending}
               onClick={handleSign}

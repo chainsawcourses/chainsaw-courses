@@ -1,15 +1,18 @@
 import { initializeApp } from "firebase/app";
 import { getRemoteConfig } from "firebase/remote-config";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
 };
 
 export const app = initializeApp(firebaseConfig);
 export const remoteConfig = getRemoteConfig(app);
+export const storage = getStorage(app);
 
 remoteConfig.settings.minimumFetchIntervalMillis = 1000 * 60 * 60;
 remoteConfig.settings.fetchTimeoutMillis = 10000;
