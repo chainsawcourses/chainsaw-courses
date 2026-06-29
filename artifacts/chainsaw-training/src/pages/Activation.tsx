@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,12 +22,16 @@ export default function Activation() {
   const { toast } = useToast();
   const { deviceId, activationCode, setSession } = useUserSession();
 
-  // If already logged in, go straight to training
+  // Capture the activation code that was present when this page first loaded.
+  // Only redirect to /training if the user was ALREADY logged in on arrival —
+  // not in response to a fresh activation (which must go through the waiver check).
+  const initialCode = useRef(activationCode);
   useEffect(() => {
-    if (activationCode) {
+    if (initialCode.current) {
       setLocation("/training");
     }
-  }, [activationCode, setLocation]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const activateCode = useActivateCode();
 
   const form = useForm<z.infer<typeof formSchema>>({
