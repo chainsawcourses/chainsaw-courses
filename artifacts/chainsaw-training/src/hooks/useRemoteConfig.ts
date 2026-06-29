@@ -11,6 +11,7 @@ export interface ModuleRemoteConfig {
 
 interface RemoteConfigState {
   modulesConfig: ModuleRemoteConfig[];
+  disclaimerText: string;
   isLoading: boolean;
   error: string | null;
 }
@@ -18,30 +19,26 @@ interface RemoteConfigState {
 export function useRemoteConfig(): RemoteConfigState {
   const [state, setState] = useState<RemoteConfigState>({
     modulesConfig: [],
+    disclaimerText: "",
     isLoading: true,
     error: null,
   });
 
   useEffect(() => {
+    const extract = () => {
+      const raw = getString(remoteConfig, "modules_config");
+      const disclaimer = getString(remoteConfig, "disclaimer & copyright notice");
+      try {
+        const parsed: ModuleRemoteConfig[] = JSON.parse(raw);
+        setState({ modulesConfig: parsed, disclaimerText: disclaimer, isLoading: false, error: null });
+      } catch {
+        setState({ modulesConfig: [], disclaimerText: disclaimer, isLoading: false, error: "Failed to parse remote config" });
+      }
+    };
+
     fetchAndActivate(remoteConfig)
-      .then(() => {
-        const raw = getString(remoteConfig, "modules_config");
-        try {
-          const parsed: ModuleRemoteConfig[] = JSON.parse(raw);
-          setState({ modulesConfig: parsed, isLoading: false, error: null });
-        } catch {
-          setState({ modulesConfig: [], isLoading: false, error: "Failed to parse remote config" });
-        }
-      })
-      .catch((err) => {
-        const raw = getString(remoteConfig, "modules_config");
-        try {
-          const parsed: ModuleRemoteConfig[] = JSON.parse(raw);
-          setState({ modulesConfig: parsed, isLoading: false, error: null });
-        } catch {
-          setState({ modulesConfig: [], isLoading: false, error: String(err) });
-        }
-      });
+      .then(extract)
+      .catch(extract);
   }, []);
 
   return state;

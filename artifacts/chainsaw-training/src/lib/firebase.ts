@@ -15,6 +15,7 @@ remoteConfig.settings.minimumFetchIntervalMillis = 1000 * 60 * 60;
 remoteConfig.settings.fetchTimeoutMillis = 10000;
 
 remoteConfig.defaultConfig = {
+  "disclaimer & copyright notice": "",
   modules_config: JSON.stringify([
     { id: 1, vimeoId: "", title: "Equipment List", description: "" },
     { id: 2, vimeoId: "", title: "PPE & First Aid", description: "" },
