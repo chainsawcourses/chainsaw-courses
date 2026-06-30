@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable } from "@workspace/db";
-import { eq, asc, and } from "drizzle-orm";
+import { modulesTable, userProgressTable, quizQuestionsTable } from "@workspace/db";
+import { eq, asc, and, sql } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 
@@ -23,18 +23,17 @@ router.get("/modules", async (req, res) => {
   }
 
   try {
-    const modules = await db
-      .select()
-      .from(modulesTable)
-      .where(eq(modulesTable.isActive, true))
-      .orderBy(asc(modulesTable.order));
-
-    const progressRecords = await db
-      .select()
-      .from(userProgressTable)
-      .where(eq(userProgressTable.userId, user.id));
+    const [modules, progressRecords, quizCounts] = await Promise.all([
+      db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
+      db.select().from(userProgressTable).where(eq(userProgressTable.userId, user.id)),
+      db.select({
+        moduleId: quizQuestionsTable.moduleId,
+        count: sql<number>`cast(count(*) as int)`,
+      }).from(quizQuestionsTable).groupBy(quizQuestionsTable.moduleId),
+    ]);
 
     const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
+    const quizCountMap = new Map(quizCounts.map((q) => [q.moduleId, q.count]));
 
     const result = modules.map((mod, idx) => {
       const progress = progressMap.get(mod.id);
@@ -42,8 +41,12 @@ router.get("/modules", async (req, res) => {
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
       // Sequential lock: previous module must be fully complete to access a new module.
+      // "Complete" means: video watched, AND quiz passed if the module has quiz questions.
       // Exception: if the student has already watched this module before, always allow re-access.
-      const prevComplete = idx === 0 || !!(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      const prevHasQuiz = prevMod ? (quizCountMap.get(prevMod.id) ?? 0) > 0 : false;
+      const prevComplete =
+        idx === 0 ||
+        !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
       const isLocked = !prevComplete && !alreadyStarted;
 

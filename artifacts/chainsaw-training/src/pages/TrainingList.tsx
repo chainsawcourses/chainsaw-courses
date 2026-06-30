@@ -13,7 +13,7 @@ import { useRemoteConfig } from "../hooks/useRemoteConfig";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName, clearSession } = useUserSession();
+  const { activationCode, deviceId, fullName, clearSession, userId } = useUserSession();
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [equipmentScrolled, setEquipmentScrolled] = useState(false);
   const [equipmentAcknowledged, setEquipmentAcknowledged] = useState(() =>
