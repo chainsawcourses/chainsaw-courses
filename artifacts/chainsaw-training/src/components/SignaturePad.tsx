@@ -8,7 +8,7 @@ interface SignaturePadProps {
 export interface SignaturePadRef {
   isEmpty: () => boolean;
   clear: () => void;
-  toDataURL: () => string;
+  toDataURL: (type?: string) => string;
 }
 
 export const SignatureCanvas = forwardRef<SignaturePadRef, SignaturePadProps>(
@@ -53,7 +53,7 @@ export const SignatureCanvas = forwardRef<SignaturePadRef, SignaturePadProps>(
     useImperativeHandle(ref, () => ({
       isEmpty: () => padRef.current?.isEmpty() ?? true,
       clear: () => padRef.current?.clear(),
-      toDataURL: () => padRef.current?.toDataURL() ?? "",
+      toDataURL: (type?: string) => padRef.current?.toDataURL(type) ?? "",
     }));
 
     return (

@@ -61,6 +61,7 @@ export default function Activation() {
             activationCode: values.code,
             fullName: values.fullName,
             email: values.email,
+            userId: res.userId,
           });
           
           if (res.waiverRequired) {

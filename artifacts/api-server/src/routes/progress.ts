@@ -17,7 +17,7 @@ router.post("/progress/heartbeat", async (req, res) => {
   }
 
   const { moduleId, timestamp, deviceId, activationCode } = parse.data;
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -62,7 +62,7 @@ router.post("/progress/complete-video", async (req, res) => {
   }
 
   const { moduleId, deviceId, activationCode } = parse.data;
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -110,7 +110,7 @@ router.post("/progress/complete-assessment", async (req, res) => {
   }
 
   const { moduleId, deviceId, activationCode, passed, score } = parse.data;
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -159,7 +159,7 @@ router.get("/progress/summary", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;

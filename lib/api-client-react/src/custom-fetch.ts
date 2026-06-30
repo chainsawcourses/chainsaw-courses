@@ -364,9 +364,11 @@ export async function customFetch<T = unknown>(
     const activationCode = localStorage.getItem("activationCode");
     const adminToken = localStorage.getItem("adminToken");
 
+    const userId = localStorage.getItem("userId");
     if (deviceId && !headers.has("deviceId")) headers.set("deviceId", deviceId);
     if (activationCode && !headers.has("activationCode")) headers.set("activationCode", activationCode);
     if (adminToken && !headers.has("adminToken")) headers.set("adminToken", adminToken);
+    if (userId && !headers.has("userId")) headers.set("userId", userId);
   }
 
   const requestInfo = { method, url: resolveUrl(input) };

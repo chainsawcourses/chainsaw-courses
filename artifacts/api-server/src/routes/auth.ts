@@ -141,16 +141,26 @@ router.post("/auth/activate", async (req, res) => {
   }
 });
 
-async function resolveUser(activationCode: string, deviceId: string) {
+async function resolveUser(activationCode: string, deviceId: string, userId?: number) {
   const normalizedCode = activationCode.trim().toUpperCase();
+
+  // Fast path: when the client supplies its own userId, verify it directly.
+  if (userId) {
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(and(eq(usersTable.id, userId), eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+    return user ?? null;
+  }
+
+  // Fallback: no userId header — pick the oldest matching record.
   const [user] = await db
     .select()
     .from(usersTable)
     .where(and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)))
-    .orderBy(usersTable.id);  // oldest record wins — deterministic when multiple registrations share same device+code
+    .orderBy(usersTable.id);
 
-  if (!user) return null;
-  return user;
+  return user ?? null;
 }
 
 router.get("/auth/me", async (req, res) => {
@@ -162,7 +172,7 @@ router.get("/auth/me", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -187,7 +197,7 @@ router.delete("/auth/delete-account", async (req, res) => {
   const deviceId = req.headers["deviceid"] as string;
   const activationCode = req.headers["activationcode"] as string;
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;

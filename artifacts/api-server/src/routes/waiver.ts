@@ -20,7 +20,7 @@ router.get("/waiver", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -57,7 +57,7 @@ router.get("/waiver/pdf", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -257,7 +257,7 @@ router.post("/waiver", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;

@@ -75,7 +75,7 @@ router.post("/ai/chat", async (req, res) => {
   }
 
   const { message, deviceId, activationCode } = parse.data;
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -148,7 +148,7 @@ router.post("/ai/grade-answer", async (req, res) => {
   }
 
   const { transcript, promptText, keyPoints, deviceId, activationCode } = parse.data;
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -213,7 +213,7 @@ router.get("/ai/chat-history", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;

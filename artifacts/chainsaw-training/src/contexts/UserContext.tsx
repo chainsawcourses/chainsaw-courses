@@ -6,7 +6,8 @@ interface UserContextType {
   deviceId: string | null;
   fullName: string | null;
   email: string | null;
-  setSession: (data: { activationCode: string; fullName: string; email: string }) => void;
+  userId: number | null;
+  setSession: (data: { activationCode: string; fullName: string; email: string; userId: number }) => void;
   clearSession: () => void;
 }
 
@@ -30,27 +31,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [email, setEmail] = useState<string | null>(
     () => localStorage.getItem("email")
   );
+  const [userId, setUserId] = useState<number | null>(() => {
+    const stored = localStorage.getItem("userId");
+    return stored ? Number(stored) : null;
+  });
 
-  const setSession = (data: { activationCode: string; fullName: string; email: string }) => {
+  const setSession = (data: { activationCode: string; fullName: string; email: string; userId: number }) => {
     localStorage.setItem("activationCode", data.activationCode);
     localStorage.setItem("fullName", data.fullName);
     localStorage.setItem("email", data.email);
+    localStorage.setItem("userId", String(data.userId));
     setActivationCode(data.activationCode);
     setFullName(data.fullName);
     setEmail(data.email);
+    setUserId(data.userId);
   };
 
   const clearSession = () => {
     localStorage.removeItem("activationCode");
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
+    localStorage.removeItem("userId");
     setActivationCode(null);
     setFullName(null);
     setEmail(null);
+    setUserId(null);
   };
 
   return (
-    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, setSession, clearSession }}>
+    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, setSession, clearSession }}>
       {children}
     </UserContext.Provider>
   );
