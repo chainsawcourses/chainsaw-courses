@@ -64,6 +64,7 @@ export default function TrainingList() {
         onSuccess: () => {
           localStorage.setItem("equipment-acknowledged", "true");
           setEquipmentAcknowledged(true);
+          setEquipmentOpen(false);
           queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
         },
