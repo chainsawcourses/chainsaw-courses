@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 interface UserContextType {
@@ -13,24 +13,23 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [activationCode, setActivationCode] = useState<string | null>(null);
-  const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [fullName, setFullName] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Generate deviceId if missing
+  const [activationCode, setActivationCode] = useState<string | null>(
+    () => localStorage.getItem("activationCode")
+  );
+  const [deviceId, setDeviceId] = useState<string | null>(() => {
     let id = localStorage.getItem("deviceId");
     if (!id) {
       id = uuidv4();
       localStorage.setItem("deviceId", id);
     }
-    setDeviceId(id);
-
-    setActivationCode(localStorage.getItem("activationCode"));
-    setFullName(localStorage.getItem("fullName"));
-    setEmail(localStorage.getItem("email"));
-  }, []);
+    return id;
+  });
+  const [fullName, setFullName] = useState<string | null>(
+    () => localStorage.getItem("fullName")
+  );
+  const [email, setEmail] = useState<string | null>(
+    () => localStorage.getItem("email")
+  );
 
   const setSession = (data: { activationCode: string; fullName: string; email: string }) => {
     localStorage.setItem("activationCode", data.activationCode);
