@@ -160,6 +160,8 @@ export interface WaiverInput {
   activationCode: string;
   signatureData: string;
   agreedToTerms: boolean;
+  /** JSON snapshot of clause titles and texts at the moment of signing */
+  clausesSnapshot?: string;
 }
 
 export interface AiChatInput {

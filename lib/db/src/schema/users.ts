@@ -29,6 +29,7 @@ export const waiversTable = pgTable("waivers", {
   agreedToTerms: boolean("agreed_to_terms").notNull().default(true),
   signedAt: timestamp("signed_at").notNull().defaultNow(),
   pdfPath: text("pdf_path"),
+  clausesSnapshot: text("clauses_snapshot"),
 });
 
 export const insertActivationCodeSchema = createInsertSchema(activationCodesTable).omit({ id: true, createdAt: true });

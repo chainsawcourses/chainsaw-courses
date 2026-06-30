@@ -808,6 +808,9 @@ components:
           type: string
         agreedToTerms:
           type: boolean
+        clausesSnapshot:
+          type: string
+          description: JSON snapshot of clause titles and texts at the moment of signing
 
     AiChatInput:
       type: object

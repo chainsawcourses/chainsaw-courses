@@ -103,10 +103,13 @@ export default function Waiver() {
 
     if (!deviceId || !activationCode) return;
 
-    const signatureData = signatureRef.current?.toDataURL() || "";
+    const signatureData = signatureRef.current?.toDataURL("image/png") || "";
+    const clausesSnapshot = JSON.stringify(
+      CLAUSES.map((c) => ({ number: c.number, title: c.title, text: c.text }))
+    );
 
     signWaiver.mutate(
-      { data: { deviceId, activationCode, signatureData, agreedToTerms: true } },
+      { data: { deviceId, activationCode, signatureData, agreedToTerms: true, clausesSnapshot } },
       {
         onSuccess: () => setLocation("/training"),
         onError: () =>

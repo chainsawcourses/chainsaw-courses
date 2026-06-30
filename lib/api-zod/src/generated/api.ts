@@ -251,7 +251,8 @@ export const SignWaiverBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "signatureData": zod.string(),
-  "agreedToTerms": zod.boolean()
+  "agreedToTerms": zod.boolean(),
+  "clausesSnapshot": zod.string().optional().describe('JSON snapshot of clause titles and texts at the moment of signing')
 })
 
 export const SignWaiverResponse = zod.object({
