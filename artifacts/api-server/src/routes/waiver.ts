@@ -40,7 +40,7 @@ router.get("/waiver", async (req, res) => {
     res.json({
       signed: true,
       signedAt: waiver.signedAt.toISOString(),
-      pdfUrl: `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}`,
+      pdfUrl: `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}&uid=${user.id}`,
     });
   } catch (err) {
     logger.error({ err }, "Error getting waiver status");
@@ -57,7 +57,8 @@ router.get("/waiver/pdf", async (req, res) => {
     return;
   }
 
-  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  const uidParam = (req.headers["userid"] || req.query["uid"]) as string | undefined;
+  const user = await resolveUser(activationCode, deviceId, uidParam ? Number(uidParam) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
