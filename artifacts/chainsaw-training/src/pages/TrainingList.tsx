@@ -343,14 +343,11 @@ export default function TrainingList() {
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors flex-1">
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
                   Tools & Equipment Needed
                 </h3>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${equipmentOpen ? "rotate-180 text-primary" : ""}`} />
                 <div className="flex-1 h-px bg-border" />
-                {equipmentOpen
-                  ? <ChevronDown className="w-3.5 h-3.5 text-primary shrink-0" />
-                  : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-                }
               </button>
 
               {equipmentOpen && (
