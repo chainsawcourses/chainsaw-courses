@@ -68,6 +68,10 @@ export default function Waiver() {
   const canSign = allClausesChecked && finalAgreed;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!activationCode || !deviceId) {
       setLocation("/");
       return;
