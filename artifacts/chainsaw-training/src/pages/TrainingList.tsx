@@ -327,12 +327,12 @@ export default function TrainingList() {
             )}
 
             {/* How to Use This E-Learning Course — placeholder */}
-            <div className="w-full flex items-center gap-2 py-2 ml-4">
+            <div className="w-full flex items-center gap-2 py-2 ml-4 group cursor-pointer">
               <div className="w-3 h-px bg-border shrink-0" />
-              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground">
+              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
                 How to Use This E-Learning Course
               </h3>
-              <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -343,7 +343,7 @@ export default function TrainingList() {
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors flex-1">
                   Tools & Equipment Needed
                 </h3>
                 <div className="flex-1 h-px bg-border" />
@@ -458,7 +458,7 @@ export default function TrainingList() {
               return (
                 <Card
                   key={module.id}
-                  className={`border-border transition-all duration-150 ${
+                  className={`border-border transition-all duration-150 group ${
                     module.isLocked
                       ? "opacity-40 bg-card/30"
                       : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
@@ -478,7 +478,7 @@ export default function TrainingList() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
+                        <span className={`font-mono font-bold text-xs uppercase tracking-wide truncate transition-colors ${module.isCompleted && !module.isLocked ? "group-hover:text-primary" : ""}`}>{module.title}</span>
                         {isPdf && (
                           <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                         )}
@@ -541,7 +541,7 @@ export default function TrainingList() {
                       return (
                         <div key={module.id} id={`module-${module.id}`}>
                           <Card
-                            className={`border-border transition-all duration-150 ${
+                            className={`border-border transition-all duration-150 group ${
                               effectiveLocked
                                 ? "opacity-40 bg-card/30"
                                 : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
@@ -562,7 +562,7 @@ export default function TrainingList() {
 
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="font-mono font-bold text-xs uppercase tracking-wide truncate">{module.title}</span>
+                                  <span className={`font-mono font-bold text-xs uppercase tracking-wide truncate transition-colors ${module.isCompleted && !effectiveLocked ? "group-hover:text-primary" : ""}`}>{module.title}</span>
                                   {isPdf && (
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
