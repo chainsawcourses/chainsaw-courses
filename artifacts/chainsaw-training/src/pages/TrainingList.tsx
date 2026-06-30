@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
+import { useHowToUse } from "../hooks/useHowToUse";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
@@ -25,8 +26,10 @@ export default function TrainingList() {
     localStorage.getItem("hazards-viewed") === "true"
   );
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
+  const [howToUseOpen, setHowToUseOpen] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
+  const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
 
   const queryClient = useQueryClient();
   const completeVideo = useCompleteVideo();
@@ -326,15 +329,31 @@ export default function TrainingList() {
               </div>
             )}
 
-            {/* How to Use This E-Learning Course — placeholder */}
-            <div className="w-full flex items-center gap-2 py-2 ml-4 group cursor-pointer">
-              <div className="w-3 h-px bg-border shrink-0" />
-              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                How to Use This E-Learning Course
-              </h3>
-              <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-              <div className="flex-1 h-px bg-border" />
-            </div>
+            {/* How to Use This E-Learning Course — collapsible from Firebase Storage */}
+            {!howToUseLoading && howToUseText && (
+              <div>
+                <button
+                  onClick={() => setHowToUseOpen((o) => !o)}
+                  className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+                >
+                  <div className="w-3 h-px bg-border shrink-0" />
+                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                    How to Use This E-Learning Course
+                  </h3>
+                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${howToUseOpen ? "rotate-180 text-primary" : ""}`} />
+                  <div className="flex-1 h-px bg-border" />
+                </button>
+                {howToUseOpen && (
+                  <Card className="border-border bg-card/60 mt-1">
+                    <CardContent className="p-4">
+                      <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {howToUseText}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
 
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}
             <div>
