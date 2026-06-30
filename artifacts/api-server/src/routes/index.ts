@@ -8,6 +8,7 @@ import waiverRouter from "./waiver";
 import aiRouter from "./ai";
 import adminRouter from "./admin";
 import hazardsRouter from "./hazards";
+import howToUseRouter from "./howToUse";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(waiverRouter);
 router.use(aiRouter);
 router.use(adminRouter);
 router.use(hazardsRouter);
+router.use(howToUseRouter);
 
 export default router;

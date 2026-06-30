@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../lib/firebase";
-import mammoth from "mammoth";
 
 interface HowToUseState {
   text: string | null;
   isLoading: boolean;
   error: string | null;
 }
+
+const FILENAME = "How to Use Your Online Course.docx";
 
 export function useHowToUse(): HowToUseState {
   const [state, setState] = useState<HowToUseState>({
@@ -21,42 +22,19 @@ export function useHowToUse(): HowToUseState {
 
     async function fetchContent() {
       try {
-        const rootRef = ref(storage);
-        const listing = await listAll(rootRef);
+        const fileRef = ref(storage, FILENAME);
+        const downloadUrl = await getDownloadURL(fileRef);
 
-        const target = listing.items.find((item) => {
-          const name = item.name.toLowerCase();
-          return (
-            name.includes("how") ||
-            name.includes("use") ||
-            name.includes("elearning") ||
-            name.includes("e-learning") ||
-            name.includes("guide") ||
-            name.includes("course")
-          );
-        });
-
-        if (!target) {
-          if (!cancelled) setState({ text: null, isLoading: false, error: "File not found" });
-          return;
-        }
-
-        const url = await getDownloadURL(target);
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const isDocx = target.name.toLowerCase().endsWith(".docx");
-
-        if (isDocx) {
-          const buffer = await response.arrayBuffer();
-          const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-          if (!cancelled) setState({ text: result.value.trim(), isLoading: false, error: null });
-        } else {
-          const text = await response.text();
-          if (!cancelled) setState({ text: text.trim(), isLoading: false, error: null });
-        }
-      } catch (err) {
-        if (!cancelled) setState({ text: null, isLoading: false, error: String(err) });
+        const res = await fetch(`/api/how-to-use?url=${encodeURIComponent(downloadUrl)}`);
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const data = await res.json() as { text?: string; error?: string };
+        if (data.error) throw new Error(data.error);
+        const text = data.text?.trim() ?? null;
+        if (!cancelled) setState({ text, isLoading: false, error: null });
+      } catch (err: unknown) {
+        const msg = (err as { message?: string }).message ?? String(err);
+        console.error("[useHowToUse] failed:", msg);
+        if (!cancelled) setState({ text: null, isLoading: false, error: msg });
       }
     }
 
