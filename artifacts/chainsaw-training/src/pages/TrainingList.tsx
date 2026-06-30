@@ -75,6 +75,26 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen;
+
+  useEffect(() => {
+    if (!anyOpen) return;
+    let handler: (() => void) | null = null;
+    const timer = setTimeout(() => {
+      handler = () => {
+        setEquipmentOpen(false);
+        setHazardsOpen(false);
+        setDisclaimerOpen(false);
+        setHowToUseOpen(false);
+      };
+      document.addEventListener("click", handler);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      if (handler) document.removeEventListener("click", handler);
+    };
+  }, [anyOpen]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -444,7 +464,7 @@ export default function TrainingList() {
                   </div>
 
                   {/* Acknowledge footer */}
-                  <div className="border-t border-border px-6 py-3 flex items-center justify-between gap-4 bg-card/80">
+                  <div className="border-t border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card/80">
                     {equipmentAcknowledged ? (
                       <span className="font-mono text-xs text-primary flex items-center gap-1.5">
                         <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
@@ -456,7 +476,7 @@ export default function TrainingList() {
                         </span>
                         <Button
                           size="sm"
-                          className="h-7 font-mono text-xs shrink-0"
+                          className="h-7 font-mono text-xs w-full sm:w-auto"
                           disabled={!equipmentScrolled || completeVideo.isPending}
                           onClick={handleEquipmentAcknowledge}
                         >
