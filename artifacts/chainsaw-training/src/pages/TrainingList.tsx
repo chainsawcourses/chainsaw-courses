@@ -72,6 +72,10 @@ export default function TrainingList() {
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
@@ -284,11 +288,11 @@ export default function TrainingList() {
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1 group-hover:text-primary transition-colors">
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
                   Signed Waiver
                 </h3>
-                <div className="flex-1 h-px bg-border" />
                 <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                <div className="flex-1 h-px bg-border" />
               </a>
             </div>
 
@@ -324,11 +328,11 @@ export default function TrainingList() {
             {/* How to Use This E-Learning Course — placeholder */}
             <div className="w-full flex items-center gap-2 py-2 ml-4">
               <div className="w-3 h-px bg-border shrink-0" />
-              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+              <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground">
                 How to Use This E-Learning Course
               </h3>
-              <div className="flex-1 h-px bg-border" />
               <FileText className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <div className="flex-1 h-px bg-border" />
             </div>
 
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}

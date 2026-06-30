@@ -156,8 +156,24 @@ router.get("/waiver/pdf", async (req, res) => {
     ];
 
     for (const [title, body] of clauses) {
-      doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(title, { lineGap: 2 });
-      doc.fontSize(9).fillColor(dark).font("Helvetica").text(body, { lineGap: 3 });
+      const clauseY = doc.y;
+      const cbSize = 7;
+      const cbX = 60;
+      const cbY = clauseY + 1;
+      // Draw ticked checkbox
+      doc.save();
+      doc.rect(cbX, cbY, cbSize, cbSize).strokeColor("#16a34a").lineWidth(0.8).stroke();
+      doc.moveTo(cbX + 1.2, cbY + cbSize * 0.55)
+         .lineTo(cbX + cbSize * 0.4, cbY + cbSize - 1.5)
+         .lineTo(cbX + cbSize - 1, cbY + 1.5)
+         .strokeColor("#16a34a").lineWidth(0.8).stroke();
+      doc.restore();
+      // Clause title indented past checkbox
+      doc.fontSize(9).fillColor(dark).font("Helvetica-Bold")
+         .text(title, 72, clauseY, { width: 463, lineGap: 2 });
+      // Body indented to align with title
+      doc.fontSize(9).fillColor(dark).font("Helvetica")
+         .text(body, { indent: 12, lineGap: 3 });
       doc.moveDown(0.7);
     }
 
