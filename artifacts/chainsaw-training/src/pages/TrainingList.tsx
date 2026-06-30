@@ -513,14 +513,12 @@ export default function TrainingList() {
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
             <div key={category}>
-              {category !== "CHAINSAW COMPONENTS" && (
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-6 bg-primary" />
-                  <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">
-                    {category === "ASSESSMENT MODULES" ? "Standards & Regulations" : category}
-                  </h2>
-                </div>
-              )}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-1 h-6 bg-primary" />
+                <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">
+                  {category === "ASSESSMENT MODULES" ? "Standards & Regulations" : category}
+                </h2>
+              </div>
 
               {subGroups.map(({ subCategory, modules: mods }) => (
                 <div key={subCategory ?? "__root__"} className="mb-6">
