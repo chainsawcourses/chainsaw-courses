@@ -146,7 +146,8 @@ async function resolveUser(activationCode: string, deviceId: string) {
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+    .where(and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)))
+    .orderBy(usersTable.id);  // oldest record wins — deterministic when multiple registrations share same device+code
 
   if (!user) return null;
   return user;

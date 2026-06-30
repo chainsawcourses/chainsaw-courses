@@ -82,6 +82,8 @@ router.get("/waiver/pdf", async (req, res) => {
     const doc = new PDFDocument({ margin: 60, size: "A4" });
 
     res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
     res.setHeader(
       "Content-Disposition",
       `inline; filename="chainsaw-courses-waiver-${userRecord?.fullName?.replace(/\s+/g, "-") ?? "signed"}.pdf"`
