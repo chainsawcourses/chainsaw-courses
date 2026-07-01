@@ -61,12 +61,14 @@ export default function TrainingList() {
     }
   }, []);
 
-  // When equipment opens, scroll the footer into view so the button is always visible
+  // When equipment opens: scroll content to bottom (enabling the button) then bring footer into view
   useEffect(() => {
     if (!equipmentOpen) return;
     const timer = setTimeout(() => {
+      const el = equipmentScrollRef.current;
+      if (el) el.scrollTop = el.scrollHeight; // triggers onScroll → sets equipmentScrolled=true
       equipmentFooterRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 120);
+    }, 150);
     return () => clearTimeout(timer);
   }, [equipmentOpen]);
 
