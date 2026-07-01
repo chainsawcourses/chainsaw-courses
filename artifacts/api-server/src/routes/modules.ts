@@ -48,7 +48,9 @@ router.get("/modules", async (req, res) => {
         idx === 0 ||
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
-      const isLocked = !prevComplete && !alreadyStarted;
+      // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,
+      // not gated behind each other.
+      const isLocked = mod.category !== "COURSE REQUIREMENTS" && !prevComplete && !alreadyStarted;
 
       return {
         id: mod.id,
@@ -122,7 +124,8 @@ router.get("/modules/:moduleId", async (req, res) => {
       ]);
       const prevHasQuiz = (prevQuizCounts[0]?.count ?? 0) > 0;
       const prevComplete = !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
-      if (!prevComplete) {
+      // COURSE REQUIREMENTS modules are always accessible
+      if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before
         const [ownProgress] = await db
           .select()

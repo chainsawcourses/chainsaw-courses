@@ -90,23 +90,27 @@ export default function TrainingList() {
 
   const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen;
 
+  const closeAllDropdowns = useCallback(() => {
+    setEquipmentOpen(false);
+    setHazardsOpen(false);
+    setDisclaimerOpen(false);
+    setHowToUseOpen(false);
+  }, []);
+
   useEffect(() => {
     if (!anyOpen) return;
     let handler: (() => void) | null = null;
+    // 400ms delay — Android fires a synthetic click shortly after a touch,
+    // so we wait long enough for it to pass before attaching the listener.
     const timer = setTimeout(() => {
-      handler = () => {
-        setEquipmentOpen(false);
-        setHazardsOpen(false);
-        setDisclaimerOpen(false);
-        setHowToUseOpen(false);
-      };
+      handler = closeAllDropdowns;
       document.addEventListener("click", handler);
-    }, 0);
+    }, 400);
     return () => {
       clearTimeout(timer);
       if (handler) document.removeEventListener("click", handler);
     };
-  }, [anyOpen]);
+  }, [anyOpen, closeAllDropdowns]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -337,7 +341,7 @@ export default function TrainingList() {
             {disclaimerText && (
               <div>
                 <button
-                  onClick={() => setDisclaimerOpen((o) => !o)}
+                  onClick={(e) => { e.stopPropagation(); setDisclaimerOpen((o) => !o); }}
                   className="w-full flex items-center gap-2 py-2 text-left group ml-4"
                 >
                   <div className="w-3 h-px bg-border shrink-0" />
@@ -351,7 +355,7 @@ export default function TrainingList() {
                   }
                 </button>
                 {disclaimerOpen && (
-                  <Card className="border-border bg-card/60 mt-1">
+                  <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
                     <CardContent className="p-4">
                       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {disclaimerText}
@@ -366,7 +370,7 @@ export default function TrainingList() {
             {!howToUseLoading && howToUseText && (
               <div>
                 <button
-                  onClick={() => setHowToUseOpen((o) => !o)}
+                  onClick={(e) => { e.stopPropagation(); setHowToUseOpen((o) => !o); }}
                   className="w-full flex items-center gap-2 py-2 text-left group ml-4"
                 >
                   <div className="w-3 h-px bg-border shrink-0" />
@@ -377,7 +381,7 @@ export default function TrainingList() {
                   <div className="flex-1 h-px bg-border" />
                 </button>
                 {howToUseOpen && (
-                  <Card className="border-border bg-card/60 mt-1">
+                  <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
                     <CardContent className="p-4">
                       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {howToUseText}
@@ -391,7 +395,7 @@ export default function TrainingList() {
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}
             <div>
               <button
-                onClick={() => setEquipmentOpen((o) => !o)}
+                onClick={(e) => { e.stopPropagation(); setEquipmentOpen((o) => !o); }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
@@ -403,7 +407,7 @@ export default function TrainingList() {
               </button>
 
               {equipmentOpen && (
-                <Card className="border-border bg-card/60 mt-1">
+                <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
                   {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
                   <div
                     ref={equipmentScrollRef}
