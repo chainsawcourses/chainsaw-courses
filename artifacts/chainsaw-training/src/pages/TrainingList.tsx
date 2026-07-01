@@ -51,6 +51,8 @@ export default function TrainingList() {
     [modules]
   );
 
+  const equipmentFooterRef = useRef<HTMLDivElement>(null);
+
   const handleEquipmentScroll = useCallback(() => {
     const el = equipmentScrollRef.current;
     if (!el) return;
@@ -58,6 +60,15 @@ export default function TrainingList() {
       setEquipmentScrolled(true);
     }
   }, []);
+
+  // When equipment opens, scroll the footer into view so the button is always visible
+  useEffect(() => {
+    if (!equipmentOpen) return;
+    const timer = setTimeout(() => {
+      equipmentFooterRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [equipmentOpen]);
 
   const handleEquipmentAcknowledge = useCallback(() => {
     if (!equipmentListModule || !deviceId || !activationCode) return;
@@ -395,7 +406,7 @@ export default function TrainingList() {
                   <div
                     ref={equipmentScrollRef}
                     onScroll={handleEquipmentScroll}
-                    className="max-h-72 overflow-y-auto"
+                    className="max-h-44 sm:max-h-72 overflow-y-auto"
                   >
                     <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
                       <div>
@@ -464,7 +475,7 @@ export default function TrainingList() {
                   </div>
 
                   {/* Acknowledge footer */}
-                  <div className="border-t border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card/80">
+                  <div ref={equipmentFooterRef} className="border-t border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card/80">
                     {equipmentAcknowledged ? (
                       <span className="font-mono text-xs text-primary flex items-center gap-1.5">
                         <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
