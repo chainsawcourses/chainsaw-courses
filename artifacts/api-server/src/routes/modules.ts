@@ -112,16 +112,16 @@ router.get("/modules/:moduleId", async (req, res) => {
 
     let isLocked = false;
     if (prevMod) {
-      const [prevProgress] = await db
-        .select()
-        .from(userProgressTable)
-        .where(
-          and(
-            eq(userProgressTable.userId, user.id),
-            eq(userProgressTable.moduleId, prevMod.id)
-          )
-        );
-      const prevComplete = !!(prevProgress?.videoCompleted && prevProgress?.quizPassed);
+      const [[prevProgress], prevQuizCounts] = await Promise.all([
+        db.select().from(userProgressTable).where(
+          and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, prevMod.id))
+        ),
+        db.select({ count: sql<number>`cast(count(*) as int)` })
+          .from(quizQuestionsTable)
+          .where(eq(quizQuestionsTable.moduleId, prevMod.id)),
+      ]);
+      const prevHasQuiz = (prevQuizCounts[0]?.count ?? 0) > 0;
+      const prevComplete = !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       if (!prevComplete) {
         // Only lock if the student hasn't already watched this module before
         const [ownProgress] = await db

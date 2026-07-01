@@ -255,9 +255,9 @@ export default function TrainingList() {
           </div>
 
           {/* Right — operator + logout */}
-          <div className="flex items-center justify-end gap-3 font-mono text-xs text-muted-foreground uppercase tracking-wider">
-            <span className="hidden sm:inline-block">OPERATOR: {fullName}</span>
-            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5" style={{fontSize: "0.6rem"}}
+          <div className="flex flex-col items-end sm:flex-row sm:items-center gap-0.5 sm:gap-3 font-mono text-muted-foreground uppercase tracking-wider justify-end">
+            <span className="text-[8px] sm:text-xs leading-tight truncate max-w-[90px] sm:max-w-none">{fullName}</span>
+            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
               <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
             </Button>
