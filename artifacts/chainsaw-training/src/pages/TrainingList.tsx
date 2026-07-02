@@ -27,6 +27,7 @@ export default function TrainingList() {
   );
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
+  const [nptcOpen, setNptcOpen] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
@@ -88,13 +89,14 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
     setHazardsOpen(false);
     setDisclaimerOpen(false);
     setHowToUseOpen(false);
+    setNptcOpen(false);
   }, []);
 
   useEffect(() => {
@@ -351,21 +353,49 @@ export default function TrainingList() {
               </div>
             )}
 
-            {/* NPTC Links — under Course Overview */}
+            {/* NPTC Resources — collapsible, all 3 links */}
             <div>
-              <a
-                href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
                 <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
                   NPTC Resources
                 </h3>
-                <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
                 <div className="flex-1 h-px bg-border" />
-              </a>
+              </button>
+              {nptcOpen && (
+                <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
+                  <CardContent className="p-4 space-y-2 font-mono text-xs text-muted-foreground">
+                    <a
+                      href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      NPTC Course Overview
+                    </a>
+                    <a
+                      href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      Qualification Handbook
+                    </a>
+                    <a
+                      href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      Assessment Schedule
+                    </a>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Overview */}
