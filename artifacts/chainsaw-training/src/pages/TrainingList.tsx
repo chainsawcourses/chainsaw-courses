@@ -324,6 +324,14 @@ export default function TrainingList() {
                     </div>
                   )}
                 </div>
+
+                {/* Log Out — bottom of brand dropdown */}
+                <button
+                  onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
+                  className="w-full flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors border-t border-border"
+                >
+                  <LogOut className="w-3 h-3" /> LOG OUT
+                </button>
               </div>
             )}
           </div>
@@ -331,26 +339,18 @@ export default function TrainingList() {
           {/* Centre — empty */}
           <div />
 
-          {/* Right — logout + username + waiver */}
+          {/* Right — waiver icon + username stacked */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
-            <button
-              className="flex items-center gap-0.5 font-mono text-muted-foreground hover:text-destructive uppercase tracking-wider px-0 py-0 h-auto bg-transparent border-none cursor-pointer"
-              style={{fontSize: "0.6rem"}}
-              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-              <LogOut className="w-2.5 h-2.5" /> LOG OUT
-            </button>
-            <div className="flex items-center gap-1.5">
-              <a
-                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 text-muted-foreground hover:text-primary"
-                title="Your Signed Waiver"
-              >
-                <FileText className="w-4 h-4" />
-              </a>
-              <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
-            </div>
+            <a
+              href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary"
+              title="Your Signed Waiver"
+            >
+              <FileText className="w-4 h-4" />
+            </a>
+            <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
       </header>
