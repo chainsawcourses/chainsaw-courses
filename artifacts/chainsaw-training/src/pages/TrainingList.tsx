@@ -32,6 +32,8 @@ export default function TrainingList() {
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
   const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
   const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
+  const [helpAdminOpen, setHelpAdminOpen] = useState(false);
+  const [helpWatermarkOpen, setHelpWatermarkOpen] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
@@ -93,7 +95,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || helpOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || helpOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpLostCodeOpen || helpAdminOpen || helpWatermarkOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -105,6 +107,8 @@ export default function TrainingList() {
     setHelpHowItWorksOpen(false);
     setHelpDeviceLockOpen(false);
     setHelpLostCodeOpen(false);
+    setHelpAdminOpen(false);
+    setHelpWatermarkOpen(false);
   }, []);
 
   useEffect(() => {
@@ -230,10 +234,6 @@ export default function TrainingList() {
           {/* Right — operator + logout + help */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
-                onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-                <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
-              </Button>
               <div className="relative">
                 <button
                   onClick={(e) => { e.stopPropagation(); setHelpOpen((o) => !o); }}
@@ -298,35 +298,41 @@ export default function TrainingList() {
 
                     <div className="border-b border-border">
                       <button
-                        onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen(false); setHelpDeviceLockOpen(false); setHelpLostCodeOpen(false); }}
+                        onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
                         className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                       >
                         <span>Admin Support</span>
+                        <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpAdminOpen ? "rotate-180" : ""}`} />
                       </button>
-                      <div className="px-3 pb-2">
-                        <a
-                          href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
-                          className="text-primary font-bold hover:underline text-[10px]"
-                        >
-                          Help Me!
-                        </a>
-                      </div>
+                      {helpAdminOpen && (
+                        <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                          Any issues please contact admin support{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
+                        </div>
+                      )}
                     </div>
 
                     <div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen(false); setHelpDeviceLockOpen(false); setHelpLostCodeOpen(false); }}
+                        onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
                         className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                       >
                         <span>Why Is My Email On Screen?</span>
+                        <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpWatermarkOpen ? "rotate-180" : ""}`} />
                       </button>
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
-                      </div>
+                      {helpWatermarkOpen && (
+                        <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                          Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
+              <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
+                onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
+                <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
+              </Button>
             </div>
             <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
