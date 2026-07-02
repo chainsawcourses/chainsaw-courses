@@ -276,26 +276,25 @@ export default function TrainingList() {
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center gap-3 py-1">
-              <div className="w-1 h-6 bg-primary shrink-0" />
-              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Overview</h2>
-            </div>
-
-            {/* Signed Waiver — always accessible; user cannot reach this page without signing */}
+            {/* Your Signed Waiver — always accessible; user cannot reach this page without signing */}
             <div>
               <a
                 href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+                className="w-full flex items-center gap-2 py-2 text-left group"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
                 <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                  Signed Waiver
+                  Your Signed Waiver
                 </h3>
                 <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-                <div className="flex-1 h-px bg-border" />
               </a>
+            </div>
+
+            <div className="flex items-center gap-3 py-1">
+              <div className="w-1 h-6 bg-primary shrink-0" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Overview</h2>
             </div>
 
             {/* Disclaimer & Copyright — collapsible, text from Firebase Remote Config */}
@@ -306,14 +305,10 @@ export default function TrainingList() {
                   className="w-full flex items-center gap-2 py-2 text-left group ml-4"
                 >
                   <div className="w-3 h-px bg-border shrink-0" />
-                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground flex-1">
+                  <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
                     Disclaimer & Copyright
                   </h3>
-                  <div className="flex-1 h-px bg-border" />
-                  {disclaimerOpen
-                    ? <ChevronDown className="w-3.5 h-3.5 text-primary shrink-0" />
-                    : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-                  }
+                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${disclaimerOpen ? "rotate-180 text-primary" : ""}`} />
                 </button>
                 {disclaimerOpen && (
                   <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
@@ -339,7 +334,6 @@ export default function TrainingList() {
                     How to Use This E-Learning Course
                   </h3>
                   <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${howToUseOpen ? "rotate-180 text-primary" : ""}`} />
-                  <div className="flex-1 h-px bg-border" />
                 </button>
                 {howToUseOpen && (
                   <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
@@ -364,7 +358,6 @@ export default function TrainingList() {
                   NPTC Resources
                 </h3>
                 <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
-                <div className="flex-1 h-px bg-border" />
               </button>
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
@@ -409,7 +402,6 @@ export default function TrainingList() {
                   Tools & Equipment Needed
                 </h3>
                 <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${equipmentOpen ? "rotate-180 text-primary" : ""}`} />
-                <div className="flex-1 h-px bg-border" />
               </button>
 
               {equipmentOpen && (
