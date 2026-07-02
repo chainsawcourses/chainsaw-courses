@@ -348,9 +348,9 @@ export default function TrainingList() {
               className="text-muted-foreground hover:text-primary"
               title="Your Signed Waiver"
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-5 h-5" />
             </a>
-            <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
+            <span className="text-sm sm:text-base leading-tight truncate max-w-[160px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
       </header>
