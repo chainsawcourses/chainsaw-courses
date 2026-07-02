@@ -21,6 +21,7 @@ export default function TrainingList() {
     localStorage.getItem("equipment-acknowledged") === "true"
   );
   const equipmentScrollRef = useRef<HTMLDivElement>(null);
+  const activeTriggerRef = useRef<HTMLElement | null>(null);
   const [hazardsOpen, setHazardsOpen] = useState(false);
   const [hazardsViewed, setHazardsViewed] = useState(() =>
     localStorage.getItem("hazards-viewed") === "true"
@@ -117,7 +118,14 @@ export default function TrainingList() {
     // 400ms delay — Android fires a synthetic click shortly after a touch,
     // so we wait long enough for it to pass before attaching the listener.
     const timer = setTimeout(() => {
-      handler = closeAllDropdowns;
+      handler = () => {
+        closeAllDropdowns();
+        // Scroll back to the trigger that opened the dropdown
+        setTimeout(() => {
+          activeTriggerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          activeTriggerRef.current = null;
+        }, 50);
+      };
       document.addEventListener("click", handler);
     }, 400);
     return () => {
@@ -221,6 +229,7 @@ export default function TrainingList() {
           {/* Left — logo + brand dropdown */}
           <div className="relative">
             <button
+              ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
               className="flex items-center gap-2 group"
             >
@@ -406,6 +415,7 @@ export default function TrainingList() {
             {disclaimerText && (
               <div>
                 <button
+                  ref={(el) => { if (el) activeTriggerRef.current = el; }}
                   onClick={(e) => { e.stopPropagation(); setDisclaimerOpen((o) => !o); }}
                   className="w-full flex items-center gap-2 py-2 text-left group ml-4"
                 >
@@ -431,6 +441,7 @@ export default function TrainingList() {
             {!howToUseLoading && howToUseText && (
               <div>
                 <button
+                  ref={(el) => { if (el) activeTriggerRef.current = el; }}
                   onClick={(e) => { e.stopPropagation(); setHowToUseOpen((o) => !o); }}
                   className="w-full flex items-center gap-2 py-2 text-left group ml-4"
                 >
@@ -455,6 +466,7 @@ export default function TrainingList() {
             {/* NPTC Resources — collapsible, all 3 links */}
             <div>
               <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
                 onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
@@ -499,6 +511,7 @@ export default function TrainingList() {
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Overview */}
             <div>
               <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
                 onClick={(e) => { e.stopPropagation(); setEquipmentOpen((o) => !o); }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
