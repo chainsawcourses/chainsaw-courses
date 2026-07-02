@@ -331,14 +331,26 @@ export default function TrainingList() {
           {/* Centre — empty */}
           <div />
 
-          {/* Right — logout + username */}
+          {/* Right — waiver + logout + username */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
-            <button
-              className="flex items-center gap-0.5 font-mono text-muted-foreground hover:text-destructive uppercase tracking-wider px-0 py-0 h-auto bg-transparent border-none cursor-pointer"
-              style={{fontSize: "0.6rem"}}
-              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-              <LogOut className="w-2.5 h-2.5" /> LOG OUT
-            </button>
+            <div className="flex items-center gap-2">
+              <a
+                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-0.5 font-mono text-muted-foreground hover:text-primary uppercase tracking-wider"
+                style={{fontSize: "0.6rem"}}
+                title="Your Signed Waiver"
+              >
+                <FileText className="w-3 h-3" />
+              </a>
+              <button
+                className="flex items-center gap-0.5 font-mono text-muted-foreground hover:text-destructive uppercase tracking-wider px-0 py-0 h-auto bg-transparent border-none cursor-pointer"
+                style={{fontSize: "0.6rem"}}
+                onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
+                <LogOut className="w-2.5 h-2.5" /> LOG OUT
+              </button>
+            </div>
             <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
@@ -390,22 +402,6 @@ export default function TrainingList() {
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (
           <div className="space-y-2">
-            {/* Your Signed Waiver — always accessible; user cannot reach this page without signing */}
-            <div>
-              <a
-                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 py-2 text-left group"
-              >
-                <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                  Your Signed Waiver
-                </h3>
-                <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
-              </a>
-            </div>
-
             <div className="flex items-center gap-3 py-1">
               <div className="w-1 h-6 bg-primary shrink-0" />
               <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Overview</h2>
