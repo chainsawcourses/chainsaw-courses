@@ -28,7 +28,7 @@ export default function TrainingList() {
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
   const [nptcOpen, setNptcOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
+  const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
   const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
   const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
@@ -95,7 +95,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || helpOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpLostCodeOpen || helpAdminOpen || helpWatermarkOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpLostCodeOpen || helpAdminOpen || helpWatermarkOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -103,7 +103,7 @@ export default function TrainingList() {
     setDisclaimerOpen(false);
     setHowToUseOpen(false);
     setNptcOpen(false);
-    setHelpOpen(false);
+    setBrandMenuOpen(false);
     setHelpHowItWorksOpen(false);
     setHelpDeviceLockOpen(false);
     setHelpLostCodeOpen(false);
@@ -218,122 +218,117 @@ export default function TrainingList() {
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 grid grid-cols-3 items-center">
-          {/* Left — logo + brand */}
-          <div className="flex items-center gap-2">
-            <img
-              src={`${import.meta.env.BASE_URL}logo.png`}
-              alt="Chainsaw Courses"
-              className="h-7 w-auto object-contain"
-            />
-            <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
+          {/* Left — logo + brand dropdown */}
+          <div className="relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
+              className="flex items-center gap-2 group"
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="Chainsaw Courses"
+                className="h-7 w-auto object-contain"
+              />
+              <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
+              <ChevronDown className={`w-3 h-3 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {brandMenuOpen && (
+              <div
+                className="absolute top-full left-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="border-b border-border">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <span>How It Works</span>
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {helpHowItWorksOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-b border-border">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <span>Device Lock</span>
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {helpDeviceLockOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset? Contact admin{" "}
+                      <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">here</a>.
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-b border-border">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <span>Why Is My Email On Screen?</span>
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpWatermarkOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {helpWatermarkOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-b border-border">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <span>Lost Your Code?</span>
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {helpLostCodeOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      If you’ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can’t find it?{" "}
+                      <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we’ll locate it for you.
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <span>Admin Support</span>
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpAdminOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {helpAdminOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Any issues please contact admin support{" "}
+                      <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Centre — empty */}
           <div />
 
-          {/* Right — help + logout + username */}
-          <div className="flex items-center gap-3 font-mono text-muted-foreground uppercase tracking-wider">
-            <div className="relative">
-              <button
-                onClick={(e) => { e.stopPropagation(); setHelpOpen((o) => !o); }}
-                className="font-mono font-black text-primary hover:text-primary flex items-center leading-none py-1 h-auto px-0 uppercase"
-                style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}
-              >
-                <span className="flex items-center gap-0.5">HELP &amp; FAQ <ChevronDown className={`w-2.5 h-2.5 transition-all ${helpOpen ? "rotate-180" : ""}`} /></span>
-              </button>
-
-              {helpOpen && (
-                <div
-                  className="absolute top-full right-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="border-b border-border">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                      className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <span>How It Works</span>
-                      <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {helpHowItWorksOpen && (
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-b border-border">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
-                      className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <span>Device Lock</span>
-                      <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {helpDeviceLockOpen && (
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset? Contact admin{" "}
-                        <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">here</a>.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-b border-border">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
-                      className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <span>Why Is My Email On Screen?</span>
-                      <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpWatermarkOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {helpWatermarkOpen && (
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-b border-border">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
-                      className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <span>Lost Your Code?</span>
-                      <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {helpLostCodeOpen && (
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        If you’ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can’t find it?{" "}
-                        <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we’ll locate it for you.
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
-                      className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <span>Admin Support</span>
-                      <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpAdminOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {helpAdminOpen && (
-                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                        Any issues please contact admin support{" "}
-                        <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col items-end gap-0.5">
-              <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
-                onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-                <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
-              </Button>
-              <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
-            </div>
+          {/* Right — logout + username */}
+          <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
+            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
+              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
+              <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
+            </Button>
+            <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
       </header>
