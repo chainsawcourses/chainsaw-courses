@@ -214,49 +214,8 @@ export default function TrainingList() {
             <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
 
-          {/* Centre — NPTC Resources */}
-          <div className="flex justify-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0" style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}>
-                  <span>NPTC</span>
-                  <span className="flex items-center gap-0.5">RESOURCES <ChevronDown className="w-2.5 h-2.5" /></span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="font-mono text-xs min-w-[210px]">
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
-                  >
-                    NPTC Course Overview
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
-                  >
-                    Qualification Handbook
-                  </a>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <a
-                    href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
-                  >
-                    Assessment Schedule
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {/* Centre — empty */}
+          <div />
 
           {/* Right — operator + logout */}
           <div className="flex flex-col items-end sm:flex-row sm:items-center gap-0.5 sm:gap-3 font-mono text-muted-foreground uppercase tracking-wider justify-end">
@@ -317,7 +276,7 @@ export default function TrainingList() {
           <div className="space-y-2">
             <div className="flex items-center gap-3 py-1">
               <div className="w-1 h-6 bg-primary shrink-0" />
-              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Requirements</h2>
+              <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Overview</h2>
             </div>
 
             {/* Signed Waiver — always accessible; user cannot reach this page without signing */}
@@ -392,7 +351,24 @@ export default function TrainingList() {
               </div>
             )}
 
-            {/* Tools & Equipment Needed — collapsible sub-heading under Course Requirements */}
+            {/* NPTC Links — under Course Overview */}
+            <div>
+              <a
+                href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  NPTC Resources
+                </h3>
+                <FileText className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 transition-colors" />
+                <div className="flex-1 h-px bg-border" />
+              </a>
+            </div>
+
+            {/* Tools & Equipment Needed — collapsible sub-heading under Course Overview */}
             <div>
               <button
                 onClick={(e) => { e.stopPropagation(); setEquipmentOpen((o) => !o); }}
