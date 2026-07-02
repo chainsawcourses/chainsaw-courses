@@ -224,70 +224,74 @@ export default function TrainingList() {
             <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
 
-          {/* Centre — Help dropdown */}
-          <div className="flex justify-center">
-            <DropdownMenu open={helpOpen} onOpenChange={setHelpOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0" style={{fontSize: "0.65rem", letterSpacing: "0.08em"}}>
-                  <span className="flex items-center gap-0.5">HELP <ChevronDown className="w-2.5 h-2.5" /></span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="font-mono text-xs min-w-[260px]">
-                <DropdownMenuItem asChild>
+          {/* Centre — Help & FAQ custom dropdown */}
+          <div className="relative flex justify-center">
+            <button
+              onClick={(e) => { e.stopPropagation(); setHelpOpen((o) => !o); }}
+              className="font-mono font-black text-primary hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0 uppercase"
+              style={{fontSize: "0.65rem", letterSpacing: "0.08em"}}
+            >
+              <span className="flex items-center gap-0.5">HELP &amp; FAQ <ChevronDown className={`w-2.5 h-2.5 transition-all ${helpOpen ? "rotate-180" : ""}`} /></span>
+            </button>
+
+            {helpOpen && (
+              <div
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>How It Works</span>
-                    <ChevronDown className={`w-3 h-3 transition-all ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
                   </button>
-                </DropdownMenuItem>
-                {helpHowItWorksOpen && (
-                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                    Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
-                  </div>
-                )}
+                  {helpHowItWorksOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                    </div>
+                  )}
+                </div>
 
-                <DropdownMenuItem asChild>
+                <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>Device Lock</span>
-                    <ChevronDown className={`w-3 h-3 transition-all ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
                   </button>
-                </DropdownMenuItem>
-                {helpDeviceLockOpen && (
-                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                    Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Contact admin if you need a reset.
-                  </div>
-                )}
+                  {helpDeviceLockOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Contact admin if you need a reset.
+                    </div>
+                  )}
+                </div>
 
-                <DropdownMenuItem asChild>
+                <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>Lost Your Code?</span>
-                    <ChevronDown className={`w-3 h-3 transition-all ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
                   </button>
-                </DropdownMenuItem>
-                {helpLostCodeOpen && (
-                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                    If you’ve lost your activation code, check your original purchase email from Shopify. If you still can’t find it, email us and we’ll locate it for you.
-                  </div>
-                )}
+                  {helpLostCodeOpen && (
+                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                      If you’ve lost your activation code, check your original purchase email from Shopify. If you still can’t find it, email us and we’ll locate it for you.
+                    </div>
+                  )}
+                </div>
 
-                <DropdownMenuItem asChild>
-                  <a
-                    href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
-                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
-                  >
-                    Admin Support
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <a
+                  href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
+                  className="block px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                  Admin Support
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Right — operator + logout */}
