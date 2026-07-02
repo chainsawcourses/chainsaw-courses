@@ -226,21 +226,30 @@ export default function TrainingList() {
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 grid grid-cols-3 items-center">
-          {/* Left — logo + brand dropdown */}
-          <div className="relative">
+          {/* Left — brand dropdown + logo + community */}
+          <div className="relative flex items-center gap-2">
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-1 group"
             >
-              <img
-                src={`${import.meta.env.BASE_URL}logo.png`}
-                alt="Chainsaw Courses"
-                className="h-7 w-auto object-contain"
-              />
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
               <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="Chainsaw Courses"
+              className="h-7 w-auto object-contain"
+            />
+            <a
+              href="https://chainsawcourses.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary"
+              title="Community"
+            >
+              <Users className="w-5 h-5" />
+            </a>
 
             {brandMenuOpen && (
               <div
@@ -341,26 +350,15 @@ export default function TrainingList() {
 
           {/* Right — waiver icon + username stacked */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
-            <div className="flex items-center gap-2">
-              <a
-                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary"
-                title="Your Signed Waiver"
-              >
-                <FileText className="w-5 h-5" />
-              </a>
-              <a
-                href="https://chainsawcourses.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary"
-                title="Community"
-              >
-                <Users className="w-5 h-5" />
-              </a>
-            </div>
+            <a
+              href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary"
+              title="Your Signed Waiver"
+            >
+              <FileText className="w-5 h-5" />
+            </a>
             <span className="text-sm sm:text-base leading-tight truncate max-w-[160px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
