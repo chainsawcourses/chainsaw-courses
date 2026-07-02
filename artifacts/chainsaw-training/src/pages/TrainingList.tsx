@@ -234,13 +234,13 @@ export default function TrainingList() {
               className="flex items-center gap-1 group"
             >
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="Chainsaw Courses"
+                className="h-6 w-auto object-contain"
+              />
               <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
-            <img
-              src={`${import.meta.env.BASE_URL}logo.png`}
-              alt="Chainsaw Courses"
-              className="h-7 w-auto object-contain"
-            />
             <a
               href="https://chainsawcourses.com"
               target="_blank"
