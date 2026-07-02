@@ -229,8 +229,8 @@ export default function TrainingList() {
                 alt="Chainsaw Courses"
                 className="h-7 w-auto object-contain"
               />
-              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
-              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <span className="font-black tracking-tighter text-sm uppercase text-black group-hover:opacity-80 transition-opacity">Chainsaw Courses</span>
+              <ChevronDown className={`w-4 h-4 text-black transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
