@@ -224,83 +224,111 @@ export default function TrainingList() {
             <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
 
-          {/* Centre — Help & FAQ custom dropdown */}
-          <div className="relative flex justify-center">
-            <button
-              onClick={(e) => { e.stopPropagation(); setHelpOpen((o) => !o); }}
-              className="font-mono font-black text-primary hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0 uppercase"
-              style={{fontSize: "0.65rem", letterSpacing: "0.08em"}}
-            >
-              <span className="flex items-center gap-0.5">HELP &amp; FAQ <ChevronDown className={`w-2.5 h-2.5 transition-all ${helpOpen ? "rotate-180" : ""}`} /></span>
-            </button>
+          {/* Centre — empty */}
+          <div />
 
-            {helpOpen && (
-              <div
-                className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>How It Works</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpHowItWorksOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Device Lock</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpDeviceLockOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Contact admin if you need a reset.
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Lost Your Code?</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpLostCodeOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      If you’ve lost your activation code, check your original purchase email from Shopify. If you still can’t find it, email us and we’ll locate it for you.
-                    </div>
-                  )}
-                </div>
-
-                <a
-                  href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
-                  className="block px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+          {/* Right — operator + logout + help */}
+          <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
+                onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
+                <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
+              </Button>
+              <div className="relative">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setHelpOpen((o) => !o); }}
+                  className="font-mono font-black text-primary hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0 uppercase"
+                  style={{fontSize: "0.6rem", letterSpacing: "0.08em"}}
                 >
-                  Admin Support
-                </a>
-              </div>
-            )}
-          </div>
+                  <span>HELP</span>
+                  <span className="flex items-center gap-0.5">FAQ <ChevronDown className={`w-2.5 h-2.5 transition-all ${helpOpen ? "rotate-180" : ""}`} /></span>
+                </button>
 
-          {/* Right — operator + logout */}
-          <div className="flex flex-col items-end sm:flex-row sm:items-center gap-0.5 sm:gap-3 font-mono text-muted-foreground uppercase tracking-wider justify-end">
-            <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[110px] sm:max-w-none">{fullName}</span>
-            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
-              onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-              <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
-            </Button>
+                {helpOpen && (
+                  <div
+                    className="absolute top-full right-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="border-b border-border">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
+                        className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>How It Works</span>
+                        <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {helpHowItWorksOpen && (
+                        <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                          Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-b border-border">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
+                        className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>Device Lock</span>
+                        <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {helpDeviceLockOpen && (
+                        <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                          Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset? Contact admin{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">here</a>.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-b border-border">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
+                        className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>Lost Your Code?</span>
+                        <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {helpLostCodeOpen && (
+                        <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                          If you’ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can’t find it?{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we’ll locate it for you.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-b border-border">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen(false); setHelpDeviceLockOpen(false); setHelpLostCodeOpen(false); }}
+                        className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>Admin Support</span>
+                      </button>
+                      <div className="px-3 pb-2">
+                        <a
+                          href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
+                          className="text-primary font-bold hover:underline text-[10px]"
+                        >
+                          Help Me!
+                        </a>
+                      </div>
+                    </div>
+
+                    <div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen(false); setHelpDeviceLockOpen(false); setHelpLostCodeOpen(false); }}
+                        className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                      >
+                        <span>Why Is My Email On Screen?</span>
+                      </button>
+                      <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                        Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
       </header>
