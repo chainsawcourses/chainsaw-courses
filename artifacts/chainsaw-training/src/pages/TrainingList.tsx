@@ -229,8 +229,8 @@ export default function TrainingList() {
                 alt="Chainsaw Courses"
                 className="h-7 w-auto object-contain"
               />
-              <span className="font-black tracking-tighter text-sm uppercase text-black group-hover:opacity-80 transition-opacity">Chainsaw Courses</span>
-              <ChevronDown className={`w-4 h-4 text-black transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
@@ -324,10 +324,12 @@ export default function TrainingList() {
 
           {/* Right — logout + username */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
-            <Button variant="ghost" size="sm" className="font-mono text-muted-foreground hover:text-destructive px-1.5 h-5 sm:h-auto" style={{fontSize: "0.6rem"}}
+            <button
+              className="flex items-center gap-0.5 font-mono text-muted-foreground hover:text-destructive uppercase tracking-wider px-0 py-0 h-auto bg-transparent border-none cursor-pointer"
+              style={{fontSize: "0.6rem"}}
               onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-              <LogOut className="w-2.5 h-2.5 mr-0.5" /> LOG OUT
-            </Button>
+              <LogOut className="w-2.5 h-2.5" /> LOG OUT
+            </button>
             <span className="text-[11px] sm:text-sm leading-tight truncate max-w-[140px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
