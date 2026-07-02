@@ -28,6 +28,10 @@ export default function TrainingList() {
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
   const [nptcOpen, setNptcOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
+  const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
+  const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
@@ -89,7 +93,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || helpOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -97,6 +101,10 @@ export default function TrainingList() {
     setDisclaimerOpen(false);
     setHowToUseOpen(false);
     setNptcOpen(false);
+    setHelpOpen(false);
+    setHelpHowItWorksOpen(false);
+    setHelpDeviceLockOpen(false);
+    setHelpLostCodeOpen(false);
   }, []);
 
   useEffect(() => {
@@ -216,8 +224,71 @@ export default function TrainingList() {
             <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Chainsaw Courses</span>
           </div>
 
-          {/* Centre — empty */}
-          <div />
+          {/* Centre — Help dropdown */}
+          <div className="flex justify-center">
+            <DropdownMenu open={helpOpen} onOpenChange={setHelpOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="font-mono font-black text-primary hover:bg-transparent hover:text-primary flex flex-col items-center leading-none py-1 h-auto px-0" style={{fontSize: "0.65rem", letterSpacing: "0.08em"}}>
+                  <span className="flex items-center gap-0.5">HELP <ChevronDown className="w-2.5 h-2.5" /></span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="font-mono text-xs min-w-[260px]">
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                  >
+                    <span>How It Works</span>
+                    <ChevronDown className={`w-3 h-3 transition-all ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
+                  </button>
+                </DropdownMenuItem>
+                {helpHowItWorksOpen && (
+                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                    Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                  </div>
+                )}
+
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                  >
+                    <span>Device Lock</span>
+                    <ChevronDown className={`w-3 h-3 transition-all ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                  </button>
+                </DropdownMenuItem>
+                {helpDeviceLockOpen && (
+                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                    Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Contact admin if you need a reset.
+                  </div>
+                )}
+
+                <DropdownMenuItem asChild>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full flex items-center justify-between"
+                  >
+                    <span>Lost Your Code?</span>
+                    <ChevronDown className={`w-3 h-3 transition-all ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                  </button>
+                </DropdownMenuItem>
+                {helpLostCodeOpen && (
+                  <div className="px-2 pb-2 text-[10px] text-muted-foreground leading-relaxed">
+                    If you’ve lost your activation code, check your original purchase email from Shopify. If you still can’t find it, email us and we’ll locate it for you.
+                  </div>
+                )}
+
+                <DropdownMenuItem asChild>
+                  <a
+                    href="mailto:info@chainsawcourses.com?subject=Help%20Me!"
+                    className="uppercase tracking-widest font-bold cursor-pointer text-left w-full"
+                  >
+                    Admin Support
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           {/* Right — operator + logout */}
           <div className="flex flex-col items-end sm:flex-row sm:items-center gap-0.5 sm:gap-3 font-mono text-muted-foreground uppercase tracking-wider justify-end">
