@@ -91,9 +91,9 @@ export default function Activation() {
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-3 mb-2">
             <img
-              src={`${import.meta.env.BASE_URL}logo.png`}
+              src={`${import.meta.env.BASE_URL}logo.png?v=4`}
               alt="Chainsaw Courses"
-              className="h-16 w-auto object-contain"
+              className="h-32 w-auto object-contain"
             />
             <h1 className="text-3xl font-black tracking-tighter text-primary uppercase leading-none">
               Chainsaw Courses

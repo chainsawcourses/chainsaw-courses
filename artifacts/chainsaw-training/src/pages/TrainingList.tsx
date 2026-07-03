@@ -225,7 +225,7 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 grid grid-cols-3 items-center">
+        <div className="max-w-5xl mx-auto px-4 h-32 grid grid-cols-3 items-center">
           {/* Left — brand dropdown + logo + community */}
           <div className="relative flex items-center gap-2">
             <button
@@ -236,9 +236,9 @@ export default function TrainingList() {
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
               <div className="flex flex-col items-center">
                 <img
-                  src={`${import.meta.env.BASE_URL}logo.png?v=2`}
+                  src={`${import.meta.env.BASE_URL}logo.png?v=4`}
                   alt="Chainsaw Courses"
-                  className="h-14 w-auto object-contain"
+                  className="h-32 w-auto object-contain"
                 />
                 <ChevronDown className={`w-6 h-6 -mt-3 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
               </div>
@@ -247,10 +247,10 @@ export default function TrainingList() {
               href="https://chainsawcourses.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary ml-2"
+              className="text-muted-foreground hover:text-primary ml-4"
               title="Community"
             >
-              <Users className="w-5 h-5" />
+              <Users className="w-6 h-6" />
             </a>
 
             {brandMenuOpen && (
