@@ -225,32 +225,32 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-24 grid grid-cols-3 items-center">
+        <div className="max-w-5xl mx-auto px-4 h-20 grid grid-cols-3 items-center">
           {/* Left — brand dropdown + logo + community */}
           <div className="relative flex items-center gap-2">
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex items-start gap-2 group"
+              className="flex items-center gap-2 group"
             >
-              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors pt-1">Chainsaw Courses</span>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
+              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
+              <div className="flex flex-col items-center">
                 <img
-                  src={`${import.meta.env.BASE_URL}logo.png?v=6`}
+                  src={`${import.meta.env.BASE_URL}logo.png?v=7`}
                   alt="Chainsaw Courses"
-                  style={{ height: "100px", width: "auto", objectFit: "contain", display: "block" }}
+                  className="h-10 w-auto object-contain"
                 />
-                <ChevronDown className={`w-6 h-6 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} style={{ marginTop: "-14px", display: "block" }} />
+                <ChevronDown className={`w-4 h-4 -mt-1 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
               </div>
             </button>
             <a
               href="https://chainsawcourses.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary ml-4"
+              className="text-muted-foreground hover:text-primary ml-3"
               title="Community"
             >
-              <Users className="w-6 h-6" />
+              <Users className="w-5 h-5" />
             </a>
 
             {brandMenuOpen && (
