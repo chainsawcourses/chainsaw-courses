@@ -222,10 +222,11 @@ export default function TrainingList() {
     );
   }
 
+  // HEADER V11 - logo h-16, chevron tight
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-20 grid grid-cols-3 items-center">
+        <div className="max-w-5xl mx-auto px-4 h-24 grid grid-cols-3 items-center">
           {/* Left — brand dropdown + logo + community */}
           <div className="relative flex items-center gap-2">
             <button
@@ -234,13 +235,13 @@ export default function TrainingList() {
               className="flex items-center gap-2 group"
             >
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center border-2 border-red-500">
                 <img
-                  src={`${import.meta.env.BASE_URL}logo.png?v=7`}
+                  src={`${import.meta.env.BASE_URL}logo.png?v=12`}
                   alt="Chainsaw Courses"
-                  className="h-12 w-auto object-contain"
+                  style={{ height: "80px", width: "auto", display: "block" }}
                 />
-                <ChevronDown className={`w-4 h-4 -mt-2 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} style={{ width: "24px", height: "24px", marginTop: "-16px", display: "block" }} />
               </div>
             </button>
             <a

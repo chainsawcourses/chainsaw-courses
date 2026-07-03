@@ -66,6 +66,11 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    },
   },
   preview: {
     port,
