@@ -238,9 +238,9 @@ export default function TrainingList() {
                 <img
                   src={`${import.meta.env.BASE_URL}logo.png?v=7`}
                   alt="Chainsaw Courses"
-                  className="h-10 w-auto object-contain"
+                  className="h-12 w-auto object-contain"
                 />
-                <ChevronDown className={`w-4 h-4 -mt-1 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 -mt-2 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
               </div>
             </button>
             <a
