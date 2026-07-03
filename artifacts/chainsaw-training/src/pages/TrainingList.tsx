@@ -231,15 +231,17 @@ export default function TrainingList() {
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex items-center gap-1 group"
+              className="flex items-center gap-2 group"
             >
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
-              <img
-                src={`${import.meta.env.BASE_URL}logo.png`}
-                alt="Chainsaw Courses"
-                className="h-6 w-auto object-contain"
-              />
-              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <div className="flex flex-col items-center -mt-1">
+                <img
+                  src={`${import.meta.env.BASE_URL}logo.png`}
+                  alt="Chainsaw Courses"
+                  className="h-7 w-auto object-contain"
+                />
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              </div>
             </button>
             <a
               href="https://chainsawcourses.com"
