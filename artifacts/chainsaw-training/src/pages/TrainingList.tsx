@@ -225,22 +225,22 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-32 grid grid-cols-3 items-center">
+        <div className="max-w-5xl mx-auto px-4 h-24 grid grid-cols-3 items-center">
           {/* Left — brand dropdown + logo + community */}
           <div className="relative flex items-center gap-2">
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex items-center gap-2 group"
+              className="flex items-start gap-2 group"
             >
-              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
-              <div className="flex flex-col items-center">
+              <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors pt-1">Chainsaw Courses</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
                 <img
-                  src={`${import.meta.env.BASE_URL}logo.png?v=4`}
+                  src={`${import.meta.env.BASE_URL}logo.png?v=6`}
                   alt="Chainsaw Courses"
-                  className="h-32 w-auto object-contain"
+                  style={{ height: "100px", width: "auto", objectFit: "contain", display: "block" }}
                 />
-                <ChevronDown className={`w-6 h-6 -mt-3 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-6 h-6 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} style={{ marginTop: "-14px", display: "block" }} />
               </div>
             </button>
             <a
