@@ -234,15 +234,13 @@ export default function TrainingList() {
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
               className="flex items-center gap-2 group"
             >
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png?v=16`}
+                alt="Chainsaw Courses"
+                className="h-5 w-auto object-contain"
+              />
               <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw Courses</span>
-              <div className="flex flex-col items-center">
-                <img
-                  src={`${import.meta.env.BASE_URL}logo.png?v=15`}
-                  alt="Chainsaw Courses"
-                  className="h-12 w-auto object-contain"
-                />
-                <ChevronDown className={`w-4 h-4 -mt-1 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
-              </div>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
             <a
               href="https://chainsawcourses.com"
