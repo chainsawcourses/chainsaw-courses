@@ -431,7 +431,7 @@ export default function TrainingList() {
                   <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${disclaimerOpen ? "rotate-180 text-primary" : ""}`} />
                 </button>
                 {disclaimerOpen && (
-                  <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
+                  <Card className="border-border bg-card/60 mt-1">
                     <CardContent className="p-4">
                       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {disclaimerText}
@@ -457,7 +457,7 @@ export default function TrainingList() {
                   <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${howToUseOpen ? "rotate-180 text-primary" : ""}`} />
                 </button>
                 {howToUseOpen && (
-                  <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
+                  <Card className="border-border bg-card/60 mt-1">
                     <CardContent className="p-4">
                       <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {howToUseText}
@@ -482,7 +482,7 @@ export default function TrainingList() {
                 <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
               </button>
               {nptcOpen && (
-                <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
+                <Card className="border-border bg-card/60 mt-1">
                   <CardContent className="p-4 space-y-2 font-mono text-xs text-muted-foreground">
                     <a
                       href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
@@ -528,7 +528,7 @@ export default function TrainingList() {
               </button>
 
               {equipmentOpen && (
-                <Card className="border-border bg-card/60 mt-1" onClick={(e) => e.stopPropagation()}>
+                <Card className="border-border bg-card/60 mt-1">
                   {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
                   <div
                     ref={equipmentScrollRef}
