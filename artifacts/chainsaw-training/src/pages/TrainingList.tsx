@@ -251,7 +251,7 @@ export default function TrainingList() {
               href="https://chainsawcourses.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary ml-8"
+              className="text-muted-foreground hover:text-primary ml-12"
               title="Community"
             >
               <Users className="w-5 h-5" />
