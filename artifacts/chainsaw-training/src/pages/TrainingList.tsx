@@ -120,9 +120,9 @@ export default function TrainingList() {
     const timer = setTimeout(() => {
       handler = () => {
         closeAllDropdowns();
-        // Scroll back to the trigger that opened the dropdown
+        // Scroll back to top of the page
         setTimeout(() => {
-          activeTriggerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          window.scrollTo({ top: 0, behavior: "smooth" });
           activeTriggerRef.current = null;
         }, 50);
       };
