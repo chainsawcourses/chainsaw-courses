@@ -380,12 +380,6 @@ export default function TrainingList() {
           </h1>
         </div>
 
-        {/* Course Overview heading */}
-        <div className="flex items-center gap-3 py-1">
-          <div className="w-1 h-6 bg-primary shrink-0" />
-          <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">Course Overview</h2>
-        </div>
-
         {/* Modules / Quizzes / Status + Progress */}
         <Card className="bg-card/60 border-border">
           <CardContent className="p-4 space-y-3">
