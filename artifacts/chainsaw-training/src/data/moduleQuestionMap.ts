@@ -11,6 +11,7 @@ export const MODULE_QUESTION_MAP: Record<number, number[]> = {
   11: [2, 3, 4],                             // Hazards & Risks
   12: [5],                                   // Emergency Planning Information
   13: [6, 7, 8],                             // Law & Legislation
+  44: [],                                    // Important Acts and Legislation Guide (PDF)
   14: [9, 10, 11],                           // Chainsaw Safety Features
   40: [12, 13, 14],                          // Battery Chainsaws
   15: [16, 17, 18],                          // Air Filter (Q15 is a physical action — excluded)
