@@ -130,7 +130,7 @@ router.post("/auth/activate", async (req, res) => {
     });
 
     if ("error" in result) {
-      res.status(result.status).json({ error: result.error });
+      res.status(result.status as number).json({ error: result.error });
       return;
     }
 

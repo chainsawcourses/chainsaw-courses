@@ -5,6 +5,7 @@ import { SendAiMessageBody } from "@workspace/api-zod";
 import { eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { getManualText } from "../lib/manual";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -61,6 +62,15 @@ EXAMINATION RULES:
 Format each question you ask exactly like this:
 QUESTION [N] OF ${EXAM_QUESTIONS.length}: [question text]`;
 
+function buildSystemPrompt(): string {
+  const manual = getManualText();
+  if (!manual) return CHAINSAW_SYSTEM_PROMPT;
+  // Truncate if extremely long to stay within token limits
+  const trimmedManual =
+    manual.length > 120000 ? manual.slice(0, 120000) + "\n...[truncated]" : manual;
+  return `${CHAINSAW_SYSTEM_PROMPT}\n\n---\n\nREFERENCE MATERIAL (your internal knowledge — do NOT quote passages to the candidate):\n${trimmedManual}`;
+}
+
 function getGeminiClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -109,7 +119,7 @@ router.post("/ai/chat", async (req, res) => {
         model: "gemini-2.0-flash",
         contents,
         config: {
-          systemInstruction: CHAINSAW_SYSTEM_PROMPT,
+          systemInstruction: buildSystemPrompt(),
           maxOutputTokens: 8192,
         },
       });
@@ -164,10 +174,15 @@ router.post("/ai/grade-answer", async (req, res) => {
     .map((kp: { keywords: string[] }, i: number) => `${i + 1}. Concepts: ${kp.keywords.slice(0, 6).join(", ")}`)
     .join("\n");
 
+  const manual = getManualText();
+  const manualSection = manual
+    ? `\n\nREFERENCE MATERIAL (your internal knowledge — do NOT quote passages):\n${manual.length > 60000 ? manual.slice(0, 60000) + "\n...[truncated]" : manual}`
+    : "";
+
   const gradingPrompt = `You are an NPTC chainsaw safety examiner grading a student's spoken answer.
 
 Question: "${promptText}"
-Student's answer: "${transcript}"
+Student's answer: "${transcript}"${manualSection}
 
 Decide whether the student's answer covers each key concept below.
 Be GENEROUS — accept synonyms, paraphrasing, colloquial phrasing, and partial answers that show genuine understanding.
