@@ -3,7 +3,8 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown, AlertTriangle, Globe, Lock } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +28,7 @@ interface ModuleVideo {
   saving: boolean;
   saved: boolean;
   previewOpen: boolean;
+  isPublic: boolean;
 }
 
 function extractVimeoId(input: string): string {
@@ -71,13 +73,18 @@ export default function VideoSettings() {
         setModules(
           data
             .filter((m) => (m as { contentType?: string }).contentType !== "pdf")
-            .map((m) => ({
-              ...m,
-              inputValue: m.vimeoId === PLACEHOLDER_ID ? "" : m.vimeoId,
-              saving: false,
-              saved: false,
-              previewOpen: false,
-            }))
+            .map((m) => {
+              const vimeoId = m.vimeoId === PLACEHOLDER_ID ? "" : m.vimeoId;
+              const hasHash = vimeoId.includes("/");
+              return {
+                ...m,
+                inputValue: vimeoId,
+                saving: false,
+                saved: false,
+                previewOpen: false,
+                isPublic: !hasHash && !!vimeoId,
+              };
+            })
         );
         setLoading(false);
       })
@@ -137,7 +144,19 @@ export default function VideoSettings() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-4">
-        <div className="mb-6 space-y-2">
+        <div className="mb-6 space-y-3">
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-500/30 bg-amber-500/10">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-mono font-semibold text-amber-500">SECURITY SETUP REQUIRED</p>
+              <p className="text-muted-foreground text-xs font-mono">
+                Your videos should be set to <strong className="text-foreground">"Hide from Vimeo"</strong> with <strong className="text-foreground">domain restrictions</strong> so they only play inside your app.
+              </p>
+              <p className="text-muted-foreground text-xs font-mono">
+                In Vimeo: open each video → Privacy → <strong>"Hide from Vimeo"</strong> → <strong>"Only on sites I choose"</strong> → add your app domain (e.g. <code className="text-primary">chainsawcourses.com</code>).
+              </p>
+            </div>
+          </div>
           <p className="text-muted-foreground text-sm font-mono">
             Paste a Vimeo link for each module and click SAVE. For best results, use the <strong className="text-foreground">embed code URL</strong> from Vimeo (contains a hash like <code className="text-primary">?h=abc123</code>).
           </p>
@@ -155,6 +174,16 @@ export default function VideoSettings() {
                 <CardTitle className="font-mono text-sm uppercase tracking-widest flex items-center gap-2">
                   <span className="text-primary opacity-50 text-xs">MODULE {mod.order}</span>
                   <span>{mod.title}</span>
+                  {mod.isPublic && (
+                    <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-amber-500 border-amber-500/40 shrink-0">
+                      <Globe className="w-2.5 h-2.5 mr-0.5" /> PUBLIC
+                    </Badge>
+                  )}
+                  {!mod.isPublic && mod.vimeoId && mod.vimeoId !== PLACEHOLDER_ID && (
+                    <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-green-500 border-green-500/40 shrink-0">
+                      <Lock className="w-2.5 h-2.5 mr-0.5" /> HASH LOCK
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
