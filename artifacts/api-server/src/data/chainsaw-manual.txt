@@ -1,0 +1,5319 @@
+1	The Chainsaw Manual
+THE CHAINSAW MANUAL
+CHAINSAW
+MAINTENANCE &
+CROSS CUTTING
+The Comprehensive Guide To
+Maintaining & Using Your Chainsaw
+An Aligned Study Guide Mapping to UK National Occupational
+Standards (NOS) & Professional Risk Frameworks.
+
+-- 1 of 138 --
+
+2	The Chainsaw Manual
+Independent Publication & Non-Affiliation
+This training manual, accompanying online course, and peripheral study resources are
+independent educational materials compiled and published by Overleaf Publishers Ltd.
+No Institutional Affiliation: This publication is entirely independent. Overleaf Publishers
+Ltd has no formal affiliation with, endorsement from, sponsorship by, or direct
+partnership with City & Guilds, the National Proficiency Tests Council (NPTC), or
+Lantra.
+Trademark Ownership: All official qualification titles, assessment schedule identifiers,
+structural criteria numbers, and associated logos are the registered trademarks and
+exclusive intellectual property of their respective holders (including City & Guilds
+NPTC and Lantra). Any reference to these entities or their qualification frameworks
+within this text is strictly for educational context, comparative indexing, and mapping
+alignment to public National Occupational Standards (NOS).
+Authoritative Guidelines Notice: Candidates preparing for commercial certifications
+must always consult the official, current documentation distributed directly by the
+relevant awarding body to verify current assessment parameters.
+The original prose, unique instructional formatting, rephrased revision questions,
+specific diagrams, and structured informational layout featured on chainsawcourses.
+com and within this manual constitute original intellectual property. No part of
+this publication may be copied, digitally scanned, stored in a retrieval system, or
+transmitted in any form or by any means (electronic, mechanical, or otherwise) without
+explicit, prior written authorization from the publisher.
+Integrated E-Learning Curriculum: The physical printed workbook and the digital online
+modules are engineered as an integrated learning system. To verify theoretical CPD
+study hours and unlock relevant certificates of completion, learners must actively
+engage with both media forms in tandem as directed across successive training
+modules.
+Published by Overleaf Publishers Ltd
+Copyright © 2026 Overleaf Publishers Ltd. All rights reserved.
+Author: David J Daniel
+First Edition: July 2026
+Version 1: July 2026
+Target Audience: Forestry workers, arborists, landscape professionals, and
+commercial chainsaw operators.
+Accredited Learning Allocation: 16 Guided Learning Hours (GLH) / 19 Hours Total
+Qualification Time (TQT) when combined with the syllabus assessment modules.
+
+-- 2 of 138 --
+
+3	The Chainsaw Manual
+*IMPORTANT NOTICE*
+This training manual and its associated digital resources provide theoretical
+information regarding chainsaw maintenance techniques, safety procedures and
+general cross-cutting operations.
+CRITICAL SAFETY WARNING: Chainsaw operation is inherently dangerous and
+utilizes high-risk machinery. Improper handling, lack of practical training, or failure
+to strictly adhere to industrial safety protocols will result in severe personal injury,
+catastrophic physical trauma, or death. Furthermore, lone working is explicitly
+prohibited under fundamental forestry and arboriculture safety standards. By
+operating this equipment, you acknowledge the mandatory requirement to always
+be accompanied by a competent individual who maintains reliable communication,
+possesses a specialized trauma first aid kit, and is fully capable of coordinating an
+emergency medical response.
+By purchasing, accessing, or utilizing this manual and online course, you explicitly
+acknowledge, understand and agree to the following legally binding terms:
+1. Scope of Material & CPD Limitation
+Theoretical Reference Only: This manual serves exclusively as a core theoretical
+reference and study guide to complement formal instruction and support structured
+Continuing Professional Development (CPD) training frameworks.
+No Practical Qualification: Reading, reviewing, or completing this material does not
+confer practical operational competency, nor does it qualify or entitle the reader as a
+certified chainsaw operator. This manual does not replace formal hands-on training,
+physical field supervision, or independent practical assessment.
+Statutory Training Mandate: Safe chainsaw operation strictly requires physical,
+hands-on instructional training and field assessment delivered by a registered,
+qualified professional.
+2. Compliance with Statutory Regulations
+The operator retains sole individual responsibility for ensuring absolute compliance
+with all local, national, and international health and safety legislation, including but not
+limited to:
+Regional occupational health and safety statutory laws (e.g. Health and Safety at
+Work Act).
+Workplace equipment regulations governing the provision, use, and maintenance of
+work machinery (e.g. PUWER).
+Approved Tree Industry Codes of Practice (Arboricultural/Forestry) applicable within
+your specific operating territory.
+The mandatory inspection and correct deployment of designated personal protective
+equipment (PPE).
+3. Absolute Exclusion of Liability
+To the maximum extent permitted by applicable law, Overleaf Publishers Ltd, its
+directors, authors, technical contributors, affiliates, and distributors shall not be held
+liable for:
+Any direct, indirect, incidental, special, or consequential damages, including but not
+limited to personal injury, property damage, financial loss, or death resulting from the
+application or misapplication of the information contained within this guide.
+Any operator error, misinterpretation of instructional text/diagrams, or failure to
+implement local industry best practices.
+Any operational activities undertaken while under the influence of alcohol, medication,
+or controlled substances - all of which are strictly prohibited.
+
+-- 3 of 138 --
+
+4	The Chainsaw Manual
+COURSE SPECIFICATION: LEARNING HOURS & SYLLABUS OBJECTIVES
+Credit & Time Allocation
+This training program is structurally developed in accordance with the Average
+Learner Model for safety-critical vocational technical training. This standard
+framework accurately translates your engagement with the technical text, component
+diagnostics, and interactive online verification modules into formally recognized
+professional credits.
+By accounting for a deliberate technical reading pace (150 words per minute), safety
+diagram analysis, and required risk-assessment reflection time, this curriculum
+officially fulfills the requirements for 16 Guided Learning Hours (GLH) and 19 Hours
+of Total Qualification Time (TQT).
+Guided Learning Hours (GLH): 16 Hours
+The formal time spent interacting with the foundational course materials, including
+reading the 21,000-word technical text, studying systemic diagrams, and analyzing
+diagnostic procedures.
+Directed Online Assessment: 1.5 Hours
+Time allocated for the execution of the 45 system-aligned knowledge review
+questions, hazard scenario simulations, and interactive risk control checks via the
+online portal.
+Independent Self-Study: 1.5 Hours
+Time allocated for independent reflection, workspace risk evaluation practice, and
+terminology review using the glossary.
+Total Qualification Time (TQT): 19 Hours
+The total combined time required for an average adult learner to achieve the entire
+learning program’s theoretical syllabus.
+CPD Points Awarded: 5 Points
+Fulfills 5 hours of verifiable Continuing Professional Development (CPD).
+PROGRAM LEARNING OUTCOMES (LO) & ASSESSMENT CRITERIA (AC)
+UNIT 1: Occupational Standards, Health & Safety, and Risk Evaluation
+Learning Outcome 1 (LO1): Understand the statutory legal framework and personal
+safety requirements dictating chainsaw operations.
+AC 1.1: Identify the primary obligations of employers and employees under the Health
+and Safety at Work Act (HSWA) and global equivalents.
+AC 1.2: Explain the operational parameters mandated by the Provision and Use of
+Work Equipment Regulations (PUWER) regarding tool maintenance and operator
+competence.
+AC 1.3: Summarize the control tracking required by COSHH when handling
+hazardous fuels, battery cells, lubricants, and toxic flora species.
+AC 1.4: Detail the correct European (CE/UKCA) and global standard class markings
+required for safety helmets, visual shields, hearing protection, gloves, and Type A
+versus Type C protective trousers.
+Learning Outcome 2 (LO2): Evaluate environmental hazards, risk metrics, and
+implement emergency protocols.
+AC 2.1: Execute a 5-step site-specific risk assessment documenting local ground
+hazards, pedestrian proximity, overhead targets, and structural vulnerabilities.
+AC 2.2: Formulate an emergency communication and extraction map containing grid
+references, postcodes, access limitations, and trauma kit deployments.
+
+-- 4 of 138 --
+
+5	The Chainsaw Manual
+AC 2.3: Identify bio-security cleaning controls necessary to stop the spread of invasive
+arboreal pathogens and pests.
+UNIT 2: Power Unit Architecture, Mechanical Integrity, and Component Maintenance
+Learning Outcome 3 (LO3): Analyze the mechanical differences, design attributes, and
+safety features of internal combustion and battery-powered chainsaws.
+AC 3.1: Describe the internal 2-stroke combustion cycle (“Suck-Squeeze-Bang-Blow”)
+and determine fuel-to-oil component lubrication math at a standard 50:1 ratio.
+AC 3.2: Compare the advantages and operational risks (such as charging thermal
+runaway) of battery-powered power units against internal combustion platforms.
+AC 3.3: Map and explain the mechanical function of the 10 core safety features
+spanning the front, center, and rear architecture of a chainsaw.
+Learning Outcome 4 (LO4): Demonstrate how to diagnose, service, and maintain the
+structural integrity of a chainsaw cutting assembly.
+AC 4.1: Detail correct cleaning procedures for air filtration housings and interpret
+electrode color indicators (Brown vs. Black vs. Grey) on a spark plug.
+AC 4.2: Explain safe carburettor adjusting rules using factory Idle (LA/T), Low (L), and
+High (H) screw limit constraints.
+AC 4.3: Differentiate between Rim and Spur drive sprockets and diagnose guidebar
+wear conditions including burring, rail splaying, and thermal bluing.
+AC 4.4: Identify chain pitch, gauge, and tooth shapes (Full-Chisel vs. Semi-Chisel
+vs. Chipper), and calculate correct filing profile configurations (Top plate angles vs.
+85-degree wave hooks).
+UNIT 3: System Startups, Operational Testing, and Processing Techniques
+Learning Outcome 5 (LO5): Implement safe pre-use verification protocols and startup
+methodologies.
+AC 5.1: Differentiate between safe cold start floor anchors and upright knee-clamp
+warm start methods.
+AC 5.2: Perform a 4-point dynamic check assessing chain brake engagement, oil
+dispersion flow, chain creep at tick-over, and off-switch motor cuts.
+Learning Outcome 6 (LO6): Apply mechanical principles to resolve tension and
+compression forces during timber cutting.
+AC 6.1: Analyze a log setup to determine where tension and compression forces
+reside.
+AC 6.2: Explain the physics behind pulling chains versus pushing chains to prevent
+guidebar jamming.
+AC 6.3: Define the boundaries of the bar tip’s upper nose quadrant to outline how
+kickback occurs and explain how to execute precise plunge bore entries safely.
+AC 6.4: Differentiate and map cut sequences for standard logs, oversized timber,
+advanced step cuts, box splits, branch snedding flows, and trees under extreme
+tension (using ‘Toast Rack’ or reduction sink techniques).
+AC 6.5: Identify severe site threats linked with processing windblown windfalls,
+establishing escape routes, and managing energy storage safely before severing
+attached root plates.
+EVIDENCE OF LEARNING & ASSESSMENT STRATEGY
+This integrated program implements a multi-tiered knowledge verification system:
+Formative Assessment: Learners complete modular self-test quizzes located at the
+conclusion of individual text topics.
+Summative Digital Examination: Progression to certification requires a student to input
+their answers via the online course portal. This portal runs a randomized, 45-question
+multiple-choice examination directly mapped to the NPTC criteria.
+Minimum Performance Threshold: Learners must demonstrate clear cognitive
+retention by scoring an exact 80% or higher score to pass and auto-generate their
+verifiable certificate of completion.
+
+-- 5 of 138 --
+
+6	The Chainsaw Manual
+How to use this Manual
+This publication is designed to function as a standalone, comprehensive technical
+reference guide. However, for learners enrolled in our accredited digital certification at
+chainsawcourses.com, this book serves as an integrated curriculum anchor.
+Enrolled students should look out for the QR codes at the end of each section to sync
+their reading with our video modules and official online exam platform.
+How to Navigate Your Integrated Learning System and QR
+Codes
+This technical manual and its companion online training platform are engineered
+to function as a fully integrated learning system. To navigate the course smoothly,
+work through each chapter sequentially to establish your foundational safety and
+maintenance theory.
+At certain intervals throughout the book, you will find dedicated QR codes. Scanning
+these codes with a smartphone camera will launch the corresponding online video
+demonstrations in your app. Once the video is watched, this then opens the modular
+multiple-choice knowledge quiz for that specific section.
+The app can be downloaded at www.chainsawcourses.com
+For enrolled students, completing these digital checkpoints is necessary to log
+your required Guided Learning Hours, track your qualification progression, and
+automatically generate your verified CPD and IIRSM certificate of completion upon
+achieving a passing score.
+ADVANCED WORKSHOP EXTENSION MODULE
+When you see this next to the title of a page it means the following content is
+provided for professional enrichment and advanced operational awareness only.
+It is classified as non-regulated supplementary material and is completely distinct
+from the core safety assessment criteria and you will not be assessed on this
+content.
+
+-- 6 of 138 --
+
+7	The Chainsaw Manual
+- Chain Sharpening
+- Kickback
+- Making your own chain
+- Chain Tensioning
+76
+82
+84
+86
+6. Trouble Shooting:
+- Maintenance cycles
+87
+91
+7. Starting Your Chainsaw: 	92
+- Pre-Start Checks 	95
+- Cold Start:
+- Husqvarna
+- Stihl
+- Warm Start
+- Pre-Use Checks
+8. Fundamentals of Cross Cutting:
+- Work Positioning
+- Cross Cutting Fundamentals
+- Tension & Compression
+- Cutting Techniques
+- Bore Cut
+- Cutting Larger Timber
+- Extreme Tension
+- Releasing a Trapped Chainsaw
+- Branch Removal
+- Lifting & Stacking
+96
+98
+99
+100
+102
+104
+106
+108
+110
+112
+115
+117
+118
+120
+9. Windblown Trees:
+- Hazard Awareness
+- Root Plates
+- Additional Cuts
+10. Glossary:
+- Syllabus Mapping Matrix
+Chain Identification Chart
+122
+123
+124
+126
+128
+135
+137
+CONTENTS
+Liability Waiver
+- Course Syllabus
+3
+4
+- Navigation & Contents
+- Tools & Introduction
+6
+8
+A. PPE & First Aid 	10
+1. Hazards & Risk Evaluations
+- Emergency Planning
+14
+16
+2. Standards & Regulations
+- Hazardous Materials
+3. Chainsaw Basics
+- How a 2-Stroke Engine Works
+- Fuels & Oils
+18
+22
+24
+26
+28
+- Chainsaw Safety Features 	30
+4. Chainsaw Maintenance:
+- Battery Saws
+- Air filter
+34
+36
+- Spark plug 	38
+- Carburettor 	40
+- Cooling system/flywheel 	42
+- Exhaust/muffler 	44
+- Fuel & oil filters 	46
+- Oil pump system
+- Recoil assembly
+48
+50
+- Clutch assembly 	54
+- Sprocket 	58
+- Chain brake 	60
+- Guidebar 	62
+5. The Chainsaw Chain:
+- Chain components 	64
+- How a cutter works 	66
+- Cutter profiles & arrangements 	68
+- Chain identification, pitch & gauge 	72
+
+-- 7 of 138 --
+
+8	The Chainsaw Manual
+Maintenance
+Tools
+TOOLS FOR MAINTENANCE
+Before you begin any maintenance
+there are some basic tools and
+equipment you will need:
+y 	Sharpening Kit
+y 	Combination
+(combi) Spanner
+y 	Star Spanner
+y 	Gloves
+y 	Safety Specs
+y 	Stiff brush & Soft
+brush
+y 	Screwdriver
+y 	Pliers and Hook
+y 	Air Compressor
+(optional)
+Note - Any additional tools needed
+for specific tasks will be outlined in
+the corresponding sections.
+Sharpening Kit
+Combi-Spanner
+Eye Protection
+Air Compressor
+Pliers 	Hook
+Gloves
+Brush
+Star Spanner
+Screw-driver
+
+-- 8 of 138 --
+
+9	The Chainsaw Manual
+This Chainsaw Manual and Integrated E-learning Course are independently
+mapped to the technical criteria found within the City & Guilds NPTC and
+Lantra qualification frameworks. The manual is structurally designed to
+provide a greater depth of knowledge for chainsaw operators from beginner
+to intermediate levels.
+While this manual and course are designed to help you achieve a high
+standard of theoretical comprehension, you must never operate a chainsaw
+without receiving appropriate practical training, face-to-face supervision,
+and guidance from qualified professionals.
+This manual and course concentrate on the maintenance of both petrol and
+electric chainsaws with the emphasis on petrol chainsaws. While electric
+chainsaws require less maintenance due to their motor driven design, any
+overlapping maintenance is included in this manual.
+Like any machine, a chainsaw needs to be regularly maintained to keep it
+running safely and efficiently. All chainsaws are similar in design with similar
+components. These components wear at different rates and need attention
+at different intervals. The frequency of maintenance depends on different
+factors such as timber type, wood density, dusty/dirty conditions and
+presence of foreign objects within the timber.
+Do not use your chainsaw to cut anything other than timber (unless
+specialised) as this can be dangerous. It will also blunt your chain very
+quickly and cause you, and the machine, to work harder.
+Inspect, clean and maintain your chainsaw regularly and it will serve you
+well, be more reliable and cost less in repairs. If a certain component is
+damaged beyond your capability, arrange for repairs and label the saw ‘not
+for use’, particularly if one of the safety features is faulty or broken.
+Use the correct PPE such as safety glasses and gloves when carrying out
+maintenance and chainsaw protective PPE for operating a chainsaw.
+The chainsaws and parts depicted in this manual are Stihl, Husqvarna and
+Oregon.
+Note: Although all chainsaws have the same basic components,
+always refer to your manufacturer’s handbook for your
+particular chainsaw.
+Introduction
+
+-- 9 of 138 --
+
+10The Chainsaw Manual
+A. PPE
+Requirements
+US - ANSI/ISEA Z89.1-2014 R2019
+UK & EU - EN397/EN12492
+AS/NZS -1801 : 1997
+North America - ASTM F1897-14
+Helmet with ear and eye protection.
+Safety glasses/shield can be worn.
+Helmets come in different designs
+and are made from plastic or
+aluminium. Plastic is lightweight
+and ideal for head protection but
+the plastic degrades when exposed
+to UV rays.
+Warning: Ultraviolet degradation is
+invisible. Helmets exposed to heavy
+sunlight must be replaced strictly in
+accordance with the manufacturer’s
+5-year guideline, or immediately
+following an impact event.”
+US - ASTM F1897-14
+UK & EU - ISO11393-2
+AS & NZS - 4453.3:1997
+Chainsaw trousers are filled with a
+fine woven mesh of synthetic fibres.
+These clog up the saw and stop the
+chain from moving before it reaches
+the user’s body.
+They come in 2 main types:
+Type A: 180° front protection
+Type C: 360° protection
+Type B is less common and mainly
+for chainsaw chaps.
+It is recommended that all users
+have Type C protection, especially
+new learners and inexperienced
+users.
+Safety Helmet 	Chainsaw Trousers
+PERSONAL PROTECTIVE EQUIPMENT - PPE
+
+-- 10 of 138 --
+
+11	The Chainsaw Manual
+US - ASTM F2412
+UK/EN ISO - 17249:2013
+AS/NZS - 2210.3:2019
+Good quality chainsaw boots not only
+give protection from cuts, but also keep
+you dry and comfortable. They should
+also have a steel or composite toe-cap.
+Chainsaw Protective Boots
+US - ANSI/ISEA 105
+UK/EN ISO - 11393-4
+AS/NZS - 2161.3:2020
+These are recommended for
+chainsaw use on the ground and
+most have protection on the back of
+the left hand only.
+Chainsaw Gloves
+US - ANSI Z87.1
+UK & EU EN ISO 16321
+AS/NZS - 1337.1:2010
+Eye protection should meet the
+safety standards for UV exposure,
+pressure, heat and chemical testing.
+Face Shield - EN1731
+Eye Protection
+UK & EU Standard: BS EN 352-3
+AS/NZS 1270:2002
+Hearing protection must provide an
+appropriate Single Number Rating
+(SNR) to attenuate chainsaw engine
+frequencies safely below the 85dB(A)
+action threshold.
+Ear Protection
+MODULE 1 - PPE
+Compliance & Standards
+
+-- 11 of 138 --
+
+12The Chainsaw Manual
+
+-- 12 of 138 --
+
+13	The Chainsaw Manual
+First Aid Kit:
+In addition to PPE, you must carry a personal first aid kit. This should be
+appropriate for chainsaw related injuries. Chainsaw lacerations can quickly
+become a major, potentially fatal incident. It is therefore paramount that an
+operator has the appropriate first aid equipment to control a situation until the
+paramedics arrive.
+Your personal first aid kit should contain at least one or more large wound
+dressings, haemostatic dressings, a tourniquet and gloves. Keep a worksite first
+aid kit at a central location. This larger kit might include more wound dressings,
+scissors, alcohol wipes, eye wash, plasters, burn gels, etc.
+First Aid Training:
+It is the duty of chainsaw operators
+to ensure that they have received the
+appropriate training in all first aid and
+trauma kit applications.
+Companies such as MediArb provide
+specialised first aid training that cover all
+aspects of using tourniquets, haemostatics,
+and military trauma dressings.
+MediArb also provide numerous first aid
+trauma kits which are designed to deal
+with catastrophic injuries, lacerations, eye
+wounds, burns, minor injuries and more.
+The kits are packed with military-grade
+compliant content. The emergency trauma
+box is fully waterproof - IP67 rated and
+designed specifically for use in Forestry
+& Arboriculture. More info on MediArb
+products and training can be found at
+www.mediarb.com
+First Aid Essentials
+Haemostatic Products
+Trauma Dressings
+Cat GEN 7 Tourniquets
+
+-- 13 of 138 --
+
+14The Chainsaw Manual
+The Importance of a Risk
+Assessment
+A risk assessment is a necessity. It helps
+to identify hazards, minimise the risks of
+those hazards and inform workers of the
+emergency information to keep everyone
+safe.
+The 5 steps to risk assessment are:
+RISK ASSESSMENTS
+Identify the hazards in and
+around the working area
+Record the decisions and
+implement control measures
+Review control measures &
+update if necessary
+Evaluate the likelihood of risk
+from the hazard and decide on
+control measures
+Decide who/what could be
+harmed and how
+1
+4
+5
+3
+2
+1. Hazards & Risk
+Evaluation
+
+-- 14 of 138 --
+
+15	The Chainsaw Manual
+COMMON HAZARDS & CONTROL MEASURES
+There are many different hazards involved with chainsaw use and the best thing you
+can do is assume everything wants to hurt you. With that in mind, prepare yourself,
+the machine and the site as best you can to minimise any injuries occurring.
+Outlined below are examples of hazards and their control measures.
+Hazards 	Control Measures
+Public footpath, dog
+walkers, any other 3rd
+parties.
+Appropriate signs and
+banksperson if necessary.
+Overhead hanging
+branches and dead limbs.
+Avoid working directly
+beneath hazards and wear
+protective helmet.
+Chainsaw use. Use the correct body
+position, appropriate cutting
+techniques and suitable PPE.
+Timber movement.
+Secure timber wherever
+possible, avoid working on
+steep slopes and prepare
+escape routes.
+Heavy logs and
+branches.
+Use machinery or lifting aids
+where possible. Use good
+lifting methods.
+Fuel and lubricants. Use spill mats and fill up
+away from flammable
+sources and watercourses.
+Kickback and cuts.
+Wear suitable PPE, adopt
+the correct body position
+and use appropriate cutting
+techniques.	Vibration, noise, dust,
+fumes, exhaust, flying
+debris.
+Use a maintained chainsaw
+and wear suitable PPE.
+Uneven ground, mud,
+brambles, logs, branches
+and stumps.
+Wear appropriate footwear,
+clear work area and keep the
+site tidy.
+Risks
+O N S I T E
+TASK UNDERTAKEN
+T H E C H A I N S AW
+Tripping,
+slipping and
+falling.
+Debris hitting
+pedestrians.
+Injury from
+falling limbs.
+Cuts and
+kickback.
+Being hit or
+struck by the
+timber.
+Musculo-
+skeletal
+injuries.
+Fire,
+chemical
+poisoning.
+Laceration
+injuries.
+Immediate
+and long
+term injuries.
+MODULE 2 - Hazards & Risks
+5 Steps to Risk Assessment
+
+-- 15 of 138 --
+
+16The Chainsaw Manual
+EMERGENCY PLANNING &
+IMPORTANT INFORMATION
+Emergency Planning
+When thinking about an emergency plan there are many elements to consider. Your
+plan to deal with emergencies should cover injuries, illnesses, environmental incidents,
+fires and other relevant emergencies. Make sure everyone on site understands where
+they are, what precautions to take and what to do in an emergency.
+This information should be combined with the Site Specific Risk Assessment.
+Emergency information should include:
+y 	National emergency numbers - 999,
+112 (UK/EUROPE), 911 (US), 000
+(AUS), 111 (NZ)
+y 	Location name
+y 	Street name and address
+y 	Zip or Post code (nearest)
+y 	Grid Reference
+y 	What-3-Words
+y 	Site access/extraction point
+y 	Type of access – if 4x4 is needed
+y 	Meeting point
+y 	Nearest Hospital A&E with phone
+number
+y 	Nearest mobile signal or landline
+y 	Emergency contact details
+y 	Site contact details
+y 	Nearest potential helicopter landing
+area
+y 	Location of large trauma first aid kit
+and nominated first aider
+y 	Nearest doctors
+y 	Any pre-existing medical conditions or
+medication
+EMERGENCY
+EMERGENCY ACTION PLAN
+Muster Point
+Access
+4x4
+Heli-access
+X
+999/112
+1. Hazard & Risk
+Evaluation
+
+-- 16 of 138 --
+
+17	The Chainsaw Manual
+BIO-SECURITY AND ENVIRONMENTAL
+CONSIDERATIONS
+What is Bio-Security?
+Bio-security is the prevention of the spread of
+pests and diseases.
+This is ever more important as the world
+increases imports and exports. There are
+numerous cases of pests, viruses and diseases
+being spread across borders and continents
+wreaking havoc with the local flora and fauna.
+There are things we can do to limit the spread of
+pests and diseases on a local and national level.
+Bio-Security measures:
+y 	Complete a site survey to ascertain any
+potential pests or diseases.
+y 	Clean and disinfect any PPE, tools and
+machinery in sensitive areas.
+y 	Avoid transporting any waste (timber, brash,
+stumps or wood chip etc) to different sites.
+Environmental Considerations
+We work with trees within the natural environment and it is important to be aware of
+our surroundings and what impact we have. Certain activities may harm or encourage
+habitats, plants or the creatures that live there. Knowledge of the flora and fauna in
+your local area needs to be researched and communicated with all work colleagues to
+minimise damage or disturbance.
+y 	Be aware of local flora, fauna and their respective habitats.
+y 	Be aware of endangered species.
+y 	Minimise disturbance to the local environment.
+y 	Fuel in areas away from watercourses and other sensitive areas.
+y 	Use bio-degradable oils.
+y 	Use battery equipment where possible.
+y 	Observe the bird nesting season.
+MODULE 2 - Hazards & Risks
+Emergency Planning
+
+-- 17 of 138 --
+
+18The Chainsaw Manual
+2. Standards &
+Regulations
+HEALTH & SAFETY AT WORK
+Every country or state should have laws which protect and safeguard people that enter
+the workplace. The details can vary but the main message is:
+Everyone has the right to work in a safe environment
+To adhere to the statement above, governments and industry have written legislation
+and guidance to help employers and employees achieve this.
+NOTE: While this manual presents global regulatory equivalents for international
+context, formal assessment protocols will strictly evaluate the statutory laws active
+within the learner’s local operating jurisdiction. In the United Kingdom, compliance with
+HSWA, PUWER, COSHH, PPE and wildlife protection remains mandatory.
+Employers and employees have
+a duty of care to keep themselves
+and others safe including
+potential third parties.
+Follow training and wear PPE
+provided.
+Maintain a safe working
+environment.
+HSWA Health & Safety at
+Work Act
+EU Framework Directive
+OSHA Occupational Safety
+and Health Administration
+WHS Work Health and
+Safety
+Equipment is fit for purpose and
+well maintained.
+Have regular safety checks by
+the operator before every use,
+alongside recorded maintenance
+intervals by a competent
+technician.
+All operators are to be trained &
+competent.
+PUWER Provision & Use of
+Work Equipment Regulations
+Use of Work Equipment
+Directive 2009/104/EC
+ANSI B175.1-2000
+AS/NZS 4024:2019
+Equipment Regulations:
+Health and Safety at Work:
+
+-- 18 of 138 --
+
+19	The Chainsaw Manual
+COSHH Control of Substances
+Hazardous to Health
+CLP Classification, Labelling
+and Packaging
+HCS Hazard
+Communication Standard
+GHS Globally Harmonised
+System
+Identify and assess the risk of
+any substances that may be
+harmful.
+Operators must have access to
+Safety Data Sheets (SDS) on site
+for all fuels, oils and chemicals.
+Any noted defects in PPE must
+be immediately reported and the
+items taken out of service.
+PPEWR Personal Protective
+Equipment Regulations
+Regulation EU 2016/425
+OSHA General Industry 29
+CFR 1910
+Model WHS Regulations
+44-47 PPE
+Conformity markings on PPE in
+relation to region - UKCA, CE,
+EN, ANSI, ISEA, AS/NZS
+Correctly fitted, kept in good
+condition and maintained
+accordingly.
+Stored correctly in appropriate
+conditions.
+The Wildlife & Countryside
+Act
+The Habitats Directive
+The Endangered Species
+Act of 1973
+National Parks and Wildlife
+Act 1972 & Wildlife Act 1953
+No willful or accidental
+destruction of wildlife or their
+habitats.
+Nesting birds protected.
+Specially identified protected
+species of flora & fauna.
+SSSI Site of Special Scientific
+Interest or similar.
+Harmful Substances:
+PPE - Personal Protective Equipment:
+Environment and Wildlife Protection:
+MODULE 3
+Regulations & Codes of Practice
+
+-- 19 of 138 --
+
+20The Chainsaw Manual
+2. Standards &
+Regulations
+y 	HSE – Health & Safety Executive
+y 	AA – Arboricultural Association
+y 	FISA – Forestry Industry Safety
+Accord
+y 	Regional Forestry Bodies
+y 	Manufacturer’s Guidance - Stihl,
+Husqvarna, etc
+Industry Guidance
+y 	EAC - European Arboricultural
+Council
+y 	National Arboricultural Associations
+for each member state
+y 	EU-OSHA - European Union Safety
+and Health at Work Agency
+y 	Manufacturer’s Guidance - Stihl,
+Husqvarna, etc
+y 	AAA - Arboricultural Association of
+Australia
+y 	NZAA – New Zealand Arboricultural
+Association
+y 	Safe Work Australia
+y 	Work safe New Zealand
+y 	Manufacturer’s Guidance - Stihl,
+Husqvarna, etc
+Each country or state will have it’s own guidance on using chainsaws, the
+environment and safe ways of working. Please check to see how the guidance
+changes for your particular region or area.
+y 	OSHA – Occupational Safety and
+Health Administration
+y 	ISA - International Society of
+Arboriculture
+y 	TCIA - Tree Care Industry Association
+y 	CIF - Canadian Institute of Forestry
+y 	CSA - Canadian Standards
+Association
+y 	Manufacturer’s Guidance - Stihl,
+Husqvarna, etc
+
+-- 20 of 138 --
+
+21	The Chainsaw Manual
+Personal Protective Equipment - PPE
+Additional Information:
+Personal Protective Equipment is crucial
+when using a chainsaw. When all other
+methods of reducing the risk of the hazard
+have been exhausted then PPE should be
+worn. All PPE should be stored correctly, well
+fitted, suitable for the task at hand and well
+maintained.
+Although chainsaw protective equipment
+is improving all the time, do not assume it
+will protect you – PPE is the last line of
+defence.
+All chainsaw protective equipment should be
+marked with a unique identifier. In the UK and
+EU this is a chainsaw in a shield and all PPE
+should have a CE or UKCA marking to show
+conformity along with an EN number.
+The chainsaw protection rating in textile
+elements (boots, trousers, gloves, sleeves
+and jackets) is rated in metres per second
+m/s. These ratings state the speed at which
+the protection should stop the chain.
+The RPM (Revolutions Per Minute) of most
+chainsaws are between 10,000 to 14000rpm
+which means on a 50cc chainsaw, the chain
+is travelling on average, at 20m/s (Metres
+Per Second). The majority of PPE is rated as
+Class 1 (20m/s), as the most commonly used
+chainsaws are around 50cc and below.
+Class 0: 16m/s
+Class 1: 20m/s
+Class 2: 24m/s
+Class 3: 28m/s
+Protection Ratings for chain
+speed - measured in metres
+per second - m/s
+Careful consideration is
+needed when using more
+powerful chainsaws. What
+protection is needed to stop
+your chain?
+
+-- 21 of 138 --
+
+22The Chainsaw Manual
+2. Standards &
+Regulations
+HAZARDOUS CHEMICALS & MATERIALS
+COSHH - Control of Substances Hazardous to Health
+Handling fuel, oil, insecticides, and other mechanical lubricants is a daily reality with
+chainsaw operations. These substances and materials pose significant fire, health,
+and environmental risks. Chemical exposure and flash fires are entirely preventable if
+proper containment and operational rules are enforced.
+Fire Protection & Refueling Rules:
+y 	Do NOT re-fuel a hot or running saw, allow the chainsaw to cool completely before
+doing so.
+y 	Do NOT start, fuel or use your saw within 10 feet (3 meters) of your fueling area.
+y 	Remove and discard any fuel or oil-contaminated clothing to eliminate flash fires
+and skin irritations.
+y 	Do NOT smoke when either re-fueling or when near to a
+fueling area.
+y 	Any spilled fuel or oil must be immediately wiped up and
+the area neutralized before attempting to start your saw.
+y 	Fuel and combustible liquids MUST be stored,
+transported, and dispensed exclusively from approved,
+clearly marked safety containers with integrated flame
+arresters.
+y 	Keep any sawdust, dry leaves, dead wood and other combustible materials away
+from hot or running exhaust mufflers to prevent accidental brush fires.
+y 	Avoid fueling chainsaws, mixing lubricants, or chemical treatments near
+watercourses, wetlands, or drainage ditches to eliminate the risk of environmental
+water contamination.
+y 	Use bio-degradable bar and chain oils whenever working adjacent to sensitive
+aquatic ecosystems.
+Chemical Precautions:
+Identify and assess the risks of all chemical substances
+before work begins. All chemical containers, including
+temporary mix bottles, must be permanently labeled with their
+contents and hazard warnings. A Safety Data Sheet (SDS)
+must be kept for every chemical, fuel, and lubricant used and
+be easily accessed by all crew members.
+
+-- 22 of 138 --
+
+23	The Chainsaw Manual
+HARMFUL FLORA & FAUNA
+When working within the natural environment, there are local flora and fauna that can
+hurt or harm you if you’re not careful. Perform a Site Specific Risk Assessment to
+identify any harmful vegetation or wildlife. Outlined below are the most common UK
+threats.
+Poisonous Plants:
+y 	Yew (Taxus baccata)
+y 	Laburnum (Laburnum anagyroides)
+y 	Hemlock Water Dropwort (Oenanthe crocata)
+Wood or brush contaminated with these toxic species must NOT be burned. Inhaling
+the smoke can cause severe, life-threatening internal respiratory damage and systemic
+cardiac or pulmonary reactions.
+Phytophototoxic and Irritant Sap Plants:
+y 	Giant Hogweed (Heracleum mantegazzianum)
+y 	Wild Parsnip (Pastinaca sativa)
+y 	Fig Trees (Ficus carica)
+If the sap gets on your skin and is exposed to sunlight (UV rays), it causes
+phytophotodermatitis, resulting in a severe, blistering third-degree chemical burn and
+permanent scarring. Sap in the eyes can cause permanent blindness.
+Toxic Wood Dusts and Species-Specific Tree Hazards:
+y 	English Oak (Quercus robur)
+y 	Yew (Taxus baccata)
+y 	London Plane (Planus × acerifolia)
+The sawdust contains a respiratory irritant and severe allergen. Operators cutting
+these species often require respiratory protection to avoid acute respiratory distress.
+Biological & Environmental Threats:
+Stinging Insects:
+As a ground saw operator, be aware
+of cutting into downed hollow logs or
+brush piles as you can disturb wasp
+nests or hornets. The noise and vibration
+of a chainsaw can trigger immediate,
+aggressive swarm attacks, causing
+severe anaphylactic shocks.
+Native Venomous Adders:
+Ground clearing across UK woodlands,
+heaths, and rough brush lines requires
+a visual safety sweep for native Adders
+(Vipera berus). They frequently shelter
+or bask directly beneath downed timber,
+logs, and thick brash lines during hot
+summer months.
+
+-- 23 of 138 --
+
+24The Chainsaw Manual
+3. Chainsaw
+Basics
+Chainsaw Components & Parts
+The chainsaw is made up of many parts, all of them necessary to keep it safe
+and running efficiently. The more you understand about each component and
+how they interact with each other, the better you can diagnose problems, keep
+your chainsaw running optimally and extend the life of your chainsaw.
+Cleaning and maintaining parts is crucial for the safe operation of the chainsaw.
+This manual will cover how and when to do maintenance.
+Diagnosing problems when they arise can sometimes be tricky, and a process
+of elimination has to be undertaken to identify the root cause.
+Rear-Handle Saws are designed for groundwork. The wide spacing between
+the front and rear handles gives you the physical leverage needed to control
+the chainsaw more effectively.
+Top-Handle Saws are designed for aerial tree work. Top-handle saws shall
+NOT be used for groundwork or cross cutting because their narrow handle
+configuration offers significantly less leverage to control kickback.
+
+-- 24 of 138 --
+
+25	The Chainsaw Manual
+Side Cover
+Bar & Chain
+Clutch	
+Drum
+Oil Pump
+Chainbrake	
+Band
+Anti-Vibration	
+Mounts
+Felling	
+Spikes
+Spark Plug
+Recoil	
+Starter
+Flywheel
+Throttle
+Air Filter
+ 
+Exhaust/Muffler
+Carburettor
+Ignition Module
+Chainbrake (Left-Hand Guard)
+Top Cover
+BASIC CHAINSAW COMPONENTS
+Clutch	
+Weights
+Sprocket
+HT-Lead
+Decompression Valve
+
+-- 25 of 138 --
+
+26The Chainsaw Manual
+3. Chainsaw
+Basics
+HOW A TWO-STROKE
+ENGINE WORKS
+Modern petrol chainsaws use a two-
+stroke engine unlike electric chainsaws
+which mostly use a brushless motor.
+Two-stroke engines are simple, light
+and fast. The engine has a short
+compact cycle, so it produces a lot of
+power when compared with its size.
+This makes 2-stroke engines ideal for
+chainsaws and many other hand-held
+power tools.
+A chainsaw engine needs two external
+ingredients to run – fuel & air.
+y 	The fuel requires 2-stroke oil to
+lubricate the engine, generally at a
+ratio of 50:1 (5 litres of fuel to 100ml
+of oil).
+y 	The oxygen in the air is sufficient
+for combustion but must be filtered
+before entering the carburettor.
+Most chainsaws rev between 10,000 to
+14000rpm (Revolutions Per Minute). A
+50cc chainsaw, the chain is travelling on
+average, at 4000 fpm (feet per minute)
+or 20m/s (metres per second). A lot of
+PPE is rated as Class 1 (20m/s), as the
+most commonly used chainsaws are
+around 50cc and below.
+The common four-stroke engine used
+in most vehicles takes four strokes to
+complete a full combustion cycle.
+The four strokes of the piston can be
+represented as:
+The two-stroke engine however, only
+takes 2 strokes to complete a full
+combustion cycle. This means faster
+revving, but less efficiency. Unburnt fuel
+and oil are wasted, pushed out through
+the exhaust. This is turn means two
+stroke engines have worse emissions.
+The 2-stroke engine condenses all 4
+strokes into 2:
+As the handle of the recoil starter is
+pulled it sets off several elements in
+motion - see opposite diagram.
+y 	Initially it turns the flywheel which
+rotates the crankshaft which moves
+the piston.
+y 	The magneto on the flywheel passes
+the ignition module, which sends an
+electric current via the HT lead (high
+tension lead) to the spark plug.
+y 	The spark then ignites the fuel/air
+mixture and moves the piston.
+1st Stroke - ‘Suck - Squeeze’
+(Intake - Compression)
+2nd Stroke - ‘Bang - Blow’
+(Ignition - Exhaust)
+‘Suck - Squeeze - Bang - Blow’
+or
+‘Intake - Compression -
+Ignition - Exhaust’
+ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 26 of 138 --
+
+27	The Chainsaw Manual
+TWO-STROKE ENGINE CYCLE
+1st Stroke: Suck – Squeeze
+y 	SUCK (Intake) As the piston moves
+upward from Bottom Dead Centre
+(BDC) it creates a vacuum in the
+chamber below the piston drawing
+in fresh fuel/air mixture from the
+carburettor.
+y 	SQUEEZE (Compression) The
+piston rising upwards compresses
+the fuel/air mixture contained in the
+chamber above the cylinder until it
+reaches Top Dead Centre (TDC)
+2nd Stroke: Bang – Blow
+y 	BANG (Ignition) When the piston
+is at Top Dead Centre (TDC) the
+spark ignites the compressed
+fuel/air mixture forcing the piston
+downwards.
+y 	BLOW (Exhaust) As the piston
+moves downwards it opens the
+transfer port and the exhaust port.
+The fresh fuel/air mixture below
+the cylinder is forced up through
+the transfer port, pushing the spent
+exhaust gases out.
+Fresh fuel
+& air mix
+is drawn
+in via
+carburettor
+Exhaust
+gases are
+forced out
+Intake
+Port
+closed
+Exhaust
+Port
+closed
+Intake
+Port
+opens
+Exhaust
+Port
+opens
+Transfer
+Port
+opens
+Piston at TDC 	Piston at BDC
+
+-- 27 of 138 --
+
+28The Chainsaw Manual
+Before the first use of your chainsaw you
+will need to know what kind of fuels and
+oils to use. Always source the best fuels
+and oils for your chainsaw to maximize
+efficiency and longevity.
+Note: Avoid using unleaded E10 fuel
+as this degrades the rubber pipes and
+diaphragms. Use a higher octane fuel
+where possible.
+You need to mix your fuel with a specific
+oil as this is how the engine is lubricated.
+This oil is referred to as 2-Stroke Oil and
+is generally mixed at a:
+There are various types
+and grades of 2-stroke
+oil, always try to buy the
+best quality oil suitable for
+your machine. This will
+enhance the performance,
+decrease emissions, and
+increase the life of the
+engine.
+There are some fuels on
+the market that are pre-
+mixed like ASPEN. This
+is an alkylate petrol which
+is ethanol free. It burns
+more efficiently, does not
+degrade over time and has
+less harmful emissions.
+It is, however, more
+expensive than most other
+fuels.
+Always use appropriate
+chain oils for lubricating
+the chainsaw chain as
+this will extend the life
+of your chain, bar and
+sprocket. The correct oil
+will have the right balance
+of viscosity for the winter
+and summer months.
+Avoid using other oils (including
+waste oils) as these either clog up the
+oiling system or don’t provide enough
+lubrication.
+3. Chainsaw
+Basics
+FUELS & OILS
+Ratio of 50:1 - 5 litres of
+fuel to 100ml of oil.
+Fuel Reservoir
+(mixed with
+2-stoke)
+Chain Oil
+Reservoir
+
+-- 28 of 138 --
+
+29	The Chainsaw Manual
+
+-- 29 of 138 --
+
+30The Chainsaw Manual
+3. Chainsaw
+Basics
+CHAINSAW SAFETY
+FEATURES
+All manufacturers of chainsaws install
+safety features to minimise the risks
+and hazards associated with using a
+chainsaw. These include injury from
+fuel, oil, noise, fumes, cuts, kickback,
+burns, dust, flying debris and vibration.
+To make sure you comply with the
+relevant legislation, you need a well
+maintained chainsaw with all safety
+features present and working.
+There are 10 main safety features of a
+chainsaw.
+FOUR Safety Features at the
+Front
+Chain Brake/Left Hand Guard
+Exhaust/Muffler
+Correct Chain & Bar combination
+with Low Kickback Features
+Scabbard
+FOUR Safety Features at the
+Back
+Off Switch
+Throttle Lock (Dead Man’s Handle)
+Safety Decals/Stickers
+Right/Rear Hand Guard
+TWO Safety Features in the
+Middle
+Anti-Vibration Mounts (also found
+throughout the machine)
+Chain Catcher
+10
+8
+9
+7
+6
+5
+4
+3
+1
+2
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+-- 30 of 138 --
+
+31	The Chainsaw Manual
+Chain Brake/Left Hand Guard
+When applied, this stops the chain from rotating.
+When kickback occurs, the chain brake can also
+be triggered automatically with inertia. This is an
+important safety feature, especially when cutting
+horizontally as the user’s hand is not in line with
+the plastic guard.
+Exhaust/Muffler
+This reduces the noise level of the engine,
+reduces emissions and directs the fumes
+away from the operator.
+Correct Bar & Chain Combination
+with Low Kickback Characteristics
+When choosing a bar & chain, the correct
+pitch, gauge and intended application needs
+to be considered. All chains have low kickback
+characteristics such as ramped depth gauges,
+bumper-tie straps/drive links and different tooth
+profiles.
+3
+2
+1
+MODULE 4 - Mechanics
+Safety Features
+
+-- 31 of 138 --
+
+32The Chainsaw Manual
+3.
+Anti-Vibration Mounts
+These reduce vibration from the machine
+to the user and help to minimise HAVS
+(Hand-Arm Vibration Syndrome). These are
+a combination of springs and rubbers located
+throughout the saw.
+Off Switch
+This should be clearly marked for the user to
+switch the chainsaw off at any given moment.
+Scabbard
+This protects the user and other equipment
+when transporting the chainsaw and stops
+accidental damage to the chain.
+7
+5
+4
+Chain Catcher
+This catches the chain when the chain
+either de-rails or snaps, stopping
+potential injury to the user and others
+around them. It is made of a softer metal
+or plastic so the teeth dig into it. This
+needs to be checked on a regular basis.
+6
+Chainsaw
+Basics
+
+-- 32 of 138 --
+
+33	The Chainsaw Manual
+Throttle Lock/Dead Man’s Handle
+This 2-sequence trigger mechanism stops
+any unexpected revving of the chainsaw.
+Safety Decals/Stickers
+These provide safety information, user
+information, decibel ratings and other
+warnings. Icons highlighted in blue are
+mandatory and yellow icons are warnings.
+9
+8
+Right/Rear Hand Guard
+The rear handle is flared wider to protect the
+user’s right hand if the chain either de-rails or
+snaps.
+10
+If any safety feature is missing, damaged, or faulty,
+do NOT use the chainsaw until it can be repaired or
+replaced.
+If it cannot be repaired or replaced straight away,
+arrange for repair and label the saw clearly as ‘DO NOT
+USE’ with a description of the fault.
+
+-- 33 of 138 --
+
+34The Chainsaw Manual
+VS
+Battery Chainsaws
+Advantages 	Disadvantages
+Quieter 	Less power for certain tasks
+Lighter 	Available charging points needed
+No emissions 	Battery storage & disposal
+Less vibration 	Potential electric shock
+No pull start 	Many batteries potentially needed
+No fuel Some machines ‘always on’ (inadvertent
+revving)
+Battery 	Fuel
+The debate over electric vs petrol
+chainsaws divides opinion and will
+continue to be debated in the years to
+come. It boils down to battery technology
+and use case. Currently, battery
+technology is good, but limited to smaller
+chainsaws cutting thinner diameter
+timber. Cutting any medium to large
+timber requires a petrol chainsaw at the
+moment, although battery technology is
+catching up.
+There is also the question of what
+situation these are used in, petrol having
+the advantage in more remote areas
+or where access to mains power for
+charging is limited.
+Top-handled battery chainsaws used in
+an urban environment with access to
+charging points certainly have their place
+as an effective arborist tool.
+BATTERY VS FUEL
+4. Chainsaw
+Maintenance
+
+-- 34 of 138 --
+
+35	The Chainsaw Manual
+BATTERY MAINTENANCE
+Battery chainsaws have less maintenance overall than their petrol counterparts but
+there are some important safety checks and maintenance that needs to be carried out.
+They are prone to overheating while charging and can set on fire. Follow all
+manufacturers guidelines for storing, charging, maintenance and disposing of batteries.
+How do you maintain them?
+y 	Inspect the batteries for any cracks
+or damage and ensure they are
+functional.
+y 	Inspect the charger and tracks for any
+damage
+y 	Inspect the contact points on both
+battery, charger and chainsaw
+housing.
+y 	Inspect the air intake on the chainsaw
+and the charger.
+y 	Clean all of the above with an air-line,
+brush or soft rag.
+y 	If in any doubt of the condition in
+any of the components, replace
+immediately.
+Check for any cracks or damage
+Clean all vents, tracks, contact
+points and air intakes
+MODULE 5 - Maintenance
+Battery Chainsaws
+
+-- 35 of 138 --
+
+36The Chainsaw Manual
+A I R
+ 
+F I L T E R
+4. Chainsaw
+Maintenance
+AIR FILTER
+Air filters come in various shapes, sizes
+and materials but all do the same job
+What does it do?
+The air filter keeps dust and
+debris out of the carburettor
+and helps to regulate the
+air/fuel mixture.
+If the air filter is clogged
+or dirty, this can lead to
+sluggish performance
+and leave excess carbon
+deposits in the exhaust due
+to the rich mixture being
+burnt.
+Air filter removal
+is straight forward.
+Some are attached
+with clips or screws,
+others remove easily
+with just a twist or
+pull.
+
+-- 36 of 138 --
+
+37	The Chainsaw Manual
+How do you maintain it?
+y 	Remove the top cover by turning or
+removing the three screws or clips.
+y 	Clean the area around the air filter
+and carburettor.
+y 	Close the butterfly valve by applying
+the choke setting.
+y 	Remove the main air filter and pre-
+filter (if present) and fill the void with
+a clean rag or similar. This is to stop
+any debris falling into the carburettor
+when cleaning.
+y 	Check for any rips, tears, holes,
+debris or heavy discolouration.
+y 	Tap out any loose dust and use a soft
+brush or pressurised air-line to clean.
+Pressurised air must be directed
+from the inside out. Be careful not to
+damage the air filter.
+y 	Some air filters separate into two
+parts to aid cleaning.
+y 	Some air filters can be washed
+with warm soapy water - leave to
+completely dry before re-fitting.
+y 	You also have the option to clean and
+re-seal the air filter with dedicated air
+filter cleaner/oil.
+y 	If in any doubt of the condition of the
+air filter, replace it, as it is the lungs of
+your machine.
+Apply
+choke
+and fill
+void with
+clean rag
+or similar
+Use an air compressor or brush
+to clean
+MODULE 5 - Maintenance
+Air Filter
+
+-- 37 of 138 --
+
+38The Chainsaw Manual
+4. Chainsaw
+Maintenance
+How do you maintain it?
+Removal:
+y 	Pull the black HT Lead (High Tension Lead) cap off the
+spark plug and unscrew the spark plug using the correct
+sized combi-spanner or socket.
+y 	To reinstall the spark plug, screw in by hand, being careful
+not to cross thread, and gently tighten with a socket.
+S PA R K P L U G
+SPARK PLUG
+DO NOT over tighten as this can damage the
+thread/washer or cylinder block
+Ceramic/insulation
+casing
+What does it do?
+The spark plug produces a
+spark to ignite the air/fuel
+mixture in the cylinder.
+Electrode
+Compression
+Washer
+Terminal
+
+-- 38 of 138 --
+
+39	The Chainsaw Manual
+y 	Some spark plugs have a screw top
+where the HT Lead fits – check for
+tightness.
+y 	Examine the ceramic for any
+discolouration, cracking or damage
+which may cause the spark to arc.
+y 	Check the compression washer for
+cracks or wear.
+y 	The electrode gap is usually set at
+0.5mm (0.020”) to 0.63mm (0.025”)
+depending on the manufacturer’s
+recommended settings. Check with a
+feeler gauge and adjust if needed.
+y 	If there is an accumulation of carbon
+or corrosion on the electrode, gently
+clean with a brass/wire brush and
+apply some spark plug cleaner fluid.
+If the spark plug displays any defects
+or is too fouled then simply replace,
+as they are inexpensive.
+y 	Check the electrode colour
+Black/Dark:
+Rich 2-stroke
+mix or too little
+air/too much
+fuel.
+Grey/White:
+Weak 2-stroke
+mix or too much
+air/too little fuel.
+Brown:
+Air/fuel ratio
+correct.
+The colour on the electrode should
+be a brown colour.
+If the colour is too black or dark, it
+could indicate a blocked air filter or
+too much 2-stroke oil in the fuel.
+If the colour is too grey or white, it is
+running hot and could indicate a dirty
+fuel filter, a hole in the air filter or not
+enough 2-stroke oil in the fuel.
+Checking the electrode gap with
+a feeler gauge
+MODULE 5 - Maintenance
+Spark Plug
+
+-- 39 of 138 --
+
+40The Chainsaw Manual
+CARBURETTOR
+THE CARBURETTOR & TUNING
+What does it do?
+The carburettor atomizes the fuel and mixes it with air at an optimum
+ratio to be burnt in the combustion chamber.
+The carburettor is located behind the air filter and above the fuel
+tank.
+The fuel is pumped through the carburettor by means of diaphragms
+which react to the pressure and negative pressure within the cylinder.
+As the piston moves upwards to TDC (Top Dead Centre), it creates
+a negative pressure which opens a diaphragm to allow fuel to be
+drawn through the carburettor and mixed with the air. As the fuel/air
+mix is compressed and ignited it forces the piston downwards to BDC
+(Bottom Dead Centre). This creates a positive pressure closing the
+diaphragm. The needle valves control the amount of fuel allowed at
+any given moment – for example at idle, low-mid revs and high revs.
+The carburettor is vital to the good running of your chainsaw. If you
+suspect it is faulty, it’s recommended you take it to a repair shop to
+get it reconditioned or replaced.
+You can buy carburettor kits to use yourself, which contain the
+relevant diaphragms, gaskets, needles and more. This is meticulous
+work and needs to be undertaken carefully. The fault may be the
+butterfly valves, or that the actual carburettor body is worn, in which
+case the whole carburettor would need to be replaced.
+4. Chainsaw
+Maintenance ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 40 of 138 --
+
+41	The Chainsaw Manual
+If your model of chainsaw has three small
+holes in the side casing near the rear of
+the saw, you will be able to manually tune
+your chainsaw. These holes lead directly
+to the heads of the tuning screws (needle
+valves) of the carburettor.
+The screws are labelled as so:
+(T/TA) Idle Screw: Sets the fuel intake
+at idle
+(L) Low Screw: Sets the fuel at low/mid
+range revs
+(H) High Screw: Sets the fuel at high
+revs
+Note: All other component parts such as
+the air filter, fuel filter, fuel hoses, elec-
+trical system and spark plug, carburettor
+and exhaust system need to be serviced
+or replaced before tuning can begin in
+earnest.
+Safety Alert: Incorrect adjustment of the High (H) screw can
+cause engine over-revving. This increases the risk of catastrophic
+mechanical breakdown, clutch failure, or chain snapping, creating
+an extreme risk of physical injury to the operator. Tuning should
+only be conducted by trained personnel using a tachometer.
+How do you maintain it?
+Always reset screws to factory settings -
+be aware that incorrect tuning can lead to
+damage to the piston and cylinder.
+This can vary slightly but generally screw
+the L and H all the way in, then back out
+1 to 1½ turns.
+When the engine is running, adjust the
+idle screw until the chainsaw idles nicely
+without the chain moving. Do the same
+for the L screw.
+When the throttle is pressed or released,
+the chainsaw should idle nicely and the
+revs should pick up smoothly, you can
+now adjust the H screw. If you hear the
+saw ‘screaming’ at full throttle, then back
+the H screw out 1 turn.
+What do you think is the primary operational risk if the High (H) tuning screw is
+incorrectly set too tight/lean?
+Answer: It will cause engine over-revving (“screaming”), creating an extreme risk of a
+seized piston, clutch failure, or the chain snapping.
+
+-- 41 of 138 --
+
+42The Chainsaw Manual
+4. Chainsaw
+Maintenance
+COOLING SYSTEM
+COOLING
+SYSTEM
+What does it do?
+Chainsaw engines are air cooled. As the flywheel spins it draws
+air in, up, across and through the cylinder fins allowing a constant
+flow of air.
+It is critical that this system and its components are kept clean
+and damage free to ensure optimum efficiency.
+How do you maintain it?
+y 	Unscrew the four bolts on the recoil housing, remove and
+clean all vents.
+y 	Inspect the flywheel and cylinder fins for any cracks, dents,
+missing fins and accumulation of debris. If flywheel or cylinder
+fins are damaged or missing, replace immediately. A piston
+stop and flywheel removal tool/puller will be required to
+remove the flywheel.
+y 	Clean the flywheel and cylinder fins with a pressurised air-line
+or brush. Avoid using any metal implements on the fins as this
+could damage them.
+Air Flow
+Cylinder Fins
+Flywheel
+
+-- 42 of 138 --
+
+43	The Chainsaw Manual
+NOTE: The option of winter
+setting should only be selected
+if working in colder climates
+of a constant 0° C and below.
+If winter setting is used when
+temperatures are warmer you
+run the risk of damaging the
+chainsaw by overheating.
+On some chainsaws you have an option for a summer or winter setting (usually a
+plastic insert) which, if moved to winter setting, allows the warm air around the engine
+to circulate back to the air filter, improving the efficiency and running of the chainsaw in
+colder conditions.
+Replacement of the flywheel is possible with a
+special tool (flywheel puller).
+y 	Remove the spark plug and insert a piston stop.
+y 	Use a socket spanner of correct size to remove
+the nut. Do not use an impact driver as this can
+damage the flywheel.
+y 	Screw on the flywheel puller tool hand tight
+then hit sharply with a hammer. You may have
+to hit it more than once but this will loosen the
+flywheel for removal.
+Flywheel and flywheel
+puller tool
+Flywheel and Ignition Module
+As well as serving as an integral part of the cooling system, the flywheel also helps
+create the spark needed for combustion. The flywheel has magnets attached to it.
+As the flywheel spins, it passes by the ignition module. This creates a magnetic field
+which induces a voltage.
+This voltage/current then runs through the HT lead (high tensile lead) to the spark
+plug. The ignition module works in sync with the engine’s revolutions to time the
+spark when the piston is at TDC (top dead centre).
+Winter/Summer Setting
+MODULE 5 - Maintenance
+Cooling System
+
+-- 43 of 138 --
+
+44The Chainsaw Manual
+4. Chainsaw
+Maintenance
+E X H A U S T
+EXHAUST /
+MUFFLER
+What does it do?
+The exhaust breathes out whilst the air filter breathes in.
+The exhaust reduces the noise and emissions of the
+engine. It is also designed so the spent exhaust gases are
+pushed away from the operator.
+The exhaust is often overlooked but it is vital that it is
+clean, undamaged and free from excess carbon deposits.
+If left unchecked this can lead to sluggish performance.
+Spark Arrestor
+
+-- 44 of 138 --
+
+45	The Chainsaw Manual
+Use the combi-spanner to
+remove the Spark Arrestor
+How do you maintain it?
+y 	Check the bolts are tight and secure.
+y 	Examine for any dents, cracks or
+holes.
+y 	Clean any debris from in and around
+the exhaust area with a brush or air-
+line.
+y 	Some chainsaws have an external
+spark arrestor that can be removed
+easily.
+The spark arrestor gauze can build up
+excessive carbon deposits over time. It
+should be periodically removed and the
+carbon can be scraped off with a wire
+brush or burnt off with a blow torch.
+MODULE 5 - Maintenance
+Exhaust
+
+-- 45 of 138 --
+
+46The Chainsaw Manual
+F U E L & O I L F I L T E R S
+FUEL FILTER
+What does it do?
+The fuel filter helps prevent any
+debris from entering the fuel
+system - the carburettor and
+combustion chambers.
+How do you maintain it?
+y 	Empty the fuel in the tank into
+an approved container
+y 	Use a wire hook to fish out
+the filter. Do not use pliers
+or mole grips as these could
+damage the rubber hose.
+y 	Inspect for any rips, holes or
+damage to the filter or rubber
+hose.
+y 	The filter should not show
+signs of dirt or discolouration.
+y 	If any defects or heavy
+discolouration are found,
+replace the filter, as they are
+inexpensive.
+Fishing out the fuel filter
+using a hook
+y 	Note: When replacing the
+filter, pinch the hose slightly
+beneath the filter where it
+widens and have the new
+filter in arms reach.
+Heavy
+contamination
+4. Chainsaw
+Maintenance
+
+-- 46 of 138 --
+
+47	The Chainsaw Manual
+OIL FILTER
+What does it do?
+The oil filter helps to prevent debris from contaminating the oil pump and system.
+IMPORTANT! This
+requires the operator to
+remove the side cover,
+guidebar and chain first.
+Only then proceed to
+increase the rpm until
+the de-greaser appears
+through the oiling galley.
+How do you maintain it?
+y 	The majority of oil filters are either
+fixed into the main body or located on
+a short hose, so cannot be removed
+or cleaned easily.
+y 	Empty any oil left in the tank into an
+approved container.
+y 	Flush and wash out with a
+manufacturer’s recommended
+de-greaser.
+Alternatively, the filter can be accessed
+by removing the clutch assembly to
+expose the oil pump and system. Find
+the rubber hose that leads into the oil
+reservoir and gently pull through the body
+of the chainsaw. This can be tricky so if
+you don’t feel confident in your ability,
+take it to your local repair shop.
+y 	If still the filter is still clogged, start
+and run the saw and at low revs. This
+should draw the de-greaser through
+the oiling system and remove any
+debris left within the oiling system.
+MODULE 5 - Maintenance
+Filters
+
+-- 47 of 138 --
+
+48The Chainsaw Manual
+4. Chainsaw
+Maintenance
+O I L P U M P S Y S T E M
+OIL PUMP SYSTEM
+What does it do?
+This pumps chain oil from the oil
+reservoir tank into the bar allowing
+for the lubrication of the chain. The
+pump is located behind the clutch
+assembly.
+How do you maintain it?
+y 	Remove side cover, chain and
+bar.
+y 	Remove clutch assembly.
+y 	Clean around the area with a
+brush or air-line and remove a
+couple of screws.
+y 	Inspect for any damage
+to the pump and inspect
+rubber hosing for holes or
+perforations.
+y 	If all hosing is intact, free of
+blockages and oil filter is clean
+but still not oiling, replace the
+oil pump.
+y 	This can be done by removing
+a few screws and plastic cover.
+Pop off the rubber hosing.
+Replace in reverse order.
+ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 48 of 138 --
+
+49	The Chainsaw Manual
+Oil Pump 	Oil Filter
+Oil adjustment
+Most professional chainsaws have an oil
+adjustment screw. This allows the user
+to increase or decrease the amount of oil
+being fed into the guidebar.
+It is usually located on the underside of
+the saw towards the clutch drum.
+For example, you might decide to
+increase the oil if using a longer guide-
+bar or cutting in dusty/dry conditions.
+Oil Adjustment Screw
+y 	To access and remove the oil filter you will need to locate the hose that feeds the
+oil reservoir. This hose has the oil filter attached to the end of it.
+y 	Gently pull the hose and filter through the body of the saw, inspect, clean or
+replace.
+This can be a fiddly process to extract and to re-install, contact your local repair shop if
+in any doubt.
+Oiling System
+MODULE 5 - Maintenance
+
+-- 49 of 138 --
+
+50The Chainsaw Manual
+RECOIL ASSEMBLY
+RECOIL
+ASSEMBLY
+What does it do?
+When the handle is pulled, the pawls are drawn out and engage the
+flywheel, allowing for the starting of the engine.
+How do you maintain it?
+y 	Remove the recoil side cover by
+removing 4 screws and inspect
+for any damage to the pawls or
+springs.
+y 	The pawls are located on the
+flywheel or on the side casing
+depending on the chainsaw
+manufacturer.
+4. Chainsaw
+Maintenance
+y 	Check for any cracks or damage to any parts and clean all side
+cover vents and flywheel to allow free flow of air.
+y 	De-tension the pull cord and examine for any excessive abrasion
+and fraying, in particular where the cord contacts with the body of
+the casing and the bottom of the handle. Replace as necessary.
+Pawls
+Recoil
+Assembly
+
+-- 50 of 138 --
+
+51	The Chainsaw Manual
+De-tensioning the pull cord:
+y 	Pull the cord out to full length and
+hold the drum with one thumb.
+y 	Pinch the cord inside the casing and
+pull directly upright (on some models
+you will have to locate the small notch
+when doing this).
+y 	Release the holding thumb – this
+should allow the drum and spring to
+unwind.
+Check if you haven’t over tightened the spring, pull the cord out full length
+and twist the drum clockwise for half a turn. If the drum is difficult to turn
+you have over tightened the spring.
+Re-tensioning the pull cord:
+y 	When re-tensioning, pinch the cord
+close to the drum and wind clockwise
+four to six turns (on some models you
+will have to locate the small notch
+when doing this).
+The amount of turns is dictated by the
+length of cord.
+y 	Once wound, hold the handle and
+slowly release back into the casing.
+y 	Add or subtract a turn depending on if
+too tight or slack.
+The correct tension is when the handle springs back into the upright postion easily.
+MODULE 5 - Maintenance
+Recoil Assembly
+
+-- 51 of 138 --
+
+52The Chainsaw Manual
+NOTE: at any moment
+the spring can move
+uncontrollably if the pressure
+is not firm enough.
+Replacing a recoil spring
+This a fairly straightforward task when
+replacing with a brand new part as the
+new spring comes pre-coiled ready for
+installation. It’s just a case of swapping
+out the old one and popping in the new
+one.
+The recoil spring is located underneath
+the plastic housing and can sometimes
+break from wear or over tensioning. This
+can be accessed by removing the bolt
+and retaining clip.
+If the spring has become loose and
+sprung out and you need to re-coil the
+spring, this can be somewhat of an
+arduous task involving mostly thumb
+strength!
+y 	Make sure the spring is nicely seated
+in the middle.
+y 	Begin to turn the side casing, pushing
+down on the spring, coiling it as you
+go.
+y 	Keep coiling until the whole spring sits
+flat into the space.
+4. Chainsaw
+Maintenance
+Replacement Spring
+ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 52 of 138 --
+
+53	The Chainsaw Manual
+
+-- 53 of 138 --
+
+54The Chainsaw Manual
+4. Chainsaw
+Maintenance
+CLUTCH ASSEMBLY
+CLUTCH ASSEMBLY
+What does it do?
+The clutch assembly allows the
+engine to engage the clutch drum
+and sprocket, therefore pushing
+the chain around the guidebar.
+How does it work?
+Centrifugal Force:
+The clutch weights are connected
+to the clutch assembly. They are
+held in place by strong clutch
+springs. The clutch assembly is
+connected to the drive shaft.
+Once higher rpms are achieved,
+centrifugal force overcomes the
+clutch springs and the clutch
+weights are flung out, engaging
+the clutch drum and therefore the
+sprocket.
+At lower rpm (tick-over), the clutch
+assembly design allows the clutch
+weights to spin freely without
+engaging the clutch drum and
+sprocket to keep the chain from
+moving.
+E-Clip 	Washer Sprocket 	Clutch drum 	Needle
+bearing
+Chain spinning at idle?
+- Clutch assembly dirty/full
+of debris
+- Needle bearing worn
+- Clutch springs/weights
+worn or weakened
+- Rpm too high at tick-over
+- Chain too loose
+Clutch Weights and Springs
+
+-- 54 of 138 --
+
+55	The Chainsaw Manual
+Inboard/Outboard Clutch Assembly Position:
+The two positions of the clutch assembly
+are inboard or outboard.
+The advantages and disadvantages are
+always debated and can come down to
+personal preference.
+Generally speaking, an outboard clutch
+tends to make the chainsaw body thinner
+and more gyroscopically maneuverable
+when undertaking tasks like snedding.
+An inboard clutch can make the body
+slightly wider but easier to change the
+sprocket.
+Outboard Clutch
+Inboard Clutch
+MODULE 5 - Maintenance
+Clutch Assembly
+
+-- 55 of 138 --
+
+56The Chainsaw Manual
+4. Chainsaw
+Maintenance
+REMOVAL OF AN OUTBOARD CLUTCH:
+y 	An outboard clutch can be removed by unscrewing the
+spark plug and inserting a piston stop in the position
+of the spark plug. Note: This is not necessary on
+some machines - check with the manufacturer. Some
+manufacturers have clutch removal tools specific for
+their machine and details of how to use them.
+y 	Take a combi spanner or screwdriver, place in the indent
+and hit sharply with a hammer. The weights should spin
+off in a clockwise (opposite thread) direction.
+Place the combi-spanner in the
+indent and hit sharply with a
+hammer
+Remember - it is an opposite thread so turn clockwise to
+loosen and anti-clockwise to tighten
+y 	As the drum is removed, the sprocket
+should be inspected.
+y 	The needle bearing should also be
+examined, greased and replaced if
+necessary.
+y 	Inspect the clutch drum for any
+damage, cracks, debris and wear.
+Clean as necessary.
+y 	Inspect the clutch springs and clips.
+Over time the clutch springs can eat
+into the clutch weights or stretch,
+causing the assembly to malfunction
+and eventually snap or pull through
+the weights.
+y 	To reassemble, position all the
+elements in the correct order and
+hand tighten anti-clockwise.
+Clutch Removal
+Tool
+Piston Stop
+
+-- 56 of 138 --
+
+57	The Chainsaw Manual
+y 	Also remove the needle bearing. It
+should also be examined, greased
+and replaced if necessary.
+y 	Inspect the clutch drum for any
+damage, cracks, debris and wear.
+Clean as necessary.
+y 	Inspect the clutch springs and clips.
+Over time the clutch springs can eat
+into the clutch weights or stretch,
+causing the assembly to malfunction
+and eventually snap or pull through
+the weights.
+REMOVAL OF AN INBOARD CLUTCH:
+When removing the E-clip be careful
+not to let it ping onto the floor as it
+can be hard to find again!
+y 	First remove the E-clip with a small
+screwdriver or similar.
+y 	Remove the washer, sprocket and
+clutch drum. This is an excellent
+time to inspect and/or replace your
+sprocket.
+When re-inserting the clutch drum,
+you must align the small cut-out
+notch in the clutch drum with the oil
+pump arm.
+Locate the
+notch for
+oil pump
+arm
+Replace
+the E-clip
+using
+pliers
+y 	To remove the clutch weights, first
+remove the spark plug and insert the
+correct piston stop.
+y 	Use a combi spanner or
+manufacturer’s specific tool to turn
+assembly clockwise to loosen.
+Remove E-clip with
+small screwdriver
+Clutch Weights and Springs
+
+-- 57 of 138 --
+
+58The Chainsaw Manual
+4. Chainsaw
+Maintenance
+What does it do?
+The sprocket drives the chain around the bar. The drivelinks of the
+chain sit in the sprocket grooves giving the chain its drive when the
+clutch is activated.
+S P R O C K E T
+SPROCKET
+Rim Sprocket:
+This floats on the
+clutch drum, is
+less expensive to
+replace but wears
+quicker.
+Spur Sprocket:
+This is integral with
+the clutch drum,
+more expensive to
+replace but harder
+wearing.
+There are two types of sprocket - Rim and Spur
+
+-- 58 of 138 --
+
+59	The Chainsaw Manual
+How do you maintain it?
+y 	Remove the side casing, chain and
+guidebar.
+y 	Inspect the sprocket for any damage,
+cracks or excess wear.
+y 	Some sprockets have wear indication
+lines. If not, check with a 0.5mm
+gauge. If wear lines are not visible
+or the depth of wear is in excess of
+0.5mm, replace.
+y 	Most sprockets last two to three
+chains with normal use. For removal
+see Clutch Assembly.
+y 	The grooves in the sprocket are set at
+a certain pitch (distance apart) which
+your chain pitch needs to match. You
+can decide between a 7 or 8 tooth
+sprocket, 7 giving more torque and 8
+giving more chain speed.
+NOTE: Using a worn sprocket can lead to unnecessary
+wear to the chain drive links and damage to the
+underside of the tie straps, this is called peening. This
+in turn damages the chain, sprocket, guide bar and
+nose sprocket.
+Visible wear
+lines
+7 or 8 Toothed Sprockets
+Check wear
+grooves with
+0.5mm gauge
+0.5mm gauge for sprocket
+(and spark plug gap)
+MODULE 5 - Maintenance
+Sprocket
+
+-- 59 of 138 --
+
+60The Chainsaw Manual
+What does it do?
+When applied, the chain brake band
+tightens around the clutch drum
+stopping it from turning the sprocket
+and therefore the chain. Chain brakes
+are activated manually with the back
+of the left hand or are triggered by
+inertia. It also serves as a left-hand
+guard.
+C H A I N
+ 
+B R A K E
+CHAIN BRAKE
+Inboard Clutch
+Configuration
+The chainbrake band on an
+inboard clutch is located within
+the body of the saw.
+Outboard Clutch
+Configuration
+The chainbrake band on an
+outboard clutch is located within
+the side casing.
+4. Chainsaw
+Maintenance
+
+-- 60 of 138 --
+
+61	The Chainsaw Manual
+How do you maintain it?
+y 	In both cases, inboard and outboard,
+make sure the chain brake is activated.
+Remove a few small screws and
+plastic cover to access the entire band.
+y 	Inspect the metal band for any blueing/
+overheating, distortion, cracks and
+any wear, in particular at the thinnest
+points.
+y 	Clean any debris with an airline or
+brush and replace if damaged.
+y 	The mechanism and spring will also
+need to be cleaned periodically.
+Chain brake band
+MODULE 5 - Maintenance
+Chain Brake
+
+-- 61 of 138 --
+
+62The Chainsaw Manual
+G U I D E B A R
+GUIDEBAR
+4. Chainsaw
+Maintenance
+What does it do?
+The guidebar provides the rails on which the chain sits, guiding the
+chain around the bar. It also allows the chain oil to circulate effectively
+and helps keep optimum chain cutting efficiency.
+Guidebars come in various sizes and can be solid, laminated or a
+combination of both. Some have solid noses or with nose sprockets
+being fixed or replaceable.
+Laminated Bars:
+Laminated bars are frequently
+used and have either fixed or
+replaceable nose sprockets.
+Laminated guidebars are used for
+most applications.
+Solid Nose Bars
+Solid guidebars with no nose
+sprockets are mainly used for
+cutting extremely hard, large
+and/or dirty timber and have a
+protective layer on the nose to
+help prevent wear. They can also
+be used for small carving bar
+applications.
+Replacement nose
+sprocket
+Guidebar
+groove
+cleaner
+
+-- 62 of 138 --
+
+63	The Chainsaw Manual
+How do you maintain it?
+y 	Examine the bar for its straightness.
+y 	Check if the rails are an even height,
+are not pinched, splayed or overly
+worn in particular areas (namely by
+the nose and where the chain enters
+the bar).
+y 	Inspect for burring, cracking and
+any blueing of the metal (caused by
+overheating).
+y 	The nose sprocket should turn freely
+and not be too worn.
+y 	Use a bar-dresser or flat file to
+achieve equal rail heights and file
+down any burrs.
+y 	Check the groove depth for your
+chain pitch as you do not want the
+drivelinks to be touching the bottom
+of the groove. For a .325” pitch the
+minimum depth should be 6mm.
+y 	Grease the nose sprocket if
+applicable and clean debris from the
+groove and oil holes.
+y 	Periodically flip the bar when
+reassembling to ensure even wear.
+Check the depth of the
+groove
+Use a bar-dresser or flat file to
+achieve equal rail heights and file
+down any burrs.
+Grease nose sprocket if
+applicable
+Incorrect bar maintenance
+can lead to:
+y 	Inaccurate cutting
+y 	Increase in vibration
+y 	Reduced oiling
+y 	Overheating (blueing of the bar)
+y 	Increased wear on the chain,
+guidebar and sprocket
+MODULE 5 - Maintenance
+GuideBar
+
+-- 63 of 138 --
+
+64The Chainsaw Manual
+The chain is arguably the most
+important component of a
+chainsaw. This determines the
+accuracy, smoothness, safety and
+overall efficiency of the chainsaw.
+Chains come in different sizes,
+types, arrangements, profiles and
+materials.
+It is up to the user to decide which
+chain to use for their intended
+application.
+The following pages and
+information will hopefully allow
+you make an informed decision for
+your particular situation.
+CHAINSAWCHAIN
+Right-Hand
+Cutter
+Left-Hand
+Cutter
+Drive
+Links 	Bumper
+Drive Link
+Tie-Straps
+Pre-set Tie-straps
+Bumper
+Tie-strap
+Chain components:
+These components can be customised by the manufacturer or user to suit
+different applications.
+THE CHAINSAW CHAIN
+5. The Chainsaw
+Chain
+
+-- 64 of 138 --
+
+65	The Chainsaw Manual
+Working
+Corner
+Gullet
+Depth
+Gauge
+Top Plate
+Witness Mark 	Side Plate
+Rivet Holes
+Toe	Heel
+Incorrect chain maintenance
+can lead to:
+y 	Inaccurate cutting
+y 	Excessive vibration
+y 	Increased risk of kickback
+y 	Over-working of the engine
+y 	Increased risk of chain snapping
+y 	Overheating
+y 	Increased wear on the chain,
+guidebar and sprocket
+The Working Corner
+The working corner is the first part of
+the cutter that contacts the timber. This
+severs the wood and so needs to be
+sharp. This is especially true with a
+full chisel chain. An effective working
+corner is achieved by correctly filing
+the top and side plate angles.
+Cutting tooth:
+MODULE 6 - Chain Components
+Chain Basics
+
+-- 65 of 138 --
+
+66The Chainsaw Manual
+The Cutting Tooth:
+The cutting tooth is the element
+of the chain that does the
+cutting. It determines the speed,
+smoothness and efficiency of
+the cut. Most cutters are chrome
+plated, providing good durability
+and ease of sharpening.
+For more specialised use cases the cutters can be carbide or diamond
+tipped. These would typically be used for emergency situations, for
+cutting through concrete or extremely contaminated material.
+There are various types of cutter profile ranging from a square edged
+chisel to a rounded chipper profile. These variations have different
+properties allowing the user to choose between durability, lower
+kickback or faster cutting speed. The choice of cutter profile will depend
+on the intended application.
+THE
+CUTTER
+Generally speaking - Full-Chisel cutter profile (right-angle)
+for faster cutting, or a Semi-Chisel or rounded cutter profile
+for more durability.
+Full Chisel Profiles
+Faster Cutting
+Less Durable
+Increased Kickback
+Semi-Chisel Profiles
+Slower Cutting
+More Durable
+Decreased Kickback
+5. The Chainsaw
+Chain
+T H E C U T T E R
+
+-- 66 of 138 --
+
+67	The Chainsaw Manual
+y 	The depth gauge guides to wood into
+the working corner.
+y 	The working corner first severs the
+wood.
+y 	The side and top plates then work
+together to carve the wood into a
+‘chip’.
+y 	This chip is forced down into the gullet
+and carried away.
+How does it work?
+The chainsaw cutter is designed similarly
+to the traditional hand-held planer.
+On a planer the cutting depth is set by
+altering the height of the blade. As the
+planer is moved along the surface of the
+timber, a sliver of wood is shaved off.
+On a chainsaw cutter, the depth is set by altering the height of the depth gauge. This
+regulates how big the size of chip is produced.
+If your chain is dull, it doesn’t matter if you buy a powerful chainsaw - a smaller
+chainsaw will cut more effectively if the chain is sharp and guidebar maintained.
+
+-- 67 of 138 --
+
+68The Chainsaw Manual
+TOOTH PROFILES
+CUTTER PROFILES
+Full Chisel (Square Ground):
+This is the fastest cutter profile, normally
+reserved for professional use. Although
+this is the most efficient and fastest
+cutter profile it is more prone to kickback
+and vibration. It also dulls quicker than
+other profiles and it can be harder
+to sharpen accurately. This profile is
+preferred for softwood trees.
+Full Chisel (Round Ground):
+This is the second fastest cutter profile
+normally used by professionals. This
+profile is fast and efficient but it also
+suffers from more kickback and vibration.
+It can dull quicker than other profiles and
+it can be harder to sharpen accurately.
+This profile is preferred for softwood
+trees.
+Semi Chisel:
+This cutter profile is slightly rounded
+where the top and side plate meet.
+It achieves good cutting speed and
+durability while decreasing kickback and
+vibration. This is a very common profile
+that both professionals and amateurs
+use for a variety of timber types and
+situations. This profile is preferred for
+hardwood and most timber types – a
+versatile all-rounder.
+5. The Chainsaw
+Chain
+
+-- 68 of 138 --
+
+69	The Chainsaw Manual
+Low Profile (Lo-pro/Picco):
+The low profile cutter is rounded and
+is designed to significantly decrease
+kickback, vibration and create a
+smoother cut. This profile is preferred for
+smaller chainsaws, pole pruners and top
+handled chainsaws.
+Chipper Profile:
+This profile has a pronounced curved
+edge and is designed for cutting rough,
+dirty, dry and contaminated timber. It is
+the most durable but has the slowest
+cutting speed. It is mostly used for
+mechanical harvesters.
+
+-- 69 of 138 --
+
+70The Chainsaw Manual
+ARRANGEMENTS
+TEETH ARRANGEMENT
+The most common arrangement of cutting teeth is the standard
+sequence (see opposite).
+For cutting small or large timber, both hardwood and softwood,
+a standard sequence is the safest, smoothest and has the best
+overall performance.
+The semi-skip and full-skip sequences are reserved for
+professional users cutting large timber the majority of the time
+and for use with chainsaw mills.
+The semi-skip and full skip chains have fewer teeth and are
+therefore quicker to sharpen and do not get ‘bogged down’ in the
+cut. The teeth tend to dull quicker than a standard sequence so
+need sharpening more often.
+5. The Chainsaw
+Chain ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 70 of 138 --
+
+71	The Chainsaw Manual
+Standard Sequence:
+Most standard chains are arranged with the left and right hand cutting teeth alternating
+after every tie-strap. This provides greatest smoothness and speed of cut on small to
+medium sized bars where most cuts are frequent, and are not full bar length. It reduces
+kickback and vibration, and increases the quality of the cut. Standard sequence is the
+best choice for most applications for felling, snedding, limbing and cross-cutting of
+small to medium sized timber.
+Semi-Skip Sequence:
+The cutting teeth are arranged alternating between one and two tie-straps. This is the
+middle ground between the full-skip and standard cutter arrangement. This sequence
+increases kickback, vibration and roughness of cut. It is not as efficient as the full-skip
+to remove the chips and doesn’t have the smoothness of the standard sequence.
+Full-Skip Sequence:
+On a full-skip chain, the left and right hand cutting teeth are arranged alternately every
+2 tie-straps. This provides more efficiency when using longer bars cutting full or over
+bar length. The extra space between the cutters allows the chip to be easily cleared
+and decreases the saw being ‘bogged down’.
+This sequence is best saved for professional use on big timber since it significantly
+increases the risk of kickback, increases vibration and produces a rougher finished cut.
+
+-- 71 of 138 --
+
+72The Chainsaw Manual
+CHAIN IDENTIFICATION
+CHAIN IDENTIFICATION
+Different brands of chain can fit on multiple brands of guidebars.
+The chain you have on your saw is not necessarily the same brand as the
+chainsaw or guidebar. If you have the box the chain came in, then refer to
+that. If not, you will have to identify the chain using markings found on the
+chain itself.
+Firstly, identify the brand - this is usually found on the tie strap or cutter.
+Secondly, find the numbers or letters on the chain - this varies by
+manufacturer.
+Other manufacturers have similar ways of marking their chains and
+will have their own chain charts for reference.
+Oregon/Husqvarna:
+For brands such as Oregon and
+Husqvarna, identify the number on the
+drive link. Cross reference this number with
+the chain chart on the inside back cover.
+Number on Drivelink
+Brand
+Stihl:
+For Stihl chains identify the number on the
+depth gauge first and then the number on
+the drive link.
+Put those two numbers together and cross
+reference this number with the chain chart
+on the inside back cover.
+In this example it would be 63
+Number on Drivelink
+Number below Depth Gauge
+5. The Chainsaw
+Chain
+
+-- 72 of 138 --
+
+73	The Chainsaw Manual
+CHAIN PITCH
+The pitch of the chain is its size – usually measured in inches. This is
+calculated by measuring the distance between any three rivets and divide
+by two.
+Generally, the larger the pitch, the bigger the chain and therefore the larger
+the chainsaw to run it.
+There are exceptions however - notably the 3/8” and .325” Picco/Lo-Pro
+and the larger 3/8” and .325”. The chains are different in overall physical
+size but fit completely differently sized saws.
+Pitch to Power Ratio
+Pitch 	Power 	Chainsaw Size 	Approx. File Size
+1/4” 	< 45cc
+Small chainsaws/power
+pruners/top handled
+saws
+1/8” 	3.2mm
+3/8”p
+.325”p
+25cc -
+45cc Small chainsaws 	5/32” 	4.0mm
+.325” 45cc -
+60cc Mid-sized chainsaws 	3/16” 	4.8mm
+3/8” 60cc -
+90cc Mid to large chainsaws 	13/64” 	5.2mm
+.404” 90cc -
+120cc Large chainsaws 	7/32” 	5.5mm
+3 Rivets ÷ 2 =
+Pitch
+C H A I N
+ 
+P I T C H
+MODULE 6 - Chain Components
+Chain Identification
+
+-- 73 of 138 --
+
+74The Chainsaw Manual
+CHAINGAUGE
+GAUGE
+The gauge ultimately determines the width of the cut, also
+known as the kerf. A thinner gauge means narrower guidebar
+rails. This can mean better cutting performance, but the chain is
+more prone to breakage on more powerful saws. This is where
+you might opt for a wider gauge.
+If you have the incorrect gauge, the chain will either not fit into
+your bar groove or be too loose, causing more wear to occur.
+Drivelink - thickness of
+the links is the gauge
+Guidebar Groove - distance between rails is the gauge
+The gauge is the distance between the guidebar rails -
+the thickness of the groove. The drivelinks of the chain
+need to be the same gauge to fit into the groove.
+5. The Chainsaw
+Chain
+Nose Sprocket
+Pay attention to the gauge of the bar but also the pitch.
+The nose sprocket will have a set pitch, for example 3/8”
+pitch. If this does not match the pitch of the chain, the
+chain will not fit.
+
+-- 74 of 138 --
+
+75	The Chainsaw Manual
+REPLACING THE CHAIN
+REPLACING THE CHAIN
+There are many components and
+considerations to think about when
+choosing a new chain. The choice
+of chain is predominately personal
+preference. Some users prefer a
+slightly slower but smoother cut
+and others a more aggressive,
+faster cut. The decision can change
+due to timber type and different
+applications.
+You will need several pieces of
+information to help the retailer to
+identify the exact chain you require.
+To buy a new chain you’ll need:
+y 	Chain pitch
+y 	Gauge
+y 	Guidebar length
+y 	Number of drivelinks
+y 	Cutter profile with optional extra
+safety features
+If not too worn, the relevant information can be
+found on the side of the guidebar.
+All chains (with the
+correct pitch, gauge
+and number of
+drivelinks) can be fitted
+to any corresponding
+guidebar and
+saw regardless of
+manufacturer.
+MODULE 6 - Chain Components
+Chain Replacement
+
+-- 75 of 138 --
+
+76The Chainsaw Manual
+Tools for Sharpening a Chainsaw Chain
+There are many different methods and tools for sharpening a chain. The
+choice you make will depend on what works best for you. The two main
+deciding factors will be:
+y 	Do you have a workshop space equipped with any mechanical
+sharpening devices/grinders?
+If so, you might opt to use mechanical devices to sharpen the chain. You
+will likely sharpen more accurately in a dry, comfortable environment, and
+multiple chains can be sharpened at a time.
+y 	Are you out on site a lot of the time, away from your workshop?
+If so, you might opt for hand filing with a stump vice or similar and use a
+filing guide or aid to keep sharpening consistent and accurate.
+CHAIN SHARPENING
+CHAIN SHARPENING
+Note - Machine sharpening can lead to the tooth hardening, making it
+difficult to hand sharpen thereafter.
+A variety of sharpening tools
+5. The Chainsaw
+Chain
+
+-- 76 of 138 --
+
+77	The Chainsaw Manual
+Basic Sharpening Guide
+Before sharpening any chain, identify
+what chain it is, what file you need and
+what angles you need to file at (See the
+Chain Identification Chart inside back
+cover).
+y 	Inspect the cutters and identify the
+shortest or most damaged tooth.
+y 	Sharpen this tooth first and sharpen
+the rest of the teeth to match.
+y 	Place the file into the gullet of the
+cutter.
+y 	Align the file for the desired angle and
+push in a forwards motion towards
+and ‘through’ the working corner.
+y 	Pressure needs to be applied down
+and back towards the cutter.
+y 	To ensure accuracy, the pressure
+applied needs to be consistent for
+every cutter.
+y 	Inspect each cutter before the next
+to ensure pressure has been applied
+correctly.
+y 	Use calipers to confirm that all teeth
+are the same length.
+y 	Make sure you form a good side plate
+angle - a nice ‘hook’.
+DO NOT file from the working corner inwards, the cutters are
+chrome plated can be blunted by filing the wrong way.
+Push towards the working corner
+Damage
+to working
+corner and top
+plate
+MODULE 7 - Chain Sharpening
+Sharpening Guide
+
+-- 77 of 138 --
+
+78The Chainsaw Manual
+FILING ANGLES
+FILING ANGLES
+Top Plate Filing Angles
+The manufacturer’s recommendations for file size and filing angles
+should always be followed.
+Most manufacturers recommend top plate filing angles in the range of
+25°-35°. This is where the optimum balance between efficiency and
+durability is to be found.
+That said, with a little experience and knowledge, the file size and angles
+can be changed by the user to suit different conditions and timbers they
+are cutting.
+Correct Top Plate Angle:
+Between 25°- 35° depending on
+manufacturer.
+This is the range where the balance
+between efficiency and durability is to be
+found.
+The Flatter the cutter angle
+0-20° - the slower and less
+efficient at severing timber it
+is, but less prone to damage
+and therefore more durable.
+The Sharper the cutter angle
+30-40° - the faster and more
+efficient at severing timber
+it is, but blunts quicker and
+therefore less durable.
+5. The Chainsaw
+Chain
+
+-- 78 of 138 --
+
+79	The Chainsaw Manual
+Side Plate Filing Angles
+The side plate is commonly overlooked, but is extremely important in keeping the chain
+at its optimum cutting speed.
+No matter what top plate filing angle, the side plate angle should stay the same.
+Most manufacturers recommend side plate angles of around 85°.
+While consistency is important, don’t get caught up in the exact degrees of the
+side plate angle, the profile you want to achieve is a nice ‘hook’ - like the crest of
+a wave.
+Correct Side Plate Angle:
+Around 85° depending on manufacturer.
+This is the range where the balance
+between efficiency and durability is to be
+found.
+Too Hooked - This will result in
+more aggressive cutting and
+will blunt easily, potentially
+damaging or snapping the top
+plate.
+Too Laid-back - This will
+result in less efficient
+cutting adding more strain
+to the chainsaw and the
+operator.
+
+-- 79 of 138 --
+
+80The Chainsaw Manual
+DEPTHGAUGE
+DEPTH GAUGE
+When set correctly the depth
+gauge promotes:
+y 	Efficient cutting
+y 	Smooth cutting
+y 	Less vibration
+y 	Less kickback
+If the depth gauge is set too low this causes the cutter to bite too
+hard, increases kickback and can stall the chain.
+If the depth gauge is set too high the tooth will not be able to cut.
+When set incorrectly the depth
+gauge can:
+y 	Increase kickback
+y 	Increase vibration
+y 	Increase stress on chain and
+sprocket
+y 	Decrease in cutting control
+What does it do?
+The depth gauge sets the size of wood chip that is cut by the cutting
+tooth.
+Depth Gauge
+Number can denote
+recommended depth
+setting:
+25 = 0.025”/0.65mm
+(Some manufacturers
+like Stihl, the number
+can indicate pitch)
+5. The Chainsaw
+Chain
+
+-- 80 of 138 --
+
+81	The Chainsaw Manual
+y 	Rest your chosen guide on the tooth.
+y 	If the depth gauge stands proud, it needs to be filed. If not, the depth gauge does
+not need filing.
+y 	Push the flat file over the depth gauge a few times until it is at the desired level.
+Make sure to file with the curve to reduce kickback and vibration.
+y 	Note: DO NOT file over the guide as this will gradually lower the guide and
+therefore lower the height of the depth gauge.
+y 	Tilt the guide at an angle to prevent the file from touching the guide. This also
+protects the working corner of the tooth.
+y 	Use a depth gauge guide tool and a
+flat file to set the height of the depth
+gauge. There are a few different
+tools for this but all achieve the same
+result.
+
+-- 81 of 138 --
+
+82The Chainsaw Manual
+There is one particular spot on the guidebar
+where kickback occurs, and that is the top
+quadrant of the guidebar nose.
+There are elements of chain sharpening
+and maintenance that can result in more
+kickback.
+When the chain moves round the top
+quadrant of the guidebar and comes
+into contact with timber, the chain
+continues to cut. At this point it’s still
+a pushing chain so it pushes the
+saw upwards and back, ‘kicking’ the
+chainsaw towards the operator.
+‘Pinch’ kickback is similar but where
+the chain gets pinched within a
+cut. The chain continues to cut but
+pushes and rolls the chainsaw out of
+the cut into the operator.
+It is paramount that the kickback
+zone is avoided. Applying a correct
+work position, sharpening the chain
+correctly and using the appropriate
+cuts should reduce the risk of
+kickback occurring.
+Kickback
+Zone
+5. The Chainsaw
+Chain
+
+-- 82 of 138 --
+
+83	The Chainsaw Manual
+Ramped Depth Gauge:
+The simple ramped depth gauge helps
+feed the timber into the cutter at a gentler
+angle. As mentioned earlier, if there were
+no depth gauges at all the cutter would
+constantly jam, stall and cause major
+kickback.
+Bumper Drive Link:
+The raised bumper drive links help guide
+the timber into the depth gauge at a
+gentler angle, reducing kickback. These
+have the disadvantage of slightly slowing
+the cut and making it a little harder to
+perform a bore cut.
+Bumper Tie Straps:
+The bumper tie straps massively
+decrease the risk of kickback but also
+reduce the cutting efficiency. This feature
+is recommended for home owners,
+beginners and occasional users, and for
+smaller chainsaws.
+Kickback-reducing features:
+MODULE 8 - Kickback
+Kickback
+
+-- 83 of 138 --
+
+84The Chainsaw Manual
+Why Make Your Own Chains?
+y 	More economical
+y 	Gives flexibility
+Buying a reel of chain gives you the freedom to
+create a chain at any length instead of buying a
+preset chain loop.
+Chain reels are available to buy at different
+lengths (500ft or 1000ft for example). Decide
+what pitch, gauge and cutter profile you need,
+and you can make chains to suit different
+guidebar lengths. You might need to buy multiple chain reels to
+accommodate different pitch and gauge sizes, depending on how many
+different saws you have.
+Buying a reel of chain can work out cheaper than buying preset chain
+loops, although there is a tendency to be more wasteful with a reel. It’s
+easier to make and use new chains than to sharpen old blunt ones!
+Making Your Chain
+Tools you need:
+y 	Rivet Punch
+y 	Rivet Spinner
+y 	Preset tie straps (correct
+pitch and gauge) & Cutters
+y 	Anvil
+y 	Eye protection
+y 	Gloves
+Make sure you know how
+many drivelinks are required
+for the intended guidebar. Eye Protection
+Rivet Spinner	Rivet Punch
+Anvil
+Preset Tie Straps &
+Cutters
+Gloves
+ADVANCED WORKSHOP EXTENSION MODULE
+5. The Chainsaw
+Chain
+
+-- 84 of 138 --
+
+85	The Chainsaw Manual
+y 	Place the chain on the anvil, making
+sure to centre the punch with the
+centre of the tie strap rivet - this is
+important otherwise damage may
+occur to other parts.
+y 	Pull the handle down and pop it.
+y 	Do this for both tie strap rivets.
+y 	Join both ends of the chain with the
+new preset tie strap and place in the
+rivet spinner.
+y 	Tighten the back handle slightly to grip
+the rivet. As you rotate the spinner
+handle, apply pressure and turn the
+handle back slowly at the same time.
+y 	Spin the first rivet about half way, then
+the other, to provide equal tension.
+y 	Turn and tighten the back handle
+slowly as you rotate the spinner handle
+until both rivets are spun into the tie
+strap.
+y 	Try not to add too much pressure or
+over-spin, as this will cause the tie
+strap to pinch the drivelink.
+What is the safety hazard of applying too much pressure or over-spinning a
+replacement chain rivet?
+Over-spinning the rivet pinches the drive link, causing a stiff link that will result
+in extreme guidebar vibration, erratic cutting, or premature chain breakage
+under load.
+Well done! You just made your first chain.
+Repairing a chain - If your chain snaps or
+is damaged, repeat the process as above.
+Break out the tie straps before and after
+the cutters. Completed Spun
+Rivets
+
+-- 85 of 138 --
+
+86The Chainsaw Manual
+Achieving the correct chain tension is important. If the chain is too loose there is a
+risk of chain derailment. If too tight it can overheat the chain and bar. Both of these
+scenarios will increase wear on the guidebar, sprocket and chain.
+The correct tension should allow the chain to rotate easily but stop when force is
+released.
+Firstly, release
+the chainbrake
+and use a
+combi-spanner
+to turn the bolts
+anticlockwise
+until loose.
+Turn the
+tensioner screw
+clockwise/
+anticlockwise to
+achieve desired
+tension, then
+tighten bolts.
+DO NOT try to tension the chain without loosening the side cover bolts first. This
+results in damage to the chain tensioner mechanism.
+Chain Re-Tensioning:
+y 	Reassemble the chain and guidebar making sure the chain is seated in the
+sprocket and the chain tensioner is lined up.
+y 	Tighten the bolts clockwise to hand tight.
+y 	Turn the tensioner screw clockwise to achieve correct tension and tighten the bolts
+with the combi-spanner.
+Chain Removal:
+Make sure the bolts have been loosened. Turn the
+chain tensioner screw anticlockwise a few full turns.
+This allows for the side cover and chain tensioner
+to be removed easily and also allows for easier
+reassembly.
+Bring the guidebar towards you and push towards
+the sprocket. This will allow the chain to slacken
+completely. It helps to remove the chain from the drive
+or nose sprocket before removing entirely from the
+guidebar. Repeat the same method for an inboard
+clutch.
+ALWAYS RELEASE THE CHAINBRAKE FIRST!
+MODULE 6 - Chain Components
+Chain Tension
+5. The Chainsaw
+Chain
+Chain Tensioning
+
+-- 86 of 138 --
+
+87	The Chainsaw Manual
+This section aims to address some of the more common problems that
+occur with a chainsaw and present potential solutions. In many cases,
+it will be a combination of causes and not just one element that needs
+attention. This is designed to help you identify, diagnose, and resolve
+the most common faults that occur during operation.
+A chainsaw relies on a delicate balance of fuel, air, spark, and
+mechanical movement. Because these systems are completely
+interdependent, a symptom in one area often stems from a root cause
+in another.
+For example, if your engine is stalling, it could be a clogged air filter,
+old fuel, a faulty spark plug, or an incorrectly adjusted carburetor—and
+sometimes, a combination of two or more of these factors.
+T R O U B L E S H O O T I N G
+TROUBLE SHOOTING
+Trouble
+Shooting
+Knowing Your Limits: When to Call a Professional
+While basic maintenance and minor adjustments are relatively straight
+forward with the help of this manual and course, complex internal
+repairs require specialized tools and diagnostic equipment.
+Safety & Service Notice: Never attempt to bypass safety features (like
+the chain brake) or disassemble the crankcase, flywheel, or internal
+cylinder components unless you are qualified to do so.
+If you are in any doubt about a diagnosis or lack the correct tools
+for a repair, take your chainsaw to a recognised machinery repair
+shop. Attempting advanced repairs without appropriate training can
+permanently damage the machine and create hazards when using the
+saw.
+6.
+
+-- 87 of 138 --
+
+88The Chainsaw Manual
+Trouble Shooting Guide
+Common
+Problems
+Possible
+Causes Possible Solutions
+Chainsaw
+won’t start.
+Chainsaw
+starts, then
+cuts out.
+Chainsaw
+runs roughly
+or lacks
+power.
+Chainsaw
+emits
+excessive
+smoke.
+Fuel, Fuel Filter
+& Hoses
+Over Fueled -
+‘Flooding’
+Replace with fresh fuel with correct 50:1 ratio.
+Inspect filter/hoses. Clean or replace.
+Take out spark plug, pull starter cord once and
+leave to rest for 10 minutes. Replace spark plug
+and try starting again.
+Air Filter 	Inspect, clean or replace.
+Spark Plug &
+Ignition Module
+Remove and inspect spark plug. Clean or replace.
+Check for a strong spark by grounding the plug
+against the engine and pulling the starter cord.
+Carburettor
+Reset tuning screws to factory settings (if
+applicable) or follow manufacturers auto-tune reset
+instructions.
+Replace diaphragms or replace entire carburettor.
+Exhaust/Muffler
+Inspect exhaust and gasket for any holes or leaks.
+Clean carbon build up around exhaust port.
+Replace if necessary.
+Spark Arrestor 	Remove (if applicable), clean or replace.
+Damaged
+Piston & Rings
+Remove exhaust to view cylinder chamber. If
+cylinder/rings damaged, see local repair shop and
+replace.
+6. Trouble
+Shooting
+
+-- 88 of 138 --
+
+89	The Chainsaw Manual
+Trouble Shooting Guide
+Common
+Problems
+Possible
+Causes Possible Solutions
+Chain won’t
+rotate.
+Chain &
+guidebar
+overheating
+Chain
+Brake
+Ensure chain brake is released. Inspect
+chainbrake band. Clean or replace.
+Clutch Inspect clutch drum, needle bearing, weights
+and springs. Clean or replace.
+Sprocket Make sure chain is seated properly in sprocket.
+Inspect for wear. Replace if necessary.
+Chain
+Tension Loosen the chain tension.
+Insufficient
+Bar Oil
+Inspect, clean or replace oil filter, hoses and oil
+pump.
+Drain tank and replace with clean oil.
+Chain Inspect chain for bends, kinks and damaged
+drivelinks. Replace if necessary.
+Guidebar Inspect bar for bends, damage to rails and nose
+sprocket.
+
+-- 89 of 138 --
+
+90The Chainsaw Manual
+Trouble Shooting Guide
+Common
+Problems
+Possible
+Causes Possible Solutions
+Chain dull/
+not cutting
+correctly
+Chain
+Avoid cutting dirty/contaminated materials. Inspect
+chain for damage and correct sharpening angles.
+Ensure chain type is correct for intended application.
+Guidebar Inspect bar for bends, damage to rails and nose
+sprocket.
+Sprocket 	Inspect for wear. Replace if necessary.
+Excessive
+Vibration
+Anti-
+Vibration
+Mounts,
+Chain,
+Guidebar &
+Sprocket
+Inspect anti-vibration mounts for damage. Clean or
+replace. Inspect chain, guidebar and sprocket as
+above.
+Ensure chain type and sharpening is correct for
+intended application.
+Flywheel Inspect flywheel for broken/missing fins. Replace if
+necessary.
+6. Trouble
+Shooting
+
+-- 90 of 138 --
+
+91	The Chainsaw Manual
+MAINTENANCE CYCLES
+As the owner of the saw, you should know how your machine has been used, in
+what conditions and for what period of time. This directly impacts the frequency
+of maintenance that you might carry out. Needless to say, keeping your chainsaw
+running in tip-top condition should be a priority for your safety and efficiency, as well
+as extending the lifespan of the machine.
+Chain Sharpening
+This needs to be done whenever the chain becomes dull - this could once or multiple
+times a day.
+Daily Maintenance Weekly/Ongoing
+Maintenance
+Always check all safety features are present and are in good
+working order
+Inspect & Service:
+y 	Air Filter
+y 	Drive Sprocket
+y 	Guidebar (grease nose
+sprocket if applicable)
+y 	Chain for sharpness and
+any damage
+Inspect & Service:
+y 	Recoil Starter and housing
+y 	Flywheel fins
+y 	Exhaust
+y 	Vibration springs/rubbers
+y 	Fuel/oil systems and filters
+y 	Clutch assembly
+y 	Chainbrake assembly
+y 	Spark plug
+
+-- 91 of 138 --
+
+92The Chainsaw Manual
+
+-- 92 of 138 --
+
+93	The Chainsaw Manual
+CROSS CUTTING EQUIPMENT
+This is a basic list of the equipment you will need to operate a chainsaw
+safely. All the items listed below are covered in more detail within this manual.
+All chainsaws are designed to be used right handed so ensure you keep your
+right hand at the back where the throttle is located and your left hand gripping
+the front handle.
+PPE - Personal Protective
+Equipment.
+Always to be worn whilst
+using a chainsaw - no
+exceptions.
+A Suitable Chainsaw
+The chainsaw must be
+fit for purpose, properly
+maintained and all safety
+features must be present
+and working.
+Fuel or Battery and Bar Oil
+No matter the power source,
+the chain and guidebar will
+always need lubricating
+every time you re-fill or
+change out a battery.
+Additional Tools
+These are items that help
+measure, process, lift, turn,
+pull and drag timber.
+Although not necessary they
+are highly recommended.
+7. Starting Your
+Chainsaw
+MODULE 9 - Safe Starting
+Starting Your Chainsaw
+
+-- 93 of 138 --
+
+94The Chainsaw Manual
+7. Starting Your
+Chainsaw
+Before using any chainsaw, even if only
+for one cut, make sure you are wearing
+the correct and appropriate PPE. At the
+minimum, this should be a helmet with eye
+and ear protection, chainsaw protective
+boots, trousers and gloves.
+Remember that the fuel should be combined
+with 2-stroke oil with a mix of 50:1 (5 litres
+of fuel to 100ml of 2-stroke oil).
+The fuel tank is generally found on the right
+hand side and the chain oil tank on the left
+hand side. There will be clearly marked
+symbols next to their respective caps. Do
+not get these mixed up as it can damage
+the machine and be costly. 	Always wear correct, well-fitted
+PPE and carry the appropriate
+first aid provisions
+
+-- 94 of 138 --
+
+95	The Chainsaw Manual
+Fueled and Oiled
+Fuel and oil your chainsaw
+using a spill mat. Electric
+chainsaws only have an oil
+reservoir.
+When re-fueling make sure
+both fuel and oil are filled
+every time. The fuel is
+designed to run out before the
+oil. This ensures the bar and
+chain are always lubricated.	Fuel	Oil
+Safety Features and
+Checks
+Check the chain is tensioned
+correctly and side casing
+bolt(s) are tight.
+Check all safety features are
+present and in good working
+order.
+If anything is faulty or missing,
+replace immediately or clearly
+label the saw ‘NOT FOR USE’
+until repairs can be made.
+PRE START
+CHECKS
+P R E - S TA R T C H E C K S
+Before using your chainsaw you will need to undertake
+some Pre-Start and Pre-Use checks.
+Begin with the Pre-Start checks as you need to ensure
+the machine is in good working order and ready for use.
+Fuel & Oil
+Safety Features
+All bolts/nuts
+tight?
+Battery Checks
+MODULE 9 - Safe Starting
+Pre-Start Checks
+
+-- 95 of 138 --
+
+96The Chainsaw Manual
+7. Starting Your
+Chainsaw
+STARTING YOUR CHAINSAW
+Firstly, complete the pre start checks. Clear the area of debris which
+could obstruct or entangle the chainsaw chain and place the saw on the
+floor. This should be as level as possible.
+Assess what starting procedure your chainsaw uses. If unsure, refer to
+the manufacturers specific guidance.
+All chainsaws are similar to start. There are only slight differences in the
+procedures and the locations of components.
+STARTING
+ YOUR CHAINSAW
+Cold Start
+A cold start means you start the chainsaw when the engine is cold or
+cool. For example, this might be the first time you use it on any given day
+or you have left it switched off for an hour or so. This can depend on the
+ambient temperature.
+Chainsaws similar to the HUSQVARNA
+starting procedure:
+y 	Press the primer bulb 4-5 times as
+necessary to purge the air out of the
+fuel system.
+y 	Set the on/off switch to full choke 	Primer Bulb
+In one motion, pull the switch out and move upwards to
+the full choke position
+
+-- 96 of 138 --
+
+97	The Chainsaw Manual
+y 	Kneel down on one knee and place your right foot onto the rear handle and
+your left hand on the front handle behind the chain brake.
+y 	Always ensure your thumb is fully wrapped around the handle.
+y 	After the chainsaw has fired, move the switch one click down to ‘half revs’.
+y 	Pull the starter handle repeatedly until the saw begins to run.
+y 	Once the saw has started, let it run for 1-2 seconds and then squeeze the
+throttle trigger - This will bring the saw down to an idle and you will now be
+ready to undertake the pre-use checks.
+y 	Hold the starter handle with your right hand and pull gently until you find some
+stronger resistance. This is called finding the compression stroke.
+y 	Pull strongly and sharply upwards. Try not to pull the cord across the chainsaw.
+y 	Repeat this process until you hear the chainsaw fire or ‘cough’.
+Activating the chain brake:
+Rotate the left hand forwards and
+straighten the right arm forcing the
+back handle down.
+You should hear an audible snap
+or click.
+y 	Apply the chain brake and if your chainsaw has a decompression valve, now is
+the time to press it in (this makes the cord easier to pull).
+
+-- 97 of 138 --
+
+98The Chainsaw Manual
+7.
+Chainsaws similar to the STIHL starting
+procedure:
+y 	Set the on/off switch to full choke.
+y 	Kneel down on one knee and place
+your right foot onto the rear handle
+and your left hand on the front handle
+behind the chain brake.
+y 	Always ensure your thumb is fully
+wrapped around the handle.
+Decompression Valve
+y 	Apply the chain brake and if your
+chainsaw has a decompression valve,
+now is the time to press it in. This
+makes it easier to pull the cord.
+y 	Hold the starter handle with your right hand and pull gently until you find some
+stronger resistance. This is called finding the compression.
+y 	Pull strongly and sharply straight upwards. Try not to pull the cord across the
+chainsaw.
+y 	Repeat this process until you hear the chainsaw fire and start to run.
+y 	Once the saw has started, let it run for 1-2 seconds and then squeeze the throttle
+trigger - This will bring the saw down to an idle and you will now be ready to
+undertake the pre-use checks.
+Starting Your
+Chainsaw
+Whilst holding the
+trigger down, use your
+thumb to push the
+switch down to the full
+choke position
+
+-- 98 of 138 --
+
+99	The Chainsaw Manual
+Sometimes just starting a chainsaw can be an effort!
+Potential problems and solutions:
+Troubleshooting When Starting
+Warm Start
+If your chainsaw has been running and the engine is warm, you do not need to start
+your chainsaw on the floor every time. You can stand upright in a stable position.
+Grip the body of the saw between
+your legs and pull sharply upwards.
+If the engine is warm it should start.
+If it doesn’t, repeat the cold start
+method.
+Flooded chainsaw
+If you miss when the chainsaw ‘coughs’ or fires and you keep pulling the
+starter handle, this will likely flood the chainsaw with too much fuel.
+If you think this has happened, set the switch to half revs and pull the saw
+over rapidly and repeatedly until it starts.
+If this method does not work you will need to let your saw rest for 5-10
+minutes then try again.
+Chainsaw fires but cuts out
+If the saw cuts out when set to half revs or the throttle is squeezed, you may
+need to repeat the process from the full choke position.
+Possible reasons might be the engine is not warm enough, the fuel might be
+evaporating too quickly or it will be an issue with maintenance.
+
+-- 99 of 138 --
+
+100The Chainsaw Manual
+P R E - U S E
+ 
+C H E C K S
+PRE-USE
+CHECKS
+7. Starting Your
+Chainsaw
+Before you use your chainsaw or do any cutting,
+a number of checks need to be done in order to
+make sure the saw is safe and working correctly.
+y 	Complete the pre-start checks.
+CHECK THE CHAIN BRAKE
+y 	Disengage the chain brake
+with your left-hand fingers
+keeping your thumb around
+the handle.
+To make disengaging the chain
+brake easier, rest the guidebar
+on a piece of timber. This will
+help with fatigue in your arms.
+y 	Start your chainsaw.
+y 	Squeeze the throttle and bring the saw to full revs.
+y 	Let go of the throttle and half a second later apply the chain brake.
+Applying the chainbrake is done by rotating the left hand forwards and
+straightening the right arm forcing the back handle down.
+Note: Do NOT rev the chainsaw for long periods whilst the chain brake is
+engaged. This will burn out your clutch and chain brake band.
+Chain Brake
+Oiling System
+Chain Creep
+On/Off Switch
+
+-- 100 of 138 --
+
+101	The Chainsaw Manual
+CHECK THE OILING SYSTEM
+y 	Release the chain brake and hover
+the nose of the guidebar over a piece
+of timber/stump or something similar
+that will not blunt your chainsaw if
+mistakenly touched.
+y 	Squeeze the throttle and bring to full
+revs over the timber.
+y 	After five or more seconds of having
+the throttle depressed, you should be
+able to see a faint line of oil that has
+been flung from the end of the bar.
+If you do not see any oil, try for a little longer. If no oil is present then there might be an
+issue and some maintenance is needed.
+CHECK FOR CHAIN CREEP
+y 	Disengage the chain brake.
+y 	Squeeze the throttle and bring to full
+revs.
+y 	Release the throttle and allow the
+chainsaw to return to idle.
+The chain should be static and not move.
+Chain creep is when the chain is moving a little (creeping) when the saw is at idle and
+the chain brake is disengaged.
+If you do see the chain creeping, your chain tension might need adjusting or there
+might be another issue and some maintenance is needed.
+CHECK THE OFF SWITCH WORKS
+y 	When the chainsaw is on, use the on/off switch to turn the chainsaw off.
+The chainsaw should cut out and stop - this is essential for the safe use of the saw.
+In an emergency if the switch has malfunctioned, apply the chain brake and move the
+on/off switch to full choke. This should flood the engine and stall it.
+MODULE 9 - Safe Starting
+Pre-Use Checks
+
+-- 101 of 138 --
+
+102The Chainsaw Manual
+W O R K P O S I T I O N I N G
+WORK
+POSITIONING
+8. Fundamentals of
+Cross Cutting
+Body and Head Position
+The body and head position are the most important aspect of using a
+chainsaw and should not be underestimated. You do not want the chainsaw
+to kickback into your head or neck area.
+If your work position is correct you will find it more ergonomic, less tiring and
+above all, a lot safer. You will be able to cut comfortably for longer and in turn
+less likely to make mistakes because of tiredness.
+Raise the timber to waist height if possible, this will reduce the time spent
+cutting with a bent back. Whatever the position of the timber, try to keep a
+straight back and the chainsaw close to your body, don’t over reach.
+y 	Position yourself with the
+chainsaw on your right hand side.
+y 	Your left thumb should always
+be wrapped around the handle.
+y 	Hold the chainsaw close to
+yourself and use your body and
+legs to support some of it’s weight.
+y 	Aim to keep a straight back.
+y 	Ensure your head is NOT over
+the guidebar.
+y 	If the timber is low or on the floor,
+crouch down or use one knee to
+support yourself.
+y 	Avoid kneeling on both knees as
+this may hinder your escape if the
+timber moves or rolls towards you.
+y 	Always stand on the uphill side
+when working with timber on a
+slope.
+
+-- 102 of 138 --
+
+103	The Chainsaw Manual
+Can you see the INSIDE of the
+guidebar and chain?
+Your head and body are in the
+CORRECT POSITION
+y 	Keep the chainsaw on your right
+hand side, your feet pointing
+in front of you and in the same
+direction as the chainsaw.
+y 	If the position of the chainsaw
+moves, move your feet to match
+the direction. This should keep your
+body in line and your head out the
+way.
+Can you see the OUTSIDE of the
+guidebar or top of the chain?
+Your head and body are in the
+WRONG POSITION
+MODULE 10 - Cross Cutting
+Work Positioning
+
+-- 103 of 138 --
+
+104The Chainsaw Manual
+y 	Cross Cutting: Cutting wood across the grain (side on). This is the most
+efficient way to cut timber for logs.
+y 	Rip Cutting: Cutting wood with the grain (length on). This is used to cut
+timber for planks or creating other products.
+What is Cross Cutting?
+C R O S S
+ 
+C U T T I N G
+CROSS CUTTING
+Pushing and Pulling Chain
+When using a chainsaw, the cutters will grab the timber fibres and pull or push
+the chainsaw into or away from the wood. You should not need additional
+force to guide the chain through the wood and if you do, your chain is not
+sharp enough.
+When cutting, avoid using a see-saw motion as you would do with a handsaw.
+There is no need for this, the chainsaw does not work in that manner and it
+will not achieve anything. Let the power of the engine and the sharpness of
+the chain do the work.
+y 	Pushing Chain: The pushing chain is found on top of the guidebar.
+When the timber is above the guidebar, the chain will push the user and
+chainsaw away from the wood.
+y 	Pulling Chain: The pulling chain is found on the bottom of the guidebar.
+When the timber is below the guidebar, the chain will pull the user and
+chainsaw into the wood.
+The Pulling Chain pulls the saw and user into the wood.
+The Pushing Chain pushes the saw and user away from the wood.
+Direction
+of Chain
+Travel
+Pushing Chain
+Pulling Chain
+8. Fundamentals of
+Cross Cutting
+
+-- 104 of 138 --
+
+105	The Chainsaw Manual
+Cross Cutting Hazards
+When working on a slope or when the main
+supporting limbs are cut, the timber can roll or
+move and injure the operator.
+NEVER stand on the uphill side.
+Timber moving/
+rolling onto the
+operator
+Misjudging your bar length or applying too much
+pressure can lead to the saw coming into contact
+with the floor or other objects, increasing the
+likelihood of kickback and dulling your chain.
+Cutting the
+ground or
+other objects
+Incorrect judgement of tension and compression
+and incorrect cutting techniques can cause the
+saw to become trapped or pinched in the cut.
+Chainsaw
+becoming
+trapped or
+pinched
+This happens when the cuts have not been
+suitable or performed incorrectly.	Timber splitting
+This occurs when the upper nose quadrant of
+the guidebar comes into contact with the wood.
+NEVER cut above shoulder height.
+Kickback
+Always Ensure Safe Working Distances
+Establishing clear communication and safety zones relative to
+other crew members or members of public.
+A minimum of 5 metres between operators or 2x the product
+length to be cut.
+The timber to be cut maybe holding or pinning
+other saplings or vegetation. When released,
+these can spring back into the operator.
+Spring-back
+MODULE 10 - Cross Cutting
+Cutting Basics
+
+-- 105 of 138 --
+
+106The Chainsaw Manual
+TENSION &
+COMPRESSION
+Tension and compression is found when the timber has a force exerted on it,
+bending or squashing it.
+This force can be generated by gravity, other timber/objects and the fibres
+within the timber itself. All timber has varying amounts of tension and
+compression, even timber that is positioned flat on the floor.
+The aim is to cut the timber safely, effectively and stop the wood splitting or
+trapping the chainsaw.
+What is Tension and Compression in timber?
+When one side of the log is compressed, the opposite side is
+tensioned.
+Compression is on the Underside
+Compression is on the Topside
+TENSION & COMPRESSION
+Tension
+Imagine making a cut in the middle of both of these logs and think about what
+would happen. Would the cut close and pinch the guidebar or would the cut
+open and leave the chainsaw free to finish the cut?
+Just cutting from the compression side will result in the chainsaw becoming
+trapped.
+8. Fundamentals of
+Cross Cutting
+
+-- 106 of 138 --
+
+107	The Chainsaw Manual
+Side Tension
+Occasionally when cutting, you will also be faced with compression and tension from
+the sides of the timber, in addition to compression and tension from the topside and
+underside.
+The dangers of extreme side tension cannot be underestimated. The timber can move
+faster and further than you think. It can be like a loaded catapult ready to fire. You
+need to position yourself on the side of least movement and in the compression areas.
+Below is an example of where the danger areas are to be found. Every situation is
+different and so assessing the situation before you begin cutting is essential. See
+pages 115-116 for more information on cutting timber under extreme tension.
+Danger Zone
+Areas of high tension
+Areas of compression
+Safety Zone
+Safety Zone
+When cross cutting the Safe Working Distance between
+operators is 5m or twice the length of the timber
+being cut. This takes into consideration extreme timber
+movement including the rolling or moving of timber on
+uneven terrain and slopes.
+Danger Zone
+MODULE 10 - Cross Cutting
+Tension & Compression
+
+-- 107 of 138 --
+
+108The Chainsaw Manual
+CUTTING TECHNIQUES
+CUTTING TECHNIQUES
+To avoid trapping your chainsaw or having the timber split you can apply
+different techniques for different scenarios. You must remember to judge
+each cut and adjust if necessary. With time and practice you will begin to
+get a feel for how the timber will react. Refer to the pages on tension and
+compression for more information.
+For timber under normal tension and compression -
+y 	Cut the compression roughly 20-30% of the timber’s diameter.
+y 	Cut the remaining timber from the tension side to meet your first cut.
+Sequence of cuts when the compression is on the TOPSIDE.
+ALWAYS CUT THE COMPRESSION FIRST
+1
+2
+1st cut
+2
+2nd cut
+8. Fundamentals of
+Cross Cutting
+
+-- 108 of 138 --
+
+109	The Chainsaw Manual
+Sequence of cuts when the compression is on the UNDERSIDE.
+2
+1
+2
+ALWAYS CUT THE COMPRESSION FIRST
+2nd cut
+1st cut
+
+-- 109 of 138 --
+
+110The Chainsaw Manual
+BORE CUT
+Applying the bore method when cross cutting is useful for when you cannot get
+directly on top or underneath the timber. A simple example is a trunk resting
+evenly on flat ground. The compression is commonly found on the topside and
+usually there is not enough space to get the saw underneath to perform the
+tension release cut.
+Performing a bore cut comes with a higher risk of kickback since you are using
+the nose of the guidebar to plunge through the timber. There are two ways to
+bore into the timber, with the top or bottom of the guidebar.
+The example below shows how to perform a bore cut when the compression is
+found on the topside of the timber.
+y 	Start by making the compression
+cut on top, 20-30% of the timber’s
+diameter.
+y 	Begin the bore below the
+compression cut and use the
+top of the guidebar.
+y 	The bottom quadrant of the
+guidebar to enter the timber.
+Note: When the timber is low or on the floor, it is preferable to use the top of
+the guidebar. When the timber is positioned slightly higher it makes sense to
+use the bottom of the guidebar. However this is the operators choice, whichever
+feels more comfortable for the situation.
+OR
+y 	Slowly move the guidebar to a horizontal position.
+8. Fundamentals of
+Cross Cutting
+
+-- 110 of 138 --
+
+111	The Chainsaw Manual
+y 	Once the guidebar nose is inside the
+timber and level, start to plunge the saw
+all the way through the wood. You must
+leave a strip of holding wood between
+your first cut and the bore cut.
+y 	Continue cutting down to release the
+tension - be careful not to exit the
+bottom of the cut and hit the ground
+or other objects below the timber.
+y 	Once the tension is released,
+continue cutting upwards to finish
+the cut.
+If the compression is found on the underside use the following steps below, use the
+correct method to start your bore cut, as shown opposite.
+y 	Once the guidebar nose is inside the
+timber and level, start to plunge the saw
+all the way through the wood. You must
+leave a strip of holding wood between
+your first cut and the bore cut.
+y 	Continue cutting upwards to release
+the tension - be careful not to exit the
+top of the cut and hit objects above
+the timber.
+y 	Once the tension is released,
+continue cutting downwards to finish
+the cut.
+y 	Start by making the compression cut
+underneath, 20-30% of the timber’s
+diameter.
+MODULE 10 - Cross Cutting
+Bore Cutting
+
+-- 111 of 138 --
+
+112The Chainsaw Manual
+CUTTING LARGER TIMBER
+Large timber can be cut with a few different techniques. Depending on your guidebar
+length you will either be able to sever the timber with one cut or multiple cuts.
+The simplest method is to increase the size of your guidebar (chainsaw allowing).
+Wedges can be used if necessary to keep the cut open and stop the bar from
+becoming pinched or trapped.
+This allows the user to cut slightly over-sized timber with a smaller guidebar.
+REDUCTION CUT
+3
+1
+1. Cut the compression. 	2. Rotate the
+chainsaw over
+the top and cut
+the opposite
+side.
+2
+3. Cut
+downwards to
+finish severing
+the timber.
+This example shows when compression is found on the underside.
+MODULE 10 - Cross Cutting
+Over-sized & Tensioned
+8. Fundamentals of
+Cross Cutting
+
+-- 112 of 138 --
+
+113	The Chainsaw Manual
+3
+2
+2. Continue cutting whilst rolling the
+chainsaw round over the top and cut
+the compression.
+1. Rotate the
+chainsaw over
+the top and cut
+the opposite
+side.
+1
+3. Cut upwards to
+finish severing the
+timber.
+This example shows when compression is found on the topside.
+
+-- 113 of 138 --
+
+114The Chainsaw Manual
+This allows the user to cut up to double the size of the guidebar.
+CUT FROM BOTH SIDES
+CUT AND ROLL
+This allows the user to cut up to double the size of the guidebar.
+1. Cut downwards all the way from
+one side.
+2. Walk round and cut downwards from
+the other side.
+This technique works well with little or no tension or compression.
+This technique works well when the timber is easy to roll in sections with little
+or no tension or compression.
+1. Cut downwards all
+the way from one side.
+2
+3
+1
+2. Roll the timber over. 	3. Cut downwards through
+the remaining timber.
+1
+2
+8. Fundamentals of
+Cross Cutting
+
+-- 114 of 138 --
+
+115	The Chainsaw Manual
+Cutting Under Extreme Tension
+As a chainsaw user you may encounter timber or limbs under severe pressure.
+Sometimes this is noticeably visible and other times not so much. You might be able
+to see the bend in a smaller limb but miss the pressure within a long trunk or length of
+timber.
+This is potentially hazardous as when the pressure is released, the limb may flick
+away or towards the operator, or the trunk may move in unexpected ways. The timber
+or limb may directly hit the operator, throw the chainsaw towards the operator and
+squash/trap the operator or the saw - none of these outcomes are desirable.
+MULTIPLE COMPRESSION CUTS - ‘THE TOAST RACK’
+y 	Make multiple shallow cuts on the compression side to allow the tension to slowly
+dissipate over a wider area. Gradually make the cuts deeper until the tension has
+almost completely dissipated.
+y 	Once the tension has been reduced to a safe level, make the final severing cut.
+Always position yourself in the compression area and to the
+side of least movement.
+Final severing cut
+EXTREME TENSION
+Multiple compression cuts
+
+-- 115 of 138 --
+
+116The Chainsaw Manual
+REDUCTION SINK CUT
+y 	Cut a sink or wedge shape out of the compression side.
+y 	Continue enlarging the cut until the tension dissipates, then perform the final
+severing cut.
+This method can be used when the timber is of a larger size.
+Final severing cut
+8. Fundamentals of
+Cross Cutting
+
+-- 116 of 138 --
+
+117	The Chainsaw Manual
+Misjudging the tension and compression can lead to your chainsaw being trapped or
+pinched within the cut. Don’t panic, it can be fairly common.
+DO NOT try and pull the chainsaw out with the saw still running.
+If the saw does come free, you can inadvertently rev the saw
+pulling it into yourself and/or stumble backwards.
+y 	Wedges can be used to keep the
+cut open. If possible avoid using
+metal wedges. When the timber
+is severed they can fall onto the
+chain.
+y 	Firstly turn the saw off - leave the
+chain brake off as this will aid the
+removal.
+y 	Try to lift or push the timber up or
+down to release the saw depending
+on the tension and compression.
+y 	If the timber is too heavy, you may
+need another chainsaw to release
+the pressure. Cut a minimum of
+300mm or 12 inches away from
+the trapped saw - preferably a
+product’s length away so as not to
+waste any timber.
+RELEASING A TRAPPED OR PINCHED CHAINSAW
+Lift or push the timber to release
+the chainsaw
+Use wedges
+Cut a minimum of 300mm away
+from the stuck chainsaw
+300mm
+MODULE 10 - Cross Cutting
+Trapped Chainsaw
+
+-- 117 of 138 --
+
+118The Chainsaw Manual
+BRANCH REMOVAL
+B R A N C H
+ 
+R E M O V A L
+Snedding and de-limbing are techniques used to remove branches from
+the stem. This is necessary if we want to convert the tree into usable or
+moveable timber.
+Snedding is the method of using one cut per branch, flush along the trunk
+in a fluid motion. This is used primarily for coniferous trees with small
+diameter branches.
+De-limbing is the method of cutting the branch in several locations before
+the final flush cut along the trunk. This is used on larger diameter branches
+and helps to break down the canopy of a broadleaf crown.
+Both techniques are often used on the same tree depending on the size and
+weight of the branches.
+The hazards when de-limbing and snedding are similar to those mentioned
+at the beginning of the manual, although some extra precaution is needed.
+Make sure you are sure-footed and stable at all times.
+y 	Do not cut towards yourself.
+y 	Do not cut with your head over the
+chainsaw.
+y 	No walking whilst the chain is rotating.
+y 	When walking on the near side of the
+stem, make sure the chain brake is
+applied.
+y 	When cutting on the far side of the
+stem be wary of your leg and feet
+positions as there is potential to catch
+them with the saw.
+y 	Do not remove branches standing
+downhill of the stem when on a slope.
+y 	When cutting branches or other
+vegetation under tension, they may
+spring back towards you.
+y 	Pay attention to the terrain and your
+footing.
+ADVANCED WORKSHOP EXTENSION MODULE
+8. Fundamentals of
+Cross Cutting
+
+-- 118 of 138 --
+
+119	The Chainsaw Manual
+This sequence of cuts is a guide to make
+the process of branch removal smoother
+and more efficient. This sequence, however,
+can be adapted to suit the terrain, size of
+limbs, undergrowth, tree position or any
+other obstacles that you might encounter.
+The top priority is making sure you are
+safe at all times and are constantly risk
+assessing the tree and limbs.
+y 	Always keep the stem on your right
+hand side and continue the cuts in a
+forward motion, do not over-reach.
+y 	Aim to ‘roll’ the chainsaw around the
+stem. Keep the weight of the chainsaw
+rested on the stem as much as
+possible and not in your arms. This will
+help with fatigue.
+Sequence of Cuts
+1. Push
+Forwards
+& Cut
+2. Push,
+Rotate &
+Cut
+3. Cut
+straight
+down
+4. Push
+Forwards
+& Cut 	5. Push,
+Rotate &
+Cut
+6. Cut
+Down &
+Back
+1.
+2.
+3.
+4.
+5. 6.
+1. In a forward motion, use the pushing
+chain to cut the limbs.
+2. Rotate the saw (engine down) around
+the stem using a pushing chain.
+3. Cut downwards, NOT back towards
+you.
+4. In a forward motion, use the pushing
+chain to cut the limbs.
+5. Rotate the saw (engine up) around the
+stem using a pushing chain.
+6. Cut down and back along the stem if
+needed.
+Repeat this sequence ensuring the chain
+is not rotating before moving or stepping
+when on the near side of the stem.
+Once completed, roll the stem to expose the
+branches underneath and remove them.
+
+-- 119 of 138 --
+
+120The Chainsaw Manual
+LIFTING & STACKING
+LIFTING
+TIMBER
+Safe Lifting
+Sometimes just picking up and starting a chainsaw can cause an injury,
+let alone lifting and moving heavy logs. Damage to your back can cause
+long term problems and chronic pain. There are a few things you can do to
+prevent or reduce the potential of injury occurring.
+y 	Avoid using a chainsaw or lifting any logs - get a machine to do
+the work for you.
+y 	Use a machine wherever possible to help lift, roll, pull or push
+logs for you.
+y 	Use a chainsaw fit for purpose and you are comfortable handling.
+y 	Don’t over-reach when using the chainsaw.
+y 	Hold the chainsaw close to yourself and use your body and legs
+to help support some of it’s weight.
+y 	Try to keep a straight back when cutting.
+y 	If possible, raise the logs to just below waist height for a more
+comfortable cutting position.
+y 	Only lift logs within your capabilities and use good lifting
+techniques.
+y 	Use lifting and rolling aids such as timber tongs and hooks, felling
+levers, turning straps, cant hooks, hookeroons and pickeroons.
+y 	Use another person to help with the lift.
+y 	Drag or roll the logs instead of lifting.
+Timber Tongs 	Felling/Turning lever 	Hookeroon
+8. Fundamentals of
+Cross Cutting
+
+-- 120 of 138 --
+
+121	The Chainsaw Manual
+y 	When manually stacking, the timber should be no more than
+waist height - roughly a metre off the floor.
+y 	Stack in species specific piles.
+y 	Stack in line with product specifications.
+y 	On sloped or uneven ground, ensure all timber stacks are
+positioned securely.
+y 	Use stumps or other logs to wedge the timber to stop
+movement.
+y 	Use signage to inform others of the potential dangers associated
+with climbing on timber stacks.
+y 	If stacking with a machine consider the lifting capacity of the
+machine that’s creating the stack and the capacities of the
+potential machine to process it or transport it.
+When stacking timber, you need to consider what it is to be used for and how
+you will stack it. This depends on how large or small the timber is, extraction
+points, and species and product specifications. A loggers tape is crucial for
+accurately measuring the lengths of the timber.
+STACKING
+TIMBER
+MODULE 10 - Cross Cutting
+Stacking
+
+-- 121 of 138 --
+
+122The Chainsaw Manual
+WINDBLOWN TREES
+Hazard Awareness with Windblown Trees
+W I N D B L O W N T R E E S
+In this brief guide for windblown trees we will be covering trees that are
+under a 45 degree angle and are resting low to, or on the ground. For trees
+that are hung up above a 45 degree angle, a tree felling course is essential.
+Windblown trees present a serious hazard and it is recommended to
+attend a practical windblown and felling course to fully understand
+how to safely deal with these situations. If correct procedures are not
+followed it can easily result in serious injury or death.
+As a chainsaw user, professional or not, you will inevitably come across
+a fallen tree which may have fallen over your boundary or a neighbouring
+property. The tree may have fallen into one or multiple trees of various sizes.
+The tree could also have fallen onto man-made infrastructure such as
+power lines/cables, roads, fences or buildings. You must make a thorough
+evaluation of the site and any hazards that are present before proceeding
+with any works.
+Tension and compression can change in varying amounts when dealing with
+a windblown tree, even within the same cut. You must risk assess how the
+tree is positioned after each cut to inform your decisions on the next course
+of action. The tree can roll or move at any point of the operation.
+The basic hazards are outlined at the beginning with addtional hazards and
+considerations shown opposite. If the root plate is still attached this is also a
+major hazard and is detailed on the following page.
+9. Windblown
+Trees ADVANCED WORKSHOP EXTENSION MODULE
+
+-- 122 of 138 --
+
+123	The Chainsaw Manual
+y 	Tree rolling or moving unexpectedly.
+y 	Root plate movement.
+y 	Kickback.
+y 	Pinching or trapping of the chainsaw.
+y 	Splitting or tearing (timber type and species).
+y 	Spring back from branches or under-storey under tension.
+y 	‘Throwing’ of the chainsaw - this is when the timber is under so much
+pressure that when released, it catapults the chainsaw out of the user’s
+hands.
+Site Hazards and Considerations
+y 	Proximity to roads, footpaths or rail tracks.
+y 	Root plate movement.
+y 	Uneven or sloped terrain.
+y 	Disturbed cables, power lines, fences or buildings.
+y 	Snapped, hanging limbs of the fallen tree or of the surrounding trees.
+y 	Wildlife habitats and disturbance.
+Work Hazards and Considerations
+Reducing the Risk
+y 	Do not work alone.
+y 	Work with experienced operators.
+y 	Write down all emergency information (p.18) and make an emergency
+plan.
+y 	Evaluate and record all hazards.
+y 	Implement any control measures.
+y 	Establish escape routes.
+y 	Use machinery where possible.
+y 	Use heavy duty winches.
+y 	Continually re-assess the situation for any changes.
+Addtional Windblown Tree Hazards to Consider:
+
+-- 123 of 138 --
+
+124The Chainsaw Manual
+Root Plates
+When dealing with a windblown tree that has it’s root plate still attached, there
+are additional hazards you need to be aware of.
+y 	Ground disturbance - the upturned position of the root plate can create
+loose soil or unseen cavities around the immediate root plate area, this
+includes the front area by the stem.
+y 	The root plate can expose, pull up, or damage services like electric
+cables, water mains or gas pipelines.
+When cutting the stem free of the root plate you need to decide where to
+make the first severing cut. For example this could be 4m from the root plate.
+This is called a long log and this positions the operator at a safe distance
+from the root plate.
+If you decide it is necessary to cut the stem near to the root plate, it can be
+unpredictable and you need to watch out for:
+y 	Root plate falling towards the operator.
+y 	Root plate falling back into it’s hole and the stem standing up.
+y 	Root plate twisting/rolling sideways.
+y 	The stem moves unpredictably because of high tension and
+compression stress.
+In order to minimise the risk of these occurring, the root plate MUST be
+restrained. The use of suitable winches or machinery should be utilized.
+Decide where the severing cut is to be done and prepare your escape routes
+accordingly. Escape routes are essential and it is vital they are prepared
+BEFORE any work commences.
+ROOT PLATES
+R O O T P L AT E S
+ADVANCED WORKSHOP EXTENSION MODULE
+9. Windblown
+Trees
+
+-- 124 of 138 --
+
+125	The Chainsaw Manual
+The winch must be a suitable capacity for the weight and size of the root plate and
+must be configured correctly. A second restraining winch may be required to prevent
+any side movement of the root plate. Ensure that all anchors used are strong enough.
+Prior to severing the timber next to the root plate, prepare your escape routes and get
+ready to use them! If the root plate falls back into it’s hole, it can scoop up earth, roots
+and open cavities under your feet.
+Use a step cut or a box cut to sever the timber. Ensure the finishing cut and the
+operator are on the side of least movement.
+Use a log over the top of the root plate to prevent the winch cable eating
+down into the earth of the root plate. This will make it more stable.
+If applicable, you can off-set the winch with a suitable re-direct pulley. DO NOT go in
+the danger zone. If anything were to go wrong, this is the area you are most likely to
+be harmed.
+Danger Zone
+Escape Routes
+Re-direct pulley
+
+-- 125 of 138 --
+
+126The Chainsaw Manual
+ADDITIONAL
+CUTS
+A D D I T I O N A L
+ 
+C U T S
+ 
+When processing the crown and severing timber there are a couple more
+useful cuts that can be utilised.
+STEP CUT
+This cut is really useful and great for severing small, medium and long pieces
+under tension. This allows your chainsaw to stay in the cut and not get
+dragged down or up with the timber.
+y 	IMPORTANT - Decide which side of the tree will move the most when the
+cut is finished and where the tension and compression lies.
+y 	Position the final cut and yourself accordingly - the side of least
+movement!
+y 	Make a cut on the tension
+side an inch behind your
+first cut (the side of least
+movement).
+y 	Continue with this cut until
+the timber is severed and
+‘pops’ off.
+The example below shows when the compression is underneath and the side
+of least movement on the left.
+y 	Cut the compression roughly 20-30% of the timber diameter.
+1
+Once the final cut has
+overlapped the first compression
+cut, the timber should break off
+and the chainsaw should stay
+safely within the kerf of the cut.
+2
+ADVANCED WORKSHOP EXTENSION MODULE
+9. Windblown
+Trees
+
+-- 126 of 138 --
+
+127	The Chainsaw Manual
+BOX CUT
+The box cut is useful for determining where the tension and compression lies when it
+might not be immediately obvious. It allows you to cut from all sides observing where
+the kerf either opens up or closes. Sometimes the tension and compression can
+change within the same cut.
+The box cut is also great for large and heavy timber under high tension. It reduces the
+risk of the timber from splitting and allows for a better final work position. This is useful
+if you need to move quickly and escape.
+y 	Cut 20-30% of the timber on all sides starting with the opposite side.
+y 	If you deem it safer, and do not wish to reach over the stem because of size or
+position of the tree, perform the first cut from the opposite side first.
+You will have created a
+‘box’ of uncut timber in the
+middle.
+y 	If you are unsure where the tension and compression lies, slowly reduce the size
+of the box from each side until you can see the kerf opening or closing.
+y 	In this example the
+compression is on the
+underside, cut down from
+the tension side to finish
+the cut and sever the
+timber.
+2
+Final severing cut
+4	1 	3
+5
+Extension Module
+Additional Cuts
+
+-- 127 of 138 --
+
+128The Chainsaw Manual
+Glossary of
+Terms
+y 	Air filter: Filters air before it enters
+the engine, preventing dirt and debris
+from damaging internal components
+and helping regulate the air-fuel ratio.
+y 	Air-line: Compressed air used for
+cleaning chainsaw components and
+parts.
+y 	Anti-vibration mounts: Components
+designed to reduce vibration
+transmitted from the chainsaw to the
+operator.
+y 	Bar dresser: Tool used to maintain
+and straighten the groove of a guide
+bar.
+y 	Biosecurity: Measures used
+to prevent the spread of pests,
+diseases, or invasive organisms
+between sites.
+y 	Bluing: Blue discoloration caused by
+heat buildup on metal surfaces.
+y 	Bore cut: Cutting technique using
+the guide bar tip to cut into the timber.
+y 	Box cut: Two horizontal and two
+vertical cuts that create a rectangular
+section in the timber.
+y 	BTC (Bottom Dead Centre): The
+position of the piston when it is at its
+lowest point in the cylinder.
+y 	Butterfly valve: Valve in the
+carburetor that regulates airflow into
+the engine.
+y 	Calipers: Measuring tool used to
+measure diameter, thickness, or
+distance between surfaces.
+y 	Carburetor: Device that mixes
+fuel and air in the correct ratio for
+combustion in the engine.
+y 	CC (Cubic centimetres): Unit used
+to measure engine displacement.
+y 	Centrifugal clutch: Clutch system
+that automatically engages the chain
+when engine speed increases.
+y 	Centrifugal force: Outward force
+generated by rotating components.
+y 	Chain: Loop of cutting teeth driven
+around the guide bar to cut wood.
+y 	Chain brake: Safety device that
+stops the chain rapidly when
+activated.
+y 	Chain catcher: Device designed to
+catch the chain if it breaks or derails
+from the guide bar.
+y 	Chain chart: Reference chart used
+to identify the correct chain type and
+specifications.
+y 	Chain creep: Slow movement of the
+chain while the engine is idling.
+y 	Choke: Control that restricts air
+intake to enrich the fuel mixture
+during cold starting.
+y 	Clutch: Mechanism that engages or
+disengages power from the engine to
+the chain.
+y 	Clutch drum: Rotating drum that
+drives the chain when the clutch
+engages.
+y 	Clutch springs: Springs that
+hold the clutch shoes inward until
+sufficient engine speed is reached.
+y 	Compression (in timber): Force
+exerted on timber when it is being
+compressed.
+y 	Cross-cut: Cutting timber across the
+grain.
+10.
+
+-- 128 of 138 --
+
+129	The Chainsaw Manual
+y 	Clutch weights (shoes):
+Components that move outward due
+to centrifugal force to engage the
+clutch.
+y 	Cold start: Starting an engine when
+it is at ambient temperature.
+y 	Combustion: Process of burning
+fuel and air in the engine to produce
+power.
+y 	Combi spanner: Combination tool
+used for chainsaw maintenance,
+typically for bar nuts and spark plugs.
+y 	Compression (in timber): Force
+exerted on timber when it is being
+compressed.
+y 	Cross-cut: Cutting timber across the
+grain.
+y 	Cutter teeth: Sharp cutting
+components of the chain that remove
+wood.
+y 	Cylinder: Chamber in the engine
+where combustion occurs and the
+piston moves.
+y 	Dead man’s handle: Safety feature
+requiring constant pressure from
+the operator to keep the chainsaw
+running.
+y 	Debris: Loose material such as wood
+chips, dust, or sawdust produced
+during cutting.
+y 	Decompression valve: Valve used
+to reduce cylinder pressure for easier
+engine starting.
+y 	De-limbing: Removing branches
+from a felled tree.
+y 	Depth gauge (raker): Projection on
+the chain that controls the depth each
+cutter tooth removes.
+y 	Diaphragm: Flexible membrane in
+the carburetor that regulates fuel flow.
+y 	Drive shaft: Shaft that transfers
+power from the engine to the clutch
+system.
+y 	E-clip: Small retaining clip used to
+secure components onto a shaft.
+y 	Electrode: Part of the spark plug that
+creates the spark for ignition.
+y 	Engine flooding: Condition where
+excessive fuel prevents the engine
+from starting.
+y 	Exhaust (muffler): Component that
+directs exhaust gases away from the
+engine and reduces noise.
+y 	Feeler gauge: Precision tool used
+to measure small gaps, such as the
+spark plug gap.
+y 	Felling lever: Lever used to assist in
+tree felling and to roll or lift timber.
+y 	Fins: Metal cooling ribs on the
+engine cylinder that help dissipate
+heat.
+y 	Flywheel: Rotating mass that stores
+energy and stabilizes engine speed.
+y 	Flywheel puller: Tool used
+to remove the flywheel during
+maintenance.
+y 	Fuel filter: Filter that removes
+contaminants from fuel before it
+enters the carburetor.
+
+-- 129 of 138 --
+
+130The Chainsaw Manual
+y 	Fuel-oil ratio: Proportion of two-
+stroke oil mixed with fuel for engine
+lubrication.
+y 	Fuel tank: Reservoir that stores fuel
+for the engine.
+y 	Full chisel: Type of chain cutter with
+square corners for fast cutting in
+clean timber.
+y 	Full-skip chain: Chain configuration
+with fewer cutters, commonly used on
+longer guide bars.
+y 	Gasket: Sealing material placed
+between engine components to
+prevent leaks.
+y 	Gauge: Thickness of the drive links
+on a chainsaw chain.
+y 	Guide bar: Metal bar that supports
+and guides the chainsaw chain.
+y 	Gullet: Curved recess between the
+cutting edge and the depth gauge of
+a cutter.
+y 	Hazard: Anything with the potential to
+cause harm.
+y 	High screw (H screw): Carburetor
+adjustment screw that controls fuel
+mixture at high engine speeds.
+y 	HT lead: High-tension wire carrying
+electricity from the ignition coil to the
+spark plug.
+y 	Idle: Engine speed when the throttle
+is not engaged.
+y 	Idle screw: Adjustment screw used
+to control engine idle speed.
+y 	Kerf: Width of the cut produced by
+the chainsaw chain.
+y 	Kickback: Sudden and rapid upward
+or backward movement of the
+chainsaw caused by contact at the
+guide bar tip.
+y 	LANTRA: UK awarding body
+providing training and qualifications
+for land-based industries.
+y 	Limbs/branches: Secondary growth
+extending from the tree stem.
+y 	Long log: Large section of timber cut
+from a stem still attached to the root
+plate.
+y 	Low screw (L screw): Carburetor
+adjustment screw controlling fuel
+mixture at low engine speeds.
+y 	Needle bearing: Bearing used to
+allow smooth rotation of the clutch
+assembly.
+y 	Needle valve: Carburetor component
+controlling fuel flow.
+y 	Nose sprocket: Small sprocket
+located at the tip of some guide bars
+to assist chain movement.
+y 	NPTC: UK awarding body providing
+land-based qualifications.
+y 	Oil filter: Filter that removes debris
+from lubricating oil.
+y 	Oil pump: Mechanism that delivers
+oil to lubricate the chain and guide
+bar.
+y 	Oil tank: Reservoir storing chain
+lubrication oil.
+Glossary of
+Terms
+10.
+
+-- 130 of 138 --
+
+131	The Chainsaw Manual
+y 	Pawl: Starter mechanism component
+that engages the flywheel during
+starting.
+y 	Pitch: Distance between three
+consecutive rivets divided by two on
+a chainsaw chain.
+y 	Piston stop: Tool used to
+prevent piston movement during
+maintenance.
+y 	PPE (Personal Protective
+Equipment): Protective clothing and
+equipment used to reduce risk of
+injury.
+y 	Pre-Start checks: Safety inspections
+carried out before starting a
+chainsaw.
+y 	Pre-Use checks: Safety procedures
+carried out before using a chainsaw.
+y 	Pulling chain: Bottom section of the
+chain that pulls the saw toward the
+timber during cutting.
+y 	Pushing chain: Top section of the
+chain that pushes the saw away from
+the timber.
+y 	Rakers: See depth gauges.
+y 	Reduction cut: Cut made to reduce
+the size or length of timber.
+y 	Recoil assembly: Starter
+mechanism that rewinds the pull cord
+after starting.
+y 	Revolutions per minute (RPM):
+Number of complete rotations the
+engine makes in one minute.
+y 	Right-hand guard: Flared handle
+designed to protect the operator’s
+right hand.
+y 	Rip cutting (ripping): Cutting timber
+along the grain.
+y 	Risk: Likelihood that a hazard will
+cause harm.
+y 	Risk assessment: Process of
+identifying hazards and implementing
+control measures.
+y 	Rivets: Metal pins connecting
+chainsaw chain links.
+y 	Root plate: Mass of roots and soil
+attached to an uprooted tree.
+y 	Safety decals: Labels placed on
+equipment to communicate safety
+information.
+y 	Scabbard: Protective cover for the
+guide bar when the saw is not in use.
+y 	Semi-chisel: Chain cutter type with
+rounded corners for durability in dirty
+timber.
+y 	Semi-skip chain: Chain
+configuration with reduced cutter
+frequency compared with standard
+chain.
+y 	Sharpening (filing): Process of
+maintaining the cutting edge of
+chainsaw teeth.
+y 	Shredding: Systematic removal of
+branches during de-limbing.
+y 	Side plate angle: Angle of the side
+cutting edge of the chain tooth.
+y 	Spark arrestor: Screen that prevents
+sparks from exiting the exhaust.
+y 	Spark plug: Component that ignites
+the air-fuel mixture in the engine.
+
+-- 131 of 138 --
+
+132The Chainsaw Manual
+y 	Sprocket: Toothed wheel that drives
+the chainsaw chain.
+y 	Spur sprocket: Fixed sprocket
+integrated with the clutch drum.
+y 	Rim sprocket: Replaceable sprocket
+system used on some chainsaws.
+y 	Stem (trunk): Main structural body
+of a tree.
+y 	Step cut: Overlapping cuts used to
+allow timber to break or snap in a
+controlled way.
+y 	TDC (Top Dead Centre): Position of
+the piston at the highest point in the
+cylinder.
+y 	Tension (in timber): Force exerted
+when timber fibers are stretched.
+y 	Throttle: Control used to regulate
+engine speed.
+y 	Throttle lock: Safety mechanism
+preventing accidental throttle
+activation.
+y 	Throwing the chainsaw: Sudden
+loss of grip due to timber movement
+or cutting forces.
+y 	Tie strap: Chain component
+connecting cutter and drive links.
+y 	Timber tongs: Tool used to grip and
+lift timber.
+y 	Top plate angle: Angle of the top
+cutting edge of the chain tooth.
+y 	Tuning: Adjusting the carburetor for
+correct engine performance.
+y 	Wedges: Tools inserted into a cut to
+prevent the guide bar from becoming
+trapped.
+y 	Windblown/Windthrown: Trees that
+have been uprooted or broken by
+wind.
+y 	Winch: Mechanical device used to
+pull or lift heavy loads.
+y 	Winter/summer setting: Carburetor
+or air intake adjustment for seasonal
+conditions.
+y 	Witness mark: Mark on a cutter
+tooth indicating the correct
+sharpening angle and minimum cutter
+length.
+y 	Working corner: Primary cutting
+point of the chain tooth.
+y 	Work position: Safe body stance
+when operating a chainsaw.
+Glossary of
+Terms
+10.
+
+-- 132 of 138 --
+
+133	The Chainsaw Manual
+Chain Lettering
+Manufacturers have ways of marking their chains to denote different aspects of the
+chain cutter’s design. Outlined below are the letters used and what they mean.
+Stihl:
+R Rapid -
+Designed for fast
+cutting.
+M Mini - Similar
+to Rapid, but with
+smaller cutters.
+S Super - High
+performance and
+cutting efficiency.
+RS Rapid
+Super - High
+performance chain
+for increased
+efficiency.
+RH Rapid
+Hexa - Highest
+performance chain
+for increased
+efficiency.
+C Comfort -
+Designed to
+reduce kickback
+and vibration,
+allowing a
+smoother cut.
+1-3 Safety -
+Kickback reducing
+features.
+L Square Ground
+- Square ground
+tooth profile.
+LH Square
+Ground Semi-
+Skip - Semi-skip
+sequence with
+square ground
+profile.
+P Picco - Low
+profile design for
+reduced kickback
+and improved
+cutting.
+PM Picco Mini -
+Similar to Picco,
+but with smaller
+cutter teeth for
+finer cuts.
+D Duro -
+Hardened cutter
+teeth.
+X Ripping
+Chain - Milling
+applications
+designed for
+cutting with the
+grain.
+H Harvester -
+Heavy-duty chains
+designed for use
+on harvesters.
+Husqvarna:
+X Cut - High performance
+professional chains for cutting
+efficiency.
+X Precision - Narrow chain
+producing a smaller kerf for precision
+cutting.
+G Guard Link - Designed to reduce
+kickback.
+C Full-Chisel - Chains with full-chisel
+cutter teeth for maximum cutting
+performance.
+S Semi Chisel - Designed for
+durability and cutting performance.
+H Micro/Chamfer Chisel - Kickback
+and vibration reducing features.
+P Pixel Chain - Narrow chains
+providing a narrower kerf for
+efficiency.
+Stihl Example:
+Stihl 23 RMC =
+Rapid Mini Comfort
+Husqvarna Example:
+Husqvarna SP21G =
+Semi Chisel Pixel with Guard Link
+
+-- 133 of 138 --
+
+134The Chainsaw Manual
+Oregon:
+VersaCut - ACL, DPX/DX, VXL, X
+Tooth profiles designed for maximum
+durability and versatility.
+ControlCut - AP, BPX
+Designed for a smoother cut with a
+rounded tooth profile.
+PowerCut - EXL, EXJ, L, LGX, LPX
+Full chisel, fast and efficient cutting
+performance.
+Standard - P
+Homeowner chain with low kickback
+features.
+SpeedCut - TXL
+Narrow kerf system for faster cutting
+performance.
+PowerSharp - PS
+For use with the PowerSharp sharpening
+system.
+AdvanceCut - PX
+Kickback reducing features.
+RipCut - R, RD, RX
+Designed for cutting with the grain for
+milling applications.
+DuraCut - M
+Toughened teeth with extra plating for
+cutting in abrasive environments.
+Harvester - H, HX
+Chains designed for use with mechanical
+harvesters.
+Glossary of
+Terms
+10.
+
+-- 134 of 138 --
+
+135	The Chainsaw Manual
+Syllabus Mapping Matrix
+Syllabus
+Code
+Learning Assessment Requirement 	Course Track /
+Module Alignment
+Page
+AC 1.1 	Identify the primary obligations of employers and
+employees under the Health and Safety at Work
+Act (HSWA) and global equivalents.
+MODULE 3 -
+Regulations &
+Codes of Practice
+Page 18
+AC 1.2 	Explain the operational parameters mandated
+by the Provision and Use of Work Equipment
+Regulations (PUWER) regarding tool
+maintenance and operator competence.
+MODULE 3 -
+Regulations &
+Codes of Practice
+Page 18
+AC 1.3 	Summarize the control tracking required by
+COSHH when handling hazardous fuels, battery
+cells, lubricants, and toxic flora species.
+MODULE 3 -
+Regulations &
+Codes of Practice
+Pages
+19, 22,
+23
+AC 1.4 	Detail the correct European (CE/UKCA) and
+global standard class markings required for
+safety helmets, visual shields, hearing protection,
+gloves, and Type A versus Type C protective
+trousers.
+MODULE 1 - PPE
+(Compliance &
+Standards)
+Pages
+10, 11,
+21
+AC 2.1 	Execute a 5-step site-specific risk assessment
+documenting local ground hazards, pedestrian
+proximity and structural vulnerabilities.
+MODULE 2 -
+Hazards & Risks
+(5 Steps to Risk
+Assessment)
+Pages
+14–15
+AC 2.2 	Formulate an emergency communication and
+extraction map containing grid references,
+postcodes, access limitations, and trauma kit
+deployments.
+MODULE 2 -
+Hazards & Risks
+(Emergency
+Planning)
+Page 16
+AC 2.3 	Identify bio-security cleaning controls necessary
+to stop the spread of invasive arboreal pathogens
+and pests.
+MODULE 2 -
+Hazards & Risks
+Page 17
+AC 3.1 	Describe the internal 2-stroke combustion cycle
+(“Suck-Squeeze-Bang-Blow”) and determine fuel-
+to-oil component lubrication math at a standard
+50:1 ratio.
+ADVANCED
+WORKSHOP
+EXTENSION
+MODULE (Theory
+Enrichment Only
+Non-Regulated)
+Pages
+26–28
+AC 3.2 	Compare the advantages and operational risks
+(such as charging thermal runaway) of battery-
+powered power units against internal combustion
+platforms.
+MODULE 5 -
+Maintenance
+(Battery
+Chainsaws)
+Pages
+34–35
+AC 3.3 	Map and explain the mechanical function of
+the 10 core safety features spanning the front,
+center, and rear architecture of a chainsaw.
+MODULE 4 -
+Mechanics (Safety
+Features)
+Pages
+30–33
+AC 4.1 	Detail correct cleaning procedures for air filtration
+housings and interpret electrode color indicators
+(Brown vs. Black vs. Grey) on a spark plug.
+MODULE 5 -
+Maintenance
+Pages
+36–39
+
+-- 135 of 138 --
+
+136The Chainsaw Manual
+Syllabus
+Code 	Learning Assessment Requirement 	Course Track /
+Module Alignment 	Page
+AC 4.2
+Explain safe carburettor adjusting rules using
+factory Idle (LA/T), Low (L), and High (H) screw
+limit constraints.
+ADVANCED
+WORKSHOP
+EXTENSION
+MODULE (Theory
+Enrichment Only
+Non-Regulated)
+Pages
+40–41
+AC 4.3
+Differentiate between Rim and Spur drive
+sprockets and diagnose guidebar wear conditions
+including burring, rail splaying, and thermal
+bluing.
+MODULE 5 -
+Maintenance
+Pages
+54–63
+AC 4.4
+Identify chain pitch, gauge, and tooth shapes
+(Full-Chisel vs. Semi-Chisel vs. Chipper), and
+calculate correct filing profile configurations.
+MODULE 6 - Chain
+Components &
+MODULE 7 - Chain
+Sharpening
+Pages
+64–75,
+Pages
+76–81
+AC 5.1
+Differentiate between safe cold start floor
+anchors and upright knee-clamp warm start
+methods.
+MODULE 9 - Safe
+Starting (Starting
+Your Chainsaw)
+Pages
+96–99
+AC 5.2
+Perform a 4-point dynamic check assessing chain
+brake engagement, oil dispersion flow, chain
+creep at tick-over, and off-switch motor cuts.
+MODULE 9 - Safe
+Starting (Pre-Use
+Checks)
+Pages
+100–101
+AC 6.1 	Analyze a log setup to determine where tension
+and compression forces reside.
+MODULE 10 - Cross
+Cutting (Tension &
+Compression)
+Pages
+106–107
+AC 6.2 	Explain the physics behind pulling chains versus
+pushing chains to prevent guidebar jamming.
+MODULE 10 - Cross
+Cutting
+Page
+104
+AC 6.3
+Define the boundaries of the bar tip’s upper
+nose quadrant to outline how kickback occurs
+and explain how to execute precise plunge bore
+entries safely.
+MODULE 8 -
+Kickback
+MODULE 10 - Cross
+Cutting (Bore
+Cutting)
+Pages
+82–83,
+Pages
+110–111
+AC 6.4
+Differentiate and map cut sequences for standard
+logs, oversized timber, advanced step cuts, and
+box splits under normal or extreme tension.
+MODULE 10 - Cross
+Cutting
+Pages
+108–
+117,
+120–121
+AC 6.4
+Evaluate specialized branch removal, snedding,
+and de-limbing sequences along the length of a
+felled tree stem.
+ADVANCED
+WORKSHOP
+EXTENSION
+MODULE (Theory
+Enrichment Only
+Non-Regulated)
+Pages
+118-119
+AC 6.5
+Identify severe site threats linked with processing
+windblown windfalls, establishing escape routes,
+and managing energy storage safely before
+severing attached root plates.
+ADVANCED
+WORKSHOP
+EXTENSION
+MODULE (Theory
+Enrichment Only
+Non-Regulated)
+Pages
+122–127
+
+-- 136 of 138 --
+
+137	The Chainsaw Manual
+.404”	
+3/8”	
+.325”	
+3/8”
+Picco Lo-
+pro	
+1/4”
+PITCH
+1.6mm	
+0.63	
+1.5mm	
+.058	
+1.6mm	
+0.63	
+1.5mm	
+.058	
+1.3mm	
+.050	
+1.6mm	
+.063	
+1.5mm	
+.058	
+1.3mm	
+.050	
+1.1mm	
+.043”	
+1.3mm	
+.050”	
+1.1mm	
+.043”	
+1.3mm	
+.050”	
+1.1mm	
+.043”
+GAUGE
+27 52 59 68
+-
+75 78	
+73 77	
+72 78
+22	
+21
+20 95 95-	
+(S.Cut)
+80
+91 95
+90	
+25	
+24
+NO. ON
+DRIVELINK
+OREGON
+5.5mm	
+7/32”	
+5.5mm	
+7/32”	
+4.8mm	
+3/16”	
+4mm	
+5/32”	
+4mm	
+5/32”	
+4mm	
+5/32”
+FILE SIZE
+30°
+Full Chisel
+25°
+Semi Chisel
+30°
+Full Chisel
+25°
+Semi Chisel
+30°
+Speedcut
+30°	
+30°	
+30°	
+30°	
+30°	
+30°
+TOP PLATE
+FILING ANGLE°
+46	
+45	
+36	
+35	
+33	
+26	
+25	
+23	
+61
+13 63
+61	
+13	
+71
+NO. ON DEPTH
+GAUGE &	
+DRIVELINK
+STIHL	
+5.5mm	
+7/32”	
+5.2mm	
+13/64”	
+4.8mm	
+3/16”	
+4mm	
+5/32”	
+4mm	
+5/32”	
+3.2mm
+1/8”
+FILE SIZE
+30°	
+30°
+Round Chisel 30°
+Hexa 25°
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°
+TOP PLATE FILING
+ANGLE°
+57 64
+69
+H - 45 50 83
+S - 42 48 49 52
+C85 85-Xcut
+H - 42 48 54 81
+S - 42 48 49
+46 47 C83
+26 28
+21 25 38
+22 23 25 30 33	
+35 37 78 SP -
+33G
+SP21G Xcut	
+35 36 37 93G
+38	
+H00	
+11
+NUMBER ON	
+DRIVELINK
+HUSQVARNA
+5.5mm	
+7/32”	
+5.5mm	
+7/32”	
+4.8mm	
+3/16”	
+4mm	
+5/32”	
+4mm	
+5/32”	
+4mm	
+5/32”	
+3.5mm	
+9/64”
+FILE SIZE
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°	
+30°
+TOP PLATE
+FILING ANGLE°
+
+-- 137 of 138 --
+
+138The Chainsaw Manual
+www.chainsawcourses.com
+Learn how to maintain and use your chainsaw safely
+with this unique Chainsaw Manual & Integrated
+E-learning Course.
+Prepare for your course and assessment, log your CPD
+hours, and receive your certificate.
+This manual and course feature detailed step-by-step
+visuals and instructions for maintaining individual
+components, along with real-world practical insights
+and operations.
+‘Stay Safe, Stay Sharp’
+Copyright © July 2026
+“I firmly recommend every workplace have at least one copy in their workshop”
+Forestry Journal - Dave Hamill
+“The knowledge recorded here is fundamental in safe effective chainsaw operation and
+should stay with you wherever your career takes you”
+City&Guilds Principal Verifier - Nick Obern
+“I feel the author has hit the mark perfectly, pitching this manual for beginners to
+intermediate users, but I would particularly recommend it to anyone just starting
+out with a saw, so they can benefit from it right the way through their time using a
+chainsaw.”
+Scottish Forestry - Chris Steel
+
+-- 138 of 138 --
+

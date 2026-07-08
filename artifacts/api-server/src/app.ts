@@ -3,7 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { loadManual } from "./lib/manual";
+import { loadAllAiResources } from "./lib/ai-resource";
 
 const app: Express = express();
 
@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Pre-load chainsaw manual for AI reference (fire-and-forget)
-loadManual().catch(() => {});
+// Pre-load AI reference resources (manual + Q&A) on startup
+loadAllAiResources();
 
 export default app;

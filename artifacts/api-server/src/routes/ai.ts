@@ -5,7 +5,7 @@ import { SendAiMessageBody } from "@workspace/api-zod";
 import { eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
-import { getManualText } from "../lib/manual";
+import { getManualText, getQaResource, findQaForQuestion } from "../lib/ai-resource";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -64,11 +64,29 @@ QUESTION [N] OF ${EXAM_QUESTIONS.length}: [question text]`;
 
 function buildSystemPrompt(): string {
   const manual = getManualText();
-  if (!manual) return CHAINSAW_SYSTEM_PROMPT;
-  // Truncate if extremely long to stay within token limits
-  const trimmedManual =
-    manual.length > 120000 ? manual.slice(0, 120000) + "\n...[truncated]" : manual;
-  return `${CHAINSAW_SYSTEM_PROMPT}\n\n---\n\nREFERENCE MATERIAL (your internal knowledge — do NOT quote passages to the candidate):\n${trimmedManual}`;
+  const qa = getQaResource();
+  const parts: string[] = [CHAINSAW_SYSTEM_PROMPT];
+
+  if (manual) {
+    const trimmed =
+      manual.length > 100000 ? manual.slice(0, 100000) + "\n...[truncated]" : manual;
+    parts.push(`---\n\nREFERENCE MANUAL (internal knowledge — do NOT quote passages to the candidate):\n${trimmed}`);
+  }
+
+  if (qa && qa.length > 0) {
+    // Include a compact summary of Q&A for the AI's reference
+    const qaSummary = qa
+      .map((e) => {
+        const bullets = e.sampleAnswers.slice(0, 5).map((b) => `  - ${b}`).join("\n");
+        return `[${e.category ?? "general"}] Q: ${e.question}\n  Threshold: ${e.threshold ?? "N/A"} required points\n  Model: ${e.modelAnswer}\n  Sample answers:\n${bullets}`;
+      })
+      .join("\n\n");
+    const trimmedQa =
+      qaSummary.length > 40000 ? qaSummary.slice(0, 40000) + "\n...[truncated]" : qaSummary;
+    parts.push(`---\n\nQUESTION BANK (internal knowledge — do NOT reveal thresholds or show model answers to the candidate):\n${trimmedQa}`);
+  }
+
+  return parts.join("\n\n");
 }
 
 function getGeminiClient(): GoogleGenAI | null {
@@ -175,14 +193,20 @@ router.post("/ai/grade-answer", async (req, res) => {
     .join("\n");
 
   const manual = getManualText();
+  const qaEntry = findQaForQuestion(promptText);
+
   const manualSection = manual
-    ? `\n\nREFERENCE MATERIAL (your internal knowledge — do NOT quote passages):\n${manual.length > 60000 ? manual.slice(0, 60000) + "\n...[truncated]" : manual}`
+    ? `\n\nREFERENCE MANUAL (internal knowledge — do NOT quote passages):\n${manual.length > 40000 ? manual.slice(0, 40000) + "\n...[truncated]" : manual}`
+    : "";
+
+  const qaSection = qaEntry
+    ? `\n\nREFERENCE Q&A (internal knowledge — do NOT reveal threshold or show model answers to the candidate):\nQuestion: ${qaEntry.question}\nRequired points to pass: ${qaEntry.threshold ?? "N/A"}\nModel answer: ${qaEntry.modelAnswer}\nAcceptable answer examples:\n${qaEntry.sampleAnswers.slice(0, 6).map((b) => "  - " + b).join("\n")}`
     : "";
 
   const gradingPrompt = `You are an NPTC chainsaw safety examiner grading a student's spoken answer.
 
 Question: "${promptText}"
-Student's answer: "${transcript}"${manualSection}
+Student's answer: "${transcript}"${manualSection}${qaSection}
 
 Decide whether the student's answer covers each key concept below.
 Be GENEROUS — accept synonyms, paraphrasing, colloquial phrasing, and partial answers that show genuine understanding.
