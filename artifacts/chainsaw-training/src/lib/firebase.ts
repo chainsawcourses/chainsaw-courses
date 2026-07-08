@@ -26,7 +26,6 @@ remoteConfig.defaultConfig = {
     { id: 4, vimeoId: "", title: "Hazards & Risks", description: "" },
     { id: 5, vimeoId: "", title: "Emergency Planning Information", description: "" },
     { id: 6, vimeoId: "", title: "Law & Legislation", description: "" },
-    { id: 44, vimeoId: "", title: "Important Acts and Legislation Guide", description: "" },
     { id: 7, vimeoId: "", title: "Chainsaw Safety Features", description: "" },
     { id: 8, vimeoId: "", title: "Battery Chainsaws", description: "" },
     { id: 9, vimeoId: "", title: "Air Filter", description: "" },

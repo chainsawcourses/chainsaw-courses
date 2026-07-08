@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -770,6 +770,20 @@ export default function TrainingList() {
                               )}
                             </CardContent>
                           </Card>
+
+                          {/* Legislation Guide PDF link — appears under Law & Legislation as optional reference */}
+                          {module.title.toLowerCase().includes("law & legislation") && (
+                            <a
+                              href="https://firebasestorage.googleapis.com/v0/b/chainsaw-courses.firebasestorage.app/o/Important%20Acts%20and%20Legislation%20Guide.pdf?alt=media&token=3c01c2a9-23ff-425d-a074-e7b979d1e14a"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 ml-9 mt-1.5 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
+                            >
+                              <FileText className="w-3 h-3 text-muted-foreground group-hover:text-primary" />
+                              <span>Important Acts and Legislation Guide</span>
+                              <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover:opacity-100" />
+                            </a>
+                          )}
 
                           {/* Hazards table — injected after "5 Steps To Risk Assessment" */}
                           {isRiskAssessment && (
