@@ -3,8 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown, AlertTriangle, Globe, Lock } from "lucide-react";
+import { ShieldAlert, ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown, AlertTriangle } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,7 +27,6 @@ interface ModuleVideo {
   saving: boolean;
   saved: boolean;
   previewOpen: boolean;
-  isPublic: boolean;
 }
 
 function extractVimeoId(input: string): string {
@@ -73,18 +71,13 @@ export default function VideoSettings() {
         setModules(
           data
             .filter((m) => (m as { contentType?: string }).contentType !== "pdf")
-            .map((m) => {
-              const vimeoId = m.vimeoId === PLACEHOLDER_ID ? "" : m.vimeoId;
-              const hasHash = vimeoId.includes("/");
-              return {
-                ...m,
-                inputValue: vimeoId,
-                saving: false,
-                saved: false,
-                previewOpen: false,
-                isPublic: !hasHash && !!vimeoId,
-              };
-            })
+            .map((m) => ({
+              ...m,
+              inputValue: m.vimeoId === PLACEHOLDER_ID ? "" : m.vimeoId,
+              saving: false,
+              saved: false,
+              previewOpen: false,
+            }))
         );
         setLoading(false);
       })
@@ -174,16 +167,6 @@ export default function VideoSettings() {
                 <CardTitle className="font-mono text-sm uppercase tracking-widest flex items-center gap-2">
                   <span className="text-primary opacity-50 text-xs">MODULE {mod.order}</span>
                   <span>{mod.title}</span>
-                  {mod.isPublic && (
-                    <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-amber-500 border-amber-500/40 shrink-0">
-                      <Globe className="w-2.5 h-2.5 mr-0.5" /> PUBLIC
-                    </Badge>
-                  )}
-                  {!mod.isPublic && mod.vimeoId && mod.vimeoId !== PLACEHOLDER_ID && (
-                    <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-green-500 border-green-500/40 shrink-0">
-                      <Lock className="w-2.5 h-2.5 mr-0.5" /> HASH LOCK
-                    </Badge>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
