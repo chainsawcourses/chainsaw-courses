@@ -9,6 +9,7 @@ import aiRouter from "./ai";
 import adminRouter from "./admin";
 import hazardsRouter from "./hazards";
 import howToUseRouter from "./howToUse";
+import documentsRouter from "./documents";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(aiRouter);
 router.use(adminRouter);
 router.use(hazardsRouter);
 router.use(howToUseRouter);
+router.use(documentsRouter);
 
 export default router;

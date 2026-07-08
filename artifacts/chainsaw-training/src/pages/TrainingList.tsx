@@ -774,7 +774,7 @@ export default function TrainingList() {
                           {/* Legislation Guide PDF link — appears under Law & Legislation as optional reference */}
                           {module.title.toLowerCase().includes("law & legislation") && (
                             <a
-                              href="https://firebasestorage.googleapis.com/v0/b/chainsaw-courses.firebasestorage.app/o/Important%20Acts%20and%20Legislation%20Guide.pdf?alt=media&token=3c01c2a9-23ff-425d-a074-e7b979d1e14a"
+                              href="/api/documents/legislation"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1.5 ml-9 mt-1.5 text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors group"
