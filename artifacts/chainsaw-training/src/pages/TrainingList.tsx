@@ -493,30 +493,30 @@ export default function TrainingList() {
               </button>
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1">
-                  <CardContent className="p-4 space-y-2 font-mono text-xs text-muted-foreground">
+                  <CardContent className="p-4 space-y-5 font-mono text-xs text-muted-foreground">
                     <a
                       href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      NPTC Course Overview
+                      <ExternalLink className="w-3 h-3 shrink-0" /> NPTC Course Overview
                     </a>
                     <a
                       href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      Qualification Handbook
+                      <ExternalLink className="w-3 h-3 shrink-0" /> Qualification Handbook
                     </a>
                     <a
                       href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      Assessment Schedule
+                      <ExternalLink className="w-3 h-3 shrink-0" /> Assessment Schedule
                     </a>
                   </CardContent>
                 </Card>
