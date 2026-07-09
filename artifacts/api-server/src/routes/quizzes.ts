@@ -112,12 +112,13 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
       if (existing.length > 0) {
         await db
           .update(userProgressTable)
-          .set({ quizPassed: true, quizScore: score, completedAt: new Date(), updatedAt: new Date() })
+          .set({ videoCompleted: true, quizPassed: true, quizScore: score, completedAt: new Date(), updatedAt: new Date() })
           .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
       } else {
         await db.insert(userProgressTable).values({
           userId: user.id,
           moduleId,
+          videoCompleted: true,
           quizPassed: true,
           quizScore: score,
           completedAt: new Date(),
