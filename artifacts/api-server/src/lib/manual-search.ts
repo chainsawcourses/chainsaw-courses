@@ -1,48 +1,143 @@
 import { getManualText } from "./manual";
 import { logger } from "./logger";
 
+interface Chunk {
+  title: string;
+  content: string;
+  score: number;
+}
+
+let cachedChunks: Chunk[] | null = null;
+
 /**
- * Split manual into paragraphs and score each by keyword overlap.
- * Returns the top-N most relevant passages for a given query.
+ * Pre-process the raw manual into clean, meaningful chunks.
+ * Strips page markers/headers, groups fragmented lines into paragraphs,
+ * and identifies section titles.
  */
-export function searchManual(query: string, topN = 3, minScore = 1): string[] {
+function getChunks(): Chunk[] {
+  if (cachedChunks) return cachedChunks;
+
   const manual = getManualText();
   if (!manual || manual.length === 0) return [];
+
+  const lines = manual.split("\n");
+  const chunks: Chunk[] = [];
+  let currentTitle = "";
+  let buffer: string[] = [];
+
+  const flushBuffer = () => {
+    const joined = buffer
+      .join(" ")
+      .replace(/\t/g, " ")   // tabs → spaces
+      .replace(/\s+/g, " ")  // collapse whitespace
+      .trim();
+    if (joined.length > 30) {
+      chunks.push({ title: currentTitle, content: joined, score: 0 });
+    }
+    buffer = [];
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+
+    // Skip empty lines, page markers, page headers, standalone title lines
+    if (line.length === 0) {
+      flushBuffer();
+      continue;
+    }
+    if (/^--\s*\d+\s*of\s*\d+\s*--$/.test(line)) {
+      flushBuffer();
+      continue;
+    }
+    if (/^\d+\s+The Chainsaw Manual$/.test(line)) {
+      flushBuffer();
+      continue;
+    }
+    if (line === "The Chainsaw Manual" || line === "CHAINSAW" || line === "MAINTENANCE &" || line === "CROSS CUTTING") {
+      flushBuffer();
+      continue;
+    }
+    if (/^Published by/.test(line) || /^Copyright/.test(line) || /^First Edition:/.test(line) || /^Version /.test(line)) {
+      flushBuffer();
+      continue;
+    }
+    // Skip standalone page numbers that appear on their own line (e.g. "82", "76")
+    if (/^\d{1,4}$/.test(line)) {
+      continue;
+    }
+    // Skip "-- 1 of 138 --" style page markers embedded mid-paragraph
+    if (/^--\s*\d+\s*of\s*\d+\s*--$/.test(line)) {
+      continue;
+    }
+
+    // Section headers: numbered sections ("1. Title"), dash/en-dash items ("- Title" or "\u2013 Title"), all-caps headers
+    const isSectionHeader =
+      /^\d+\.\s+[A-Z]/.test(line) ||
+      /^[-\u2022\u2013]\s+[A-Z]/.test(line) ||
+      (/^[A-Z][A-Z\s&\-:]+$/.test(line) && line.length > 5 && line.length < 60);
+
+    if (isSectionHeader) {
+      flushBuffer();
+      currentTitle = line.replace(/^[-\u2022\u2013]\s*/, "").trim();
+      buffer.push(line);
+    } else {
+      buffer.push(line);
+    }
+  }
+  flushBuffer();
+
+  cachedChunks = chunks;
+  logger.info({ chunks: chunks.length }, "Manual indexed for search");
+  return chunks;
+}
+
+/**
+ * Search the manual for passages relevant to a query.
+ * Returns the top-N most relevant chunks.
+ */
+export function searchManual(query: string, topN = 3, minScore = 2): string[] {
+  const chunks = getChunks();
+  if (chunks.length === 0) return [];
 
   const queryWords = extractKeywords(query);
   if (queryWords.length === 0) return [];
 
-  // Split on double newlines (paragraphs) or numbered section headers
-  const paragraphs = manual
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 20);
-
-  const scored = paragraphs.map((p) => {
-    const lower = p.toLowerCase();
+  const scored = chunks.map((chunk) => {
+    const lowerTitle = chunk.title.toLowerCase();
+    const lowerContent = chunk.content.toLowerCase();
     let score = 0;
+
     for (const word of queryWords) {
-      const regex = new RegExp(`\\b${word}\\b`, "g");
-      const matches = lower.match(regex);
-      score += (matches ? matches.length : 0) * 3;
-      // Also give partial credit for substring matches (e.g. "kickback" in "anti-kickback")
-      if (lower.includes(word)) {
-        score += 1;
-      }
+      // Title matches weighted heavily
+      const titleMatches = lowerTitle.match(new RegExp(`\\b${word}\\b`, "g"));
+      score += (titleMatches ? titleMatches.length : 0) * 8;
+      if (lowerTitle.includes(word)) score += 3;
+
+      // Content matches
+      const contentMatches = lowerContent.match(new RegExp(`\\b${word}\\b`, "g"));
+      score += (contentMatches ? contentMatches.length : 0) * 2;
+      if (lowerContent.includes(word)) score += 1;
     }
-    return { text: p, score };
+    return { ...chunk, score };
   });
 
   scored.sort((a, b) => b.score - a.score);
   const top = scored.filter((s) => s.score >= minScore).slice(0, topN);
 
   if (top.length === 0) {
-    // Fallback: try looser search (any single keyword match)
     const loose = scored.filter((s) => s.score > 0).slice(0, 2);
-    return loose.map((s) => s.text);
+    return loose.map((s) => formatChunk(s));
   }
 
-  return top.map((s) => s.text);
+  return top.map((s) => formatChunk(s));
+}
+
+function formatChunk(chunk: Chunk): string {
+  const title = chunk.title.replace(/^\d+\.\s*/, "").replace(/^[-\u2022\u2013]\s*/, "").trim();
+  if (title && chunk.content !== title) {
+    return `**${title}**\n${chunk.content}`;
+  }
+  return chunk.content;
 }
 
 /**
@@ -56,25 +151,33 @@ export function buildTutorAnswer(query: string, passages: string[]): string {
     );
   }
 
-  const joined = passages
-    .map((p, i) => `\n${i + 1}. ${p}`)
+  const cleaned = passages.map((p) =>
+    p
+      // Replace any remaining tabs with a space
+      .replace(/\t/g, " ")
+      // Fix multiple spaces
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+
+  const joined = cleaned
+    .map((p, i) => `\n\n${i + 1}. ${p}`)
     .join("");
 
   return (
-    `Here is what the training manual says on that topic:\n${joined}\n\n` +
+    `Here is what the training manual says on that topic:${joined}\n\n` +
     "Let me know if you'd like me to dig deeper into any specific area."
   );
 }
 
 function extractKeywords(text: string): string[] {
   const lower = text.toLowerCase();
-  // Remove punctuation and split
   const words = lower
     .replace(/[^a-z0-9\s-]/g, " ")
     .split(/\s+/)
     .filter((w) => w.length > 2)
     .filter((w) => !STOP_WORDS.has(w));
-  // Expand with common stems (e.g. "maintain" → also check "mainten")
+
   const expanded = new Set<string>();
   for (const w of words) {
     expanded.add(w);
@@ -84,9 +187,6 @@ function extractKeywords(text: string): string[] {
   return [...expanded];
 }
 
-/**
- * Simple stem helper: strip common suffixes so "maintain" matches "maintenance".
- */
 function getStem(word: string): string {
   const suffixes = ["ing", "ed", "er", "est", "ly", "ion", "tion", "ation", "ance", "ence", "ment", "ness", "ity", "ies", "s"];
   for (const s of suffixes) {
@@ -100,16 +200,12 @@ function getStem(word: string): string {
 const STOP_WORDS = new Set([
   "the", "and", "for", "are", "but", "not", "you", "all", "any", "can", "had", "her", "was",
   "one", "our", "out", "day", "get", "has", "him", "his", "how", "its", "may", "new", "now",
-  "old", "see", "two", "way", "who", "boy", "did", "she", "use", "her", "him", "his", "how",
-  "man", "men", "run", "she", "sun", "way", "what", "with", "have", "this", "will", "your",
-  "from", "they", "know", "want", "been", "good", "much", "some", "time", "very", "when",
-  "come", "here", "just", "like", "long", "make", "many", "over", "such", "take", "than",
-  "them", "well", "were", "what", "that", "which", "their", "would", "there", "about",
-  "after", "back", "other", "many", "then", "them", "these", "could", "should", "would",
-  "could", "should", "would", "each", "into", "most", "only", "said", "some", "time",
-  "very", "also", "first", "after", "being", "made", "more", "must", "need", "same",
-  "such", "take", "than", "them", "well", "were",
-  // Chainsaw-specific filter: "what is a chainsaw" should keep "chainsaw"
-  "does", "isnt", "dont", "wont", "cant", "didnt", "wasnt", "werent", "wouldnt", "shouldnt",
-  "hasnt", "havent", "hadnt",
+  "old", "see", "two", "way", "who", "boy", "did", "she", "use", "man", "men", "run", "sun",
+  "what", "with", "have", "this", "will", "your", "from", "they", "know", "want", "been",
+  "good", "much", "some", "time", "very", "when", "come", "here", "just", "like", "long",
+  "make", "many", "over", "such", "take", "than", "them", "well", "were", "that", "which",
+  "their", "would", "there", "about", "after", "back", "other", "then", "these", "could",
+  "should", "each", "into", "most", "only", "said", "also", "first", "being", "made", "more",
+  "must", "need", "same", "does", "isnt", "dont", "wont", "cant", "didnt", "wasnt", "werent",
+  "wouldnt", "shouldnt", "hasnt", "havent", "hadnt",
 ]);
