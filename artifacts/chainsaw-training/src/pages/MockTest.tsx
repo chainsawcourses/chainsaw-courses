@@ -108,7 +108,7 @@ export default function MockTest() {
   const queryClient = useQueryClient();
 
   // Hazard reference (Q2/Q3/Q4)
-  const { activationCode, deviceId } = useUserSession();
+  const { activationCode, deviceId, userId } = useUserSession();
   const [hazardRefs, setHazardRefs] = useState<HazardRef[]>([]);
   const [hazardRefOpen, setHazardRefOpen] = useState(false);
   const [hazardRefLoading, setHazardRefLoading] = useState(false);
@@ -327,7 +327,7 @@ export default function MockTest() {
       try {
         const resp = await fetch("/api/ai/grade-answer", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", deviceid: deviceId, activationcode: activationCode, userid: String(userId) },
           body: JSON.stringify({
             transcript: fullTranscript,
             promptText: prompt.prompt,
@@ -396,7 +396,7 @@ export default function MockTest() {
             try {
               await fetch("/api/progress/complete-assessment", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", deviceid: deviceId, activationcode: activationCode, userid: String(userId) },
                 body: JSON.stringify({ moduleId: Number(moduleId), deviceId, activationCode, passed: overallPassed, score }),
               });
             } catch { /* silent */ }
