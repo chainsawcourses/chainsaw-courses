@@ -42,10 +42,46 @@ interface QuestionResult {
   passed: boolean;
 }
 
+function normalize(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenSet(text: string): Set<string> {
+  const words = normalize(text).split(" ");
+  const set = new Set<string>();
+  for (const w of words) {
+    set.add(w);
+    // Add common stems
+    if (w.endsWith("ing")) set.add(w.slice(0, -3));
+    if (w.endsWith("ed")) set.add(w.slice(0, -2));
+    if (w.endsWith("s") && w.length > 2) set.add(w.slice(0, -1));
+    if (w.endsWith("es") && w.length > 3) set.add(w.slice(0, -2));
+    if (w.endsWith("ly")) set.add(w.slice(0, -2));
+    if (w.endsWith("er")) set.add(w.slice(0, -2));
+  }
+  return set;
+}
+
+function keywordCovers(transcript: string, keyword: string): boolean {
+  const tNorm = normalize(transcript);
+  const kwNorm = normalize(keyword);
+  // Exact substring still works (most reliable)
+  if (tNorm.includes(kwNorm)) return true;
+  // Token-based: all keyword tokens must appear in transcript (any order)
+  const tTokens = tokenSet(tNorm);
+  const kwTokens = normalize(keyword).split(" ");
+  const matched = kwTokens.filter((w) => w.length > 2 && tTokens.has(w));
+  // If >60% of keyword tokens appear, consider it a match
+  return kwTokens.length > 0 && matched.length / kwTokens.length >= 0.6;
+}
+
 function matchKeyPoints(transcript: string, prompt: VocalPrompt): boolean[] {
-  const lower = transcript.toLowerCase();
   return prompt.keyPoints.map((kp) =>
-    kp.keywords.some((kw) => lower.includes(kw.toLowerCase()))
+    kp.keywords.some((kw) => keywordCovers(transcript, kw))
   );
 }
 
