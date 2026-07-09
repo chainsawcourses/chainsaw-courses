@@ -50,10 +50,13 @@ router.get("/modules", async (req, res) => {
 
       // Sequential lock: previous module must be fully complete to access a new module.
       // "Complete" means: video watched, AND quiz passed if the module has quiz questions.
+      // PDF/read-only modules with no quiz do not gate the next module (they are reference-only).
       // Exception: if the student has already watched this module before, always allow re-access.
       const prevHasQuiz = prevMod ? (quizCountMap.get(prevMod.id) ?? 0) > 0 : false;
+      const prevIsPdfNoQuiz = prevMod ? (prevMod.contentType === "pdf" && !prevHasQuiz) : false;
       const prevComplete =
         idx === 0 ||
+        prevIsPdfNoQuiz || // PDF with no quiz = does not gate next module
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
       // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,
@@ -131,11 +134,13 @@ router.get("/modules/:moduleId", async (req, res) => {
           .where(eq(quizQuestionsTable.moduleId, prevMod.id)),
       ]);
       const prevHasQuiz = (prevQuizCounts[0]?.count ?? 0) > 0;
+      const prevIsPdfNoQuiz = prevMod ? (prevMod.contentType === "pdf" && !prevHasQuiz) : false;
       // Pick the most recent progress row for the previous module
       const prevLatest = prevProgressAll.length > 0
         ? prevProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
         : null;
-      const prevComplete = !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
+      // PDF/read-only modules with no quiz do not gate the next module
+      const prevComplete = prevIsPdfNoQuiz || !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
       // COURSE REQUIREMENTS modules are always accessible
       if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before

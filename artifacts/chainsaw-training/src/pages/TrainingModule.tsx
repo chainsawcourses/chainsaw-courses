@@ -3,7 +3,8 @@ import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, ShieldAlert, CheckCircle2, LogOut, FileText, ExternalLink, ChevronRight, RotateCcw } from "lucide-react";
-import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat } from "@workspace/api-client-react";
+import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer, type VimeoPlayerHandle } from "@/components/VimeoPlayer";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,7 @@ export default function TrainingModule() {
 
   const completeVideo = useCompleteVideo();
   const saveHeartbeat = useSaveHeartbeat();
+  const queryClient = useQueryClient();
 
   const playerRef = useRef<VimeoPlayerHandle>(null);
 
@@ -96,8 +98,18 @@ export default function TrainingModule() {
   const handleVideoEnded = useCallback(() => {
     setVideoCompleted(true);
     if (!deviceId || !activationCode) return;
-    completeVideo.mutate({ data: { moduleId: id, deviceId, activationCode } });
-  }, [deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
+    completeVideo.mutate(
+      { data: { moduleId: id, deviceId, activationCode } },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+          void queryClient.refetchQueries({ queryKey: getListModulesQueryKey(), type: "all" });
+          void queryClient.refetchQueries({ queryKey: getGetProgressSummaryQueryKey(), type: "all" });
+        }
+      }
+    );
+  }, [deviceId, activationCode, id, queryClient]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBackToCourse = useCallback(() => {
     sessionStorage.setItem("scrollAfterModule", String(id));

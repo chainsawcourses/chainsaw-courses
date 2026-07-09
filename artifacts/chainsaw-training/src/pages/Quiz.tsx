@@ -81,6 +81,9 @@ export default function Quiz() {
           if (data.passed) {
             queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+            // Force immediate refetch so the next module unlock is visible
+            void queryClient.refetchQueries({ queryKey: getListModulesQueryKey(), type: "all" });
+            void queryClient.refetchQueries({ queryKey: getGetProgressSummaryQueryKey(), type: "all" });
           }
         }
       }

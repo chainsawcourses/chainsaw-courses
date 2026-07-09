@@ -358,17 +358,17 @@ export async function customFetch<T = unknown>(
     }
   }
 
-  // Add custom app headers
+  // Add custom app headers (lowercase to match server expectations)
   if (typeof window !== "undefined") {
     const deviceId = localStorage.getItem("deviceId");
     const activationCode = localStorage.getItem("activationCode");
     const adminToken = localStorage.getItem("adminToken");
 
     const userId = localStorage.getItem("userId");
-    if (deviceId && !headers.has("deviceId")) headers.set("deviceId", deviceId);
-    if (activationCode && !headers.has("activationCode")) headers.set("activationCode", activationCode);
-    if (adminToken && !headers.has("adminToken")) headers.set("adminToken", adminToken);
-    if (userId && !headers.has("userId")) headers.set("userId", userId);
+    if (deviceId && !headers.has("deviceid")) headers.set("deviceid", deviceId);
+    if (activationCode && !headers.has("activationcode")) headers.set("activationcode", activationCode);
+    if (adminToken && !headers.has("admintoken")) headers.set("admintoken", adminToken);
+    if (userId && !headers.has("userid")) headers.set("userid", userId);
   }
 
   const requestInfo = { method, url: resolveUrl(input) };

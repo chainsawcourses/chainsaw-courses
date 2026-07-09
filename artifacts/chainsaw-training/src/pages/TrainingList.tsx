@@ -43,11 +43,21 @@ export default function TrainingList() {
   const completeVideo = useCompleteVideo();
 
   const { data: modules, isLoading: isLoadingModules } = useListModules({
-    query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
+    query: {
+      queryKey: getListModulesQueryKey(),
+      enabled: !!activationCode && !!deviceId,
+      staleTime: 0,
+      refetchOnMount: "always",
+    }
   });
 
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
-    query: { queryKey: getGetProgressSummaryQueryKey(), enabled: !!activationCode && !!deviceId }
+    query: {
+      queryKey: getGetProgressSummaryQueryKey(),
+      enabled: !!activationCode && !!deviceId,
+      staleTime: 0,
+      refetchOnMount: "always",
+    }
   });
 
   const { data: waiverStatus } = useGetWaiver({

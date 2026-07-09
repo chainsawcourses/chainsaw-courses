@@ -400,9 +400,11 @@ export default function MockTest() {
                 body: JSON.stringify({ moduleId: Number(moduleId), deviceId, activationCode, passed: overallPassed, score }),
               });
             } catch { /* silent */ }
-            // Invalidate module list so the next module unlock is reflected immediately
+            // Invalidate and refetch so the next module unlock is reflected immediately
             queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
             queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+            void queryClient.refetchQueries({ queryKey: getListModulesQueryKey(), type: "all" });
+            void queryClient.refetchQueries({ queryKey: getGetProgressSummaryQueryKey(), type: "all" });
           }
           setPhase("results");
         };
