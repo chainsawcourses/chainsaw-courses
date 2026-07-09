@@ -303,54 +303,7 @@ export default function TrainingModule() {
                     </span>
                   </div>
 
-                  {/* Voice audio progress — oral exam questions */}
-                  {hasAudioQuestions && (
-                    <div className="w-full max-w-[320px] space-y-2">
-                      {isAudioPlaying ? (
-                        <div className="flex items-center gap-2 text-white/80">
-                          <Volume2 className="w-4 h-4 animate-pulse text-primary" />
-                          <span className="font-mono text-xs text-left truncate">
-                            {audioQuestions[currentAudioIdx]?.prompt || "Playing…"}
-                          </span>
-                        </div>
-                      ) : (
-                        <p className="font-mono text-[10px] text-white/50">
-                          {currentAudioIdx >= audioQuestions.length
-                            ? "All questions played."
-                            : `${audioQuestions.length} oral exam question${audioQuestions.length !== 1 ? "s" : ""} queued`}
-                        </p>
-                      )}
-                      {currentAudioIdx < audioQuestions.length && (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 font-mono text-[10px] h-8 border-white/20 text-white/70 hover:text-white hover:bg-white/10"
-                            onClick={playAllAudio}
-                            disabled={isAudioPlaying}
-                          >
-                            {isAudioPlaying
-                              ? <><VolumeX className="w-3 h-3 mr-1" /> Playing…</>
-                              : <><Volume2 className="w-3 h-3 mr-1" /> Play Questions</>}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="font-mono text-[10px] h-8 text-white/50 hover:text-white"
-                            onClick={stopAudio}
-                            disabled={!isAudioPlaying}
-                          >
-                            Stop
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
                   <div className="flex flex-col gap-2 w-full max-w-[260px]">
-                    <Button size="sm" className="font-mono tracking-widest w-full whitespace-normal h-auto py-2 leading-tight" asChild>
-                      <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
-                    </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs gap-1.5" onClick={handleReplay}>
                       <RotateCcw className="w-3 h-3" /> REPLAY VIDEO
                     </Button>
