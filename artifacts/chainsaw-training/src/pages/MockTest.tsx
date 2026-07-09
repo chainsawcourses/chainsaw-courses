@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestions";
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
-import { getAudioUrl } from "../data/audioFiles";
+import { getAudioUrl, APPLAUSE_URL } from "../data/audioFiles";
 import { useUserSession } from "../contexts/UserContext";
 import { useListModules, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 
@@ -150,6 +150,7 @@ export default function MockTest() {
   const [hazardRefLoading, setHazardRefLoading] = useState(false);
 
   const finalTranscriptRef = useRef("");
+  const applausePlayedRef = useRef(false);
   const isRecordingRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -478,6 +479,23 @@ export default function MockTest() {
   const allPassed = questionResults.length === TOTAL && questionResults.every((r) => r.passed);
   // All questions must be passed to unlock the next module
   const overallPassed = questionResults.length === TOTAL && TOTAL > 0 && passCount === TOTAL;
+
+  // Play applause when results screen shows and user passed
+  useEffect(() => {
+    if (phase === "results" && overallPassed && !applausePlayedRef.current) {
+      applausePlayedRef.current = true;
+      try {
+        const audio = new Audio(APPLAUSE_URL);
+        audio.volume = 0.7;
+        audio.play().catch(() => {});
+      } catch {
+        // ignore audio errors
+      }
+    }
+    if (phase !== "results") {
+      applausePlayedRef.current = false;
+    }
+  }, [phase, overallPassed]);
 
   // Progress bar width
   const progressPct =
