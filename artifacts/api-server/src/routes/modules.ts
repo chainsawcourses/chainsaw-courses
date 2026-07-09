@@ -32,7 +32,15 @@ router.get("/modules", async (req, res) => {
       }).from(quizQuestionsTable).groupBy(quizQuestionsTable.moduleId),
     ]);
 
-    const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
+    // Deduplicate progress records — if there are duplicate rows for the same
+    // module, keep the one with the most recent update (highest id as a tie-breaker).
+    const progressMap = new Map<number, (typeof progressRecords)[number]>();
+    for (const p of progressRecords) {
+      const existing = progressMap.get(p.moduleId);
+      if (!existing || (p.updatedAt ?? p.id) > (existing.updatedAt ?? existing.id)) {
+        progressMap.set(p.moduleId, p);
+      }
+    }
     const quizCountMap = new Map(quizCounts.map((q) => [q.moduleId, q.count]));
 
     const result = modules.map((mod, idx) => {
@@ -114,24 +122,31 @@ router.get("/modules/:moduleId", async (req, res) => {
 
     let isLocked = false;
     if (prevMod) {
-      const [[prevProgress], prevQuizCounts] = await Promise.all([
+      const [prevProgressAll, prevQuizCounts] = await Promise.all([
         db.select().from(userProgressTable).where(
           and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, prevMod.id))
-        ),
+        ).orderBy(asc(userProgressTable.id)),
         db.select({ count: sql<number>`cast(count(*) as int)` })
           .from(quizQuestionsTable)
           .where(eq(quizQuestionsTable.moduleId, prevMod.id)),
       ]);
       const prevHasQuiz = (prevQuizCounts[0]?.count ?? 0) > 0;
-      const prevComplete = !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
+      // Pick the most recent progress row for the previous module
+      const prevLatest = prevProgressAll.length > 0
+        ? prevProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
+        : null;
+      const prevComplete = !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
       // COURSE REQUIREMENTS modules are always accessible
       if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before
-        const [ownProgress] = await db
+        const ownProgressAll = await db
           .select()
           .from(userProgressTable)
           .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
-        isLocked = !ownProgress?.videoCompleted;
+        const ownLatest = ownProgressAll.length > 0
+          ? ownProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
+          : null;
+        isLocked = !ownLatest?.videoCompleted;
       }
     }
 
@@ -142,12 +157,15 @@ router.get("/modules/:moduleId", async (req, res) => {
 
     // Auto-complete PDF modules when accessed
     if (mod.contentType === "pdf") {
-      const [existing] = await db
+      const pdfProgressAll = await db
         .select()
         .from(userProgressTable)
         .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+      const pdfLatest = pdfProgressAll.length > 0
+        ? pdfProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
+        : null;
 
-      if (existing) {
+      if (pdfLatest) {
         await db
           .update(userProgressTable)
           .set({ videoCompleted: true, quizPassed: true, completedAt: new Date(), updatedAt: new Date() })
@@ -164,7 +182,7 @@ router.get("/modules/:moduleId", async (req, res) => {
       }
     }
 
-    const [myProgress] = await db
+    const myProgressAll = await db
       .select()
       .from(userProgressTable)
       .where(
@@ -173,6 +191,9 @@ router.get("/modules/:moduleId", async (req, res) => {
           eq(userProgressTable.moduleId, moduleId)
         )
       );
+    const myProgress = myProgressAll.length > 0
+      ? myProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
+      : null;
 
     res.json({
       id: mod.id,

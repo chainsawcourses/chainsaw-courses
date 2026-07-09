@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -12,7 +13,7 @@ import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestio
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { getAudioUrl } from "../data/audioFiles";
 import { useUserSession } from "../contexts/UserContext";
-import { useListModules } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 
 interface HazardRef {
   id: number;
@@ -71,16 +72,8 @@ export default function MockTest() {
     []
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: allModules } = useListModules();
-
-  // Find the next module in sequence after the current one
-  const nextModule = useMemo(() => {
-    if (!moduleId || !allModules) return null;
-    const currentId = Number(moduleId);
-    const sorted = [...allModules].sort((a, b) => a.order - b.order);
-    const idx = sorted.findIndex((m) => m.id === currentId);
-    return idx >= 0 && idx < sorted.length - 1 ? sorted[idx + 1] : null;
-  }, [moduleId, allModules]);
   const activeQuestions = (() => {
     if (!moduleId) return VOCAL_EXAM_QUESTIONS;
     const id = Number(moduleId);
@@ -111,6 +104,8 @@ export default function MockTest() {
 
   // Typed answer (alternative / supplement to mic)
   const [typedText, setTypedText] = useState("");
+
+  const queryClient = useQueryClient();
 
   // Hazard reference (Q2/Q3/Q4)
   const { activationCode, deviceId } = useUserSession();
@@ -392,18 +387,26 @@ export default function MockTest() {
 
       if (questionIdx + 1 >= activeQuestions.length) {
         // Exam finished — record result to server if this is a module assessment
-        if (moduleId && activationCode && deviceId) {
-          const finalPassCount = newQResults.filter((r) => r.passed).length;
-          const finalTotal = newQResults.length;
-          const overallPassed = finalTotal > 0 && finalPassCount === finalTotal;
-          const score = finalTotal > 0 ? Math.round((finalPassCount / finalTotal) * 100) : 0;
-          fetch("/api/progress/complete-assessment", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ moduleId: Number(moduleId), deviceId, activationCode, passed: overallPassed, score }),
-          }).catch(() => {});
-        }
-        setPhase("results");
+        const finishExam = async () => {
+          if (moduleId && activationCode && deviceId) {
+            const finalPassCount = newQResults.filter((r) => r.passed).length;
+            const finalTotal = newQResults.length;
+            const overallPassed = finalTotal > 0 && finalPassCount === finalTotal;
+            const score = finalTotal > 0 ? Math.round((finalPassCount / finalTotal) * 100) : 0;
+            try {
+              await fetch("/api/progress/complete-assessment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ moduleId: Number(moduleId), deviceId, activationCode, passed: overallPassed, score }),
+              });
+            } catch { /* silent */ }
+            // Invalidate module list so the next module unlock is reflected immediately
+            queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+          }
+          setPhase("results");
+        };
+        void finishExam();
       } else {
         setQuestionIdx((i) => i + 1);
         setPromptIdx(0);
@@ -943,21 +946,15 @@ export default function MockTest() {
               })}
             </div>
 
-            {overallPassed && nextModule ? (
-              <Button
-                className="w-full font-mono font-black uppercase tracking-widest"
-                onClick={() => setLocation(`/training/${nextModule.id}`)}
-              >
-                <ChevronRight className="w-4 h-4 mr-2" />Next Module
-              </Button>
-            ) : overallPassed ? (
-              <Button
-                variant="outline"
-                className="w-full font-mono font-black uppercase tracking-widest"
-                onClick={() => setLocation("/training")}
-              >
-                <ChevronRight className="w-4 h-4 mr-2" />Back to Course
-              </Button>
+            {overallPassed ? (
+              <div className="flex flex-col gap-3 w-full">
+                <Button
+                  className="w-full font-mono font-black uppercase tracking-widest"
+                  onClick={() => setLocation("/training")}
+                >
+                  <ChevronRight className="w-4 h-4 mr-2" />Next Module
+                </Button>
+              </div>
             ) : (
               <Button
                 className="w-full font-mono font-black uppercase tracking-widest"

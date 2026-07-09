@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams, Link } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
-import { useGetQuiz, useSubmitQuiz, QuizResult, getGetQuizQueryKey } from "@workspace/api-client-react";
+import { useGetQuiz, useSubmitQuiz, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 export default function Quiz() {
@@ -12,6 +13,7 @@ export default function Quiz() {
   const id = moduleId ? parseInt(moduleId) : 0;
   const [, setLocation] = useLocation();
   const { activationCode, deviceId } = useUserSession();
+  const queryClient = useQueryClient();
 
   const { data: quiz, isLoading } = useGetQuiz(id, {
     query: { queryKey: getGetQuizQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
@@ -76,6 +78,10 @@ export default function Quiz() {
       {
         onSuccess: (data) => {
           setResult(data);
+          if (data.passed) {
+            queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
+          }
         }
       }
     );
