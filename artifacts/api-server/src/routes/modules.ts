@@ -45,18 +45,26 @@ router.get("/modules", async (req, res) => {
 
     const result = modules.map((mod, idx) => {
       const progress = progressMap.get(mod.id);
-      const prevMod = idx > 0 ? modules[idx - 1] : null;
+
+      // Find the nearest previous module that actually gates progression.
+      // PDF/read-only modules with no quiz are reference-only and do not gate.
+      let gateIdx = idx - 1;
+      while (gateIdx >= 0) {
+        const candidate = modules[gateIdx];
+        const candidateHasQuiz = (quizCountMap.get(candidate.id) ?? 0) > 0;
+        const candidateIsPdfNoQuiz = candidate.contentType === "pdf" && !candidateHasQuiz;
+        if (!candidateIsPdfNoQuiz) break;
+        gateIdx--;
+      }
+      const prevMod = gateIdx >= 0 ? modules[gateIdx] : null;
       const prevProgress = prevMod ? progressMap.get(prevMod.id) : null;
 
-      // Sequential lock: previous module must be fully complete to access a new module.
+      // Sequential lock: previous gating module must be fully complete.
       // "Complete" means: video watched, AND quiz passed if the module has quiz questions.
-      // PDF/read-only modules with no quiz do not gate the next module (they are reference-only).
       // Exception: if the student has already watched this module before, always allow re-access.
       const prevHasQuiz = prevMod ? (quizCountMap.get(prevMod.id) ?? 0) > 0 : false;
-      const prevIsPdfNoQuiz = prevMod ? (prevMod.contentType === "pdf" && !prevHasQuiz) : false;
       const prevComplete =
         idx === 0 ||
-        prevIsPdfNoQuiz || // PDF with no quiz = does not gate next module
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
       // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,
@@ -121,7 +129,23 @@ router.get("/modules/:moduleId", async (req, res) => {
       .orderBy(asc(modulesTable.order));
 
     const modIndex = allModules.findIndex((m) => m.id === moduleId);
-    const prevMod = modIndex > 0 ? allModules[modIndex - 1] : null;
+
+    // Find the nearest previous module that actually gates progression.
+    // PDF/read-only modules with no quiz are reference-only and do not gate.
+    let gateIdx = modIndex - 1;
+    while (gateIdx >= 0) {
+      const candidate = allModules[gateIdx];
+      const [candidateQuizCounts] = await Promise.all([
+        db.select({ count: sql<number>`cast(count(*) as int)` })
+          .from(quizQuestionsTable)
+          .where(eq(quizQuestionsTable.moduleId, candidate.id)),
+      ]);
+      const candidateHasQuiz = (candidateQuizCounts[0]?.count ?? 0) > 0;
+      const candidateIsPdfNoQuiz = candidate.contentType === "pdf" && !candidateHasQuiz;
+      if (!candidateIsPdfNoQuiz) break;
+      gateIdx--;
+    }
+    const prevMod = gateIdx >= 0 ? allModules[gateIdx] : null;
 
     let isLocked = false;
     if (prevMod) {
@@ -134,13 +158,11 @@ router.get("/modules/:moduleId", async (req, res) => {
           .where(eq(quizQuestionsTable.moduleId, prevMod.id)),
       ]);
       const prevHasQuiz = (prevQuizCounts[0]?.count ?? 0) > 0;
-      const prevIsPdfNoQuiz = prevMod ? (prevMod.contentType === "pdf" && !prevHasQuiz) : false;
       // Pick the most recent progress row for the previous module
       const prevLatest = prevProgressAll.length > 0
         ? prevProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
         : null;
-      // PDF/read-only modules with no quiz do not gate the next module
-      const prevComplete = prevIsPdfNoQuiz || !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
+      const prevComplete = !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
       // COURSE REQUIREMENTS modules are always accessible
       if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before
