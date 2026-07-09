@@ -86,4 +86,4 @@ export function getAudioUrl(questionId: number): string | null {
   return `${FIREBASE_AUDIO_BASE}/${encodeURIComponent(filename)}?alt=media`;
 }
 
-export const APPLAUSE_URL = `${import.meta.env.BASE_URL}applause.mp3`;
+export const APPLAUSE_URL = `${FIREBASE_AUDIO_BASE}/${encodeURIComponent("applause.mp3")}?alt=media`;
