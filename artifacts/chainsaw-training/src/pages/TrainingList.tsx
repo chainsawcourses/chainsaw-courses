@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -364,17 +364,22 @@ export default function TrainingList() {
           {/* Centre — empty */}
           <div />
 
-          {/* Right — waiver icon + username stacked */}
+          {/* Right — chat icon + waiver icon + username stacked */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
-            <a
-              href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary"
-              title="Your Signed Waiver"
-            >
-              <FileText className="w-5 h-5" />
-            </a>
+            <div className="flex items-center gap-3">
+              <Link href="/ai-tutor" className="text-muted-foreground hover:text-primary" title="AI Tutor">
+                <MessageCircle className="w-5 h-5" />
+              </Link>
+              <a
+                href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary"
+                title="Your Signed Waiver"
+              >
+                <FileText className="w-5 h-5" />
+              </a>
+            </div>
             <span className="text-sm sm:text-base leading-tight truncate max-w-[160px] sm:max-w-none">{fullName}</span>
           </div>
         </div>
