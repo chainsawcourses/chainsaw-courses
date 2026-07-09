@@ -1174,7 +1174,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
       threshold: 6,
       keyPoints: [
         { label: "Safety helmet / hard hat — head protection from falling branches", keywords: ["helmet", "hard hat", "safety helmet", "head protection", "chainsaw helmet", "forestry helmet", "strong safety helmet", "head from falling branches", "helmet to protect head"] },
-        { label: "Ear defenders or earplugs — hearing protection", keywords: ["ear defenders", "earplugs", "hearing protection", "ear protection", "ear muffs", "earmuffs", "ear defenders or earplugs", "stop the loud noise", "protect hearing"] },
+        { label: "Ear defenders or earplugs — hearing protection", keywords: ["ear defenders", "earplugs", "hearing protection", "ear protection", "ear muffs", "earmuffs", "ear defenders or earplugs", "stop the loud noise", "protect hearing", "ear"] },
         { label: "Safety glasses or visor / mesh visor — eye protection", keywords: ["safety glasses", "visor", "mesh visor", "face shield", "eye protection", "goggles", "face protection", "safety glasses or mesh visor", "stop wood chips hitting eyes"] },
         { label: "Chainsaw trousers / chaps — leg protection with cut-resistant fibres", keywords: ["trousers", "chainsaw trousers", "chainsaw pants", "protective trousers", "leg protection", "cut-resistant trousers", "kevlar trousers", "chainsaw chaps", "special trousers with fibres", "fibres to jam the saw", "special chainsaw trousers"] },
         { label: "Chainsaw boots — foot protection with steel toecap and ankle protection", keywords: ["boots", "chainsaw boots", "safety boots", "steel toe boots", "protective boots", "chainsaw footwear", "tough chainsaw boots", "steel toes and good grip", "steel toe caps", "foot protection"] },
