@@ -6,6 +6,7 @@ import { eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { getManualText, getQaResource, findQaForQuestion } from "../lib/ai-resource";
+import { searchManual, buildTutorAnswer } from "../lib/manual-search";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -175,14 +176,18 @@ router.post("/ai/chat", async (req, res) => {
         : "The AI examiner requires a live AI connection to conduct the oral exam. Please ensure the system is properly configured and try again.";
     }
   } catch (err: unknown) {
-    // Detect Gemini rate-limit / quota errors and return a friendly message
+    // Detect Gemini rate-limit / quota errors and fall back to manual search for tutor mode
     const errMsg = err instanceof Error ? err.message : String(err);
     const isRateLimit = errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
     if (isRateLimit) {
       logger.warn({ errMsg }, "Gemini rate limit exceeded");
-      reply = chatMode === "tutor"
-        ? "The AI tutor is temporarily unavailable due to high demand. Please try again in a few minutes."
-        : "The AI examiner is temporarily unavailable due to high demand. Please try again in a few minutes.";
+      if (chatMode === "tutor") {
+        // Fallback: search the manual directly — 100% offline, zero API calls
+        const passages = searchManual(message, 3, 1);
+        reply = buildTutorAnswer(message, passages);
+      } else {
+        reply = "The AI examiner is temporarily unavailable due to high demand. Please try again in a few minutes.";
+      }
     } else {
       logger.error({ err }, "Error in AI chat");
       reply = "Sorry, something went wrong. Please try again.";
