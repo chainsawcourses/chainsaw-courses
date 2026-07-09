@@ -121,7 +121,9 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
       prompt: "What emergency information do I need to know for the site?",
       threshold: 5,
       keyPoints: [
-        { label: "Site location — grid reference, address or what3words", keywords: ["grid ref", "grid reference", "what three words", "what3words", "location", "site address", "coordinates", "postcode", "exactly where you are", "where you are on a map"] },
+        { label: "Site location — grid reference", keywords: ["grid ref", "grid reference", "coordinates", "exactly where you are on a map", "where you are on a map", "map reference", "location grid"] },
+        { label: "Site location — address", keywords: ["address", "site address", "postcode", "street address", "where the site is", "site location address"] },
+        { label: "Site location — what3words", keywords: ["what three words", "what3words", "three words location", "words location", "what three word location"] },
         { label: "Designated meeting point or muster point", keywords: ["meeting place", "muster point", "rendezvous", "rally point", "assembly point", "meeting point"] },
         { label: "Nearest access point or road", keywords: ["access point", "street", "access route", "entry point", "nearest road", "how to get in", "how to get out of the woods"] },
         { label: "Suitable helicopter landing area", keywords: ["helicopter", "landing", "heli", "air ambu", "landing spot", "landing area"] },
