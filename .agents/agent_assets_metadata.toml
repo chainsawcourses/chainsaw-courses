@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "kX9li0IcCe3ZsufCqo5rT"
+uri = "file://artifacts/chainsaw-training/public/applause.mp3"
+type = "audio"
+title = "applause"
