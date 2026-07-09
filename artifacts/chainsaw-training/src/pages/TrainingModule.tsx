@@ -30,6 +30,7 @@ export default function TrainingModule() {
   const queryClient = useQueryClient();
 
   const playerRef = useRef<VimeoPlayerHandle>(null);
+  const mainRef = useRef<HTMLElement>(null);
 
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(3);
@@ -185,6 +186,15 @@ export default function TrainingModule() {
   // Cleanup on unmount
   useEffect(() => () => stopAudio(), [stopAudio]);
 
+  // Scroll video to top of viewport when page loads
+  useEffect(() => {
+    if (mainRef.current && !isLoading && module) {
+      setTimeout(() => {
+        mainRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }, [isLoading, module]);
+
   if (isLoading || !module) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
@@ -212,7 +222,7 @@ export default function TrainingModule() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 py-6 gap-6">
+      <main ref={mainRef} className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 py-6 gap-6">
 
         {/* ── PDF MODULE ── */}
         {isPdf && (
