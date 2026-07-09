@@ -818,8 +818,8 @@ export default function MockTest() {
                   }`}
                 >
                   {lastPromptResult.passed
-                    ? `✓ Passed — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`
-                    : `✗ Not yet — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.keyPoints.length} points covered`}
+                    ? `✓ Passed — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.threshold} points covered`
+                    : `✗ Not yet — ${lastPromptResult.matched.filter(Boolean).length} of ${prompt.threshold} points covered`}
                 </div>
               </>
             )}

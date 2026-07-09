@@ -552,7 +552,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "How do you check for any wear or damage? (sprocket)",
     prompts: [{
       prompt: "How do you check for any wear or damage?",
-      threshold: 1,
+      threshold: 2,
       keyPoints: [
         { label: "Check for hooked or wolf-teeth — look for sharp, curved points", keywords: ["hooked", "wolf teeth", "hook", "curved teeth", "sharp point", "worn tooth", "teeth shape", "look at metal teeth for deep cuts", "deep cuts in teeth", "inspect", "inspect the teeth", "check the teeth", "check"] },
         { label: "Check the needle bearing / drum for wear", keywords: ["needle bearing", "bearing", "drum", "needle cage", "bearing wear", "see if it wobbles", "wobbles when you touch it"] },
@@ -846,7 +846,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "Why do you want to keep all your cutters the same size and the angles all the same?",
     prompts: [{
       prompt: "Why do you want to keep all your cutters the same size and the angles all the same?",
-      threshold: 2,
+      threshold: 3,
       keyPoints: [
         { label: "Ensures the saw cuts in a straight line — balanced load on all cutters", keywords: ["straight line", "balanced", "equal load", "cuts straight", "even load", "balance", "cuts in perfectly straight line", "if one side longer saw cuts in curve"] },
         { label: "Reduces vibration and wear — even distribution of cutting force", keywords: ["reduce vibration", "less vibration", "even wear", "equal wear", "smooth operation", "reduce wear", "stops saw from vibrating", "every tooth does same amount of work"] },
@@ -1069,7 +1069,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     question: "What else do you need to think about when stacking lots of different timber?",
     prompts: [{
       prompt: "What else do you need to think about when stacking lots of different timber?",
-      threshold: 2,
+      threshold: 3,
       keyPoints: [
         { label: "Sort and stack by species / length / size for ease of identification", keywords: ["sort", "species", "length", "size", "identification", "same length", "group by", "sort logs by size", "separate different types", "sort by size so they stack neatly"] },
         { label: "Bio-security — do not mix potentially infected species or sites", keywords: ["bio-security", "biosecurity", "infected", "mix species", "different sites", "disease spread"] },

@@ -174,18 +174,13 @@ export default function TrainingModule() {
     playNext(0);
   }, [audioQuestions, playAudio]);
 
-  // Auto-play voice questions when video ends
+  // Reset audio state when video is not completed
   useEffect(() => {
-    if (videoCompleted && hasAudioQuestions) {
-      const timer = setTimeout(() => playAllAudio(), 600);
-      return () => clearTimeout(timer);
-    }
     if (!videoCompleted) {
       stopAudio();
       setCurrentAudioIdx(0);
     }
-    return undefined;
-  }, [videoCompleted, hasAudioQuestions, playAllAudio, stopAudio]);
+  }, [videoCompleted, stopAudio]);
 
   // Cleanup on unmount
   useEffect(() => () => stopAudio(), [stopAudio]);
@@ -342,8 +337,8 @@ export default function TrainingModule() {
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-2 w-full max-w-[220px]">
-                    <Button size="sm" className="font-mono tracking-widest w-full" asChild>
+                  <div className="flex flex-col gap-2 w-full max-w-[260px]">
+                    <Button size="sm" className="font-mono tracking-widest w-full whitespace-normal h-auto py-2 leading-tight" asChild>
                       <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
                     </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs gap-1.5" onClick={handleReplay}>
