@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useParams, Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
 import { useGetQuiz, useSubmitQuiz, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { APPLAUSE_URL } from "../data/audioFiles";
 
 export default function Quiz() {
   const { moduleId } = useParams();
@@ -24,6 +25,7 @@ export default function Quiz() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<QuizResult | null>(null);
+  const applauseRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!activationCode || !deviceId) {
@@ -84,6 +86,15 @@ export default function Quiz() {
             // Force immediate refetch so the next module unlock is visible
             void queryClient.refetchQueries({ queryKey: getListModulesQueryKey(), type: "all" });
             void queryClient.refetchQueries({ queryKey: getGetProgressSummaryQueryKey(), type: "all" });
+            // Play applause sound
+            try {
+              const audio = new Audio(APPLAUSE_URL);
+              audio.volume = 0.7;
+              audio.play().catch(() => {});
+              applauseRef.current = audio;
+            } catch {
+              // ignore audio errors
+            }
           }
         }
       }
