@@ -122,8 +122,8 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           const code = data.data?.code ?? data.code;
           setLoadError(
             code === 5
-              ? "This video is private or domain-restricted. In Vimeo, go to Settings → Privacy → set 'Where can this be embedded?' to Anywhere."
-              : `Video unavailable (Vimeo error ${code ?? "unknown"}). Check the video exists and is not password-protected.`
+              ? "Video unavailable — check Wi‑Fi or connection settings. If the problem persists, the video may be private."
+              : "Video unavailable — check Wi‑Fi or connection settings and try again."
           );
         }
         if (data.method === "getDuration" && typeof data.value === "number") {
