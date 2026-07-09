@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -7,6 +7,10 @@ import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat 
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer, type VimeoPlayerHandle } from "@/components/VimeoPlayer";
 import { useToast } from "@/hooks/use-toast";
+import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
+import { VOCAL_EXAM_QUESTIONS } from "../data/vocalExamQuestions";
+import { getAudioUrl } from "../data/audioFiles";
+import { Volume2, VolumeX } from "lucide-react";
 
 export default function TrainingModule() {
   const { moduleId } = useParams();
@@ -29,6 +33,31 @@ export default function TrainingModule() {
   const [countdown, setCountdown] = useState(3);
   const [canPlay, setCanPlay] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
+
+  // Voice audio — oral exam questions for this module
+  const [currentAudioIdx, setCurrentAudioIdx] = useState(0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const questionIds = useMemo(() => {
+    if (!id) return [] as number[];
+    return MODULE_QUESTION_MAP[id] || [];
+  }, [id]);
+
+  const audioQuestions = useMemo(() => {
+    return questionIds
+      .map(qid => VOCAL_EXAM_QUESTIONS.find(q => q.id === qid))
+      .filter(Boolean)
+      .map(q => ({
+        id: q!.id,
+        question: q!.question,
+        prompt: q!.prompts[0]?.prompt || q!.question,
+        audioUrl: getAudioUrl(q!.id),
+      }))
+      .filter(aq => aq.audioUrl);
+  }, [questionIds]);
+
+  const hasAudioQuestions = audioQuestions.length > 0;
 
   useEffect(() => {
     if (!activationCode || !deviceId) { setLocation("/"); return; }
@@ -77,10 +106,77 @@ export default function TrainingModule() {
 
   const handleReplay = useCallback(() => {
     setVideoCompleted(false);
+    setCurrentAudioIdx(0);
+    setIsAudioPlaying(false);
+    stopAudio();
     playerRef.current?.replay();
   }, []);
 
   const handleTimeUpdate = useCallback((_t: number) => {}, []);
+
+  // ── Voice audio helpers ────────────────────────────────────────────────
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsAudioPlaying(false);
+  }, []);
+
+  const playAudio = useCallback((url: string, onEnd?: () => void) => {
+    stopAudio();
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.onplay = () => setIsAudioPlaying(true);
+    audio.onended = () => {
+      setIsAudioPlaying(false);
+      audioRef.current = null;
+      onEnd?.();
+    };
+    audio.onerror = () => {
+      setIsAudioPlaying(false);
+      audioRef.current = null;
+      onEnd?.();
+    };
+    audio.play().catch(() => {
+      setIsAudioPlaying(false);
+      audioRef.current = null;
+      onEnd?.();
+    });
+  }, [stopAudio]);
+
+  const playAllAudio = useCallback(() => {
+    if (audioQuestions.length === 0) return;
+    setCurrentAudioIdx(0);
+    const playNext = (idx: number) => {
+      if (idx >= audioQuestions.length) {
+        setIsAudioPlaying(false);
+        setCurrentAudioIdx(audioQuestions.length);
+        return;
+      }
+      setCurrentAudioIdx(idx);
+      playAudio(audioQuestions[idx].audioUrl!, () => {
+        setTimeout(() => playNext(idx + 1), 800);
+      });
+    };
+    playNext(0);
+  }, [audioQuestions, playAudio]);
+
+  // Auto-play voice questions when video ends
+  useEffect(() => {
+    if (videoCompleted && hasAudioQuestions) {
+      const timer = setTimeout(() => playAllAudio(), 600);
+      return () => clearTimeout(timer);
+    }
+    if (!videoCompleted) {
+      stopAudio();
+      setCurrentAudioIdx(0);
+    }
+    return undefined;
+  }, [videoCompleted, hasAudioQuestions, playAllAudio, stopAudio]);
+
+  // Cleanup on unmount
+  useEffect(() => () => stopAudio(), [stopAudio]);
 
   if (isLoading || !module) {
     return (
@@ -189,6 +285,50 @@ export default function TrainingModule() {
                       Well done — video complete!
                     </span>
                   </div>
+
+                  {/* Voice audio progress — oral exam questions */}
+                  {hasAudioQuestions && (
+                    <div className="w-full max-w-[320px] space-y-2">
+                      {isAudioPlaying ? (
+                        <div className="flex items-center gap-2 text-white/80">
+                          <Volume2 className="w-4 h-4 animate-pulse text-primary" />
+                          <span className="font-mono text-xs text-left truncate">
+                            {audioQuestions[currentAudioIdx]?.prompt || "Playing…"}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="font-mono text-[10px] text-white/50">
+                          {currentAudioIdx >= audioQuestions.length
+                            ? "All questions played."
+                            : `${audioQuestions.length} oral exam question${audioQuestions.length !== 1 ? "s" : ""} queued`}
+                        </p>
+                      )}
+                      {currentAudioIdx < audioQuestions.length && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 font-mono text-[10px] h-8 border-white/20 text-white/70 hover:text-white hover:bg-white/10"
+                            onClick={playAllAudio}
+                            disabled={isAudioPlaying}
+                          >
+                            {isAudioPlaying
+                              ? <><VolumeX className="w-3 h-3 mr-1" /> Playing…</>
+                              : <><Volume2 className="w-3 h-3 mr-1" /> Play Questions</>}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="font-mono text-[10px] h-8 text-white/50 hover:text-white"
+                            onClick={stopAudio}
+                            disabled={!isAudioPlaying}
+                          >
+                            Stop
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex flex-col gap-2 w-full max-w-[220px]">
                     <Button size="sm" className="font-mono tracking-widest w-full" asChild>
