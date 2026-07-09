@@ -5,9 +5,12 @@
  * Chainsaw Manual Training App API
  * OpenAPI spec version: 0.1.0
  */
+import type { AiChatInputMode } from './aiChatInputMode';
 
 export interface AiChatInput {
   message: string;
   deviceId: string;
   activationCode: string;
+  /** exam = oral examiner, tutor = general Q&A from manual */
+  mode?: AiChatInputMode;
 }

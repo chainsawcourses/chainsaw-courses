@@ -822,6 +822,11 @@ components:
           type: string
         activationCode:
           type: string
+        mode:
+          type: string
+          enum: [exam, tutor]
+          default: exam
+          description: exam = oral examiner, tutor = general Q&A from manual
 
     AiChatResponse:
       type: object

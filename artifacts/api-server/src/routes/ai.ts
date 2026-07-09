@@ -62,9 +62,30 @@ EXAMINATION RULES:
 Format each question you ask exactly like this:
 QUESTION [N] OF ${EXAM_QUESTIONS.length}: [question text]`;
 
-function buildSystemPrompt(): string {
+const TUTOR_SYSTEM_PROMPT = `You are a helpful Chainsaw Manual Tutor — a course assistant trained exclusively on the Chainsaw Maintenance & Cross-cutting training manual.
+
+RULES:
+1. Answer student questions using ONLY the knowledge contained in the reference manual below.
+2. If the manual does not cover a topic, say so clearly: "That topic isn't covered in the training manual."
+3. Be concise but thorough. Use bullet points for lists and numbered steps for procedures.
+4. Stay on chainsaw safety, maintenance, legislation, and cross-cutting topics. Politely redirect off-topic questions.
+5. When appropriate, cite which section or page of the manual the information comes from.
+6. Do NOT make up facts or cite external sources beyond the manual.`;
+
+function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): string {
   const manual = getManualText();
   const qa = getQaResource();
+
+  if (mode === "tutor") {
+    const parts: string[] = [TUTOR_SYSTEM_PROMPT];
+    if (manual) {
+      const trimmed =
+        manual.length > 100000 ? manual.slice(0, 100000) + "\n...[truncated]" : manual;
+      parts.push(`---\n\nREFERENCE MANUAL (your ONLY knowledge source):\n${trimmed}`);
+    }
+    return parts.join("\n\n");
+  }
+
   const parts: string[] = [CHAINSAW_SYSTEM_PROMPT];
 
   if (manual) {
@@ -74,7 +95,6 @@ function buildSystemPrompt(): string {
   }
 
   if (qa && qa.length > 0) {
-    // Include a compact summary of Q&A for the AI's reference
     const qaSummary = qa
       .map((e) => {
         const bullets = e.sampleAnswers.slice(0, 5).map((b) => `  - ${b}`).join("\n");
@@ -102,7 +122,9 @@ router.post("/ai/chat", async (req, res) => {
     return;
   }
 
-  const { message, deviceId, activationCode } = parse.data;
+  const { message, deviceId, activationCode, mode } = parse.data;
+  const chatMode: "exam" | "tutor" = mode === "tutor" ? "tutor" : "exam";
+
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -114,6 +136,7 @@ router.post("/ai/chat", async (req, res) => {
       userId: user.id,
       role: "user",
       content: message,
+      mode: chatMode,
     });
 
     const history = await db
@@ -122,12 +145,15 @@ router.post("/ai/chat", async (req, res) => {
       .where(eq(chatMessagesTable.userId, user.id))
       .orderBy(asc(chatMessagesTable.createdAt));
 
+    // Only include messages from the same mode in the context window
+    const modeHistory = history.filter((m) => m.mode === chatMode);
+
     let reply: string;
 
     const gemini = getGeminiClient();
 
     if (gemini) {
-      const contents = history.slice(0, -1).map((m) => ({
+      const contents = modeHistory.slice(0, -1).map((m) => ({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.content }],
       }));
@@ -137,20 +163,23 @@ router.post("/ai/chat", async (req, res) => {
         model: "gemini-2.0-flash",
         contents,
         config: {
-          systemInstruction: buildSystemPrompt(),
+          systemInstruction: buildSystemPrompt(chatMode),
           maxOutputTokens: 8192,
         },
       });
 
       reply = response.text ?? "I was unable to generate a response. Please try again.";
     } else {
-      reply = `Thank you. The AI examiner requires a live AI connection to conduct the oral exam. Please ensure the system is properly configured and try again.`;
+      reply = chatMode === "tutor"
+        ? "The AI tutor requires a live AI connection. Please ensure the system is properly configured and try again."
+        : "The AI examiner requires a live AI connection to conduct the oral exam. Please ensure the system is properly configured and try again.";
     }
 
     await db.insert(chatMessagesTable).values({
       userId: user.id,
       role: "assistant",
       content: reply,
+      mode: chatMode,
     });
 
     res.json({ reply, isOnTopic: true });
@@ -246,6 +275,7 @@ Example: [true, false, true]`;
 router.get("/ai/chat-history", async (req, res) => {
   const deviceId = req.headers["deviceid"] as string;
   const activationCode = req.headers["activationcode"] as string;
+  const mode = (req.query.mode as string) ?? "exam";
 
   if (!deviceId || !activationCode) {
     res.status(401).json({ error: "Missing auth headers" });
@@ -259,14 +289,16 @@ router.get("/ai/chat-history", async (req, res) => {
   }
 
   try {
-    const messages = await db
+    const allMessages = await db
       .select()
       .from(chatMessagesTable)
       .where(eq(chatMessagesTable.userId, user.id))
       .orderBy(asc(chatMessagesTable.createdAt));
 
+    const filtered = allMessages.filter((m) => m.mode === mode);
+
     res.json(
-      messages.map((m) => ({
+      filtered.map((m) => ({
         id: m.id,
         role: m.role,
         content: m.content,

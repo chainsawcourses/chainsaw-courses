@@ -55,6 +55,7 @@ export const chatMessagesTable = pgTable("chat_messages", {
   userId: integer("user_id").notNull(),
   role: text("role").notNull(), // 'user' | 'assistant'
   content: text("content").notNull(),
+  mode: text("mode").notNull().default("exam"), // 'exam' | 'tutor'
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

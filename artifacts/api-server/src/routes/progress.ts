@@ -92,15 +92,13 @@ router.post("/progress/complete-video", async (req, res) => {
         .set(updateData)
         .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
     } else {
-      const insertData: Record<string, unknown> = {
+      const insertData = {
         userId: user.id,
         moduleId,
         videoCompleted: true,
+        quizPassed: !hasQuiz,
+        completedAt: !hasQuiz ? new Date() : undefined,
       };
-      if (!hasQuiz) {
-        insertData.quizPassed = true;
-        insertData.completedAt = new Date();
-      }
       await db.insert(userProgressTable).values(insertData);
     }
 

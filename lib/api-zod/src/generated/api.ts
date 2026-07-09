@@ -264,10 +264,13 @@ export const SignWaiverResponse = zod.object({
 /**
  * @summary Send a message to the AI avatar (RAG on chainsaw manual)
  */
+export const sendAiMessageBodyModeDefault = `exam`;
+
 export const SendAiMessageBody = zod.object({
   "message": zod.string(),
   "deviceId": zod.string(),
-  "activationCode": zod.string()
+  "activationCode": zod.string(),
+  "mode": zod.enum(['exam', 'tutor']).default(sendAiMessageBodyModeDefault).describe('exam = oral examiner, tutor = general Q&A from manual')
 })
 
 export const SendAiMessageResponse = zod.object({

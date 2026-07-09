@@ -890,7 +890,10 @@ export default function TrainingList() {
           ))}
         </div>
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center gap-3">
+          <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-6">
+            <Link href="/ai-tutor">AI Tutor</Link>
+          </Button>
           <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
             <Link href="/mock-test">MOCK ASSESSMENT</Link>
           </Button>

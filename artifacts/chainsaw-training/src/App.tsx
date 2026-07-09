@@ -12,6 +12,7 @@ import TrainingList from "@/pages/TrainingList";
 import TrainingModule from "@/pages/TrainingModule";
 import Quiz from "@/pages/Quiz";
 import MockTest from "@/pages/MockTest";
+import AiTutor from "@/pages/AiTutor";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -43,6 +44,7 @@ function Router() {
       <Route path="/training/:moduleId" component={TrainingModule} />
       <Route path="/quiz/:moduleId" component={Quiz} />
       <Route path="/mock-test" component={MockTest} />
+      <Route path="/ai-tutor" component={AiTutor} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />

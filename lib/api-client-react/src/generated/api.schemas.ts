@@ -164,10 +164,23 @@ export interface WaiverInput {
   clausesSnapshot?: string;
 }
 
+/**
+ * exam = oral examiner, tutor = general Q&A from manual
+ */
+export type AiChatInputMode = typeof AiChatInputMode[keyof typeof AiChatInputMode];
+
+
+export const AiChatInputMode = {
+  exam: 'exam',
+  tutor: 'tutor',
+} as const;
+
 export interface AiChatInput {
   message: string;
   deviceId: string;
   activationCode: string;
+  /** exam = oral examiner, tutor = general Q&A from manual */
+  mode?: AiChatInputMode;
 }
 
 export interface AiChatResponse {
