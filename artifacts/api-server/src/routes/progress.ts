@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable, usersTable } from "@workspace/db";
+import { modulesTable, userProgressTable, usersTable, quizQuestionsTable } from "@workspace/db";
 import { SaveHeartbeatBody, CompleteVideoBody } from "@workspace/api-zod";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
@@ -69,22 +69,39 @@ router.post("/progress/complete-video", async (req, res) => {
   }
 
   try {
+    // Check if the module has quiz questions — if not, auto-mark quiz as passed too
+    const quizCountResult = await db
+      .select({ count: sql<number>`cast(count(*) as int)` })
+      .from(quizQuestionsTable)
+      .where(eq(quizQuestionsTable.moduleId, moduleId));
+    const hasQuiz = (quizCountResult[0]?.count ?? 0) > 0;
+
     const existing = await db
       .select()
       .from(userProgressTable)
       .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
 
     if (existing.length > 0) {
+      const updateData: Record<string, unknown> = { videoCompleted: true, updatedAt: new Date() };
+      if (!hasQuiz) {
+        updateData.quizPassed = true;
+        updateData.completedAt = new Date();
+      }
       await db
         .update(userProgressTable)
-        .set({ videoCompleted: true, updatedAt: new Date() })
+        .set(updateData)
         .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
     } else {
-      await db.insert(userProgressTable).values({
+      const insertData: Record<string, unknown> = {
         userId: user.id,
         moduleId,
         videoCompleted: true,
-      });
+      };
+      if (!hasQuiz) {
+        insertData.quizPassed = true;
+        insertData.completedAt = new Date();
+      }
+      await db.insert(userProgressTable).values(insertData);
     }
 
     res.json({ success: true, message: "Video marked complete" });
