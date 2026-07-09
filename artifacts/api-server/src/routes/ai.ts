@@ -80,7 +80,7 @@ function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): string {
     const parts: string[] = [TUTOR_SYSTEM_PROMPT];
     if (manual) {
       const trimmed =
-        manual.length > 100000 ? manual.slice(0, 100000) + "\n...[truncated]" : manual;
+        manual.length > 30000 ? manual.slice(0, 30000) + "\n...[truncated]" : manual;
       parts.push(`---\n\nREFERENCE MANUAL (your ONLY knowledge source):\n${trimmed}`);
     }
     return parts.join("\n\n");
@@ -90,7 +90,7 @@ function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): string {
 
   if (manual) {
     const trimmed =
-      manual.length > 100000 ? manual.slice(0, 100000) + "\n...[truncated]" : manual;
+      manual.length > 30000 ? manual.slice(0, 30000) + "\n...[truncated]" : manual;
     parts.push(`---\n\nREFERENCE MANUAL (internal knowledge — do NOT quote passages to the candidate):\n${trimmed}`);
   }
 
@@ -131,6 +131,8 @@ router.post("/ai/chat", async (req, res) => {
     return;
   }
 
+  let reply: string;
+
   try {
     await db.insert(chatMessagesTable).values({
       userId: user.id,
@@ -147,8 +149,6 @@ router.post("/ai/chat", async (req, res) => {
 
     // Only include messages from the same mode in the context window
     const modeHistory = history.filter((m) => m.mode === chatMode);
-
-    let reply: string;
 
     const gemini = getGeminiClient();
 
@@ -174,19 +174,33 @@ router.post("/ai/chat", async (req, res) => {
         ? "The AI tutor requires a live AI connection. Please ensure the system is properly configured and try again."
         : "The AI examiner requires a live AI connection to conduct the oral exam. Please ensure the system is properly configured and try again.";
     }
+  } catch (err: unknown) {
+    // Detect Gemini rate-limit / quota errors and return a friendly message
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const isRateLimit = errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("RESOURCE_EXHAUSTED");
+    if (isRateLimit) {
+      logger.warn({ errMsg }, "Gemini rate limit exceeded");
+      reply = chatMode === "tutor"
+        ? "The AI tutor is temporarily unavailable due to high demand. Please try again in a few minutes."
+        : "The AI examiner is temporarily unavailable due to high demand. Please try again in a few minutes.";
+    } else {
+      logger.error({ err }, "Error in AI chat");
+      reply = "Sorry, something went wrong. Please try again.";
+    }
+  }
 
+  try {
     await db.insert(chatMessagesTable).values({
       userId: user.id,
       role: "assistant",
       content: reply,
       mode: chatMode,
     });
-
-    res.json({ reply, isOnTopic: true });
-  } catch (err) {
-    logger.error({ err }, "Error in AI chat");
-    res.status(500).json({ error: "Internal server error" });
+  } catch (dbErr) {
+    logger.error({ dbErr }, "Failed to save AI reply");
   }
+
+  res.json({ reply, isOnTopic: true });
 });
 
 const GradeAnswerBody = z.object({
