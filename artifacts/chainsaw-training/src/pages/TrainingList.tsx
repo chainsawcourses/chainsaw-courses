@@ -266,6 +266,13 @@ export default function TrainingList() {
             >
               <Users className="w-5 h-5" />
             </a>
+            <Link
+              href="/ai-tutor"
+              className="text-muted-foreground hover:text-primary ml-2"
+              title="AI Tutor"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </Link>
 
             {brandMenuOpen && (
               <div
@@ -364,12 +371,9 @@ export default function TrainingList() {
           {/* Centre — empty */}
           <div />
 
-          {/* Right — chat icon + waiver icon + username stacked */}
+          {/* Right — waiver icon + username stacked */}
           <div className="flex flex-col items-end gap-0.5 font-mono text-muted-foreground uppercase tracking-wider">
             <div className="flex items-center gap-3">
-              <Link href="/ai-tutor" className="text-muted-foreground hover:text-primary" title="AI Tutor">
-                <MessageCircle className="w-5 h-5" />
-              </Link>
               <a
                 href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
                 target="_blank"
