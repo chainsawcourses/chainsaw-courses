@@ -288,6 +288,13 @@ export default function TrainingList() {
             >
               <MapPinned className="w-5 h-5" />
             </Link>
+            <Link
+              href="/biosecurity-map"
+              className="text-muted-foreground hover:text-primary ml-2"
+              title="Biosecurity & Hazard Map"
+            >
+              <ShieldAlert className="w-5 h-5" />
+            </Link>
 
             {brandMenuOpen && (
               <div

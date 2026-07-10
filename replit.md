@@ -53,6 +53,7 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - AI "Chainsaw Manual Examiner" mock assessment (chainsaw-topics only)
 - Standalone Inspection Checklist (`/inspection`) — pre-start/pre-use safety checks, personal record only, not tied to module progress
 - Standalone Dynamic Risk Assessment (`/risk-assessment`) — GPS-derived site location (address + OS National Grid reference), task description, and an editable common-hazards checklist (kickback, manual handling, trips, rolling timber, lone working, etc.) with likelihood x severity risk rating
+- Standalone Biosecurity & Hazard Map (`/biosecurity-map`) — Leaflet map (OSM tiles, no API key) with toggleable illustrative hazard zones split into Direct Operator Health Hazards (OPM, Brown Tail Moth) and Statutory Containment Zones (spruce bark beetle, ash dieback, sudden oak death, sweet chestnut blight, western hemlock dieback); clicking a zone/layer updates an Active Hazard Information card with impact + mandatory controls
 - Admin dashboard: student progress, waiver PDFs, device bond resets, activation code management, inspection/risk-assessment review
 
 ## Demo credentials
@@ -71,6 +72,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - Admin tokens are in-memory; restarting the API server invalidates all admin sessions.
 - The AI chat falls back gracefully when `AI_INTEGRATIONS_OPENAI_*` env vars are not set.
 - Risk assessment location lookup uses free OpenStreetMap Nominatim reverse geocoding (no API key) — fine for low volume, but not for production-scale traffic.
+- Biosecurity & Hazard Map zones are mock/illustrative (no official real-time UK biosecurity boundary API exists) — the page explicitly labels this and tells operators to check live Forestry Commission/APHA notices before relying on it.
 - Nearest hospital/A&E and nearest AED lookups were deliberately NOT built: there is no reliable free/public API for either (UK's official AED registry "The Circuit" is restricted to ambulance services; A&E phone numbers need a static NHS ODS dataset, not a live API). Revisit only with a proper data source.
 
 ## Pointers
