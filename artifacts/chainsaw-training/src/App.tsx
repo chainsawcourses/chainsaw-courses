@@ -17,6 +17,7 @@ import AiTutor from "@/pages/AiTutor";
 import Inspection from "@/pages/Inspection";
 import RiskAssessment from "@/pages/RiskAssessment";
 import BiosecurityMap from "@/pages/BiosecurityMap";
+import ChainChart from "@/pages/ChainChart";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/inspection" component={Inspection} />
       <Route path="/risk-assessment" component={RiskAssessment} />
       <Route path="/biosecurity-map" component={BiosecurityMap} />
+      <Route path="/chain-chart" component={ChainChart} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />

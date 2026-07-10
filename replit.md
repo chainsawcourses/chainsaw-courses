@@ -54,6 +54,7 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - Standalone Inspection Checklist (`/inspection`) — pre-start/pre-use safety checks, personal record only, not tied to module progress
 - Standalone Dynamic Risk Assessment (`/risk-assessment`) — GPS-derived site location (address + OS National Grid reference), task description, and an editable common-hazards checklist (kickback, manual handling, trips, rolling timber, lone working, etc.) with likelihood x severity risk rating
 - Standalone Biosecurity & Hazard Map (`/biosecurity-map`) — Leaflet map (OSM tiles, no API key) with toggleable illustrative hazard zones split into Direct Operator Health Hazards (OPM, Brown Tail Moth) and Statutory Containment Zones (spruce bark beetle, ash dieback, sudden oak death, sweet chestnut blight, western hemlock dieback); clicking a zone/layer updates an Active Hazard Information card with impact + mandatory controls
+- Standalone Chain Identification Chart (`/chain-chart`) — reproduces the manual's appendix chart (page 137) as a searchable tool: quick lookup by brand (Oregon/Stihl/Husqvarna) + drive-link number returns pitch, gauge, file size and top plate filing angle, plus the full reference table, pitch-to-power guide, and chain lettering code glossary
 - Admin dashboard: student progress, waiver PDFs, device bond resets, activation code management, inspection/risk-assessment review
 
 ## Demo credentials
