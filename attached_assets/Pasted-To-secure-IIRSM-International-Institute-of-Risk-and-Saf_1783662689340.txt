@@ -1,0 +1,25 @@
+To secure IIRSM (International Institute of Risk and Safety Management) approval for an online e-learning course, the auditors look at far more than just the videos themselves. They audit the entire educational architecture, risk control messaging, and learner-tracking mechanisms.
+An experienced IIRSM technical verifier will look for specific elements in your online course setup, particularly regarding how your videos map to your learning outcomes.
+🎥 1. Do Videos Need the Correct Learning Outcomes?
+Yes, absolutely. Every video does not necessarily need a slide at the beginning displaying text like "This video satisfies AC 3.3," but the platform must have explicit pedagogical mapping.
+The Gateway Rule: The platform should group videos into clear, logical modules that align perfectly with the Learning Outcomes (LOs) outlined in your manual's front matter.
+The Script Alignment: The spoken narration and visual demonstrations in the videos must directly match your technical text. For example, if your text tells the student to drop the saw down down to idle after a warm start before conducting the 4-point check, the video must demonstrate that exact sequence without shortcuts.
+Avoid "Shortcut" Content: If a video shows an operator handling a saw with a loose chain, wearing unzipped PPE, or working without an explicit safety fallback, the IIRSM will reject the course for promoting an unsafe system of work.
+📦 2. Core Pillars Needed for IIRSM E-Learning Approval
+To pass a formal IIRSM audit, your Learning Management System (LMS) or app needs to satisfy four structural pillars:
+📋 Robust Assessment Strategy
+You cannot just have a "watch-and-finish" setup. You need a multi-tiered knowledge verification system:
+Formative Checkpoints: Short, modular multiple-choice quizzes at the end of video sections to reinforce cognitive retention before the student can advance.
+Summative Examination: A definitive, randomized exam (like your 45-question format) mapped directly to your occupational standards.
+Strict Passing Thresholds: A set passing standard (such as an exact 80% or higher metric) to ensure that certificates of completion are only generated for learners who demonstrate true theoretical comprehension.
+⏱️ Verifiable Time & Engagement Tracking
+Because IIRSM awards CPD recognition based on structured hours, your system must prove the student didn't just skip to the end:
+Video Scrubbing Restrictions: You must disable the fast-forward or "scrub" feature on first-time video views to ensure the full Guided Learning Hours (GLH) budget is actually spent interacting with the material.
+Activity Logging: The backend must log exact student time stamps—tracking when a video is launched, when a quiz is submitted, and how long they spend reading or reviewing resource material.
+🛡️ Clear Boundaries & Practical Risk Warnings
+Because chainsaw operation utilizes high-risk machinery, the digital platform must mimic the book's strict safety parameters:
+The "Theory-Only" Gate: Every module introduction or onboarding splash screen should remind the user that digital CPD study does not replace face-to-face, hands-on instructional training delivered by a registered professional.
+Lone Working Prohibition: Ensure your safety videos actively mention and visually reinforce industrial safety standards, such as never working alone and maintaining access to a specialized trauma kit on-site.
+📝 Continuous Improvement & Version Control
+The system must have a built-in course evaluation or feedback loop where students can rate module clarity.
+Your digital course assets must have clear version controls matching the manual edition (e.g., Course Version 1.4 / July 2026) to demonstrate ongoing content maintenance.

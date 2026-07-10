@@ -32,6 +32,12 @@ import type {
   ChatMessage,
   CompleteVideoInput,
   ErrorResponse,
+  Exam,
+  ExamResult,
+  ExamStatus,
+  ExamSubmission,
+  FeedbackEntry,
+  FeedbackInput,
   HealthStatus,
   HeartbeatInput,
   Module,
@@ -876,6 +882,380 @@ export const useSubmitQuiz = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getSubmitQuizMutationOptions(options));
     }
+
+export const getGetExamUrl = () => {
+
+
+
+
+  return `/api/exam`
+}
+
+/**
+ * @summary Get the 45-question randomized summative exam (available once all modules are complete)
+ */
+export const getExam = async ( options?: RequestInit): Promise<Exam> => {
+
+  return customFetch<Exam>(getGetExamUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetExamQueryKey = () => {
+    return [
+    `/api/exam`
+    ] as const;
+    }
+
+
+export const getGetExamQueryOptions = <TData = Awaited<ReturnType<typeof getExam>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getExam>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetExamQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getExam>>> = ({ signal }) => getExam({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getExam>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetExamQueryResult = NonNullable<Awaited<ReturnType<typeof getExam>>>
+export type GetExamQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the 45-question randomized summative exam (available once all modules are complete)
+ */
+
+export function useGetExam<TData = Awaited<ReturnType<typeof getExam>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getExam>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetExamQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitExamUrl = () => {
+
+
+
+
+  return `/api/exam/submit`
+}
+
+/**
+ * @summary Submit summative exam answers (80% required to pass)
+ */
+export const submitExam = async (examSubmission: ExamSubmission, options?: RequestInit): Promise<ExamResult> => {
+
+  return customFetch<ExamResult>(getSubmitExamUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      examSubmission,)
+  }
+);}
+
+
+
+
+export const getSubmitExamMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitExam>>, TError,{data: BodyType<ExamSubmission>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitExam>>, TError,{data: BodyType<ExamSubmission>}, TContext> => {
+
+const mutationKey = ['submitExam'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitExam>>, {data: BodyType<ExamSubmission>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitExam(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitExamMutationResult = NonNullable<Awaited<ReturnType<typeof submitExam>>>
+    export type SubmitExamMutationBody = BodyType<ExamSubmission>
+    export type SubmitExamMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit summative exam answers (80% required to pass)
+ */
+export const useSubmitExam = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitExam>>, TError,{data: BodyType<ExamSubmission>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitExam>>,
+        TError,
+        {data: BodyType<ExamSubmission>},
+        TContext
+      > => {
+      return useMutation(getSubmitExamMutationOptions(options));
+    }
+
+export const getGetExamStatusUrl = () => {
+
+
+
+
+  return `/api/exam/status`
+}
+
+/**
+ * @summary Get exam attempt history and pass status for current user
+ */
+export const getExamStatus = async ( options?: RequestInit): Promise<ExamStatus> => {
+
+  return customFetch<ExamStatus>(getGetExamStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetExamStatusQueryKey = () => {
+    return [
+    `/api/exam/status`
+    ] as const;
+    }
+
+
+export const getGetExamStatusQueryOptions = <TData = Awaited<ReturnType<typeof getExamStatus>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getExamStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetExamStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getExamStatus>>> = ({ signal }) => getExamStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getExamStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetExamStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getExamStatus>>>
+export type GetExamStatusQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get exam attempt history and pass status for current user
+ */
+
+export function useGetExamStatus<TData = Awaited<ReturnType<typeof getExamStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getExamStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetExamStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitModuleFeedbackUrl = (moduleId: number,) => {
+
+
+
+
+  return `/api/feedback/${moduleId}`
+}
+
+/**
+ * @summary Submit a rating/comment for a module
+ */
+export const submitModuleFeedback = async (moduleId: number,
+    feedbackInput: FeedbackInput, options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getSubmitModuleFeedbackUrl(moduleId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      feedbackInput,)
+  }
+);}
+
+
+
+
+export const getSubmitModuleFeedbackMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitModuleFeedback>>, TError,{moduleId: number;data: BodyType<FeedbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitModuleFeedback>>, TError,{moduleId: number;data: BodyType<FeedbackInput>}, TContext> => {
+
+const mutationKey = ['submitModuleFeedback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitModuleFeedback>>, {moduleId: number;data: BodyType<FeedbackInput>}> = (props) => {
+          const {moduleId,data} = props ?? {};
+
+          return  submitModuleFeedback(moduleId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitModuleFeedbackMutationResult = NonNullable<Awaited<ReturnType<typeof submitModuleFeedback>>>
+    export type SubmitModuleFeedbackMutationBody = BodyType<FeedbackInput>
+    export type SubmitModuleFeedbackMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit a rating/comment for a module
+ */
+export const useSubmitModuleFeedback = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitModuleFeedback>>, TError,{moduleId: number;data: BodyType<FeedbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitModuleFeedback>>,
+        TError,
+        {moduleId: number;data: BodyType<FeedbackInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitModuleFeedbackMutationOptions(options));
+    }
+
+export const getListFeedbackUrl = () => {
+
+
+
+
+  return `/api/admin/feedback`
+}
+
+/**
+ * @summary List all module feedback for admin review
+ */
+export const listFeedback = async ( options?: RequestInit): Promise<FeedbackEntry[]> => {
+
+  return customFetch<FeedbackEntry[]>(getListFeedbackUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListFeedbackQueryKey = () => {
+    return [
+    `/api/admin/feedback`
+    ] as const;
+    }
+
+
+export const getListFeedbackQueryOptions = <TData = Awaited<ReturnType<typeof listFeedback>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFeedback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListFeedbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listFeedback>>> = ({ signal }) => listFeedback({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listFeedback>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListFeedbackQueryResult = NonNullable<Awaited<ReturnType<typeof listFeedback>>>
+export type ListFeedbackQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all module feedback for admin review
+ */
+
+export function useListFeedback<TData = Awaited<ReturnType<typeof listFeedback>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listFeedback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListFeedbackQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getGetWaiverUrl = () => {
 

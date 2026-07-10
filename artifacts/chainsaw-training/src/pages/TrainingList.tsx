@@ -11,6 +11,7 @@ import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetPr
 import { useUserSession } from "../contexts/UserContext";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
+import { COURSE_CONTENT_VERSION } from "../data/version";
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
@@ -906,6 +907,12 @@ export default function TrainingList() {
           <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
             <Link href="/mock-test">MOCK ASSESSMENT</Link>
           </Button>
+          <Button asChild variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary">
+            <Link href="/exam">FINAL EXAM</Link>
+          </Button>
+        </div>
+        <div className="text-center pb-1 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
+          COURSE CONTENT v{COURSE_CONTENT_VERSION}
         </div>
       </div>
       </main>

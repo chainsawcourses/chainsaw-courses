@@ -17,6 +17,10 @@ tags:
     description: Learning progress tracking
   - name: quizzes
     description: Module quizzes and assessments
+  - name: exam
+    description: Summative final examination
+  - name: feedback
+    description: Module feedback and ratings
   - name: waiver
     description: Digital waiver management
   - name: ai
@@ -298,6 +302,125 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/QuizResult"
+
+  /exam:
+    get:
+      operationId: getExam
+      tags: [exam]
+      summary: Get the 45-question randomized summative exam (available once all modules are complete)
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Exam questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exam"
+        "403":
+          description: Exam not yet unlocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /exam/submit:
+    post:
+      operationId: submitExam
+      tags: [exam]
+      summary: Submit summative exam answers (80% required to pass)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamSubmission"
+      responses:
+        "200":
+          description: Exam result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamResult"
+
+  /exam/status:
+    get:
+      operationId: getExamStatus
+      tags: [exam]
+      summary: Get exam attempt history and pass status for current user
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Exam status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamStatus"
+
+  /feedback/{moduleId}:
+    post:
+      operationId: submitModuleFeedback
+      tags: [feedback]
+      summary: Submit a rating/comment for a module
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackInput"
+      responses:
+        "200":
+          description: Feedback recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/feedback:
+    get:
+      operationId: listFeedback
+      tags: [admin]
+      summary: List all module feedback for admin review
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Feedback list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedbackEntry"
 
   /waiver:
     get:
@@ -624,6 +747,10 @@ components:
           type: ["string", "null"]
         isHighRisk:
           type: boolean
+        learningOutcome:
+          type: ["string", "null"]
+        assessmentCriteria:
+          type: ["string", "null"]
 
     ModuleDetail:
       type: object
@@ -662,6 +789,10 @@ components:
         lastTimestamp:
           type: ["integer", "null"]
         safetyText:
+          type: ["string", "null"]
+        learningOutcome:
+          type: ["string", "null"]
+        assessmentCriteria:
           type: ["string", "null"]
 
     HeartbeatInput:
@@ -784,6 +915,115 @@ components:
           type: boolean
         correctOption:
           type: integer
+
+    Exam:
+      type: object
+      required: [questions, passingScore, totalQuestions]
+      properties:
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamQuestion"
+        passingScore:
+          type: integer
+        totalQuestions:
+          type: integer
+
+    ExamQuestion:
+      type: object
+      required: [id, question, options]
+      properties:
+        id:
+          type: integer
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        learningOutcome:
+          type: ["string", "null"]
+        assessmentCriteria:
+          type: ["string", "null"]
+
+    ExamSubmission:
+      type: object
+      required: [deviceId, activationCode, answers]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        answers:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizAnswer"
+
+    ExamResult:
+      type: object
+      required: [passed, score, passingScore, correct, total]
+      properties:
+        passed:
+          type: boolean
+        score:
+          type: integer
+        passingScore:
+          type: integer
+        correct:
+          type: integer
+        total:
+          type: integer
+        feedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuizFeedback"
+
+    ExamStatus:
+      type: object
+      required: [unlocked, attempts, bestScore, passed]
+      properties:
+        unlocked:
+          type: boolean
+        attempts:
+          type: integer
+        bestScore:
+          type: ["integer", "null"]
+        passed:
+          type: boolean
+        passingScore:
+          type: integer
+
+    FeedbackInput:
+      type: object
+      required: [deviceId, activationCode, rating]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: string
+
+    FeedbackEntry:
+      type: object
+      required: [id, moduleId, moduleTitle, rating, createdAt]
+      properties:
+        id:
+          type: integer
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: ["string", "null"]
+        studentName:
+          type: string
+        createdAt:
+          type: string
 
     WaiverStatus:
       type: object

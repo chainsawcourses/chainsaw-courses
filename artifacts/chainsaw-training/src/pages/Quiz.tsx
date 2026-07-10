@@ -4,8 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw } from "lucide-react";
-import { useGetQuiz, useSubmitQuiz, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star } from "lucide-react";
+import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL } from "../data/audioFiles";
 
@@ -21,11 +21,15 @@ export default function Quiz() {
   });
 
   const submitQuiz = useSubmitQuiz();
+  const submitFeedback = useSubmitModuleFeedback();
 
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<QuizResult | null>(null);
   const applausePlayedRef = useRef(false);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
 
   useEffect(() => {
     if (!activationCode || !deviceId) {
@@ -132,13 +136,53 @@ export default function Quiz() {
 
             {!result.passed && (
               <p className="text-sm text-muted-foreground font-mono mb-8">
-                You must answer all questions correctly to proceed. Please review the module and try again.
+                You need {result.passingScore}% to pass. Please review the module and try again.
               </p>
             )}
             {result.passed && (
               <p className="text-sm text-primary font-mono mb-8">
-                You answered every question correctly. Well done — the next module is now unlocked.
+                You scored above the {result.passingScore}% pass mark. Well done — the next module is now unlocked.
               </p>
+            )}
+
+            {result.passed && !feedbackSent && (
+              <div className="w-full mb-8 p-4 rounded-lg border border-border bg-secondary/20 text-left">
+                <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-2">
+                  Quick feedback on this module (optional)
+                </p>
+                <div className="flex gap-1 mb-3">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button key={n} type="button" onClick={() => setFeedbackRating(n)}>
+                      <Star className={`w-6 h-6 ${n <= feedbackRating ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={feedbackComment}
+                  onChange={(e) => setFeedbackComment(e.target.value)}
+                  placeholder="Any comments? (optional)"
+                  className="w-full text-sm font-mono p-2 rounded border border-border bg-background mb-3 resize-none"
+                  rows={2}
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="font-mono text-xs"
+                  disabled={feedbackRating === 0 || submitFeedback.isPending || !deviceId || !activationCode}
+                  onClick={() => {
+                    if (!deviceId || !activationCode) return;
+                    submitFeedback.mutate(
+                      { moduleId: id, data: { deviceId, activationCode, rating: feedbackRating, comment: feedbackComment || undefined } },
+                      { onSuccess: () => setFeedbackSent(true) }
+                    );
+                  }}
+                >
+                  {submitFeedback.isPending ? "SUBMITTING..." : "SUBMIT FEEDBACK"}
+                </Button>
+              </div>
+            )}
+            {result.passed && feedbackSent && (
+              <p className="text-xs font-mono text-primary mb-8 uppercase tracking-widest">Thanks for your feedback!</p>
             )}
 
             <div className="flex gap-4 w-full">
@@ -185,7 +229,7 @@ export default function Quiz() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
         <div className="flex-1 flex flex-col justify-center">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
-            100% required to pass — all questions must be answered correctly
+            80% required to pass — unlimited retries available
           </p>
 
           <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">

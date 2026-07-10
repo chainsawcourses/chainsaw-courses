@@ -70,20 +70,19 @@ export default function TrainingModule() {
     if (!module) return;
     if (module.contentType === "pdf") {
       setCanPlay(true);
-    } else if (module.isHighRisk && !canPlay) {
+    } else if (!canPlay) {
+      // Every video requires a click-through warning before playback starts.
       setSafetyModalOpen(true);
-    } else if (!module.isHighRisk) {
-      setCanPlay(true);
     }
   }, [module]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (safetyModalOpen && countdown > 0) {
+    if (safetyModalOpen && module?.isHighRisk && countdown > 0) {
       const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [safetyModalOpen, countdown]);
+  }, [safetyModalOpen, countdown, module?.isHighRisk]);
 
   const handleSafetyAcknowledge = () => { setSafetyModalOpen(false); setCanPlay(true); };
 
@@ -317,6 +316,20 @@ export default function TrainingModule() {
               <div>
                 <h2 className="text-lg font-bold font-mono uppercase mb-1">{module.title}</h2>
                 <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
+                {(module.learningOutcome || module.assessmentCriteria) && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {module.learningOutcome && (
+                      <span className="text-[10px] font-mono uppercase tracking-wide bg-primary/10 text-primary border border-primary/30 rounded px-1.5 py-0.5">
+                        {module.learningOutcome}
+                      </span>
+                    )}
+                    {module.assessmentCriteria && (
+                      <span className="text-[10px] font-mono uppercase tracking-wide bg-secondary/40 text-muted-foreground border border-border rounded px-1.5 py-0.5">
+                        {module.assessmentCriteria}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
                 {(videoCompleted || module.isCompleted) ? (
@@ -341,26 +354,31 @@ export default function TrainingModule() {
         )}
       </main>
 
-      {/* High-risk safety modal */}
+      {/* Pre-video safety warning modal — shown before every video, click anywhere to dismiss */}
       <Dialog open={safetyModalOpen} onOpenChange={(open) => { if (!open && !canPlay) return; setSafetyModalOpen(open); }}>
-        <DialogContent className="sm:max-w-md border-destructive/50 bg-background">
+        <DialogContent
+          className="sm:max-w-md border-destructive/50 bg-background cursor-pointer"
+          onClick={() => { if (!module.isHighRisk) handleSafetyAcknowledge(); }}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center font-mono text-destructive uppercase tracking-wide text-xl">
-              <ShieldAlert className="w-6 h-6 mr-2" /> MANDATORY SAFETY BRIEFING
+              <ShieldAlert className="w-6 h-6 mr-2" /> SAFETY WARNING
             </DialogTitle>
             <DialogDescription className="font-mono text-foreground mt-4 text-sm leading-relaxed">
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md mb-4">
-                {module.safetyText || "This module demonstrates high-risk operational techniques. Failure to apply proper safety protocols may result in severe injury or death."}
+                {module.safetyText || "This video contains chainsaw operational content. Always follow the safety guidance in the manual and never attempt techniques shown without proper PPE, training, and supervision."}
               </div>
-              I acknowledge the risks and confirm I will apply appropriate safety measures.
+              {module.isHighRisk
+                ? "I acknowledge the risks and confirm I will apply appropriate safety measures."
+                : "Click anywhere on this box to confirm you have read this warning and continue."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6">
             <Button className="w-full font-mono font-bold tracking-widest"
-              variant={countdown > 0 ? "secondary" : "destructive"}
-              disabled={countdown > 0}
-              onClick={handleSafetyAcknowledge}>
-              {countdown > 0 ? `ACKNOWLEDGE IN ${countdown}s` : "I UNDERSTAND & ACKNOWLEDGE"}
+              variant={module.isHighRisk && countdown > 0 ? "secondary" : "destructive"}
+              disabled={module.isHighRisk && countdown > 0}
+              onClick={(e) => { e.stopPropagation(); handleSafetyAcknowledge(); }}>
+              {module.isHighRisk && countdown > 0 ? `ACKNOWLEDGE IN ${countdown}s` : "I UNDERSTAND & ACKNOWLEDGE"}
             </Button>
           </DialogFooter>
         </DialogContent>

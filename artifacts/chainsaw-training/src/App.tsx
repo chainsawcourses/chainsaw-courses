@@ -11,6 +11,7 @@ import Waiver from "@/pages/Waiver";
 import TrainingList from "@/pages/TrainingList";
 import TrainingModule from "@/pages/TrainingModule";
 import Quiz from "@/pages/Quiz";
+import Exam from "@/pages/Exam";
 import MockTest from "@/pages/MockTest";
 import AiTutor from "@/pages/AiTutor";
 
@@ -19,6 +20,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import StudentDetail from "@/pages/admin/StudentDetail";
 import VideoSettings from "@/pages/admin/VideoSettings";
 import PdfSettings from "@/pages/admin/PdfSettings";
+import Feedback from "@/pages/admin/Feedback";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -43,6 +45,7 @@ function Router() {
       <Route path="/training" component={TrainingList} />
       <Route path="/training/:moduleId" component={TrainingModule} />
       <Route path="/quiz/:moduleId" component={Quiz} />
+      <Route path="/exam" component={Exam} />
       <Route path="/mock-test" component={MockTest} />
       <Route path="/ai-tutor" component={AiTutor} />
 
@@ -52,6 +55,7 @@ function Router() {
       <Route path="/admin/students/:id" component={StudentDetail} />
       <Route path="/admin/videos" component={VideoSettings} />
       <Route path="/admin/pdfs" component={PdfSettings} />
+      <Route path="/admin/feedback" component={Feedback} />
 
       <Route component={NotFound} />
     </Switch>

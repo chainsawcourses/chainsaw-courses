@@ -42,7 +42,7 @@ router.get("/quizzes/:moduleId", async (req, res) => {
     res.json({
       moduleId,
       moduleTitle: mod?.title ?? "Module",
-      passingScore: 100,
+      passingScore: 80,
       questions: questions.map((q) => ({
         id: q.id,
         question: q.question,
@@ -94,7 +94,7 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
     });
 
     const score = Math.round((correct / questions.length) * 100);
-    const passed = score === 100;
+    const passed = score >= 80;
 
     await db.insert(quizAttemptsTable).values({
       userId: user.id,
@@ -129,7 +129,7 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
     res.json({
       passed,
       score,
-      passingScore: 100,
+      passingScore: 80,
       correct,
       total: questions.length,
       feedback,

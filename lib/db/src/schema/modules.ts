@@ -17,6 +17,8 @@ export const modulesTable = pgTable("modules", {
   subCategory: text("sub_category"),
   contentType: text("content_type").notNull().default("video"),
   pdfUrl: text("pdf_url"),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -67,12 +69,59 @@ export const hazardReferenceTable = pgTable("hazard_reference", {
   orderIdx: integer("order_idx").notNull().default(0),
 });
 
+export const videoEngagementTable = pgTable("video_engagement", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  moduleId: integer("module_id").notNull(),
+  launchedAt: timestamp("launched_at").notNull().defaultNow(),
+  completedAt: timestamp("completed_at"),
+  seekAttempted: boolean("seek_attempted").notNull().default(false),
+  seekAttemptCount: integer("seek_attempt_count").notNull().default(0),
+  warningAcknowledgedAt: timestamp("warning_acknowledged_at"),
+});
+
+export const moduleFeedbackTable = pgTable("module_feedback", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  moduleId: integer("module_id").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const examQuestionsTable = pgTable("exam_questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  options: text("options").notNull(), // JSON array
+  correctOption: integer("correct_option").notNull(),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
+  order: integer("order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const examAttemptsTable = pgTable("exam_attempts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  score: integer("score").notNull(),
+  passed: boolean("passed").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  answers: text("answers").notNull(), // JSON array of { questionId, selectedOption, correct }
+  attemptedAt: timestamp("attempted_at").notNull().defaultNow(),
+});
+
 export type HazardReference = typeof hazardReferenceTable.$inferSelect;
+export type VideoEngagement = typeof videoEngagementTable.$inferSelect;
+export type ModuleFeedback = typeof moduleFeedbackTable.$inferSelect;
+export type ExamQuestion = typeof examQuestionsTable.$inferSelect;
+export type ExamAttempt = typeof examAttemptsTable.$inferSelect;
 
 export const insertModuleSchema = createInsertSchema(modulesTable).omit({ id: true, createdAt: true });
 export const insertUserProgressSchema = createInsertSchema(userProgressTable).omit({ id: true, updatedAt: true });
 export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).omit({ id: true });
 export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
+export const insertModuleFeedbackSchema = createInsertSchema(moduleFeedbackTable).omit({ id: true, createdAt: true });
+export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).omit({ id: true });
 
 export type Module = typeof modulesTable.$inferSelect;
 export type UserProgress = typeof userProgressTable.$inferSelect;

@@ -18,7 +18,7 @@ const router = Router();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "chainsaw-admin-2024";
 const activeTokens = new Set<string>();
 
-function verifyAdmin(req: { headers: Record<string, string | string[] | undefined> }): boolean {
+export function verifyAdmin(req: { headers: Record<string, string | string[] | undefined> }): boolean {
   const token = req.headers["admintoken"] as string;
   return !!token && activeTokens.has(token);
 }

@@ -58,6 +58,10 @@ export interface Module {
   /** @nullable */
   thumbnailUrl?: string | null;
   isHighRisk?: boolean;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }
 
 export interface ModuleDetail {
@@ -83,6 +87,10 @@ export interface ModuleDetail {
   lastTimestamp?: number | null;
   /** @nullable */
   safetyText?: string | null;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }
 
 export interface HeartbeatInput {
@@ -145,6 +153,64 @@ export interface QuizResult {
   correct: number;
   total: number;
   feedback?: QuizFeedback[];
+}
+
+export interface ExamQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
+}
+
+export interface Exam {
+  questions: ExamQuestion[];
+  passingScore: number;
+  totalQuestions: number;
+}
+
+export interface ExamSubmission {
+  deviceId: string;
+  activationCode: string;
+  answers: QuizAnswer[];
+}
+
+export interface ExamResult {
+  passed: boolean;
+  score: number;
+  passingScore: number;
+  correct: number;
+  total: number;
+  feedback?: QuizFeedback[];
+}
+
+export interface ExamStatus {
+  unlocked: boolean;
+  attempts: number;
+  /** @nullable */
+  bestScore: number | null;
+  passed: boolean;
+  passingScore?: number;
+}
+
+export interface FeedbackInput {
+  deviceId: string;
+  activationCode: string;
+  rating: number;
+  comment?: string;
+}
+
+export interface FeedbackEntry {
+  id: number;
+  moduleId: number;
+  moduleTitle: string;
+  rating: number;
+  /** @nullable */
+  comment?: string | null;
+  studentName?: string;
+  createdAt: string;
 }
 
 export interface WaiverStatus {

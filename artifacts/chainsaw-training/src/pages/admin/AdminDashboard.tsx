@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut, Video, FileText } from "lucide-react";
+import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut, Video, FileText, Star } from "lucide-react";
 import { useGetAdminStats, useListStudents, useCreateActivationCode, getGetAdminStatsQueryKey, getListStudentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -68,6 +68,11 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/pdfs">
                 <FileText className="w-4 h-4 mr-2" /> PDF SETTINGS
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <Link href="/admin/feedback">
+                <Star className="w-4 h-4 mr-2" /> FEEDBACK
               </Link>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">

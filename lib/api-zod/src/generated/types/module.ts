@@ -22,4 +22,8 @@ export interface Module {
   /** @nullable */
   thumbnailUrl?: string | null;
   isHighRisk?: boolean;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }

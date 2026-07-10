@@ -85,6 +85,8 @@ router.get("/modules", async (req, res) => {
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
       };
     });
 
@@ -240,6 +242,8 @@ router.get("/modules/:moduleId", async (req, res) => {
       isHighRisk: mod.isHighRisk,
       lastTimestamp: myProgress?.lastTimestamp ?? null,
       safetyText: mod.safetyText ?? null,
+      learningOutcome: mod.learningOutcome ?? null,
+      assessmentCriteria: mod.assessmentCriteria ?? null,
     });
   } catch (err) {
     logger.error({ err }, "Error fetching module");

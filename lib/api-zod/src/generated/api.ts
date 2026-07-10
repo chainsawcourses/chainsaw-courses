@@ -88,7 +88,9 @@ export const ListModulesResponseItem = zod.object({
   "quizPassed": zod.boolean().optional(),
   "duration": zod.number(),
   "thumbnailUrl": zod.string().nullish(),
-  "isHighRisk": zod.boolean().optional()
+  "isHighRisk": zod.boolean().optional(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 export const ListModulesResponse = zod.array(ListModulesResponseItem)
 
@@ -122,7 +124,9 @@ export const GetModuleResponse = zod.object({
   "thumbnailUrl": zod.string().nullish(),
   "isHighRisk": zod.boolean().optional(),
   "lastTimestamp": zod.number().nullish(),
-  "safetyText": zod.string().nullish()
+  "safetyText": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 
 
@@ -227,6 +231,109 @@ export const SubmitQuizResponse = zod.object({
   "correctOption": zod.number()
 })).optional()
 })
+
+
+/**
+ * @summary Get the 45-question randomized summative exam (available once all modules are complete)
+ */
+export const GetExamHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const GetExamResponse = zod.object({
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "question": zod.string(),
+  "options": zod.array(zod.string()),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
+})),
+  "passingScore": zod.number(),
+  "totalQuestions": zod.number()
+})
+
+
+/**
+ * @summary Submit summative exam answers (80% required to pass)
+ */
+export const SubmitExamBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "answers": zod.array(zod.object({
+  "questionId": zod.number(),
+  "selectedOption": zod.number()
+}))
+})
+
+export const SubmitExamResponse = zod.object({
+  "passed": zod.boolean(),
+  "score": zod.number(),
+  "passingScore": zod.number(),
+  "correct": zod.number(),
+  "total": zod.number(),
+  "feedback": zod.array(zod.object({
+  "questionId": zod.number(),
+  "correct": zod.boolean(),
+  "correctOption": zod.number()
+})).optional()
+})
+
+
+/**
+ * @summary Get exam attempt history and pass status for current user
+ */
+export const GetExamStatusHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const GetExamStatusResponse = zod.object({
+  "unlocked": zod.boolean(),
+  "attempts": zod.number(),
+  "bestScore": zod.number().nullable(),
+  "passed": zod.boolean(),
+  "passingScore": zod.number().optional()
+})
+
+
+/**
+ * @summary Submit a rating/comment for a module
+ */
+export const SubmitModuleFeedbackParams = zod.object({
+  "moduleId": zod.coerce.number()
+})
+
+export const SubmitModuleFeedbackBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "rating": zod.number(),
+  "comment": zod.string().optional()
+})
+
+export const SubmitModuleFeedbackResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
+ * @summary List all module feedback for admin review
+ */
+export const ListFeedbackHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ListFeedbackResponseItem = zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "moduleTitle": zod.string(),
+  "rating": zod.number(),
+  "comment": zod.string().nullish(),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const ListFeedbackResponse = zod.array(ListFeedbackResponseItem)
 
 
 /**

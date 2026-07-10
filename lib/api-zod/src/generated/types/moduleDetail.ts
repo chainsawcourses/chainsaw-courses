@@ -29,4 +29,8 @@ export interface ModuleDetail {
   lastTimestamp?: number | null;
   /** @nullable */
   safetyText?: string | null;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }
