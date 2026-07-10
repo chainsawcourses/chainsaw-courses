@@ -1,0 +1,39 @@
+Build a modern, interactive web application dashboard featuring a Biosecurity & Hazard Map tailored for UK chainsaw operators performing maintenance and cross-cutting tasks. 
+
+Use HTML, CSS, and Vanilla JavaScript with the Leaflet.js library for a lightweight, interactive map interface. The UI must look like a professional safety dashboard, using a clean dark grid layout with high-visibility color-coding.
+
+### 🗺️ Layout & Architecture
+1. Left Sidebar: Control panel containing category headers, checkboxes to toggle map layers, and a dynamic "Active Hazard Information" display card.
+2. Right Panel: A large Leaflet.js map initialized over a map of the United Kingdom, populated with colored mock polygons and circular coordinates representing risk zones.
+
+### 📊 Categories & Layer Coding
+The layers must be strictly divided into two primary structural categories, completely omitting any reference to stinging insects or specialized climbing suits:
+
+#### Category 1: Direct Operator Health Hazards (Color Code: Vivid Orange/Red)
+*   Oak Processionary Moth (OPM): White silken canopy nests. Running saws can aerosolize toxic urticating hairs, causing severe respiratory distress, skin blistering, and eye irritation.
+    ↳ Required Controls: Visual canopy sweeps before cross-cutting oak logs; switch to sealed safety goggles and Respiratory Protective Equipment (RPE) if nests are present.
+*   Brown Tail Moth (Euproctis chrysorrhoea): Infests scrub, hawthorn, and fruit trees. Toxic hairs cause severe dermal blistering and acute asthma tracking issues.
+    ↳ Required Controls: Long-sleeved cut-resistant gear, face shields, and skin barriers during branch clearance.
+
+#### Category 2: Statutory Containment Zones (Color Code: Vivid Purple/Blue)
+*   Eight-Toothed Spruce Bark Beetle (Ips typographus): Regulated wood pest in Southeast England. Strict movement bans apply to raw conifer and spruce logs.
+    ↳ Required Controls: Immediate pause on conifer cross-cutting operations; check timber movement licensing compliance before dragging or bucking stems.
+*   Chalara Ash Dieback (Hymenoscyphus fraxineus): Extensively brittle timber profiles. Advanced decay causes ash crowns to unpredictably shatter or drop heavy limbs during ground tension processing.
+    ↳ Required Controls: Establish double-distance safety zones around dead ash stems; minimize the use of heavy wedging or aggressive winching on brittle material.
+*   Sudden Oak Death / Larch Dieback (Phytophthora ramorum): Highly transmissible fungal pathogen spread via contaminated wood shavings, sawdust, and bar oil.
+    ↳ Required Controls: Complete tool, chain, guidebar, and boot washdowns using an approved chemical disinfectant before exiting the work site.
+*   Sweet Chestnut Blight (Cryphonectria parasitica): Regulated fungal disease causing timber cankers.
+    ↳ Required Controls: Processed sweet chestnut biomass must be incinerated on-site or subjected to deep burial; raw logs cannot be converted into transportable firewood.
+*   Western Hemlock Dieback (Phytophthora pluvialis): Needle blight fungus tracking through wet soil.
+    ↳ Required Controls: Mandatory cleaning loops for fuel jerry cans, support vehicle tires, and maintenance tools before relocating ground stations.
+
+### ⚙️ Interactivity Logic
+1. When a map layer checkbox is checked/unchecked in the sidebar, seamlessly toggle the corresponding colored zone indicators on the map.
+2. Clicking a colored zone on the map (or selecting its profile header from an asset panel) must dynamically update the "Active Hazard Information" card in the sidebar.
+3. The info card must cleanly display:
+   - Common & Scientific Name of the Pest/Pathogen
+   - Risk Classification (Direct Operator Threat vs. Statutory Containment)
+   - Real-World Operational Impacts on Cross-Cutting & Maintenance
+   - Mandatory Site-Specific Control Measures
+
+Make the styling fully responsive for desktop screens and mobile tablets used out in the field, utilizing clean typography, generous padding, and visible layout rules. Ensure no third-party API keys are required by using standard open-source street maps.
