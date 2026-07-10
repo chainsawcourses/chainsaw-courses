@@ -119,12 +119,26 @@ export const inspectionRecordsTable = pgTable("inspection_records", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const riskAssessmentsTable = pgTable("risk_assessments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  siteDescription: text("site_description"),
+  taskDescription: text("task_description").notNull(),
+  latitude: text("latitude"),
+  longitude: text("longitude"),
+  address: text("address"),
+  gridReference: text("grid_reference"),
+  hazards: text("hazards").notNull(), // JSON array of { id, label, likelihood, severity, riskRating, controlMeasures }
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type HazardReference = typeof hazardReferenceTable.$inferSelect;
 export type VideoEngagement = typeof videoEngagementTable.$inferSelect;
 export type ModuleFeedback = typeof moduleFeedbackTable.$inferSelect;
 export type ExamQuestion = typeof examQuestionsTable.$inferSelect;
 export type ExamAttempt = typeof examAttemptsTable.$inferSelect;
 export type InspectionRecord = typeof inspectionRecordsTable.$inferSelect;
+export type RiskAssessmentRecord = typeof riskAssessmentsTable.$inferSelect;
 
 export const insertModuleSchema = createInsertSchema(modulesTable).omit({ id: true, createdAt: true });
 export const insertUserProgressSchema = createInsertSchema(userProgressTable).omit({ id: true, updatedAt: true });
@@ -133,6 +147,7 @@ export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omi
 export const insertModuleFeedbackSchema = createInsertSchema(moduleFeedbackTable).omit({ id: true, createdAt: true });
 export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).omit({ id: true });
 export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true });
+export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true });
 
 export type Module = typeof modulesTable.$inferSelect;
 export type UserProgress = typeof userProgressTable.$inferSelect;

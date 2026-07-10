@@ -51,7 +51,9 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - 7 sequential training modules with Vimeo video streaming
 - Per-module quizzes (80% to pass, unlimited retries)
 - AI "Chainsaw Manual Examiner" mock assessment (chainsaw-topics only)
-- Admin dashboard: student progress, waiver PDFs, device bond resets, activation code management
+- Standalone Inspection Checklist (`/inspection`) — pre-start/pre-use safety checks, personal record only, not tied to module progress
+- Standalone Dynamic Risk Assessment (`/risk-assessment`) — GPS-derived site location (address + OS National Grid reference), task description, and an editable common-hazards checklist (kickback, manual handling, trips, rolling timber, lone working, etc.) with likelihood x severity risk rating
+- Admin dashboard: student progress, waiver PDFs, device bond resets, activation code management, inspection/risk-assessment review
 
 ## Demo credentials
 
@@ -68,6 +70,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 - `@import url()` for Google Fonts MUST be the first line in `index.css` (before Tailwind) to avoid PostCSS parse errors.
 - Admin tokens are in-memory; restarting the API server invalidates all admin sessions.
 - The AI chat falls back gracefully when `AI_INTEGRATIONS_OPENAI_*` env vars are not set.
+- Risk assessment location lookup uses free OpenStreetMap Nominatim reverse geocoding (no API key) — fine for low volume, but not for production-scale traffic.
+- Nearest hospital/A&E and nearest AED lookups were deliberately NOT built: there is no reliable free/public API for either (UK's official AED registry "The Circuit" is restricted to ambulance services; A&E phone numbers need a static NHS ODS dataset, not a live API). Revisit only with a proper data source.
 
 ## Pointers
 

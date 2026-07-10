@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck, MapPinned } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -280,6 +280,13 @@ export default function TrainingList() {
               title="Inspection Checklist"
             >
               <ClipboardCheck className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/risk-assessment"
+              className="text-muted-foreground hover:text-primary ml-2"
+              title="Dynamic Risk Assessment"
+            >
+              <MapPinned className="w-5 h-5" />
             </Link>
 
             {brandMenuOpen && (

@@ -47,9 +47,11 @@ import type {
   Quiz,
   QuizResult,
   QuizSubmission,
+  RiskAssessmentEntry,
   StudentDetail,
   StudentSummary,
   SubmitInspectionInput,
+  SubmitRiskAssessmentInput,
   SuccessResponse,
   UserProfile,
   WaiverInput,
@@ -1472,6 +1474,231 @@ export function useListAllInspections<TData = Awaited<ReturnType<typeof listAllI
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListAllInspectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitRiskAssessmentUrl = () => {
+
+
+
+
+  return `/api/risk-assessments`
+}
+
+/**
+ * @summary Submit a completed dynamic risk assessment
+ */
+export const submitRiskAssessment = async (submitRiskAssessmentInput: SubmitRiskAssessmentInput, options?: RequestInit): Promise<RiskAssessmentEntry> => {
+
+  return customFetch<RiskAssessmentEntry>(getSubmitRiskAssessmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      submitRiskAssessmentInput,)
+  }
+);}
+
+
+
+
+export const getSubmitRiskAssessmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitRiskAssessment>>, TError,{data: BodyType<SubmitRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitRiskAssessment>>, TError,{data: BodyType<SubmitRiskAssessmentInput>}, TContext> => {
+
+const mutationKey = ['submitRiskAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitRiskAssessment>>, {data: BodyType<SubmitRiskAssessmentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitRiskAssessment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitRiskAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof submitRiskAssessment>>>
+    export type SubmitRiskAssessmentMutationBody = BodyType<SubmitRiskAssessmentInput>
+    export type SubmitRiskAssessmentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit a completed dynamic risk assessment
+ */
+export const useSubmitRiskAssessment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitRiskAssessment>>, TError,{data: BodyType<SubmitRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitRiskAssessment>>,
+        TError,
+        {data: BodyType<SubmitRiskAssessmentInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitRiskAssessmentMutationOptions(options));
+    }
+
+export const getListMyRiskAssessmentsUrl = () => {
+
+
+
+
+  return `/api/risk-assessments`
+}
+
+/**
+ * @summary List the current student's past risk assessments
+ */
+export const listMyRiskAssessments = async ( options?: RequestInit): Promise<RiskAssessmentEntry[]> => {
+
+  return customFetch<RiskAssessmentEntry[]>(getListMyRiskAssessmentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyRiskAssessmentsQueryKey = () => {
+    return [
+    `/api/risk-assessments`
+    ] as const;
+    }
+
+
+export const getListMyRiskAssessmentsQueryOptions = <TData = Awaited<ReturnType<typeof listMyRiskAssessments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyRiskAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyRiskAssessmentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyRiskAssessments>>> = ({ signal }) => listMyRiskAssessments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyRiskAssessments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMyRiskAssessmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listMyRiskAssessments>>>
+export type ListMyRiskAssessmentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List the current student's past risk assessments
+ */
+
+export function useListMyRiskAssessments<TData = Awaited<ReturnType<typeof listMyRiskAssessments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyRiskAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMyRiskAssessmentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAllRiskAssessmentsUrl = () => {
+
+
+
+
+  return `/api/admin/risk-assessments`
+}
+
+/**
+ * @summary List all submitted risk assessments for admin review
+ */
+export const listAllRiskAssessments = async ( options?: RequestInit): Promise<RiskAssessmentEntry[]> => {
+
+  return customFetch<RiskAssessmentEntry[]>(getListAllRiskAssessmentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllRiskAssessmentsQueryKey = () => {
+    return [
+    `/api/admin/risk-assessments`
+    ] as const;
+    }
+
+
+export const getListAllRiskAssessmentsQueryOptions = <TData = Awaited<ReturnType<typeof listAllRiskAssessments>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllRiskAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllRiskAssessmentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllRiskAssessments>>> = ({ signal }) => listAllRiskAssessments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllRiskAssessments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllRiskAssessmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllRiskAssessments>>>
+export type ListAllRiskAssessmentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all submitted risk assessments for admin review
+ */
+
+export function useListAllRiskAssessments<TData = Awaited<ReturnType<typeof listAllRiskAssessments>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllRiskAssessments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllRiskAssessmentsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

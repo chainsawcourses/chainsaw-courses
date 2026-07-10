@@ -13,6 +13,7 @@ import hazardsRouter from "./hazards";
 import howToUseRouter from "./howToUse";
 import documentsRouter from "./documents";
 import inspectionsRouter from "./inspections";
+import riskAssessmentsRouter from "./risk-assessments";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(hazardsRouter);
 router.use(howToUseRouter);
 router.use(documentsRouter);
 router.use(inspectionsRouter);
+router.use(riskAssessmentsRouter);
 
 export default router;

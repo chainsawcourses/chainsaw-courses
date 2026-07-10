@@ -29,6 +29,8 @@ tags:
     description: Admin panel operations
   - name: inspections
     description: Pre-start and pre-use chainsaw inspection checklist
+  - name: risk-assessments
+    description: Location-aware dynamic risk assessment tool
 paths:
   /healthz:
     get:
@@ -487,6 +489,70 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/InspectionEntry"
+
+  /risk-assessments:
+    post:
+      operationId: submitRiskAssessment
+      tags: [risk-assessments]
+      summary: Submit a completed dynamic risk assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitRiskAssessmentInput"
+      responses:
+        "200":
+          description: Risk assessment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskAssessmentEntry"
+    get:
+      operationId: listMyRiskAssessments
+      tags: [risk-assessments]
+      summary: List the current student's past risk assessments
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Risk assessment history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskAssessmentEntry"
+
+  /admin/risk-assessments:
+    get:
+      operationId: listAllRiskAssessments
+      tags: [admin]
+      summary: List all submitted risk assessments for admin review
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Risk assessment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskAssessmentEntry"
 
   /waiver:
     get:
@@ -1117,6 +1183,77 @@ components:
             $ref: "#/components/schemas/InspectionItemInput"
         hasFailures:
           type: boolean
+        studentName:
+          type: string
+        createdAt:
+          type: string
+
+    HazardEntryInput:
+      type: object
+      required: [id, label, likelihood, severity, riskRating]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        likelihood:
+          type: integer
+        severity:
+          type: integer
+        riskRating:
+          type: integer
+        controlMeasures:
+          type: string
+        isCustom:
+          type: boolean
+
+    SubmitRiskAssessmentInput:
+      type: object
+      required: [deviceId, activationCode, taskDescription, hazards]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        siteDescription:
+          type: string
+        taskDescription:
+          type: string
+        latitude:
+          type: string
+        longitude:
+          type: string
+        address:
+          type: string
+        gridReference:
+          type: string
+        hazards:
+          type: array
+          items:
+            $ref: "#/components/schemas/HazardEntryInput"
+
+    RiskAssessmentEntry:
+      type: object
+      required: [id, taskDescription, hazards, createdAt]
+      properties:
+        id:
+          type: integer
+        siteDescription:
+          type: ["string", "null"]
+        taskDescription:
+          type: string
+        latitude:
+          type: ["string", "null"]
+        longitude:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        gridReference:
+          type: ["string", "null"]
+        hazards:
+          type: array
+          items:
+            $ref: "#/components/schemas/HazardEntryInput"
         studentName:
           type: string
         createdAt:

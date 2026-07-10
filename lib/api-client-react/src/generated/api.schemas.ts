@@ -236,6 +236,46 @@ export interface InspectionEntry {
   createdAt: string;
 }
 
+export interface HazardEntryInput {
+  id: string;
+  label: string;
+  likelihood: number;
+  severity: number;
+  riskRating: number;
+  controlMeasures?: string;
+  isCustom?: boolean;
+}
+
+export interface SubmitRiskAssessmentInput {
+  deviceId: string;
+  activationCode: string;
+  siteDescription?: string;
+  taskDescription: string;
+  latitude?: string;
+  longitude?: string;
+  address?: string;
+  gridReference?: string;
+  hazards: HazardEntryInput[];
+}
+
+export interface RiskAssessmentEntry {
+  id: number;
+  /** @nullable */
+  siteDescription?: string | null;
+  taskDescription: string;
+  /** @nullable */
+  latitude?: string | null;
+  /** @nullable */
+  longitude?: string | null;
+  /** @nullable */
+  address?: string | null;
+  /** @nullable */
+  gridReference?: string | null;
+  hazards: HazardEntryInput[];
+  studentName?: string;
+  createdAt: string;
+}
+
 export interface FeedbackEntry {
   id: number;
   moduleId: number;

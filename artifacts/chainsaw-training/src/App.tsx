@@ -15,6 +15,7 @@ import Exam from "@/pages/Exam";
 import MockTest from "@/pages/MockTest";
 import AiTutor from "@/pages/AiTutor";
 import Inspection from "@/pages/Inspection";
+import RiskAssessment from "@/pages/RiskAssessment";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -23,6 +24,7 @@ import VideoSettings from "@/pages/admin/VideoSettings";
 import PdfSettings from "@/pages/admin/PdfSettings";
 import Feedback from "@/pages/admin/Feedback";
 import Inspections from "@/pages/admin/Inspections";
+import RiskAssessments from "@/pages/admin/RiskAssessments";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -51,6 +53,7 @@ function Router() {
       <Route path="/mock-test" component={MockTest} />
       <Route path="/ai-tutor" component={AiTutor} />
       <Route path="/inspection" component={Inspection} />
+      <Route path="/risk-assessment" component={RiskAssessment} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />
@@ -60,6 +63,7 @@ function Router() {
       <Route path="/admin/pdfs" component={PdfSettings} />
       <Route path="/admin/feedback" component={Feedback} />
       <Route path="/admin/inspections" component={Inspections} />
+      <Route path="/admin/risk-assessments" component={RiskAssessments} />
 
       <Route component={NotFound} />
     </Switch>

@@ -418,6 +418,112 @@ export const ListAllInspectionsResponse = zod.array(ListAllInspectionsResponseIt
 
 
 /**
+ * @summary Submit a completed dynamic risk assessment
+ */
+export const SubmitRiskAssessmentBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "siteDescription": zod.string().optional(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().optional(),
+  "longitude": zod.string().optional(),
+  "address": zod.string().optional(),
+  "gridReference": zod.string().optional(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+}))
+})
+
+export const SubmitRiskAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "siteDescription": zod.string().nullish(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().nullish(),
+  "longitude": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "gridReference": zod.string().nullish(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+})),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List the current student's past risk assessments
+ */
+export const ListMyRiskAssessmentsHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const ListMyRiskAssessmentsResponseItem = zod.object({
+  "id": zod.number(),
+  "siteDescription": zod.string().nullish(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().nullish(),
+  "longitude": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "gridReference": zod.string().nullish(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+})),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const ListMyRiskAssessmentsResponse = zod.array(ListMyRiskAssessmentsResponseItem)
+
+
+/**
+ * @summary List all submitted risk assessments for admin review
+ */
+export const ListAllRiskAssessmentsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ListAllRiskAssessmentsResponseItem = zod.object({
+  "id": zod.number(),
+  "siteDescription": zod.string().nullish(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().nullish(),
+  "longitude": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "gridReference": zod.string().nullish(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+})),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const ListAllRiskAssessmentsResponse = zod.array(ListAllRiskAssessmentsResponseItem)
+
+
+/**
  * @summary Get waiver status for current user
  */
 export const GetWaiverHeader = zod.object({
