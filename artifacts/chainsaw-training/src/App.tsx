@@ -22,6 +22,7 @@ import StudentDetail from "@/pages/admin/StudentDetail";
 import VideoSettings from "@/pages/admin/VideoSettings";
 import PdfSettings from "@/pages/admin/PdfSettings";
 import Feedback from "@/pages/admin/Feedback";
+import Inspections from "@/pages/admin/Inspections";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/admin/videos" component={VideoSettings} />
       <Route path="/admin/pdfs" component={PdfSettings} />
       <Route path="/admin/feedback" component={Feedback} />
+      <Route path="/admin/inspections" component={Inspections} />
 
       <Route component={NotFound} />
     </Switch>
