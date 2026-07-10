@@ -428,25 +428,6 @@ export default function TrainingList() {
           </h1>
         </div>
 
-        {/* Theory-only & lone-working notice — persistent, always visible */}
-        <Card className="border-destructive/40 bg-destructive/5">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-mono font-bold uppercase tracking-widest text-xs text-destructive mb-1">
-                  Theory-Only Course — Never Work Alone
-                </h3>
-                <p className="font-mono text-[11px] text-foreground/80 leading-relaxed">
-                  This is a <strong>theory-only</strong> e-learning course. It does not certify you to operate a chainsaw and does not replace hands-on practical training and assessment by a qualified instructor.
-                  You must <strong>never operate, start, or practise with a chainsaw alone</strong> — a second competent person trained in emergency first aid must always be present within sight and sound.
-                  See Clause 7 of your signed waiver for the full lone-working requirements.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Modules / Quizzes / Status + Progress */}
         <Card className="bg-card/60 border-border">
           <CardContent className="p-4 space-y-3">
