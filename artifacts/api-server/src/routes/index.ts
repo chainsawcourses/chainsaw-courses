@@ -12,6 +12,7 @@ import adminRouter from "./admin";
 import hazardsRouter from "./hazards";
 import howToUseRouter from "./howToUse";
 import documentsRouter from "./documents";
+import inspectionsRouter from "./inspections";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(adminRouter);
 router.use(hazardsRouter);
 router.use(howToUseRouter);
 router.use(documentsRouter);
+router.use(inspectionsRouter);
 
 export default router;

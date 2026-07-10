@@ -27,6 +27,8 @@ tags:
     description: AI mock assessment
   - name: admin
     description: Admin panel operations
+  - name: inspections
+    description: Pre-start and pre-use chainsaw inspection checklist
 paths:
   /healthz:
     get:
@@ -421,6 +423,70 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/FeedbackEntry"
+
+  /inspections:
+    post:
+      operationId: submitInspection
+      tags: [inspections]
+      summary: Submit a completed pre-start/pre-use inspection checklist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitInspectionInput"
+      responses:
+        "200":
+          description: Inspection recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InspectionEntry"
+    get:
+      operationId: listMyInspections
+      tags: [inspections]
+      summary: List the current student's past inspection records
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Inspection history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InspectionEntry"
+
+  /admin/inspections:
+    get:
+      operationId: listAllInspections
+      tags: [admin]
+      summary: List all submitted inspections for admin review
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Inspection list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InspectionEntry"
 
   /waiver:
     get:
@@ -1004,6 +1070,56 @@ components:
         rating:
           type: integer
         comment:
+          type: string
+
+    InspectionItemInput:
+      type: object
+      required: [id, label, section, status]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        section:
+          type: string
+        status:
+          type: string
+          enum: [pass, fail, na]
+        note:
+          type: string
+
+    SubmitInspectionInput:
+      type: object
+      required: [deviceId, activationCode, items]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        sawIdentifier:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InspectionItemInput"
+
+    InspectionEntry:
+      type: object
+      required: [id, items, hasFailures, createdAt]
+      properties:
+        id:
+          type: integer
+        sawIdentifier:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InspectionItemInput"
+        hasFailures:
+          type: boolean
+        studentName:
+          type: string
+        createdAt:
           type: string
 
     FeedbackEntry:

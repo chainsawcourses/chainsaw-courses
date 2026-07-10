@@ -14,6 +14,7 @@ import Quiz from "@/pages/Quiz";
 import Exam from "@/pages/Exam";
 import MockTest from "@/pages/MockTest";
 import AiTutor from "@/pages/AiTutor";
+import Inspection from "@/pages/Inspection";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/exam" component={Exam} />
       <Route path="/mock-test" component={MockTest} />
       <Route path="/ai-tutor" component={AiTutor} />
+      <Route path="/inspection" component={Inspection} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />

@@ -202,6 +202,40 @@ export interface FeedbackInput {
   comment?: string;
 }
 
+export type InspectionItemInputStatus = typeof InspectionItemInputStatus[keyof typeof InspectionItemInputStatus];
+
+
+export const InspectionItemInputStatus = {
+  pass: 'pass',
+  fail: 'fail',
+  na: 'na',
+} as const;
+
+export interface InspectionItemInput {
+  id: string;
+  label: string;
+  section: string;
+  status: InspectionItemInputStatus;
+  note?: string;
+}
+
+export interface SubmitInspectionInput {
+  deviceId: string;
+  activationCode: string;
+  sawIdentifier?: string;
+  items: InspectionItemInput[];
+}
+
+export interface InspectionEntry {
+  id: number;
+  /** @nullable */
+  sawIdentifier?: string | null;
+  items: InspectionItemInput[];
+  hasFailures: boolean;
+  studentName?: string;
+  createdAt: string;
+}
+
 export interface FeedbackEntry {
   id: number;
   moduleId: number;

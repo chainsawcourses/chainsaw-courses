@@ -337,6 +337,87 @@ export const ListFeedbackResponse = zod.array(ListFeedbackResponseItem)
 
 
 /**
+ * @summary Submit a completed pre-start/pre-use inspection checklist
+ */
+export const SubmitInspectionBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "sawIdentifier": zod.string().optional(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+}))
+})
+
+export const SubmitInspectionResponse = zod.object({
+  "id": zod.number(),
+  "sawIdentifier": zod.string().nullish(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+})),
+  "hasFailures": zod.boolean(),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List the current student's past inspection records
+ */
+export const ListMyInspectionsHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const ListMyInspectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "sawIdentifier": zod.string().nullish(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+})),
+  "hasFailures": zod.boolean(),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const ListMyInspectionsResponse = zod.array(ListMyInspectionsResponseItem)
+
+
+/**
+ * @summary List all submitted inspections for admin review
+ */
+export const ListAllInspectionsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ListAllInspectionsResponseItem = zod.object({
+  "id": zod.number(),
+  "sawIdentifier": zod.string().nullish(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+})),
+  "hasFailures": zod.boolean(),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string()
+})
+export const ListAllInspectionsResponse = zod.array(ListAllInspectionsResponseItem)
+
+
+/**
  * @summary Get waiver status for current user
  */
 export const GetWaiverHeader = zod.object({

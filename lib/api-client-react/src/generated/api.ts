@@ -40,6 +40,7 @@ import type {
   FeedbackInput,
   HealthStatus,
   HeartbeatInput,
+  InspectionEntry,
   Module,
   ModuleDetail,
   ProgressSummary,
@@ -48,6 +49,7 @@ import type {
   QuizSubmission,
   StudentDetail,
   StudentSummary,
+  SubmitInspectionInput,
   SuccessResponse,
   UserProfile,
   WaiverInput,
@@ -1245,6 +1247,231 @@ export function useListFeedback<TData = Awaited<ReturnType<typeof listFeedback>>
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListFeedbackQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitInspectionUrl = () => {
+
+
+
+
+  return `/api/inspections`
+}
+
+/**
+ * @summary Submit a completed pre-start/pre-use inspection checklist
+ */
+export const submitInspection = async (submitInspectionInput: SubmitInspectionInput, options?: RequestInit): Promise<InspectionEntry> => {
+
+  return customFetch<InspectionEntry>(getSubmitInspectionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      submitInspectionInput,)
+  }
+);}
+
+
+
+
+export const getSubmitInspectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitInspection>>, TError,{data: BodyType<SubmitInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitInspection>>, TError,{data: BodyType<SubmitInspectionInput>}, TContext> => {
+
+const mutationKey = ['submitInspection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitInspection>>, {data: BodyType<SubmitInspectionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitInspection(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitInspectionMutationResult = NonNullable<Awaited<ReturnType<typeof submitInspection>>>
+    export type SubmitInspectionMutationBody = BodyType<SubmitInspectionInput>
+    export type SubmitInspectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit a completed pre-start/pre-use inspection checklist
+ */
+export const useSubmitInspection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitInspection>>, TError,{data: BodyType<SubmitInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitInspection>>,
+        TError,
+        {data: BodyType<SubmitInspectionInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitInspectionMutationOptions(options));
+    }
+
+export const getListMyInspectionsUrl = () => {
+
+
+
+
+  return `/api/inspections`
+}
+
+/**
+ * @summary List the current student's past inspection records
+ */
+export const listMyInspections = async ( options?: RequestInit): Promise<InspectionEntry[]> => {
+
+  return customFetch<InspectionEntry[]>(getListMyInspectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListMyInspectionsQueryKey = () => {
+    return [
+    `/api/inspections`
+    ] as const;
+    }
+
+
+export const getListMyInspectionsQueryOptions = <TData = Awaited<ReturnType<typeof listMyInspections>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyInspections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyInspectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyInspections>>> = ({ signal }) => listMyInspections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyInspections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListMyInspectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listMyInspections>>>
+export type ListMyInspectionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List the current student's past inspection records
+ */
+
+export function useListMyInspections<TData = Awaited<ReturnType<typeof listMyInspections>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listMyInspections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListMyInspectionsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListAllInspectionsUrl = () => {
+
+
+
+
+  return `/api/admin/inspections`
+}
+
+/**
+ * @summary List all submitted inspections for admin review
+ */
+export const listAllInspections = async ( options?: RequestInit): Promise<InspectionEntry[]> => {
+
+  return customFetch<InspectionEntry[]>(getListAllInspectionsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllInspectionsQueryKey = () => {
+    return [
+    `/api/admin/inspections`
+    ] as const;
+    }
+
+
+export const getListAllInspectionsQueryOptions = <TData = Awaited<ReturnType<typeof listAllInspections>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllInspections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllInspectionsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllInspections>>> = ({ signal }) => listAllInspections({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllInspections>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllInspectionsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllInspections>>>
+export type ListAllInspectionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all submitted inspections for admin review
+ */
+
+export function useListAllInspections<TData = Awaited<ReturnType<typeof listAllInspections>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllInspections>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllInspectionsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

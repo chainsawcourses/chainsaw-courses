@@ -110,11 +110,21 @@ export const examAttemptsTable = pgTable("exam_attempts", {
   attemptedAt: timestamp("attempted_at").notNull().defaultNow(),
 });
 
+export const inspectionRecordsTable = pgTable("inspection_records", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  sawIdentifier: text("saw_identifier"),
+  items: text("items").notNull(), // JSON array of { id, label, section, status: 'pass'|'fail'|'na', note? }
+  hasFailures: boolean("has_failures").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type HazardReference = typeof hazardReferenceTable.$inferSelect;
 export type VideoEngagement = typeof videoEngagementTable.$inferSelect;
 export type ModuleFeedback = typeof moduleFeedbackTable.$inferSelect;
 export type ExamQuestion = typeof examQuestionsTable.$inferSelect;
 export type ExamAttempt = typeof examAttemptsTable.$inferSelect;
+export type InspectionRecord = typeof inspectionRecordsTable.$inferSelect;
 
 export const insertModuleSchema = createInsertSchema(modulesTable).omit({ id: true, createdAt: true });
 export const insertUserProgressSchema = createInsertSchema(userProgressTable).omit({ id: true, updatedAt: true });
@@ -122,6 +132,7 @@ export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).o
 export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
 export const insertModuleFeedbackSchema = createInsertSchema(moduleFeedbackTable).omit({ id: true, createdAt: true });
 export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).omit({ id: true });
+export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true });
 
 export type Module = typeof modulesTable.$inferSelect;
 export type UserProgress = typeof userProgressTable.$inferSelect;
