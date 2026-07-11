@@ -21,18 +21,84 @@ interface HazardRow {
   isCustom?: boolean;
 }
 
-const DEFAULT_HAZARDS: Omit<HazardRow, "controlMeasures">[] = [
-  { id: "kickback", label: "Chainsaw kickback / loss of control", likelihood: 2, severity: 5 },
-  { id: "entanglement", label: "Contact with moving chain (cutting, tripping into saw)", likelihood: 2, severity: 5 },
-  { id: "heavy-log", label: "Manual handling of heavy/awkward logs (crush or strain injury)", likelihood: 3, severity: 3 },
-  { id: "trip-fall", label: "Trips and falls over brash, logs, uneven or wet ground", likelihood: 3, severity: 3 },
-  { id: "trapped-bar", label: "Bar trapped in timber under compression/tension releasing suddenly", likelihood: 3, severity: 4 },
-  { id: "rolling-timber", label: "Cut sections rolling or falling once severed", likelihood: 3, severity: 3 },
-  { id: "noise-vibration", label: "Noise and hand-arm vibration exposure", likelihood: 4, severity: 2 },
-  { id: "fuel-fire", label: "Fuel handling, spillage or fire risk during refuelling", likelihood: 1, severity: 4 },
-  { id: "weather-visibility", label: "Adverse weather, poor light or visibility on site", likelihood: 2, severity: 2 },
-  { id: "bystanders", label: "Bystanders, public or other workers entering the exclusion zone", likelihood: 2, severity: 4 },
-  { id: "lone-working", label: "Lone working with no means of summoning help", likelihood: 2, severity: 5 },
+const DEFAULT_HAZARDS: HazardRow[] = [
+  {
+    id: "kickback",
+    label: "Chainsaw kickback / loss of control",
+    likelihood: 2,
+    severity: 5,
+    controlMeasures: "Use correct body position at all times; keep left arm straight; never use the tip of the bar; engage chain brake immediately after each cut. Wear full chainsaw PPE including cut-resistant trousers, gloves and helmet with visor.",
+  },
+  {
+    id: "entanglement",
+    label: "Contact with moving chain (cutting, tripping into saw)",
+    likelihood: 2,
+    severity: 5,
+    controlMeasures: "Keep clear of the cutting line; engage chain brake when moving or repositioning; lay saw down with bar pointing away from personnel. Maintain a secure two-handed grip at all times. Wear chainsaw-rated leg protection.",
+  },
+  {
+    id: "heavy-log",
+    label: "Manual handling of heavy/awkward logs (crush or strain injury)",
+    likelihood: 3,
+    severity: 3,
+    controlMeasures: "Use a timber cant hook, log tongs or mechanical assistance where available. Break work into smaller lifts; bend the knees and keep the load close to the body. Brief co-workers before moving large sections.",
+  },
+  {
+    id: "trip-fall",
+    label: "Trips and falls over brash, logs, uneven or wet ground",
+    likelihood: 3,
+    severity: 3,
+    controlMeasures: "Plan and clear the working area and escape routes before starting. Wear chainsaw boots with ankle support. Move brash clear of the cutting area progressively. Do not rush; maintain three points of contact on uneven ground.",
+  },
+  {
+    id: "trapped-bar",
+    label: "Bar trapped in timber under compression/tension releasing suddenly",
+    likelihood: 3,
+    severity: 4,
+    controlMeasures: "Assess the direction of stress in the timber before cutting; always cut from the side that will open. Use a felling wedge to relieve compression on the bar if it becomes trapped. Never lever the saw free with the engine running.",
+  },
+  {
+    id: "rolling-timber",
+    label: "Cut sections rolling or falling once severed",
+    likelihood: 3,
+    severity: 3,
+    controlMeasures: "Identify the likely roll direction before cutting and position outside that zone. Use stanchions, pegs or natural features to chock rounds. Plan the escape route uphill and to the side; step clear before the cut section moves.",
+  },
+  {
+    id: "noise-vibration",
+    label: "Noise and hand-arm vibration (HAVS) exposure",
+    likelihood: 4,
+    severity: 2,
+    controlMeasures: "Wear EN352 hearing protection rated to the saw's noise level. Keep exposure within daily vibration action value limits (2.5 m/s²); record exposure time. Use anti-vibration gloves; keep the saw serviced and cutting sharp to reduce vibration.",
+  },
+  {
+    id: "fuel-fire",
+    label: "Fuel handling, spillage or fire risk during refuelling",
+    likelihood: 1,
+    severity: 4,
+    controlMeasures: "Refuel at least 3 metres from any cutting area with the engine fully cold. Use a drip-free fuel can; wipe any spillage before starting. Keep a fire extinguisher accessible. Never refuel near standing water or dry vegetation in high fire-risk conditions.",
+  },
+  {
+    id: "weather-visibility",
+    label: "Adverse weather, poor light or visibility on site",
+    likelihood: 2,
+    severity: 2,
+    controlMeasures: "Do not work in winds above Beaufort Scale 5 (small trees begin to sway). Ensure adequate natural or artificial lighting before starting. Stop work if visibility drops below the minimum exclusion zone distance. Wear hi-vis clothing where appropriate.",
+  },
+  {
+    id: "bystanders",
+    label: "Bystanders, public or other workers entering the exclusion zone",
+    likelihood: 2,
+    severity: 4,
+    controlMeasures: "Establish a minimum exclusion zone of at least two tree lengths (or 50 m minimum). Use barrier tape, cones or a banksperson on public paths. Brief all workers on the exclusion zone boundaries before work begins. Engage chain brake and cease cutting if anyone enters the zone.",
+  },
+  {
+    id: "lone-working",
+    label: "Lone working with no means of summoning help",
+    likelihood: 2,
+    severity: 5,
+    controlMeasures: "Never operate a chainsaw alone — a second competent person trained in emergency first aid must be present, within sight and sound, with access to a trauma kit and a means of calling emergency services. Confirm phone signal before starting work.",
+  },
 ];
 
 function riskRatingOf(likelihood: number, severity: number) {
@@ -64,9 +130,7 @@ export default function RiskAssessment() {
   const [address, setAddress] = useState("");
   const [gridReference, setGridReference] = useState("");
 
-  const [hazards, setHazards] = useState<HazardRow[]>(
-    DEFAULT_HAZARDS.map((h) => ({ ...h, controlMeasures: "" }))
-  );
+  const [hazards, setHazards] = useState<HazardRow[]>(DEFAULT_HAZARDS);
   const [submitted, setSubmitted] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
