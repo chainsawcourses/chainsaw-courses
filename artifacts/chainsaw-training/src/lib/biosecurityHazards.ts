@@ -70,7 +70,7 @@ export const HAZARDS: Hazard[] = [
     commonName: "Eight-Toothed Spruce Bark Beetle",
     scientificName: "Ips typographus",
     category: "statutory",
-    color: "#7c3aed",
+    color: "#10b981",
     regionLabel: "Kent & East Sussex Demarcated Area",
     operationalImpact:
       "Regulated wood pest present in Southeast England. Strict legal movement bans apply to raw conifer and spruce logs to prevent spread.",
@@ -96,7 +96,7 @@ export const HAZARDS: Hazard[] = [
     commonName: "Chalara Ash Dieback",
     scientificName: "Hymenoscyphus fraxineus",
     category: "statutory",
-    color: "#6366f1",
+    color: "#06b6d4",
     regionLabel: "Widespread — England, Wales & Scotland",
     operationalImpact:
       "Extensively brittle timber profiles. Advanced decay causes ash crowns to unpredictably shatter or drop heavy limbs during ground tension processing.",
@@ -118,7 +118,7 @@ export const HAZARDS: Hazard[] = [
     commonName: "Sudden Oak Death / Larch Dieback",
     scientificName: "Phytophthora ramorum",
     category: "statutory",
-    color: "#8b5cf6",
+    color: "#eab308",
     regionLabel: "South West England & Wales",
     operationalImpact:
       "Highly transmissible fungal pathogen spread via contaminated wood shavings, sawdust, and bar oil between sites.",
@@ -137,7 +137,7 @@ export const HAZARDS: Hazard[] = [
     commonName: "Sweet Chestnut Blight",
     scientificName: "Cryphonectria parasitica",
     category: "statutory",
-    color: "#a855f7",
+    color: "#ec4899",
     regionLabel: "Kent, Sussex & Surrey",
     operationalImpact:
       "Regulated fungal disease causing cankers in sweet chestnut timber, with statutory restrictions on onward movement of processed material.",
@@ -163,7 +163,7 @@ export const HAZARDS: Hazard[] = [
     commonName: "Western Hemlock Dieback",
     scientificName: "Phytophthora pluvialis",
     category: "statutory",
-    color: "#5b21b6",
+    color: "#3b82f6",
     regionLabel: "Cornwall & Devon",
     operationalImpact:
       "Needle blight fungus tracking through wet soil and surface water, affecting conifer stands in the South West.",
