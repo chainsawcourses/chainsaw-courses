@@ -8,6 +8,28 @@ import {
   ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
+
+function playBing() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1047, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1397, ctx.currentTime + 0.06);
+    osc.frequency.exponentialRampToValueAtTime(1319, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.6);
+    osc.onended = () => ctx.close();
+  } catch {
+    // audio not available — silent fail
+  }
+}
 import { useSubmitInspection, useListMyInspections, getListMyInspectionsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -117,6 +139,7 @@ export default function Inspection() {
     mutation: {
       onSuccess: (data) => {
         setSubmitted({ hasFailures: data.hasFailures });
+        playBing();
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
       },
     },

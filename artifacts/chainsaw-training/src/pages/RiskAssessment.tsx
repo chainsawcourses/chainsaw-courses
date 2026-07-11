@@ -19,13 +19,15 @@ function playBing() {
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.25);
-    gain.gain.setValueAtTime(0.35, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1047, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1397, ctx.currentTime + 0.06);
+    osc.frequency.exponentialRampToValueAtTime(1319, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.7);
+    osc.stop(ctx.currentTime + 0.6);
     osc.onended = () => ctx.close();
   } catch {
     // audio not available — silent fail
