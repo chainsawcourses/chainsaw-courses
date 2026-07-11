@@ -34,12 +34,10 @@ const PRE_START_ITEMS: ChecklistItem[] = [
 ];
 
 const PRE_USE_ITEMS: ChecklistItem[] = [
-  { id: "ppe-check", label: "Full PPE is worn (helmet, visor, hearing protection, gloves, leg protection, boots)" },
-  { id: "site-clear", label: "Work area is assessed for hazards and bystanders kept at a safe distance" },
-  { id: "escape-route", label: "Escape route planned before felling or cutting under tension" },
-  { id: "first-aid", label: "A second competent person and first aid kit are on site" },
-  { id: "comms", label: "A means of calling for emergency help is available (phone signal checked)" },
-  { id: "fuel-area", label: "Refuelling/starting is done away from the cutting area, engine cold if needed" },
+  { id: "chain-brake", label: "Chain brake — engages and releases correctly (push bar forward, check chain stops; pull back to release)" },
+  { id: "on-off-switch", label: "On/off switch — operates correctly and cuts engine immediately when switched off" },
+  { id: "chain-creep", label: "Chain creep — chain does not move at idle; adjust idle speed if creep is present" },
+  { id: "oiling", label: "Oiling — oil is reaching the bar and chain (hold over paper or light surface and check spray pattern)" },
 ];
 
 const buildInitialItems = (): Record<string, Status> => {
