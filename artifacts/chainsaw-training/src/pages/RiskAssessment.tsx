@@ -12,6 +12,26 @@ import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessm
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
 
+function playBing() {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.25);
+    gain.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.7);
+    osc.onended = () => ctx.close();
+  } catch {
+    // audio not available — silent fail
+  }
+}
+
 interface HazardRow {
   id: string;
   label: string;
@@ -202,6 +222,7 @@ export default function RiskAssessment() {
     mutation: {
       onSuccess: () => {
         setSubmitted(true);
+        playBing();
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
       },
     },
@@ -448,7 +469,7 @@ export default function RiskAssessment() {
                         value={h.controlMeasures}
                         onChange={(e) => updateHazard(h.id, { controlMeasures: e.target.value })}
                         placeholder="Control measures (e.g. exclusion zone, correct cutting technique, PPE, second person on site)..."
-                        className="font-mono text-xs resize-none min-h-[50px] bg-background border-border"
+                        className="font-mono text-xs resize-y min-h-[88px] bg-background border-border"
                       />
                     </div>
                   );
@@ -479,13 +500,20 @@ export default function RiskAssessment() {
       {!showHistory && (
         <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-              {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
-            </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest shrink-0">
+                {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
+              </span>
+              {submitted && (
+                <span className="flex items-center gap-1 font-mono text-[10px] text-primary uppercase tracking-widest animate-in fade-in duration-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> Assessment saved
+                </span>
+              )}
+            </div>
             <Button
               onClick={handleSubmit}
               disabled={submitRiskAssessment.isPending || !taskDescription.trim()}
-              className="font-mono text-sm uppercase tracking-widest px-6"
+              className="font-mono text-sm uppercase tracking-widest px-6 shrink-0"
             >
               {submitRiskAssessment.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
