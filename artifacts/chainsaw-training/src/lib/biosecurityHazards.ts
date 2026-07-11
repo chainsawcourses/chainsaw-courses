@@ -1,9 +1,9 @@
 export type HazardCategory = "operator" | "statutory";
 
 export interface HazardZone {
-  type: "polygon" | "circle";
-  coords: [number, number][] | [number, number];
-  radius?: number;
+  type: "circle";
+  coords: [number, number];
+  radius: number;
 }
 
 export interface Hazard {
@@ -34,15 +34,7 @@ export const HAZARDS: Hazard[] = [
       "Do not use compressed air or brush cutters near nests — this aerosolizes hairs",
     ],
     zones: [
-      {
-        type: "polygon",
-        coords: [
-          [51.72, -0.55],
-          [51.72, 0.35],
-          [51.25, 0.35],
-          [51.25, -0.55],
-        ],
-      },
+      { type: "circle", coords: [51.49, -0.1], radius: 45000 },
       { type: "circle", coords: [51.75, -0.45], radius: 15000 },
     ],
   },
@@ -80,15 +72,7 @@ export const HAZARDS: Hazard[] = [
       "Do not transport raw conifer material outside the zone without statutory authorisation",
     ],
     zones: [
-      {
-        type: "polygon",
-        coords: [
-          [51.25, 0.4],
-          [51.25, 1.0],
-          [50.85, 1.0],
-          [50.85, 0.4],
-        ],
-      },
+      { type: "circle", coords: [51.05, 0.7], radius: 32000 },
     ],
   },
   {
@@ -147,15 +131,7 @@ export const HAZARDS: Hazard[] = [
       "Report suspected canker symptoms before processing further stems",
     ],
     zones: [
-      {
-        type: "polygon",
-        coords: [
-          [51.35, -0.1],
-          [51.35, 0.7],
-          [50.95, 0.7],
-          [50.95, -0.1],
-        ],
-      },
+      { type: "circle", coords: [51.15, 0.3], radius: 38000 },
     ],
   },
   {

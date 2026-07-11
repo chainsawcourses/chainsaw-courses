@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { MapContainer, TileLayer, Polygon, Circle, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowLeft, ShieldAlert, Info, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -179,32 +179,18 @@ export default function BiosecurityMap() {
                 {HAZARDS.filter((h) => activeLayers[h.id]).map((h) =>
                   h.zones.map((zone, i) => {
                     const isActive = activeHazardId === h.id;
-                    const pathOptions = {
-                      color: h.color,
-                      fillColor: h.color,
-                      fillOpacity: isActive ? 0.45 : 0.25,
-                      weight: isActive ? 3 : 1.5,
-                    };
-                    const eventHandlers = { click: () => setActiveHazardId(h.id) };
-                    if (zone.type === "polygon") {
-                      return (
-                        <Polygon
-                          key={`${h.id}-${i}`}
-                          pathOptions={pathOptions}
-                          eventHandlers={eventHandlers}
-                          positions={zone.coords as [number, number][]}
-                        >
-                          <Popup><strong>{h.commonName}</strong><br /><em>{h.scientificName}</em></Popup>
-                        </Polygon>
-                      );
-                    }
                     return (
                       <Circle
                         key={`${h.id}-${i}`}
-                        pathOptions={pathOptions}
-                        eventHandlers={eventHandlers}
-                        center={zone.coords as [number, number]}
-                        radius={zone.radius ?? 20000}
+                        center={zone.coords}
+                        radius={zone.radius}
+                        pathOptions={{
+                          color: h.color,
+                          fillColor: h.color,
+                          fillOpacity: isActive ? 0.45 : 0.25,
+                          weight: isActive ? 3 : 1.5,
+                        }}
+                        eventHandlers={{ click: () => setActiveHazardId(h.id) }}
                       >
                         <Popup><strong>{h.commonName}</strong><br /><em>{h.scientificName}</em></Popup>
                       </Circle>
