@@ -5,9 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2,
+  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
+import { printInspection, copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
+
+const BASE = import.meta.env.BASE_URL as string;
+function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
 
 function playBing() {
   try {
@@ -102,7 +106,7 @@ function StatusButton({
 
 export default function Inspection() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId } = useUserSession();
+  const { activationCode, deviceId, fullName } = useUserSession();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -115,6 +119,8 @@ export default function Inspection() {
   const [items, setItems] = useState<Record<string, Status>>(buildInitialItems());
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState<{ hasFailures: boolean } | null>(null);
+  const [exportRecord, setExportRecord] = useState<InspectionExportData | null>(null);
+  const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
   const setStatus = (id: string, status: Status) => {
@@ -139,6 +145,7 @@ export default function Inspection() {
     mutation: {
       onSuccess: (data) => {
         setSubmitted({ hasFailures: data.hasFailures });
+        setExportRecord(data);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
       },
@@ -272,7 +279,7 @@ export default function Inspection() {
                 <p className="font-mono text-xs text-muted-foreground">No inspections recorded yet.</p>
               )}
               {history.data?.map((record) => (
-                <div key={record.id} className="border border-border rounded p-3 space-y-1">
+                <div key={record.id} className="border border-border rounded p-3 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[11px] text-muted-foreground">
                       {new Date(record.createdAt).toLocaleString()}
@@ -290,6 +297,26 @@ export default function Inspection() {
                   {record.sawIdentifier && (
                     <p className="font-mono text-[11px] text-foreground">Saw: {record.sawIdentifier}</p>
                   )}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                      onClick={() => printInspection({ ...record, studentName: record.studentName || fullName || "" }, logoUrl())}
+                    >
+                      <FileDown className="w-3 h-3 mr-1" /> PDF
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(copyInspectionText({ ...record, studentName: record.studentName || fullName || "" }));
+                      }}
+                    >
+                      <ClipboardCopy className="w-3 h-3 mr-1" /> Copy
+                    </Button>
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -326,6 +353,39 @@ export default function Inspection() {
                       ? "Inspection recorded with one or more failed items. Do not use the chainsaw until faults are resolved by a competent person."
                       : "Inspection recorded — no faults found. Remember: never operate the saw alone."}
                   </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {exportRecord && (
+              <Card className="border-primary/40 bg-primary/5">
+                <CardContent className="p-4 space-y-3">
+                  <p className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
+                    Export this checklist?
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-xs uppercase tracking-wide"
+                      onClick={() => printInspection({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl())}
+                    >
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Print / Save as PDF
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-xs uppercase tracking-wide"
+                      onClick={() => {
+                        navigator.clipboard.writeText(copyInspectionText({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }));
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                    >
+                      <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />
+                      {copied ? "Copied!" : "Copy as Text"}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}

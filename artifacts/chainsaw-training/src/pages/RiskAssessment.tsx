@@ -5,12 +5,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, MapPinned, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2,
+  ArrowLeft, MapPinned, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2, FileDown, ClipboardCopy,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
+import { printRiskAssessment, copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
+
+const BASE = import.meta.env.BASE_URL as string;
+function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
 
 function playBing() {
   try {
@@ -135,7 +139,7 @@ function riskBand(rating: number): { label: string; className: string } {
 
 export default function RiskAssessment() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId } = useUserSession();
+  const { activationCode, deviceId, fullName } = useUserSession();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -154,6 +158,8 @@ export default function RiskAssessment() {
 
   const [hazards, setHazards] = useState<HazardRow[]>(DEFAULT_HAZARDS);
   const [submitted, setSubmitted] = useState(false);
+  const [exportRecord, setExportRecord] = useState<RiskAssessmentExportData | null>(null);
+  const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
   const handleLocate = () => {
@@ -222,8 +228,9 @@ export default function RiskAssessment() {
 
   const submitRiskAssessment = useSubmitRiskAssessment({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (data) => {
         setSubmitted(true);
+        setExportRecord(data);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
       },
@@ -321,7 +328,7 @@ export default function RiskAssessment() {
                 const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
                 const band = riskBand(maxRisk);
                 return (
-                  <div key={record.id} className="border border-border rounded p-3 space-y-1">
+                  <div key={record.id} className="border border-border rounded p-3 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[11px] text-muted-foreground">
                         {new Date(record.createdAt).toLocaleString()}
@@ -337,6 +344,26 @@ export default function RiskAssessment() {
                     {record.gridReference && (
                       <p className="font-mono text-[10px] text-muted-foreground">Grid ref: {record.gridReference}</p>
                     )}
+                    <div className="flex gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => printRiskAssessment({ ...record, studentName: record.studentName || fullName || "" }, logoUrl())}
+                      >
+                        <FileDown className="w-3 h-3 mr-1" /> PDF
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(copyRiskAssessmentText({ ...record, studentName: record.studentName || fullName || "" }));
+                        }}
+                      >
+                        <ClipboardCopy className="w-3 h-3 mr-1" /> Copy
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
@@ -492,6 +519,39 @@ export default function RiskAssessment() {
                       ? "Risk assessment recorded with one or more high-risk items. Review control measures before starting work and consider stopping if risks cannot be adequately controlled."
                       : "Risk assessment recorded. Review it on site before starting work and stop immediately if conditions change."}
                   </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {exportRecord && (
+              <Card className="border-primary/40 bg-primary/5">
+                <CardContent className="p-4 space-y-3">
+                  <p className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
+                    Export this risk assessment?
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-xs uppercase tracking-wide"
+                      onClick={() => printRiskAssessment({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl())}
+                    >
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Print / Save as PDF
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="font-mono text-xs uppercase tracking-wide"
+                      onClick={() => {
+                        navigator.clipboard.writeText(copyRiskAssessmentText({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }));
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                    >
+                      <ClipboardCopy className="w-3.5 h-3.5 mr-1.5" />
+                      {copied ? "Copied!" : "Copy as Text"}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}
