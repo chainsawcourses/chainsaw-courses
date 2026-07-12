@@ -215,7 +215,7 @@ export default function RiskAssessment() {
             : "Could not determine your location. You can enter site details manually below."
         );
       },
-      { enableHighAccuracy: true, timeout: 15000 }
+      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
     );
   };
 
