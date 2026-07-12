@@ -1,3 +1,6 @@
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 export interface RiskAssessmentExportData {
   taskDescription: string;
   siteDescription?: string | null;
@@ -32,191 +35,227 @@ export interface InspectionExportData {
 }
 
 function riskBandStyle(rating: number) {
-  if (rating >= 15) return { bg: "#fee2e2", color: "#b91c1c", label: "HIGH" };
-  if (rating >= 8) return { bg: "#fef3c7", color: "#b45309", label: "MEDIUM" };
-  return { bg: "#dcfce7", color: "#15803d", label: "LOW" };
+  if (rating >= 15) return { bg: [254, 226, 226] as [number, number, number], color: [185, 28, 28] as [number, number, number], label: "HIGH" };
+  if (rating >= 8)  return { bg: [254, 243, 199] as [number, number, number], color: [180, 83, 9]  as [number, number, number], label: "MED" };
+  return             { bg: [220, 252, 231] as [number, number, number], color: [21, 128, 61]  as [number, number, number], label: "LOW" };
 }
 
-function branded(logoUrl: string, title: string, subtitle: string, studentName: string, date: string, body: string) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>${title} — Chainsaw Courses</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #1a1a1a; background: #fff; padding: 24px 28px; }
-    .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea5c0c; padding-bottom: 10px; margin-bottom: 14px; }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand img { height: 44px; }
-    .brand-name { font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #ea5c0c; }
-    .brand-sub { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-top: 1px; }
-    .doc-meta { text-align: right; }
-    .doc-meta .doc-title { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: #1a1a1a; }
-    .doc-meta .doc-date { font-size: 9px; color: #888; margin-top: 3px; text-transform: uppercase; }
-    h2 { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #ea5c0c; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin: 14px 0 6px; }
-    .field { display: grid; grid-template-columns: 140px 1fr; gap: 4px 8px; margin-bottom: 4px; }
-    .field-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; padding-top: 1px; }
-    .field-value { font-size: 11px; color: #1a1a1a; }
-    table { width: 100%; border-collapse: collapse; margin-top: 6px; }
-    th { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; background: #1a1a1a; color: #fff; padding: 5px 7px; text-align: left; }
-    td { padding: 5px 7px; vertical-align: top; border-bottom: 1px solid #e5e7eb; font-size: 10px; line-height: 1.4; }
-    tr:nth-child(even) td { background: #f9fafb; }
-    .badge { display: inline-block; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
-    .status-pass { background: #dcfce7; color: #15803d; }
-    .status-fail { background: #fee2e2; color: #b91c1c; }
-    .status-na { background: #f3f4f6; color: #6b7280; }
-    .note-cell { font-style: italic; color: #b91c1c; font-size: 9px; margin-top: 3px; }
-    .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 8.5px; color: #aaa; text-align: center; line-height: 1.5; }
-    .student-bar { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 6px 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .student-bar span { font-size: 10px; }
-    .student-name { font-weight: 700; color: #1a1a1a; }
-    .student-date { color: #888; font-size: 9px; }
-    @media print {
-      body { padding: 0; }
-      @page { size: A4 portrait; margin: 14mm 12mm; }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="brand">
-      <img src="${logoUrl}" alt="Chainsaw Courses logo" onerror="this.style.display='none'" />
-      <div>
-        <div class="brand-name">Chainsaw Courses</div>
-        <div class="brand-sub">Professional Training Portal</div>
-      </div>
-    </div>
-    <div class="doc-meta">
-      <div class="doc-title">${title}</div>
-      <div class="doc-date">${subtitle}</div>
-    </div>
-  </div>
-
-  <div class="student-bar">
-    <span class="student-name">${studentName || "Student"}</span>
-    <span class="student-date">${date}</span>
-  </div>
-
-  ${body}
-
-  <div class="footer">
-    This document was generated from the Chainsaw Courses Professional Training Portal.<br>
-    This is a personal working record only — it does not replace a formal risk assessment, method statement, or employer RAMS process.<br>
-    Always follow current HSE guidance and your employer's procedures.
-  </div>
-</body>
-</html>`;
+async function loadImageBase64(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
-export function printRiskAssessment(data: RiskAssessmentExportData, logoUrl: string) {
+const ORANGE: [number, number, number] = [234, 92, 12];
+const DARK:   [number, number, number] = [26, 26, 26];
+const GREY:   [number, number, number] = [136, 136, 136];
+const LIGHT:  [number, number, number] = [229, 231, 235];
+const PALE:   [number, number, number] = [249, 250, 251];
+const WHITE:  [number, number, number] = [255, 255, 255];
+const MARGIN = 14;
+
+function pageW(doc: jsPDF) { return doc.internal.pageSize.getWidth(); }
+
+function addHeader(doc: jsPDF, logoB64: string | null, title: string, subtitle: string): number {
+  const w = pageW(doc);
+  doc.setDrawColor(...ORANGE);
+  doc.setLineWidth(0.8);
+  doc.line(MARGIN, 10, w - MARGIN, 10);
+
+  const y = 14;
+  if (logoB64) {
+    try { doc.addImage(logoB64, "PNG", MARGIN, y, 11, 11); } catch {}
+  }
+  const textX = logoB64 ? MARGIN + 14 : MARGIN;
+
+  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(...ORANGE);
+  doc.text("CHAINSAW COURSES", textX, y + 5);
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...GREY);
+  doc.text("PROFESSIONAL TRAINING PORTAL", textX, y + 9);
+
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(...DARK);
+  doc.text(title.toUpperCase(), w - MARGIN, y + 4, { align: "right" });
+  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...GREY);
+  doc.text(subtitle, w - MARGIN, y + 8.5, { align: "right" });
+
+  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
+  doc.line(MARGIN, y + 13, w - MARGIN, y + 13);
+  return y + 16;
+}
+
+function addStudentBar(doc: jsPDF, studentName: string, date: string, y: number): number {
+  const w = pageW(doc);
+  doc.setFillColor(...PALE).setDrawColor(...LIGHT).setLineWidth(0.3);
+  doc.roundedRect(MARGIN, y, w - MARGIN * 2, 8, 1, 1, "FD");
+  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...DARK);
+  doc.text(studentName || "Student", MARGIN + 3, y + 5.5);
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...GREY);
+  doc.text(date, w - MARGIN - 3, y + 5.5, { align: "right" });
+  return y + 11;
+}
+
+function addSectionHeading(doc: jsPDF, text: string, y: number): number {
+  const w = pageW(doc);
+  doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(...ORANGE);
+  doc.text(text.toUpperCase(), MARGIN, y + 4);
+  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
+  doc.line(MARGIN, y + 5.5, w - MARGIN, y + 5.5);
+  return y + 8;
+}
+
+function addField(doc: jsPDF, label: string, value: string, y: number): number {
+  const labelW = 42;
+  doc.setFont("helvetica", "normal").setFontSize(7.5).setTextColor(...GREY);
+  doc.text(label.toUpperCase(), MARGIN, y + 3.5);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(...DARK);
+  const lines = doc.splitTextToSize(value, pageW(doc) - MARGIN - labelW - MARGIN);
+  doc.text(lines, MARGIN + labelW, y + 3.5);
+  return y + Math.max(6, (lines as string[]).length * 4.5);
+}
+
+function addFooter(doc: jsPDF) {
+  const w = pageW(doc);
+  const h = doc.internal.pageSize.getHeight();
+  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
+  doc.line(MARGIN, h - 18, w - MARGIN, h - 18);
+  doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(170, 170, 170);
+  const txt =
+    "This document was generated from the Chainsaw Courses Professional Training Portal. " +
+    "This is a personal working record only — it does not replace a formal risk assessment, method statement, or employer RAMS process. " +
+    "Always follow current HSE guidance and your employer's procedures.";
+  doc.text(doc.splitTextToSize(txt, w - MARGIN * 2), w / 2, h - 14, { align: "center" });
+}
+
+function safeName(name: string) {
+  return (name || "student").replace(/\s+/g, "-").toLowerCase();
+}
+
+export async function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, logoUrl: string) {
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const logoB64 = await loadImageBase64(logoUrl);
+
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
 
-  const locationParts = [data.address, data.gridReference ? `OS Grid: ${data.gridReference}` : null].filter(Boolean);
+  let y = addHeader(doc, logoB64, "Dynamic Site Risk Assessment", "Site Safety Record");
+  y = addStudentBar(doc, data.studentName || "", date, y);
 
-  const body = `
-    <h2>Site & Task Details</h2>
-    <div class="field"><span class="field-label">Task Description</span><span class="field-value">${data.taskDescription}</span></div>
-    ${data.siteDescription ? `<div class="field"><span class="field-label">Site Description</span><span class="field-value">${data.siteDescription}</span></div>` : ""}
-    ${locationParts.length ? `<div class="field"><span class="field-label">Location</span><span class="field-value">${locationParts.join(" · ")}</span></div>` : ""}
-    ${data.latitude && data.longitude ? `<div class="field"><span class="field-label">Coordinates</span><span class="field-value">${data.latitude}, ${data.longitude}</span></div>` : ""}
+  y = addSectionHeading(doc, "Site & Task Details", y + 3);
+  y = addField(doc, "Task Description", data.taskDescription, y);
+  if (data.siteDescription) y = addField(doc, "Site Description", data.siteDescription, y);
+  if (data.address)         y = addField(doc, "Location", data.address, y);
+  if (data.gridReference)   y = addField(doc, "OS Grid Ref", data.gridReference, y);
+  if (data.latitude && data.longitude) y = addField(doc, "Coordinates", `${data.latitude}, ${data.longitude}`, y);
 
-    <h2>Hazard Assessment</h2>
-    <table>
-      <thead>
-        <tr>
-          <th style="width:24%">Hazard</th>
-          <th style="width:8%; text-align:center">Like.</th>
-          <th style="width:8%; text-align:center">Sev.</th>
-          <th style="width:10%; text-align:center">Risk</th>
-          <th>Control Measures</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${data.hazards.map((h) => {
-          const band = riskBandStyle(h.riskRating);
-          return `<tr>
-            <td>${h.label}</td>
-            <td style="text-align:center">${h.likelihood}</td>
-            <td style="text-align:center">${h.severity}</td>
-            <td style="text-align:center">
-              <span class="badge" style="background:${band.bg};color:${band.color}">${band.label} (${h.riskRating})</span>
-            </td>
-            <td>${h.controlMeasures || "<em style='color:#aaa'>None recorded</em>"}</td>
-          </tr>`;
-        }).join("")}
-      </tbody>
-    </table>
-  `;
+  y = addSectionHeading(doc, "Hazard Assessment", y + 3);
 
-  openAndPrint(branded(logoUrl, "Dynamic Site Risk Assessment", "Chainsaw Courses · Site Safety Record", data.studentName || "", date, body));
+  autoTable(doc, {
+    startY: y,
+    margin: { left: MARGIN, right: MARGIN },
+    head: [["Hazard", "Like.", "Sev.", "Risk", "Control Measures"]],
+    body: data.hazards.map((h) => {
+      const band = riskBandStyle(h.riskRating);
+      return [
+        h.label,
+        String(h.likelihood),
+        String(h.severity),
+        {
+          content: `${band.label} (${h.riskRating})`,
+          styles: { fillColor: band.bg, textColor: band.color, fontStyle: "bold" as const, halign: "center" as const },
+        },
+        h.controlMeasures || "—",
+      ];
+    }),
+    headStyles: { fillColor: DARK, textColor: WHITE, fontSize: 7, fontStyle: "bold", cellPadding: 3 },
+    bodyStyles: { fontSize: 8, cellPadding: 3, textColor: DARK },
+    alternateRowStyles: { fillColor: PALE },
+    columnStyles: {
+      0: { cellWidth: 34 },
+      1: { cellWidth: 12, halign: "center" },
+      2: { cellWidth: 12, halign: "center" },
+      3: { cellWidth: 22 },
+      4: { cellWidth: "auto" },
+    },
+  });
+
+  addFooter(doc);
+  doc.save(`risk-assessment-${safeName(data.studentName || "")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
-export function printInspection(data: InspectionExportData, logoUrl: string) {
+export async function downloadInspectionPdf(data: InspectionExportData, logoUrl: string) {
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const logoB64 = await loadImageBase64(logoUrl);
+
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
+
+  let y = addHeader(doc, logoB64, "Pre-Start & Pre-Use Inspection", "Equipment Safety Record");
+  y = addStudentBar(doc, data.studentName || "", date, y);
+
+  if (data.sawIdentifier) {
+    y = addSectionHeading(doc, "Chainsaw Details", y + 3);
+    y = addField(doc, "Saw Identifier", data.sawIdentifier, y);
+  }
 
   const sections = Array.from(new Set(data.items.map((i) => i.section)));
 
-  const body = `
-    ${data.sawIdentifier ? `
-    <h2>Chainsaw Details</h2>
-    <div class="field"><span class="field-label">Saw Identifier</span><span class="field-value">${data.sawIdentifier}</span></div>
-    ` : ""}
+  for (const section of sections) {
+    y = addSectionHeading(doc, `${section} Checks`, y + 3);
+    const sectionItems = data.items.filter((i) => i.section === section);
 
-    ${sections.map((section) => {
-      const sectionItems = data.items.filter((i) => i.section === section);
-      return `
-        <h2>${section} Checks</h2>
-        <table>
-          <thead>
-            <tr>
-              <th style="width:55%">Check Item</th>
-              <th style="width:15%; text-align:center">Result</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sectionItems.map((item) => {
-              const badgeClass = item.status === "pass" ? "status-pass" : item.status === "fail" ? "status-fail" : "status-na";
-              const statusLabel = item.status === "pass" ? "PASS" : item.status === "fail" ? "FAIL" : "N/A";
-              return `<tr>
-                <td>${item.label}</td>
-                <td style="text-align:center"><span class="badge ${badgeClass}">${statusLabel}</span></td>
-                <td>${item.note ? `<span class="note-cell">${item.note}</span>` : ""}</td>
-              </tr>`;
-            }).join("")}
-          </tbody>
-        </table>
-      `;
-    }).join("")}
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [["Check Item", "Result", "Notes"]],
+      body: sectionItems.map((item) => {
+        const isPass = item.status === "pass";
+        const isFail = item.status === "fail";
+        const badgeBg: [number,number,number] = isFail ? [254, 226, 226] : isPass ? [220, 252, 231] : [243, 244, 246];
+        const badgeColor: [number,number,number] = isFail ? [185, 28, 28] : isPass ? [21, 128, 61] : [107, 114, 128];
+        const statusLabel = isPass ? "PASS" : isFail ? "FAIL" : "N/A";
+        return [
+          item.label,
+          { content: statusLabel, styles: { fillColor: badgeBg, textColor: badgeColor, fontStyle: "bold" as const, halign: "center" as const } },
+          item.note ? { content: item.note, styles: { fontStyle: "italic" as const, textColor: [185, 28, 28] as [number,number,number] } } : "",
+        ];
+      }),
+      headStyles: { fillColor: DARK, textColor: WHITE, fontSize: 7, fontStyle: "bold", cellPadding: 3 },
+      bodyStyles: { fontSize: 8, cellPadding: 3, textColor: DARK },
+      alternateRowStyles: { fillColor: PALE },
+      columnStyles: {
+        0: { cellWidth: "auto" },
+        1: { cellWidth: 20, halign: "center" },
+        2: { cellWidth: 50 },
+      },
+    });
 
-    <h2>Overall Result</h2>
-    <div class="field">
-      <span class="field-label">Outcome</span>
-      <span class="field-value">
-        <span class="badge ${data.hasFailures ? "status-fail" : "status-pass"}" style="font-size:11px;padding:3px 8px">
-          ${data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR"}
-        </span>
-      </span>
-    </div>
-  `;
+    y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 2;
+  }
 
-  openAndPrint(branded(logoUrl, "Pre-Start & Pre-Use Inspection Checklist", "Chainsaw Courses · Equipment Safety Record", data.studentName || "", date, body));
-}
+  const resultBg: [number,number,number] = data.hasFailures ? [254, 226, 226] : [220, 252, 231];
+  const resultColor: [number,number,number] = data.hasFailures ? [185, 28, 28] : [21, 128, 61];
 
-function openAndPrint(html: string) {
-  const win = window.open("", "_blank", "width=900,height=700");
-  if (!win) return;
-  win.document.write(html);
-  win.document.close();
-  win.onload = () => {
-    win.focus();
-    win.print();
-  };
+  y = addSectionHeading(doc, "Overall Result", y + 3);
+  autoTable(doc, {
+    startY: y,
+    margin: { left: MARGIN, right: MARGIN },
+    body: [[{ content: data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR", styles: { fillColor: resultBg, textColor: resultColor, fontStyle: "bold" as const, halign: "center" as const, fontSize: 10 } }]],
+    bodyStyles: { cellPadding: 5 },
+  });
+
+  addFooter(doc);
+  doc.save(`inspection-checklist-${safeName(data.studentName || "")}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
 export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {

@@ -8,7 +8,7 @@ import {
   ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
-import { printInspection, copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
+import { downloadInspectionPdf, copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
 function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
@@ -302,7 +302,7 @@ export default function Inspection() {
                       size="sm"
                       variant="outline"
                       className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                      onClick={() => printInspection({ ...record, studentName: record.studentName || fullName || "" }, logoUrl())}
+                      onClick={() => { void downloadInspectionPdf({ ...record, studentName: record.studentName || fullName || "" }, logoUrl()); }}
                     >
                       <FileDown className="w-3 h-3 mr-1" /> PDF
                     </Button>
@@ -368,9 +368,9 @@ export default function Inspection() {
                       size="sm"
                       variant="outline"
                       className="font-mono text-xs uppercase tracking-wide"
-                      onClick={() => printInspection({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl())}
+                      onClick={() => { void downloadInspectionPdf({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl()); }}
                     >
-                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Print / Save as PDF
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Download PDF
                     </Button>
                     <Button
                       size="sm"

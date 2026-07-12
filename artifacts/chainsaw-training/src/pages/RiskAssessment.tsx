@@ -11,7 +11,7 @@ import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
-import { printRiskAssessment, copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
+import { downloadRiskAssessmentPdf, copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
 function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
@@ -349,7 +349,7 @@ export default function RiskAssessment() {
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                        onClick={() => printRiskAssessment({ ...record, studentName: record.studentName || fullName || "" }, logoUrl())}
+                        onClick={() => { void downloadRiskAssessmentPdf({ ...record, studentName: record.studentName || fullName || "" }, logoUrl()); }}
                       >
                         <FileDown className="w-3 h-3 mr-1" /> PDF
                       </Button>
@@ -534,9 +534,9 @@ export default function RiskAssessment() {
                       size="sm"
                       variant="outline"
                       className="font-mono text-xs uppercase tracking-wide"
-                      onClick={() => printRiskAssessment({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl())}
+                      onClick={() => { void downloadRiskAssessmentPdf({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl()); }}
                     >
-                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Print / Save as PDF
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Download PDF
                     </Button>
                     <Button
                       size="sm"
