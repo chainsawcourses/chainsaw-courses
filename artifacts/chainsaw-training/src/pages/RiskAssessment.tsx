@@ -153,8 +153,11 @@ export default function RiskAssessment() {
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
   const [address, setAddress] = useState("");
   const [gridReference, setGridReference] = useState("");
+  const watchIdRef = useRef<number | null>(null);
+  const bestCoordsRef = useRef<{ lat: number; lon: number; accuracy: number } | null>(null);
 
   const [hazards, setHazards] = useState<HazardRow[]>(DEFAULT_HAZARDS);
   const [submitted, setSubmitted] = useState(false);
@@ -170,52 +173,88 @@ export default function RiskAssessment() {
     void preloadLogoBase64(logoSrc()).then((b64) => { logoB64Ref.current = b64; });
   }, []);
 
-  const handleLocate = () => {
-    // Geolocation is blocked inside sandboxed iframes (e.g. the Replit preview pane).
-    const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
-    if (inIframe) {
-      setLocationError("Location access is blocked in the preview pane. Open the app in a full browser tab to use this feature.");
-      return;
+  const stopWatch = () => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
     }
+  };
+
+  const reverseGeocode = async (lat: number, lon: number) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+        { headers: { Accept: "application/json" } }
+      );
+      if (res.ok) {
+        const data = await res.json() as { display_name?: string };
+        setAddress(data.display_name ?? `${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+      } else {
+        setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+      }
+    } catch {
+      setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+    }
+  };
+
+  const handleLocate = () => {
     if (!("geolocation" in navigator)) {
       setLocationError("Location services are not available on this device.");
       return;
     }
+    stopWatch();
     setLocating(true);
     setLocationError(null);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
+    setAccuracy(null);
+    bestCoordsRef.current = null;
+
+    const GOOD_ENOUGH_M = 30;
+    const MAX_WAIT_MS = 30000;
+
+    // After MAX_WAIT_MS, accept whatever best fix we have
+    const timeoutId = setTimeout(() => {
+      stopWatch();
+      const best = bestCoordsRef.current;
+      if (best) {
+        void reverseGeocode(best.lat, best.lon).finally(() => setLocating(false));
+      } else {
+        setLocating(false);
+        setLocationError("Could not get a GPS fix. Try again outdoors with a clear view of the sky, or enter your site location manually.");
+      }
+    }, MAX_WAIT_MS);
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
+        const acc = Math.round(pos.coords.accuracy);
+
+        // Always update live display with best fix so far
+        bestCoordsRef.current = { lat, lon, accuracy: acc };
+        setAccuracy(acc);
         setCoords({ lat, lon });
         setGridReference(toOsGridReference(lat, lon) ?? "");
 
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-            { headers: { Accept: "application/json" } }
-          );
-          if (res.ok) {
-            const data = await res.json();
-            setAddress(data.display_name ?? `${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-          } else {
-            setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-          }
-        } catch {
-          setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-        } finally {
-          setLocating(false);
+        // Once accuracy is good enough, stop watching and geocode
+        if (acc <= GOOD_ENOUGH_M) {
+          clearTimeout(timeoutId);
+          stopWatch();
+          void reverseGeocode(lat, lon).finally(() => setLocating(false));
         }
       },
       (err) => {
+        clearTimeout(timeoutId);
+        stopWatch();
         setLocating(false);
         setLocationError(
           err.code === err.PERMISSION_DENIED
-            ? "Location permission was denied. Enable it in your browser/device settings to auto-fill the site location."
-            : "Could not determine your location. You can enter site details manually below."
+            ? "Location permission denied. Enable it in your browser or device settings and try again."
+            : err.code === 2
+            ? "Location unavailable. Move outdoors and try again, or enter your site details manually."
+            : "Could not determine your location. Enter site details manually below."
         );
       },
-      { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: MAX_WAIT_MS, maximumAge: 0 }
     );
   };
 
@@ -432,17 +471,28 @@ export default function RiskAssessment() {
                     ) : (
                       <LocateFixed className="w-3.5 h-3.5 mr-1" />
                     )}
-                    Use My Location
+                    {locating ? "Getting GPS fix…" : "Use My Location"}
                   </Button>
                 </div>
+                {locating && accuracy !== null && (
+                  <p className="font-mono text-[10px] text-muted-foreground">
+                    Improving accuracy… ±{accuracy}m
+                    {accuracy > 30 ? " (waiting for GPS lock)" : ""}
+                  </p>
+                )}
                 {locationError && (
                   <p className="font-mono text-[10px] text-destructive">{locationError}</p>
                 )}
                 {coords && (
                   <div className="text-[10px] font-mono text-muted-foreground space-y-0.5 border border-border rounded p-2 bg-background/60">
-                    <p className="text-foreground">{address}</p>
+                    {address && <p className="text-foreground">{address}</p>}
                     <p>Lat/Lon: {coords.lat.toFixed(6)}, {coords.lon.toFixed(6)}</p>
                     {gridReference && <p>OS Grid Reference: {gridReference}</p>}
+                    {accuracy !== null && (
+                      <p className={accuracy <= 30 ? "text-green-600" : "text-amber-600"}>
+                        {accuracy <= 30 ? `✓ GPS locked — ±${accuracy}m accuracy` : `±${accuracy}m accuracy (coarse fix)`}
+                      </p>
+                    )}
                   </div>
                 )}
                 <Input
