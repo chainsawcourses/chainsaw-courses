@@ -1,6 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 export interface RiskAssessmentExportData {
   taskDescription: string;
   siteDescription?: string | null;
@@ -34,260 +31,236 @@ export interface InspectionExportData {
   createdAt?: string;
 }
 
-/** Call this once on mount (e.g. useEffect) and store the result in a ref.
- *  Pass the result to downloadRiskAssessmentPdf / downloadInspectionPdf so
- *  those functions stay synchronous and aren't blocked by the browser. */
-export async function preloadLogoBase64(logoUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(logoUrl);
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
+/** No-op — kept so existing callers don't break. Logo is embedded inline. */
+export async function preloadLogoBase64(_logoUrl: string): Promise<string | null> {
+  return null;
+}
+
+function riskBand(rating: number) {
+  if (rating >= 15) return { bg: "#fee2e2", color: "#b91c1c", label: "HIGH" };
+  if (rating >= 8)  return { bg: "#fef3c7", color: "#b45309", label: "MED" };
+  return               { bg: "#dcfce7", color: "#15803d", label: "LOW" };
+}
+
+const SHARED_CSS = `
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #1a1a1a; background: #fff; padding: 20px 24px; }
+
+  /* ── Save-as-PDF guidance banner (screen only, hidden when printing) ── */
+  .save-banner {
+    display: flex; align-items: center; gap: 12px;
+    background: #1a1a1a; color: #fff; border-radius: 6px;
+    padding: 12px 16px; margin-bottom: 18px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .save-banner .icon { font-size: 22px; flex-shrink: 0; }
+  .save-banner strong { color: #ea5c0c; }
+  .save-banner .hint { font-size: 11px; color: #aaa; margin-top: 3px; }
+  .save-btn {
+    margin-left: auto; background: #ea5c0c; color: #fff; border: none;
+    border-radius: 4px; padding: 8px 16px; font-size: 12px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; letter-spacing: 0.04em;
+  }
+  .save-btn:hover { background: #c9520a; }
+
+  /* ── Document chrome ── */
+  .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea5c0c; padding-bottom: 10px; margin-bottom: 14px; }
+  .brand-name { font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #ea5c0c; }
+  .brand-sub  { font-size: 8px; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-top: 2px; }
+  .doc-title  { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
+  .doc-date   { font-size: 9px; color: #888; margin-top: 3px; text-align: right; }
+  .student-bar { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 6px 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .student-name { font-size: 11px; font-weight: 700; }
+  .student-date { font-size: 9px; color: #888; }
+  h2 { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #ea5c0c; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin: 14px 0 6px; }
+  .field { display: grid; grid-template-columns: 130px 1fr; gap: 4px 8px; margin-bottom: 4px; }
+  .field-label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; padding-top: 1px; }
+  .field-value { font-size: 11px; color: #1a1a1a; }
+  table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  th { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; background: #1a1a1a; color: #fff; padding: 5px 7px; text-align: left; }
+  td { padding: 5px 7px; vertical-align: top; border-bottom: 1px solid #e5e7eb; font-size: 10px; line-height: 1.4; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  .badge { display: inline-block; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 5px; border-radius: 3px; white-space: nowrap; }
+  .status-pass { background: #dcfce7; color: #15803d; }
+  .status-fail { background: #fee2e2; color: #b91c1c; }
+  .status-na   { background: #f3f4f6; color: #6b7280; }
+  .note-cell   { font-style: italic; color: #b91c1c; font-size: 9px; margin-top: 2px; }
+  .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 8px; color: #aaa; text-align: center; line-height: 1.5; }
+
+  @media print {
+    .save-banner { display: none !important; }
+    body { padding: 0; }
+    @page { size: A4 portrait; margin: 14mm 12mm; }
+  }
+`;
+
+function branded(title: string, subtitle: string, studentName: string, date: string, body: string) {
+  const guideText = navigator.userAgent.includes("Mobile") || navigator.userAgent.includes("Android") || navigator.userAgent.includes("iPhone")
+    ? "Tap <strong>Share → Print</strong>, then choose <strong>Save as PDF</strong>"
+    : "Click <strong>Save as PDF</strong> button below — or press <strong>Ctrl+P</strong> (⌘P on Mac) and choose <strong>Save as PDF</strong> as the printer";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${title} — Chainsaw Courses</title>
+  <style>${SHARED_CSS}</style>
+</head>
+<body>
+  <div class="save-banner">
+    <span class="icon">📄</span>
+    <div>
+      <div>${guideText}</div>
+      <div class="hint">This banner disappears when you print — your PDF will look clean.</div>
+    </div>
+    <button class="save-btn" onclick="window.print()">Save as PDF</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <div class="brand-name">Chainsaw Courses</div>
+      <div class="brand-sub">Professional Training Portal</div>
+    </div>
+    <div>
+      <div class="doc-title">${title}</div>
+      <div class="doc-date">${subtitle}</div>
+    </div>
+  </div>
+
+  <div class="student-bar">
+    <span class="student-name">${studentName || "Student"}</span>
+    <span class="student-date">${date}</span>
+  </div>
+
+  ${body}
+
+  <div class="footer">
+    This document was generated from the Chainsaw Courses Professional Training Portal.<br>
+    Personal working record only — does not replace a formal risk assessment, method statement, or employer RAMS process.<br>
+    Always follow current HSE guidance and your employer's procedures.
+  </div>
+
+  <script>
+    // Auto-open print dialog after a brief delay so the page renders first
+    window.addEventListener('load', function() {
+      setTimeout(function() { window.print(); }, 600);
     });
-  } catch {
-    return null;
-  }
+  <\/script>
+</body>
+</html>`;
 }
 
-function riskBandStyle(rating: number) {
-  if (rating >= 15) return { bg: [254, 226, 226] as [number, number, number], color: [185, 28, 28] as [number, number, number], label: "HIGH" };
-  if (rating >= 8)  return { bg: [254, 243, 199] as [number, number, number], color: [180, 83, 9]  as [number, number, number], label: "MED" };
-  return             { bg: [220, 252, 231] as [number, number, number], color: [21, 128, 61]  as [number, number, number], label: "LOW" };
-}
-
-const ORANGE: [number, number, number] = [234, 92, 12];
-const DARK:   [number, number, number] = [26, 26, 26];
-const GREY:   [number, number, number] = [136, 136, 136];
-const LIGHT:  [number, number, number] = [229, 231, 235];
-const PALE:   [number, number, number] = [249, 250, 251];
-const WHITE:  [number, number, number] = [255, 255, 255];
-const MARGIN = 14;
-
-function pw(doc: jsPDF) { return doc.internal.pageSize.getWidth(); }
-
-function addHeader(doc: jsPDF, logoB64: string | null, title: string, subtitle: string): number {
-  const w = pw(doc);
-  doc.setDrawColor(...ORANGE).setLineWidth(0.8);
-  doc.line(MARGIN, 10, w - MARGIN, 10);
-
-  const y = 14;
-  let textX = MARGIN;
-  if (logoB64) {
-    try { doc.addImage(logoB64, "PNG", MARGIN, y, 11, 11); textX = MARGIN + 14; } catch {}
-  }
-
-  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(...ORANGE);
-  doc.text("CHAINSAW COURSES", textX, y + 5);
-  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...GREY);
-  doc.text("PROFESSIONAL TRAINING PORTAL", textX, y + 9);
-
-  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(...DARK);
-  doc.text(title.toUpperCase(), w - MARGIN, y + 4, { align: "right" });
-  doc.setFont("helvetica", "normal").setFontSize(7).setTextColor(...GREY);
-  doc.text(subtitle, w - MARGIN, y + 8.5, { align: "right" });
-
-  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
-  doc.line(MARGIN, y + 13, w - MARGIN, y + 13);
-  return y + 16;
-}
-
-function addStudentBar(doc: jsPDF, studentName: string, date: string, y: number): number {
-  const w = pw(doc);
-  doc.setFillColor(...PALE).setDrawColor(...LIGHT).setLineWidth(0.3);
-  doc.roundedRect(MARGIN, y, w - MARGIN * 2, 8, 1, 1, "FD");
-  doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...DARK);
-  doc.text(studentName || "Student", MARGIN + 3, y + 5.5);
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(...GREY);
-  doc.text(date, w - MARGIN - 3, y + 5.5, { align: "right" });
-  return y + 11;
-}
-
-function addSectionHeading(doc: jsPDF, text: string, y: number): number {
-  const w = pw(doc);
-  doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(...ORANGE);
-  doc.text(text.toUpperCase(), MARGIN, y + 4);
-  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
-  doc.line(MARGIN, y + 5.5, w - MARGIN, y + 5.5);
-  return y + 8;
-}
-
-function addField(doc: jsPDF, label: string, value: string, y: number): number {
-  const labelW = 42;
-  doc.setFont("helvetica", "normal").setFontSize(7.5).setTextColor(...GREY);
-  doc.text(label.toUpperCase(), MARGIN, y + 3.5);
-  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(...DARK);
-  const lines = doc.splitTextToSize(value, pw(doc) - MARGIN - labelW - MARGIN) as string[];
-  doc.text(lines, MARGIN + labelW, y + 3.5);
-  return y + Math.max(6, lines.length * 4.5);
-}
-
-function addFooter(doc: jsPDF) {
-  const w = pw(doc);
-  const h = doc.internal.pageSize.getHeight();
-  doc.setDrawColor(...LIGHT).setLineWidth(0.3);
-  doc.line(MARGIN, h - 18, w - MARGIN, h - 18);
-  doc.setFont("helvetica", "normal").setFontSize(6.5).setTextColor(170, 170, 170);
-  const txt =
-    "This document was generated from the Chainsaw Courses Professional Training Portal. " +
-    "This is a personal working record only — it does not replace a formal risk assessment, method statement, or employer RAMS process. " +
-    "Always follow current HSE guidance and your employer's procedures.";
-  doc.text(doc.splitTextToSize(txt, w - MARGIN * 2), w / 2, h - 14, { align: "center" });
-}
-
-function triggerDownload(doc: jsPDF, filename: string) {
-  const blob = doc.output("blob");
-  const url = URL.createObjectURL(blob);
-
-  // Inside a sandboxed iframe (e.g. Replit preview) the browser blocks
-  // anchor-based downloads. Detect this and open the PDF in a new tab
-  // instead — the user can save it from the browser's built-in PDF viewer.
-  const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
-
-  if (inIframe) {
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 120000);
+function openPrintWindow(html: string) {
+  const win = window.open("", "_blank", "width=960,height=800");
+  if (!win) {
+    alert("Pop-up blocked. Please allow pop-ups for this site, then try again.");
     return;
   }
-
-  // Normal top-level context — trigger a direct file download.
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  win.document.write(html);
+  win.document.close();
 }
 
-function safeName(name?: string) {
-  return (name || "student").replace(/\s+/g, "-").toLowerCase();
-}
-
-/** Synchronous — pass logoB64 pre-loaded via preloadLogoBase64() */
-export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, logoB64: string | null) {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
+export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, _logoB64: string | null) {
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
 
-  let y = addHeader(doc, logoB64, "Dynamic Site Risk Assessment", "Site Safety Record");
-  y = addStudentBar(doc, data.studentName || "", date, y);
+  const locationParts = [data.address, data.gridReference ? `OS Grid: ${data.gridReference}` : null].filter(Boolean);
 
-  y = addSectionHeading(doc, "Site & Task Details", y + 3);
-  y = addField(doc, "Task Description", data.taskDescription, y);
-  if (data.siteDescription) y = addField(doc, "Site Description", data.siteDescription, y);
-  if (data.address)         y = addField(doc, "Location", data.address, y);
-  if (data.gridReference)   y = addField(doc, "OS Grid Ref", data.gridReference, y);
-  if (data.latitude && data.longitude) y = addField(doc, "Coordinates", `${data.latitude}, ${data.longitude}`, y);
+  const body = `
+    <h2>Site &amp; Task Details</h2>
+    <div class="field"><span class="field-label">Task Description</span><span class="field-value">${data.taskDescription}</span></div>
+    ${data.siteDescription ? `<div class="field"><span class="field-label">Site Description</span><span class="field-value">${data.siteDescription}</span></div>` : ""}
+    ${locationParts.length ? `<div class="field"><span class="field-label">Location</span><span class="field-value">${locationParts.join(" · ")}</span></div>` : ""}
+    ${data.latitude && data.longitude ? `<div class="field"><span class="field-label">Coordinates</span><span class="field-value">${data.latitude}, ${data.longitude}</span></div>` : ""}
 
-  y = addSectionHeading(doc, "Hazard Assessment", y + 3);
+    <h2>Hazard Assessment</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24%">Hazard</th>
+          <th style="width:8%;text-align:center">Like.</th>
+          <th style="width:8%;text-align:center">Sev.</th>
+          <th style="width:11%;text-align:center">Risk</th>
+          <th>Control Measures</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.hazards.map((h) => {
+          const b = riskBand(h.riskRating);
+          return `<tr>
+            <td>${h.label}</td>
+            <td style="text-align:center">${h.likelihood}</td>
+            <td style="text-align:center">${h.severity}</td>
+            <td style="text-align:center">
+              <span class="badge" style="background:${b.bg};color:${b.color}">${b.label} (${h.riskRating})</span>
+            </td>
+            <td>${h.controlMeasures || "<em style='color:#aaa'>None recorded</em>"}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
 
-  autoTable(doc, {
-    startY: y,
-    margin: { left: MARGIN, right: MARGIN },
-    head: [["Hazard", "Like.", "Sev.", "Risk", "Control Measures"]],
-    body: data.hazards.map((h) => {
-      const band = riskBandStyle(h.riskRating);
-      return [
-        h.label,
-        String(h.likelihood),
-        String(h.severity),
-        {
-          content: `${band.label} (${h.riskRating})`,
-          styles: { fillColor: band.bg, textColor: band.color, fontStyle: "bold" as const, halign: "center" as const },
-        },
-        h.controlMeasures || "—",
-      ];
-    }),
-    headStyles: { fillColor: DARK, textColor: WHITE, fontSize: 7, fontStyle: "bold", cellPadding: 3 },
-    bodyStyles: { fontSize: 8, cellPadding: 3, textColor: DARK },
-    alternateRowStyles: { fillColor: PALE },
-    columnStyles: {
-      0: { cellWidth: 34 },
-      1: { cellWidth: 12, halign: "center" },
-      2: { cellWidth: 12, halign: "center" },
-      3: { cellWidth: 22 },
-      4: { cellWidth: "auto" },
-    },
-  });
-
-  addFooter(doc);
-  triggerDownload(doc, `risk-assessment-${safeName(data.studentName)}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  openPrintWindow(branded("Dynamic Site Risk Assessment", "Chainsaw Courses · Site Safety Record", data.studentName || "", date, body));
 }
 
-/** Synchronous — pass logoB64 pre-loaded via preloadLogoBase64() */
-export function downloadInspectionPdf(data: InspectionExportData, logoB64: string | null) {
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
+export function downloadInspectionPdf(data: InspectionExportData, _logoB64: string | null) {
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
-
-  let y = addHeader(doc, logoB64, "Pre-Start & Pre-Use Inspection", "Equipment Safety Record");
-  y = addStudentBar(doc, data.studentName || "", date, y);
-
-  if (data.sawIdentifier) {
-    y = addSectionHeading(doc, "Chainsaw Details", y + 3);
-    y = addField(doc, "Saw Identifier", data.sawIdentifier, y);
-  }
 
   const sections = Array.from(new Set(data.items.map((i) => i.section)));
 
-  for (const section of sections) {
-    y = addSectionHeading(doc, `${section} Checks`, y + 3);
-    const sectionItems = data.items.filter((i) => i.section === section);
+  const body = `
+    ${data.sawIdentifier ? `
+      <h2>Chainsaw Details</h2>
+      <div class="field"><span class="field-label">Saw Identifier</span><span class="field-value">${data.sawIdentifier}</span></div>
+    ` : ""}
 
-    autoTable(doc, {
-      startY: y,
-      margin: { left: MARGIN, right: MARGIN },
-      head: [["Check Item", "Result", "Notes"]],
-      body: sectionItems.map((item) => {
-        const isPass = item.status === "pass";
-        const isFail = item.status === "fail";
-        const badgeBg: [number, number, number] = isFail ? [254, 226, 226] : isPass ? [220, 252, 231] : [243, 244, 246];
-        const badgeColor: [number, number, number] = isFail ? [185, 28, 28] : isPass ? [21, 128, 61] : [107, 114, 128];
-        const statusLabel = isPass ? "PASS" : isFail ? "FAIL" : "N/A";
-        return [
-          item.label,
-          { content: statusLabel, styles: { fillColor: badgeBg, textColor: badgeColor, fontStyle: "bold" as const, halign: "center" as const } },
-          item.note ? { content: item.note, styles: { fontStyle: "italic" as const, textColor: [185, 28, 28] as [number, number, number] } } : "",
-        ];
-      }),
-      headStyles: { fillColor: DARK, textColor: WHITE, fontSize: 7, fontStyle: "bold", cellPadding: 3 },
-      bodyStyles: { fontSize: 8, cellPadding: 3, textColor: DARK },
-      alternateRowStyles: { fillColor: PALE },
-      columnStyles: {
-        0: { cellWidth: "auto" },
-        1: { cellWidth: 20, halign: "center" },
-        2: { cellWidth: 50 },
-      },
-    });
+    ${sections.map((section) => {
+      const sectionItems = data.items.filter((i) => i.section === section);
+      return `
+        <h2>${section} Checks</h2>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:55%">Check Item</th>
+              <th style="width:14%;text-align:center">Result</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sectionItems.map((item) => {
+              const cls = item.status === "pass" ? "status-pass" : item.status === "fail" ? "status-fail" : "status-na";
+              const lbl = item.status === "pass" ? "PASS" : item.status === "fail" ? "FAIL" : "N/A";
+              return `<tr>
+                <td>${item.label}</td>
+                <td style="text-align:center"><span class="badge ${cls}">${lbl}</span></td>
+                <td>${item.note ? `<span class="note-cell">${item.note}</span>` : ""}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }).join("")}
 
-    y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 2;
-  }
+    <h2>Overall Result</h2>
+    <table>
+      <tbody>
+        <tr>
+          <td style="text-align:center;padding:10px">
+            <span class="badge ${data.hasFailures ? "status-fail" : "status-pass"}" style="font-size:12px;padding:5px 12px">
+              ${data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR"}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  `;
 
-  const resultBg: [number, number, number] = data.hasFailures ? [254, 226, 226] : [220, 252, 231];
-  const resultColor: [number, number, number] = data.hasFailures ? [185, 28, 28] : [21, 128, 61];
-
-  y = addSectionHeading(doc, "Overall Result", y + 3);
-  autoTable(doc, {
-    startY: y,
-    margin: { left: MARGIN, right: MARGIN },
-    body: [[{
-      content: data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR",
-      styles: { fillColor: resultBg, textColor: resultColor, fontStyle: "bold" as const, halign: "center" as const, fontSize: 10 },
-    }]],
-    bodyStyles: { cellPadding: 5 },
-  });
-
-  addFooter(doc);
-  triggerDownload(doc, `inspection-checklist-${safeName(data.studentName)}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  openPrintWindow(branded("Pre-Start &amp; Pre-Use Inspection Checklist", "Chainsaw Courses · Equipment Safety Record", data.studentName || "", date, body));
 }
 
 export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {
@@ -307,15 +280,15 @@ export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {
     "",
     "HAZARD ASSESSMENT",
     ...data.hazards.map((h) => {
-      const band = riskBandStyle(h.riskRating);
+      const b = riskBand(h.riskRating);
       return [
         `• ${h.label}`,
-        `  Likelihood: ${h.likelihood}  Severity: ${h.severity}  Risk: ${band.label} (${h.riskRating})`,
+        `  Likelihood: ${h.likelihood}  Severity: ${h.severity}  Risk: ${b.label} (${h.riskRating})`,
         h.controlMeasures ? `  Controls: ${h.controlMeasures}` : "",
       ].filter(Boolean).join("\n");
     }),
   ];
-  return lines.filter((l) => l !== null && l !== undefined).join("\n").replace(/\n{3,}/g, "\n\n");
+  return lines.filter(Boolean).join("\n").replace(/\n{3,}/g, "\n\n");
 }
 
 export function copyInspectionText(data: InspectionExportData): string {
@@ -340,5 +313,5 @@ export function copyInspectionText(data: InspectionExportData): string {
     ]),
     `OVERALL: ${data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR"}`,
   ];
-  return lines.filter((l) => l !== null && l !== undefined).join("\n");
+  return lines.filter(Boolean).join("\n");
 }

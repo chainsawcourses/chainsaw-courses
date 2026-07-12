@@ -341,7 +341,7 @@ export default function Inspection() {
                         onClick={handleDownload}
                       >
                         <FileDown className="w-3 h-3 mr-1" />
-                        {isDownloading ? "Downloading…" : "PDF"}
+                        {isDownloading ? "Opening…" : "PDF"}
                       </Button>
                       <Button
                         size="sm"
@@ -421,7 +421,7 @@ export default function Inspection() {
                       {pdfDownloading
                         ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                         : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
-                      {pdfDownloading ? "Downloading…" : "Download PDF"}
+                      {pdfDownloading ? "Opening…" : "Save as PDF"}
                     </Button>
                     <Button
                       size="sm"
