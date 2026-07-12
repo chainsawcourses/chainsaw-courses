@@ -23,7 +23,7 @@ export default function BiosecurityMap() {
   const [activeLayers, setActiveLayers] = useState<Record<string, boolean>>(
     Object.fromEntries(HAZARDS.map((h) => [h.id, true]))
   );
-  const [activeHazardId, setActiveHazardId] = useState<string>(HAZARDS[0].id);
+  const [activeHazardId, setActiveHazardId] = useState<string>("");
 
   const toggleLayer = (id: string) => {
     setActiveLayers((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -88,7 +88,7 @@ export default function BiosecurityMap() {
                       <div key={h.id} className={`rounded border transition-colors ${isOpen ? "border-border bg-secondary/60" : "border-transparent hover:border-border hover:bg-secondary/30"}`}>
                         {/* Row header */}
                         <div
-                          onClick={() => setActiveHazardId(h.id)}
+                          onClick={() => setActiveHazardId(activeHazardId === h.id ? "" : h.id)}
                           className="flex items-center gap-2 px-2.5 py-2 cursor-pointer"
                         >
                           <input
@@ -214,7 +214,7 @@ export default function BiosecurityMap() {
                           />
                         </button>
                         <button
-                          onClick={() => setActiveHazardId(h.id)}
+                          onClick={() => setActiveHazardId(activeHazardId === h.id ? "" : h.id)}
                           className={`font-mono text-[10px] leading-tight text-left transition-colors ${
                             activeHazardId === h.id
                               ? "font-bold text-foreground"
