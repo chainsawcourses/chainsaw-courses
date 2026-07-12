@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -123,6 +123,8 @@ export default function Inspection() {
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
+  const exportCardRef = useRef<HTMLDivElement>(null);
 
   const setStatus = (id: string, status: Status) => {
     setItems((prev) => ({ ...prev, [id]: status }));
@@ -149,6 +151,9 @@ export default function Inspection() {
         setExportRecord(data);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
+        setTimeout(() => {
+          exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
       },
     },
   });
@@ -385,7 +390,7 @@ export default function Inspection() {
             )}
 
             {exportRecord && (
-              <Card className="border-primary/40 bg-primary/5">
+              <Card ref={exportCardRef} className="border-primary bg-primary/5 shadow-md">
                 <CardContent className="p-4 space-y-3">
                   <p className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
                     Export this checklist?
@@ -393,11 +398,23 @@ export default function Inspection() {
                   <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="font-mono text-xs uppercase tracking-wide"
-                      onClick={() => { void downloadInspectionPdf({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl()); }}
+                      className={`font-mono text-xs uppercase tracking-wide transition-all duration-150 ${
+                        pdfDownloading
+                          ? "bg-primary text-primary-foreground ring-2 ring-primary/50 shadow-sm"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
+                      }`}
+                      onClick={() => {
+                        setPdfDownloading(true);
+                        void downloadInspectionPdf(
+                          { ...exportRecord, studentName: exportRecord.studentName || fullName || "" },
+                          logoUrl(),
+                        ).finally(() => setPdfDownloading(false));
+                      }}
                     >
-                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Download PDF
+                      {pdfDownloading
+                        ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
+                      {pdfDownloading ? "Downloading…" : "Download PDF"}
                     </Button>
                     <Button
                       size="sm"
