@@ -153,7 +153,7 @@ export default function BiosecurityMap() {
 
           {/* Map */}
           <Card className="border-border overflow-hidden">
-            <div style={{ height: "580px" }}>
+            <div style={{ height: "580px", position: "relative" }}>
               <MapContainer
                 center={[53.0, -2.0]}
                 zoom={6}
@@ -187,6 +187,47 @@ export default function BiosecurityMap() {
                   })
                 )}
               </MapContainer>
+
+              {/* Floating legend overlay */}
+              <div className="absolute bottom-7 left-2 z-[1000] bg-card/92 backdrop-blur-sm rounded-lg border border-border shadow-lg p-2 space-y-2 max-h-72 overflow-y-auto pointer-events-auto">
+                {categories.map((cat) => (
+                  <div key={cat}>
+                    <p className={`font-mono text-[9px] uppercase tracking-widest px-0.5 pb-1 border-b mb-1 ${
+                      cat === "operator" ? "text-primary border-primary/30" : "text-violet-600 border-violet-400/30"
+                    }`}>
+                      {cat === "operator" ? "Operator Hazards" : "Statutory Zones"}
+                    </p>
+                    {HAZARDS.filter((h) => h.category === cat).map((h) => (
+                      <div key={h.id} className="flex items-center gap-1.5 py-0.5 rounded group">
+                        <button
+                          title={activeLayers[h.id] ? "Hide layer" : "Show layer"}
+                          onClick={() => toggleLayer(h.id)}
+                          className="shrink-0 p-0.5 rounded hover:bg-secondary/60 transition-colors"
+                        >
+                          <span
+                            className="block w-3 h-3 rounded-full border-2 transition-opacity"
+                            style={{
+                              backgroundColor: activeLayers[h.id] ? h.color : "transparent",
+                              borderColor: h.color,
+                              opacity: activeLayers[h.id] ? 1 : 0.5,
+                            }}
+                          />
+                        </button>
+                        <button
+                          onClick={() => setActiveHazardId(h.id)}
+                          className={`font-mono text-[10px] leading-tight text-left transition-colors ${
+                            activeHazardId === h.id
+                              ? "font-bold text-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                          } ${!activeLayers[h.id] ? "line-through opacity-40" : ""}`}
+                        >
+                          {h.commonName}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </Card>
         </div>
