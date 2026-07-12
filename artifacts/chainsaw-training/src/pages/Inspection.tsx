@@ -122,6 +122,7 @@ export default function Inspection() {
   const [exportRecord, setExportRecord] = useState<InspectionExportData | null>(null);
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const setStatus = (id: string, status: Status) => {
     setItems((prev) => ({ ...prev, [id]: status }));
@@ -278,47 +279,73 @@ export default function Inspection() {
               {history.data && history.data.length === 0 && (
                 <p className="font-mono text-xs text-muted-foreground">No inspections recorded yet.</p>
               )}
-              {history.data?.map((record) => (
-                <div key={record.id} className="border border-border rounded p-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[11px] text-muted-foreground">
-                      {new Date(record.createdAt).toLocaleString()}
-                    </span>
-                    {record.hasFailures ? (
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-destructive flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" /> Failures noted
+              {history.data?.map((record) => {
+                const isDownloading = downloadingId === record.id;
+                const handleDownload = () => {
+                  setDownloadingId(record.id);
+                  void downloadInspectionPdf(
+                    { ...record, studentName: record.studentName || fullName || "" },
+                    logoUrl(),
+                  ).finally(() => setDownloadingId(null));
+                };
+                return (
+                  <div
+                    key={record.id}
+                    onClick={handleDownload}
+                    className={`border rounded p-3 space-y-1.5 cursor-pointer transition-all duration-150 select-none
+                      ${isDownloading
+                        ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
+                        : "border-border hover:border-primary/50 hover:bg-primary/5 active:bg-primary/10 active:border-primary"
+                      }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[11px] text-muted-foreground">
+                        {new Date(record.createdAt).toLocaleString()}
                       </span>
-                    ) : (
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-primary flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> All clear
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {record.hasFailures ? (
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-destructive flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> Failures noted
+                          </span>
+                        ) : (
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-primary flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> All clear
+                          </span>
+                        )}
+                        {isDownloading
+                          ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                          : <FileDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        }
+                      </div>
+                    </div>
+                    {record.sawIdentifier && (
+                      <p className="font-mono text-[11px] text-foreground">Saw: {record.sawIdentifier}</p>
                     )}
+                    <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        disabled={isDownloading}
+                        onClick={handleDownload}
+                      >
+                        <FileDown className="w-3 h-3 mr-1" />
+                        {isDownloading ? "Downloading…" : "PDF"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(copyInspectionText({ ...record, studentName: record.studentName || fullName || "" }));
+                        }}
+                      >
+                        <ClipboardCopy className="w-3 h-3 mr-1" /> Copy
+                      </Button>
+                    </div>
                   </div>
-                  {record.sawIdentifier && (
-                    <p className="font-mono text-[11px] text-foreground">Saw: {record.sawIdentifier}</p>
-                  )}
-                  <div className="flex gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                      onClick={() => { void downloadInspectionPdf({ ...record, studentName: record.studentName || fullName || "" }, logoUrl()); }}
-                    >
-                      <FileDown className="w-3 h-3 mr-1" /> PDF
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                      onClick={() => {
-                        navigator.clipboard.writeText(copyInspectionText({ ...record, studentName: record.studentName || fullName || "" }));
-                      }}
-                    >
-                      <ClipboardCopy className="w-3 h-3 mr-1" /> Copy
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         ) : (

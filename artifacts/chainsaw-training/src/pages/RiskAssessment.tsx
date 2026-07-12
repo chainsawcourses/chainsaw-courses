@@ -161,6 +161,7 @@ export default function RiskAssessment() {
   const [exportRecord, setExportRecord] = useState<RiskAssessmentExportData | null>(null);
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const handleLocate = () => {
     if (!("geolocation" in navigator)) {
@@ -327,15 +328,37 @@ export default function RiskAssessment() {
               {history.data?.map((record) => {
                 const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
                 const band = riskBand(maxRisk);
+                const isDownloading = downloadingId === record.id;
+                const handleDownload = () => {
+                  setDownloadingId(record.id);
+                  void downloadRiskAssessmentPdf(
+                    { ...record, studentName: record.studentName || fullName || "" },
+                    logoUrl(),
+                  ).finally(() => setDownloadingId(null));
+                };
                 return (
-                  <div key={record.id} className="border border-border rounded p-3 space-y-1.5">
+                  <div
+                    key={record.id}
+                    onClick={handleDownload}
+                    className={`border rounded p-3 space-y-1.5 cursor-pointer transition-all duration-150 select-none
+                      ${isDownloading
+                        ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
+                        : "border-border hover:border-primary/50 hover:bg-primary/5 active:bg-primary/10 active:border-primary"
+                      }`}
+                  >
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[11px] text-muted-foreground">
                         {new Date(record.createdAt).toLocaleString()}
                       </span>
-                      <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
-                        {band.label} risk
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
+                          {band.label} risk
+                        </span>
+                        {isDownloading
+                          ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                          : <FileDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        }
+                      </div>
                     </div>
                     <p className="font-mono text-[11px] text-foreground">{record.taskDescription}</p>
                     {record.address && (
@@ -344,14 +367,16 @@ export default function RiskAssessment() {
                     {record.gridReference && (
                       <p className="font-mono text-[10px] text-muted-foreground">Grid ref: {record.gridReference}</p>
                     )}
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                        onClick={() => { void downloadRiskAssessmentPdf({ ...record, studentName: record.studentName || fullName || "" }, logoUrl()); }}
+                        disabled={isDownloading}
+                        onClick={handleDownload}
                       >
-                        <FileDown className="w-3 h-3 mr-1" /> PDF
+                        <FileDown className="w-3 h-3 mr-1" />
+                        {isDownloading ? "Downloading…" : "PDF"}
                       </Button>
                       <Button
                         size="sm"
