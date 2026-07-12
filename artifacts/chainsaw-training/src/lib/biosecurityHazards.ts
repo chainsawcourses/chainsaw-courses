@@ -63,16 +63,21 @@ export const HAZARDS: Hazard[] = [
     scientificName: "Ips typographus",
     category: "statutory",
     color: "#10b981",
-    regionLabel: "Kent & East Sussex Demarcated Area",
+    regionLabel: "East Anglia & East Midlands — Suffolk, Norfolk, Cambridgeshire, Bedfordshire & Lincolnshire",
     operationalImpact:
-      "Regulated wood pest present in Southeast England. Strict legal movement bans apply to raw conifer and spruce logs to prevent spread.",
+      "Regulated wood pest within a statutory containment zone covering parts of Suffolk, Norfolk, Cambridgeshire, Bedfordshire, and Lincolnshire. Strict legal movement bans apply to raw conifer and spruce logs, bark, and timber within and from the demarcated area.",
     controls: [
-      "Immediate pause on conifer cross-cutting operations within the demarcated area",
-      "Check timber movement licensing compliance before dragging or bucking spruce/conifer stems",
-      "Do not transport raw conifer material outside the zone without statutory authorisation",
+      "Immediate pause on conifer cross-cutting operations within the demarcated area until timber movement licensing is confirmed",
+      "Check Forestry Commission/APHA movement licence compliance before dragging, bucking, or stacking spruce/conifer stems",
+      "Do not transport raw conifer material, bark, or brash outside the zone without statutory authorisation",
+      "Report sightings of suspected infestation (fresh bore dust, beetle galleries under bark) via TreeAlert (treealert.forestresearch.gov.uk)",
     ],
     zones: [
-      { type: "circle", coords: [51.05, 0.7], radius: 32000 },
+      { type: "circle", coords: [52.15, 1.15], radius: 48000 },
+      { type: "circle", coords: [52.75, 1.00], radius: 52000 },
+      { type: "circle", coords: [52.30, 0.10], radius: 42000 },
+      { type: "circle", coords: [52.05, -0.40], radius: 28000 },
+      { type: "circle", coords: [53.10, -0.30], radius: 62000 },
     ],
   },
   {
