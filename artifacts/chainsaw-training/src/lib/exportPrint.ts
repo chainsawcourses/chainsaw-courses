@@ -34,15 +34,13 @@ export interface InspectionExportData {
   createdAt?: string;
 }
 
-function riskBandStyle(rating: number) {
-  if (rating >= 15) return { bg: [254, 226, 226] as [number, number, number], color: [185, 28, 28] as [number, number, number], label: "HIGH" };
-  if (rating >= 8)  return { bg: [254, 243, 199] as [number, number, number], color: [180, 83, 9]  as [number, number, number], label: "MED" };
-  return             { bg: [220, 252, 231] as [number, number, number], color: [21, 128, 61]  as [number, number, number], label: "LOW" };
-}
-
-async function loadImageBase64(url: string): Promise<string | null> {
+/** Call this once on mount (e.g. useEffect) and store the result in a ref.
+ *  Pass the result to downloadRiskAssessmentPdf / downloadInspectionPdf so
+ *  those functions stay synchronous and aren't blocked by the browser. */
+export async function preloadLogoBase64(logoUrl: string): Promise<string | null> {
   try {
-    const res = await fetch(url);
+    const res = await fetch(logoUrl);
+    if (!res.ok) return null;
     const blob = await res.blob();
     return await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
@@ -55,6 +53,12 @@ async function loadImageBase64(url: string): Promise<string | null> {
   }
 }
 
+function riskBandStyle(rating: number) {
+  if (rating >= 15) return { bg: [254, 226, 226] as [number, number, number], color: [185, 28, 28] as [number, number, number], label: "HIGH" };
+  if (rating >= 8)  return { bg: [254, 243, 199] as [number, number, number], color: [180, 83, 9]  as [number, number, number], label: "MED" };
+  return             { bg: [220, 252, 231] as [number, number, number], color: [21, 128, 61]  as [number, number, number], label: "LOW" };
+}
+
 const ORANGE: [number, number, number] = [234, 92, 12];
 const DARK:   [number, number, number] = [26, 26, 26];
 const GREY:   [number, number, number] = [136, 136, 136];
@@ -63,19 +67,18 @@ const PALE:   [number, number, number] = [249, 250, 251];
 const WHITE:  [number, number, number] = [255, 255, 255];
 const MARGIN = 14;
 
-function pageW(doc: jsPDF) { return doc.internal.pageSize.getWidth(); }
+function pw(doc: jsPDF) { return doc.internal.pageSize.getWidth(); }
 
 function addHeader(doc: jsPDF, logoB64: string | null, title: string, subtitle: string): number {
-  const w = pageW(doc);
-  doc.setDrawColor(...ORANGE);
-  doc.setLineWidth(0.8);
+  const w = pw(doc);
+  doc.setDrawColor(...ORANGE).setLineWidth(0.8);
   doc.line(MARGIN, 10, w - MARGIN, 10);
 
   const y = 14;
+  let textX = MARGIN;
   if (logoB64) {
-    try { doc.addImage(logoB64, "PNG", MARGIN, y, 11, 11); } catch {}
+    try { doc.addImage(logoB64, "PNG", MARGIN, y, 11, 11); textX = MARGIN + 14; } catch {}
   }
-  const textX = logoB64 ? MARGIN + 14 : MARGIN;
 
   doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(...ORANGE);
   doc.text("CHAINSAW COURSES", textX, y + 5);
@@ -93,7 +96,7 @@ function addHeader(doc: jsPDF, logoB64: string | null, title: string, subtitle: 
 }
 
 function addStudentBar(doc: jsPDF, studentName: string, date: string, y: number): number {
-  const w = pageW(doc);
+  const w = pw(doc);
   doc.setFillColor(...PALE).setDrawColor(...LIGHT).setLineWidth(0.3);
   doc.roundedRect(MARGIN, y, w - MARGIN * 2, 8, 1, 1, "FD");
   doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(...DARK);
@@ -104,7 +107,7 @@ function addStudentBar(doc: jsPDF, studentName: string, date: string, y: number)
 }
 
 function addSectionHeading(doc: jsPDF, text: string, y: number): number {
-  const w = pageW(doc);
+  const w = pw(doc);
   doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(...ORANGE);
   doc.text(text.toUpperCase(), MARGIN, y + 4);
   doc.setDrawColor(...LIGHT).setLineWidth(0.3);
@@ -117,13 +120,13 @@ function addField(doc: jsPDF, label: string, value: string, y: number): number {
   doc.setFont("helvetica", "normal").setFontSize(7.5).setTextColor(...GREY);
   doc.text(label.toUpperCase(), MARGIN, y + 3.5);
   doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(...DARK);
-  const lines = doc.splitTextToSize(value, pageW(doc) - MARGIN - labelW - MARGIN);
+  const lines = doc.splitTextToSize(value, pw(doc) - MARGIN - labelW - MARGIN) as string[];
   doc.text(lines, MARGIN + labelW, y + 3.5);
-  return y + Math.max(6, (lines as string[]).length * 4.5);
+  return y + Math.max(6, lines.length * 4.5);
 }
 
 function addFooter(doc: jsPDF) {
-  const w = pageW(doc);
+  const w = pw(doc);
   const h = doc.internal.pageSize.getHeight();
   doc.setDrawColor(...LIGHT).setLineWidth(0.3);
   doc.line(MARGIN, h - 18, w - MARGIN, h - 18);
@@ -135,13 +138,25 @@ function addFooter(doc: jsPDF) {
   doc.text(doc.splitTextToSize(txt, w - MARGIN * 2), w / 2, h - 14, { align: "center" });
 }
 
-function safeName(name: string) {
+function triggerDownload(doc: jsPDF, filename: string) {
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function safeName(name?: string) {
   return (name || "student").replace(/\s+/g, "-").toLowerCase();
 }
 
-export async function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, logoUrl: string) {
+/** Synchronous — pass logoB64 pre-loaded via preloadLogoBase64() */
+export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, logoB64: string | null) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const logoB64 = await loadImageBase64(logoUrl);
 
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
@@ -189,12 +204,12 @@ export async function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, 
   });
 
   addFooter(doc);
-  doc.save(`risk-assessment-${safeName(data.studentName || "")}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  triggerDownload(doc, `risk-assessment-${safeName(data.studentName)}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
-export async function downloadInspectionPdf(data: InspectionExportData, logoUrl: string) {
+/** Synchronous — pass logoB64 pre-loaded via preloadLogoBase64() */
+export function downloadInspectionPdf(data: InspectionExportData, logoB64: string | null) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const logoB64 = await loadImageBase64(logoUrl);
 
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
@@ -221,13 +236,13 @@ export async function downloadInspectionPdf(data: InspectionExportData, logoUrl:
       body: sectionItems.map((item) => {
         const isPass = item.status === "pass";
         const isFail = item.status === "fail";
-        const badgeBg: [number,number,number] = isFail ? [254, 226, 226] : isPass ? [220, 252, 231] : [243, 244, 246];
-        const badgeColor: [number,number,number] = isFail ? [185, 28, 28] : isPass ? [21, 128, 61] : [107, 114, 128];
+        const badgeBg: [number, number, number] = isFail ? [254, 226, 226] : isPass ? [220, 252, 231] : [243, 244, 246];
+        const badgeColor: [number, number, number] = isFail ? [185, 28, 28] : isPass ? [21, 128, 61] : [107, 114, 128];
         const statusLabel = isPass ? "PASS" : isFail ? "FAIL" : "N/A";
         return [
           item.label,
           { content: statusLabel, styles: { fillColor: badgeBg, textColor: badgeColor, fontStyle: "bold" as const, halign: "center" as const } },
-          item.note ? { content: item.note, styles: { fontStyle: "italic" as const, textColor: [185, 28, 28] as [number,number,number] } } : "",
+          item.note ? { content: item.note, styles: { fontStyle: "italic" as const, textColor: [185, 28, 28] as [number, number, number] } } : "",
         ];
       }),
       headStyles: { fillColor: DARK, textColor: WHITE, fontSize: 7, fontStyle: "bold", cellPadding: 3 },
@@ -243,19 +258,22 @@ export async function downloadInspectionPdf(data: InspectionExportData, logoUrl:
     y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 2;
   }
 
-  const resultBg: [number,number,number] = data.hasFailures ? [254, 226, 226] : [220, 252, 231];
-  const resultColor: [number,number,number] = data.hasFailures ? [185, 28, 28] : [21, 128, 61];
+  const resultBg: [number, number, number] = data.hasFailures ? [254, 226, 226] : [220, 252, 231];
+  const resultColor: [number, number, number] = data.hasFailures ? [185, 28, 28] : [21, 128, 61];
 
   y = addSectionHeading(doc, "Overall Result", y + 3);
   autoTable(doc, {
     startY: y,
     margin: { left: MARGIN, right: MARGIN },
-    body: [[{ content: data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR", styles: { fillColor: resultBg, textColor: resultColor, fontStyle: "bold" as const, halign: "center" as const, fontSize: 10 } }]],
+    body: [[{
+      content: data.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CLEAR",
+      styles: { fillColor: resultBg, textColor: resultColor, fontStyle: "bold" as const, halign: "center" as const, fontSize: 10 },
+    }]],
     bodyStyles: { cellPadding: 5 },
   });
 
   addFooter(doc);
-  doc.save(`inspection-checklist-${safeName(data.studentName || "")}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  triggerDownload(doc, `inspection-checklist-${safeName(data.studentName)}-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
 export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {

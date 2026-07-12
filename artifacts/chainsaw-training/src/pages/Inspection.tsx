@@ -8,10 +8,10 @@ import {
   ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
-import { downloadInspectionPdf, copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
+import { downloadInspectionPdf, copyInspectionText, preloadLogoBase64, type InspectionExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
-function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
+function logoSrc() { return `${window.location.origin}${BASE}logo.png`; }
 
 function playBing() {
   try {
@@ -124,7 +124,12 @@ export default function Inspection() {
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const logoB64Ref = useRef<string | null>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void preloadLogoBase64(logoSrc()).then((b64) => { logoB64Ref.current = b64; });
+  }, []);
 
   const setStatus = (id: string, status: Status) => {
     setItems((prev) => ({ ...prev, [id]: status }));
@@ -288,10 +293,11 @@ export default function Inspection() {
                 const isDownloading = downloadingId === record.id;
                 const handleDownload = () => {
                   setDownloadingId(record.id);
-                  void downloadInspectionPdf(
+                  downloadInspectionPdf(
                     { ...record, studentName: record.studentName || fullName || "" },
-                    logoUrl(),
-                  ).finally(() => setDownloadingId(null));
+                    logoB64Ref.current,
+                  );
+                  setDownloadingId(null);
                 };
                 return (
                   <div
@@ -405,10 +411,11 @@ export default function Inspection() {
                       }`}
                       onClick={() => {
                         setPdfDownloading(true);
-                        void downloadInspectionPdf(
+                        downloadInspectionPdf(
                           { ...exportRecord, studentName: exportRecord.studentName || fullName || "" },
-                          logoUrl(),
-                        ).finally(() => setPdfDownloading(false));
+                          logoB64Ref.current,
+                        );
+                        setTimeout(() => setPdfDownloading(false), 800);
                       }}
                     >
                       {pdfDownloading

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,10 +11,10 @@ import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
-import { downloadRiskAssessmentPdf, copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
+import { downloadRiskAssessmentPdf, copyRiskAssessmentText, preloadLogoBase64, type RiskAssessmentExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
-function logoUrl() { return `${window.location.origin}${BASE}logo.png`; }
+function logoSrc() { return `${window.location.origin}${BASE}logo.png`; }
 
 function playBing() {
   try {
@@ -162,6 +162,13 @@ export default function RiskAssessment() {
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
+  const logoB64Ref = useRef<string | null>(null);
+  const exportCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void preloadLogoBase64(logoSrc()).then((b64) => { logoB64Ref.current = b64; });
+  }, []);
 
   const handleLocate = () => {
     if (!("geolocation" in navigator)) {
@@ -234,6 +241,9 @@ export default function RiskAssessment() {
         setExportRecord(data);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
+        setTimeout(() => {
+          exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
       },
     },
   });
@@ -331,10 +341,11 @@ export default function RiskAssessment() {
                 const isDownloading = downloadingId === record.id;
                 const handleDownload = () => {
                   setDownloadingId(record.id);
-                  void downloadRiskAssessmentPdf(
+                  downloadRiskAssessmentPdf(
                     { ...record, studentName: record.studentName || fullName || "" },
-                    logoUrl(),
-                  ).finally(() => setDownloadingId(null));
+                    logoB64Ref.current,
+                  );
+                  setDownloadingId(null);
                 };
                 return (
                   <div
@@ -549,7 +560,7 @@ export default function RiskAssessment() {
             )}
 
             {exportRecord && (
-              <Card className="border-primary/40 bg-primary/5">
+              <Card ref={exportCardRef} className="border-primary bg-primary/5 shadow-md">
                 <CardContent className="p-4 space-y-3">
                   <p className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
                     Export this risk assessment?
@@ -557,11 +568,24 @@ export default function RiskAssessment() {
                   <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="font-mono text-xs uppercase tracking-wide"
-                      onClick={() => { void downloadRiskAssessmentPdf({ ...exportRecord, studentName: exportRecord.studentName || fullName || "" }, logoUrl()); }}
+                      className={`font-mono text-xs uppercase tracking-wide transition-all duration-150 ${
+                        pdfDownloading
+                          ? "bg-primary text-primary-foreground ring-2 ring-primary/50 shadow-sm"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
+                      }`}
+                      onClick={() => {
+                        setPdfDownloading(true);
+                        downloadRiskAssessmentPdf(
+                          { ...exportRecord, studentName: exportRecord.studentName || fullName || "" },
+                          logoB64Ref.current,
+                        );
+                        setTimeout(() => setPdfDownloading(false), 800);
+                      }}
                     >
-                      <FileDown className="w-3.5 h-3.5 mr-1.5" /> Download PDF
+                      {pdfDownloading
+                        ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
+                      {pdfDownloading ? "Downloading…" : "Download PDF"}
                     </Button>
                     <Button
                       size="sm"
