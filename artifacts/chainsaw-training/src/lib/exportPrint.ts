@@ -141,9 +141,23 @@ function addFooter(doc: jsPDF) {
 function triggerDownload(doc: jsPDF, filename: string) {
   const blob = doc.output("blob");
   const url = URL.createObjectURL(blob);
+
+  // Inside a sandboxed iframe (e.g. Replit preview) the browser blocks
+  // anchor-based downloads. Detect this and open the PDF in a new tab
+  // instead — the user can save it from the browser's built-in PDF viewer.
+  const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+
+  if (inIframe) {
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+    return;
+  }
+
+  // Normal top-level context — trigger a direct file download.
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

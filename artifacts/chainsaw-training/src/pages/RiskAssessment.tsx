@@ -171,6 +171,12 @@ export default function RiskAssessment() {
   }, []);
 
   const handleLocate = () => {
+    // Geolocation is blocked inside sandboxed iframes (e.g. the Replit preview pane).
+    const inIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+    if (inIframe) {
+      setLocationError("Location access is blocked in the preview pane. Open the app in a full browser tab to use this feature.");
+      return;
+    }
     if (!("geolocation" in navigator)) {
       setLocationError("Location services are not available on this device.");
       return;
