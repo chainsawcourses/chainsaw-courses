@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, ShieldAlert, Info, Scale } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Info, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserSession } from "../contexts/UserContext";
-import { HAZARDS, CATEGORY_LABEL, type Hazard, type HazardCategory } from "../lib/biosecurityHazards";
+import { HAZARDS, CATEGORY_LABEL, type HazardCategory } from "../lib/biosecurityHazards";
 
 const categories: HazardCategory[] = ["operator", "statutory"];
 
@@ -24,11 +24,6 @@ export default function BiosecurityMap() {
     Object.fromEntries(HAZARDS.map((h) => [h.id, true]))
   );
   const [activeHazardId, setActiveHazardId] = useState<string>(HAZARDS[0].id);
-
-  const activeHazard = useMemo(
-    () => HAZARDS.find((h) => h.id === activeHazardId) as Hazard,
-    [activeHazardId]
-  );
 
   const toggleLayer = (id: string) => {
     setActiveLayers((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -87,79 +82,73 @@ export default function BiosecurityMap() {
                   }`}>
                     {CATEGORY_LABEL[cat]}
                   </h2>
-                  {HAZARDS.filter((h) => h.category === cat).map((h) => (
-                    <div
-                      key={h.id}
-                      onClick={() => setActiveHazardId(h.id)}
-                      className={`rounded border px-2.5 py-2 cursor-pointer transition-colors ${
-                        activeHazardId === h.id
-                          ? "border-border bg-secondary/60"
-                          : "border-transparent hover:border-border hover:bg-secondary/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={!!activeLayers[h.id]}
-                          onChange={(e) => { e.stopPropagation(); toggleLayer(h.id); }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="shrink-0"
-                          style={{ accentColor: h.color }}
-                        />
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: h.color }} />
-                        <span className="font-mono text-xs font-semibold leading-tight">{h.commonName}</span>
+                  {HAZARDS.filter((h) => h.category === cat).map((h) => {
+                    const isOpen = activeHazardId === h.id;
+                    return (
+                      <div key={h.id} className={`rounded border transition-colors ${isOpen ? "border-border bg-secondary/60" : "border-transparent hover:border-border hover:bg-secondary/30"}`}>
+                        {/* Row header */}
+                        <div
+                          onClick={() => setActiveHazardId(h.id)}
+                          className="flex items-center gap-2 px-2.5 py-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={!!activeLayers[h.id]}
+                            onChange={(e) => { e.stopPropagation(); toggleLayer(h.id); }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="shrink-0"
+                            style={{ accentColor: h.color }}
+                          />
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: h.color }} />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-mono text-xs font-semibold leading-tight">{h.commonName}</p>
+                            <p className="font-mono text-[10px] italic text-muted-foreground">{h.scientificName}</p>
+                          </div>
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </div>
+
+                        {/* Dropdown detail */}
+                        {isOpen && (
+                          <div
+                            className="mx-2.5 mb-2.5 rounded border p-2.5 space-y-2"
+                            style={{ borderColor: `${h.color}55`, backgroundColor: `${h.color}10` }}
+                          >
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span
+                                className="font-mono text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border"
+                                style={{ color: h.color, borderColor: h.color }}
+                              >
+                                {h.category === "operator" ? "Direct Operator Threat" : "Statutory Containment"}
+                              </span>
+                              <span className="font-mono text-[10px] text-muted-foreground">{h.regionLabel}</span>
+                            </div>
+                            <div>
+                              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                                Operational Impact
+                              </p>
+                              <p className="font-mono text-[11px] text-foreground leading-snug">{h.operationalImpact}</p>
+                            </div>
+                            <div>
+                              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                                Mandatory Controls
+                              </p>
+                              <ul className="font-mono text-[11px] text-foreground space-y-1 list-disc list-inside">
+                                {h.controls.map((c, i) => (
+                                  <li key={i} className="leading-snug">{c}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="font-mono text-[10px] italic text-muted-foreground ml-8 mt-0.5">{h.scientificName}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             ))}
 
-            {/* Active hazard info */}
-            {activeHazard && (
-              <Card className="border-border bg-card/60">
-                <CardContent className="p-3 space-y-2.5">
-                  <h3 className="font-mono font-bold uppercase tracking-widest text-xs text-primary flex items-center gap-1.5">
-                    <Scale className="w-3.5 h-3.5" /> Active Hazard
-                  </h3>
-                  <div
-                    className="rounded border p-2.5 space-y-2"
-                    style={{ borderColor: `${activeHazard.color}55`, backgroundColor: `${activeHazard.color}10` }}
-                  >
-                    <div>
-                      <p className="font-black text-sm leading-tight">{activeHazard.commonName}</p>
-                      <p className="font-mono text-[10px] italic text-muted-foreground">{activeHazard.scientificName}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span
-                        className="font-mono text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border"
-                        style={{ color: activeHazard.color, borderColor: activeHazard.color }}
-                      >
-                        {activeHazard.category === "operator" ? "Direct Operator Threat" : "Statutory Containment"}
-                      </span>
-                      <span className="font-mono text-[10px] text-muted-foreground">{activeHazard.regionLabel}</span>
-                    </div>
-                    <div>
-                      <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                        Operational Impact
-                      </p>
-                      <p className="font-mono text-[11px] text-foreground leading-snug">{activeHazard.operationalImpact}</p>
-                    </div>
-                    <div>
-                      <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-                        Mandatory Controls
-                      </p>
-                      <ul className="font-mono text-[11px] text-foreground space-y-1 list-disc list-inside">
-                        {activeHazard.controls.map((c, i) => (
-                          <li key={i} className="leading-snug">{c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Map */}
