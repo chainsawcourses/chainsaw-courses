@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, ShieldAlert, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck, MapPinned, Cog } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck, MapPinned, Cog } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -293,7 +293,7 @@ export default function TrainingList() {
               className="text-muted-foreground hover:text-primary ml-2"
               title="Biosecurity & Hazard Map"
             >
-              <ShieldAlert className="w-5 h-5" />
+              <img src="/bio-hazard.png" alt="biohazard" className="w-5 h-5" />
             </Link>
             <Link
               href="/chain-chart"
@@ -802,7 +802,7 @@ export default function TrainingList() {
                                   )}
                                   {module.isHighRisk && !module.isLocked && (
                                     <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
-                                      <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> HIGH RISK
+                                      <img src="/bio-hazard.png" alt="" className="w-2.5 h-2.5 mr-0.5 inline" /> HIGH RISK
                                     </Badge>
                                   )}
                                 </div>

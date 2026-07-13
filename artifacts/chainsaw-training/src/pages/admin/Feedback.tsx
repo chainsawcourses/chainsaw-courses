@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShieldAlert, ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import { useListFeedback, getListFeedbackQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -29,7 +29,7 @@ export default function Feedback() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
-            <ShieldAlert className="w-5 h-5 mr-2" /> MODULE FEEDBACK
+            <img src="/bio-hazard.png" alt="" className="w-5 h-5 mr-2 inline" /> MODULE FEEDBACK
           </div>
           <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
             <Link href="/admin/dashboard">

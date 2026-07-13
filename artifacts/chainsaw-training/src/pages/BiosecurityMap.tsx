@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, ShieldAlert, Info, ChevronDown } from "lucide-react";
+import { ArrowLeft, Info, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserSession } from "../contexts/UserContext";
@@ -43,7 +43,7 @@ export default function BiosecurityMap() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-primary" />
+            <img src="/bio-hazard.png" alt="biohazard" className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Biosecurity &amp; Hazard Map</span>
           </div>
           <div className="w-14" />

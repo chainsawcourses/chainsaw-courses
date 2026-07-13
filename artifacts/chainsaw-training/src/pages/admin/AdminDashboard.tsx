@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ShieldAlert, Users, TrendingUp, Search, Plus, LogOut, Video, FileText, Star, ClipboardCheck, MapPinned } from "lucide-react";
+import { Users, TrendingUp, Search, Plus, LogOut, Video, FileText, Star, ClipboardCheck, MapPinned } from "lucide-react";
 import { useGetAdminStats, useListStudents, useCreateActivationCode, getGetAdminStatsQueryKey, getListStudentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
-            <ShieldAlert className="w-5 h-5 mr-2" /> OVERSEER
+            <img src="/bio-hazard.png" alt="" className="w-5 h-5 mr-2 inline" /> OVERSEER
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
