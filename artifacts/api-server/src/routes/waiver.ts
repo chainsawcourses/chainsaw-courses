@@ -104,7 +104,7 @@ router.get("/waiver/pdf", async (req, res) => {
     }
     const textX = fs.existsSync(logoPath) ? 60 + logoSize + 12 : 60;
     doc.fontSize(22).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 6, { lineBreak: false });
-    doc.fontSize(10).fillColor(mid).font("Helvetica").text("PROFESSIONAL TRAINING PORTAL", textX, headerY + 34, { lineBreak: false });
+    doc.fontSize(10).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 34, { lineBreak: false });
     // Advance past the logo block
     doc.text("", 60, headerY + logoSize + 8);
     doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor(orange).lineWidth(1.5).stroke();

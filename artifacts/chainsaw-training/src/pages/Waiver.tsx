@@ -134,7 +134,7 @@ export default function Waiver() {
                 Chainsaw Courses
               </h1>
               <p className="text-muted-foreground uppercase tracking-widest text-xs">
-                Professional Training Portal
+                Chainsaw Maintenance &amp; Cross Cutting
               </p>
             </div>
           </div>

@@ -100,7 +100,7 @@ export default function Activation() {
             </h1>
           </div>
           <p className="uppercase tracking-widest text-xs mt-2 text-muted-foreground">
-            Professional Training Portal
+            Chainsaw Maintenance &amp; Cross Cutting
           </p>
         </div>
         

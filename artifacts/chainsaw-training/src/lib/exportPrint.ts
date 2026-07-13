@@ -120,7 +120,7 @@ function branded(title: string, subtitle: string, studentName: string, date: str
   <div class="header">
     <div>
       <div class="brand-name">Chainsaw Courses</div>
-      <div class="brand-sub">Professional Training Portal</div>
+      <div class="brand-sub">Chainsaw Maintenance &amp; Cross Cutting</div>
     </div>
     <div>
       <div class="doc-title">${title}</div>
