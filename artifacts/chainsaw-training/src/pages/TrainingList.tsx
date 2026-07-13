@@ -580,6 +580,7 @@ export default function TrainingList() {
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1">
                   <CardContent className="p-4 space-y-5 font-mono text-sm text-muted-foreground">
+                    <p className="font-bold uppercase tracking-widest text-sm text-primary">External Links</p>
                     <a
                       href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
                       target="_blank"
