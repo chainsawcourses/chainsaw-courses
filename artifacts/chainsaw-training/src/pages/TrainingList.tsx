@@ -555,7 +555,7 @@ export default function TrainingList() {
                 {howToUseOpen && (
                   <Card className="border-border bg-card/60 mt-1">
                     <CardContent className="p-4">
-                      <p className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {howToUseText}
                       </p>
                     </CardContent>
@@ -579,14 +579,14 @@ export default function TrainingList() {
               </button>
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1">
-                  <CardContent className="p-4 space-y-5 font-mono text-xs text-muted-foreground">
+                  <CardContent className="p-4 space-y-5 font-mono text-sm text-muted-foreground">
                     <a
                       href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      <ExternalLink className="w-3 h-3 shrink-0" /> NPTC Course Overview
+                      <ExternalLink className="w-4 h-4 shrink-0" /> NPTC Course Overview
                     </a>
                     <a
                       href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
@@ -594,7 +594,7 @@ export default function TrainingList() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      <ExternalLink className="w-3 h-3 shrink-0" /> Qualification Handbook
+                      <ExternalLink className="w-4 h-4 shrink-0" /> Qualification Handbook
                     </a>
                     <a
                       href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
@@ -602,7 +602,7 @@ export default function TrainingList() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
                     >
-                      <ExternalLink className="w-3 h-3 shrink-0" /> Assessment Schedule
+                      <ExternalLink className="w-4 h-4 shrink-0" /> Assessment Schedule
                     </a>
                   </CardContent>
                 </Card>
@@ -633,19 +633,19 @@ export default function TrainingList() {
                   >
                     <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
                       <div>
-                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Personal Protective Equipment (PPE)</h3>
-                        <p className="text-xs text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
-                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                        <h3 className="font-bold uppercase tracking-widest text-sm text-primary mb-2">Personal Protective Equipment (PPE)</h3>
+                        <p className="text-sm text-muted-foreground mb-2">All PPE must conform to CE/EN/UK standards.</p>
+                        <ul className="space-y-1 text-sm text-muted-foreground list-none">
                           {["Chainsaw safety leg protection","Chainsaw safety footwear","Safety helmet","Eye and ear protection","Gloves appropriate for the task","Non-snag outer clothing","A personal first aid kit","Site first aid kit"].map(item => (
                             <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
                           ))}
                         </ul>
-                        <p className="text-xs text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
+                        <p className="text-sm text-muted-foreground mt-2 italic">More information is outlined in the PPE video.</p>
                       </div>
 
                       <div>
-                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Site and Workshop Requirements</h3>
-                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                        <h3 className="font-bold uppercase tracking-widest text-sm text-primary mb-2">Site and Workshop Requirements</h3>
+                        <ul className="space-y-1 text-sm text-muted-foreground list-none">
                           {[
                             "Sufficient workspace to safely accommodate yourself.",
                             "A work bench equipped with a facility to securely hold the chainsaw, such as a vice. If on site use a stump vice or similar.",
@@ -659,8 +659,8 @@ export default function TrainingList() {
                       </div>
 
                       <div>
-                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Maintenance Equipment</h3>
-                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                        <h3 className="font-bold uppercase tracking-widest text-sm text-primary mb-2">Maintenance Equipment</h3>
+                        <ul className="space-y-1 text-sm text-muted-foreground list-none">
                           {[
                             "Eye protection","Gloves",
                             "Cleaning equipment — soft and hard bristled brushes or pressurised air-line.",
@@ -680,8 +680,8 @@ export default function TrainingList() {
                       </div>
 
                       <div>
-                        <h3 className="font-bold uppercase tracking-widest text-xs text-primary mb-2">Equipment and Machinery</h3>
-                        <ul className="space-y-1 text-xs text-muted-foreground list-none">
+                        <h3 className="font-bold uppercase tracking-widest text-sm text-primary mb-2">Equipment and Machinery</h3>
+                        <ul className="space-y-1 text-sm text-muted-foreground list-none">
                           {[
                             "Fuel or battery driven chainsaw (with a recommended maximum guide bar length of 15 inches).",
                             "Correctly mixed fuel or appropriate batteries.",
