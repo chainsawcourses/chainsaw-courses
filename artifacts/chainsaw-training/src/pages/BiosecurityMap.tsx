@@ -44,7 +44,7 @@ export default function BiosecurityMap() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <img src={bioHazardSrc} alt="biohazard" className="w-4 h-4" />
+            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="biohazard" className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Biosecurity &amp; Hazard Map</span>
           </div>
           <div className="w-14" />

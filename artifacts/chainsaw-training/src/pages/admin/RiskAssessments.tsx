@@ -36,7 +36,7 @@ export default function RiskAssessments() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
-            <img src={bioHazardSrc} alt="" className="w-5 h-5 mr-2 inline" /> RISK ASSESSMENTS
+            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-5 h-5 mr-2 inline" /> RISK ASSESSMENTS
           </div>
           <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
             <Link href="/admin/dashboard">
@@ -49,7 +49,7 @@ export default function RiskAssessments() {
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         <Card className="bg-secondary/20">
           <CardContent className="p-4 flex items-center gap-3">
-            <img src={mapPinSrc} alt="" className="w-5 h-5" />
+            <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-5 h-5" />
             <span className="font-mono text-sm">
               {assessments
                 ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"} recorded, ${highRiskCount} flagged high-risk`

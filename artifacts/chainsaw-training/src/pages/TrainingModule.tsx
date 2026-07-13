@@ -363,7 +363,7 @@ export default function TrainingModule() {
         >
           <DialogHeader>
             <DialogTitle className="flex items-center font-mono text-destructive uppercase tracking-wide text-xl">
-              <img src={bioHazardSrc} alt="" className="w-6 h-6 mr-2 inline" /> SAFETY WARNING
+              <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-6 h-6 mr-2 inline" /> SAFETY WARNING
             </DialogTitle>
             <DialogDescription className="font-mono text-foreground mt-4 text-sm leading-relaxed">
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md mb-4">

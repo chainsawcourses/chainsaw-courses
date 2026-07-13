@@ -132,7 +132,7 @@ export default function VideoSettings() {
             </div>
           </div>
           <div className="text-xs font-mono text-muted-foreground hidden sm:block">
-            <img src={bioHazardSrc} alt="" className="w-3 h-3 inline mr-1" /> ADMIN ONLY
+            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-3 h-3 inline mr-1" /> ADMIN ONLY
           </div>
         </div>
       </header>

@@ -1,4 +1,4 @@
-import bioHazardSrc from "@assets/bio-hazard-clean.png";
-import mapPinSrc from "@assets/map-pin.png";
+import bioHazardSrc from "../assets/bio-hazard.png";
+import mapPinSrc from "../assets/map-pin-nobg.png";
 
 export { bioHazardSrc, mapPinSrc };

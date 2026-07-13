@@ -324,7 +324,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <img src={mapPinSrc} alt="" className="w-3.5 h-3.5 shrink-0" />
+                    <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-3.5 h-3.5 shrink-0" />
                     <span>Dynamic Risk Assessment</span>
                   </Link>
                   <Link
@@ -332,7 +332,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <img src={bioHazardSrc} alt="" className="w-3.5 h-3.5 shrink-0" />
+                    <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-3.5 h-3.5 shrink-0" />
                     <span>Biosecurity &amp; Hazard Map</span>
                   </Link>
                   <Link
@@ -455,10 +455,10 @@ export default function TrainingList() {
               <ClipboardCheck className="w-5 h-5" />
             </Link>
             <Link href="/risk-assessment" className="text-muted-foreground hover:text-primary" title="Dynamic Risk Assessment">
-              <img src={mapPinSrc} alt="risk assessment" className="w-5 h-5" />
+              <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="risk assessment" className="w-5 h-5" />
             </Link>
             <Link href="/biosecurity-map" className="text-muted-foreground hover:text-primary" title="Biosecurity & Hazard Map">
-              <img src={bioHazardSrc} alt="biohazard" className="w-5 h-5" />
+              <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="biohazard" className="w-5 h-5" />
             </Link>
             <Link href="/chain-chart" className="text-muted-foreground hover:text-primary" title="Chain ID Chart">
               <Cog className="w-5 h-5" />
@@ -839,7 +839,7 @@ export default function TrainingList() {
                                   )}
                                   {module.isHighRisk && !module.isLocked && (
                                     <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
-                                      <img src={bioHazardSrc} alt="" className="w-2.5 h-2.5 mr-0.5 inline" /> HIGH RISK
+                                      <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-2.5 h-2.5 mr-0.5 inline" /> HIGH RISK
                                     </Badge>
                                   )}
                                 </div>

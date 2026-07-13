@@ -345,7 +345,7 @@ export default function RiskAssessment() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <img src={mapPinSrc} alt="" className="w-4 h-4" />
+            <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
           <Button
@@ -709,7 +709,7 @@ export default function RiskAssessment() {
               {submitRiskAssessment.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
-                <img src={mapPinSrc} alt="" className="w-4 h-4 mr-2 inline" />
+                <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4 mr-2 inline" />
               )}
               Save Risk Assessment
             </Button>

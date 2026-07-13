@@ -40,7 +40,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <img src={bioHazardSrc} alt="biohazard" className="w-12 h-12 mx-auto mb-4" />
+          <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="biohazard" className="w-12 h-12 mx-auto mb-4" />
           <h1 className="text-xl font-bold font-mono tracking-widest uppercase">Admin Portal</h1>
         </div>
         

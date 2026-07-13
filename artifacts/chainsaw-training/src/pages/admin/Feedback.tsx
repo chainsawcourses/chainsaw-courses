@@ -30,7 +30,7 @@ export default function Feedback() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
-            <img src={bioHazardSrc} alt="" className="w-5 h-5 mr-2 inline" /> MODULE FEEDBACK
+            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-5 h-5 mr-2 inline" /> MODULE FEEDBACK
           </div>
           <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
             <Link href="/admin/dashboard">

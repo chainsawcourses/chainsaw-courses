@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
-            <img src={bioHazardSrc} alt="" className="w-5 h-5 mr-2 inline" /> OVERSEER
+            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-5 h-5 mr-2 inline" /> OVERSEER
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/risk-assessments">
-                <img src={mapPinSrc} alt="" className="w-4 h-4 mr-2 inline" /> RISK ASSESSMENTS
+                <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4 mr-2 inline" /> RISK ASSESSMENTS
               </Link>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">

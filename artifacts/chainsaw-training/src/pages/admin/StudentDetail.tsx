@@ -90,7 +90,7 @@ export default function StudentDetail() {
           <Card className="border-border bg-card/30">
             <CardHeader>
               <CardTitle className="font-mono uppercase tracking-widest flex items-center">
-                <img src={bioHazardSrc} alt="" className="w-4 h-4 mr-2 inline" /> Security Status
+                <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4 mr-2 inline" /> Security Status
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
