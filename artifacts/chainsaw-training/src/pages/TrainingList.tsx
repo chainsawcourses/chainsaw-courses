@@ -80,16 +80,6 @@ export default function TrainingList() {
     }
   }, []);
 
-  // When equipment opens: scroll content to bottom (enabling the button) then bring footer into view
-  useEffect(() => {
-    if (!equipmentOpen) return;
-    const timer = setTimeout(() => {
-      const el = equipmentScrollRef.current;
-      if (el) el.scrollTop = el.scrollHeight; // triggers onScroll → sets equipmentScrolled=true
-      equipmentFooterRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [equipmentOpen]);
 
   const handleEquipmentAcknowledge = useCallback(() => {
     if (!equipmentListModule || !deviceId || !activationCode) return;
