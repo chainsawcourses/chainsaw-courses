@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Users, TrendingUp, Search, Plus, LogOut, Video, FileText, Star, ClipboardCheck, MapPinned } from "lucide-react";
+import { Users, TrendingUp, Search, Plus, LogOut, Video, FileText, Star, ClipboardCheck } from "lucide-react";
 import { useGetAdminStats, useListStudents, useCreateActivationCode, getGetAdminStatsQueryKey, getListStudentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/risk-assessments">
-                <MapPinned className="w-4 h-4 mr-2" /> RISK ASSESSMENTS
+                <img src="/map-pin.png" alt="" className="w-4 h-4 mr-2 inline" /> RISK ASSESSMENTS
               </Link>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPinned, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -48,7 +48,7 @@ export default function RiskAssessments() {
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         <Card className="bg-secondary/20">
           <CardContent className="p-4 flex items-center gap-3">
-            <MapPinned className="w-5 h-5 text-primary" />
+            <img src="/map-pin.png" alt="" className="w-5 h-5" />
             <span className="font-mono text-sm">
               {assessments
                 ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"} recorded, ${highRiskCount} flagged high-risk`

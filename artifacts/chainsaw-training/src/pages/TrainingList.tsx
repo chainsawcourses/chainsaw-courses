@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, PlayCircle, CheckCircle, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck, MapPinned, Cog } from "lucide-react";
+import { Lock, PlayCircle, CheckCircle, Award, LogOut, FileText, Users, ChevronDown, ChevronRight, ExternalLink, MessageCircle, ClipboardCheck, Cog } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -323,7 +323,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <MapPinned className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <img src="/map-pin.png" alt="" className="w-3.5 h-3.5 shrink-0" />
                     <span>Dynamic Risk Assessment</span>
                   </Link>
                   <Link
@@ -454,7 +454,7 @@ export default function TrainingList() {
               <ClipboardCheck className="w-5 h-5" />
             </Link>
             <Link href="/risk-assessment" className="text-muted-foreground hover:text-primary" title="Dynamic Risk Assessment">
-              <MapPinned className="w-5 h-5" />
+              <img src="/map-pin.png" alt="risk assessment" className="w-5 h-5" />
             </Link>
             <Link href="/biosecurity-map" className="text-muted-foreground hover:text-primary" title="Biosecurity & Hazard Map">
               <img src="/bio-hazard.png" alt="biohazard" className="w-5 h-5" />

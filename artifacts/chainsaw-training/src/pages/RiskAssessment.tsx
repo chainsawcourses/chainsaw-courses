@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, MapPinned, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2, FileDown, ClipboardCopy,
+  ArrowLeft, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2, FileDown, ClipboardCopy,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
@@ -344,7 +344,7 @@ export default function RiskAssessment() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <MapPinned className="w-4 h-4 text-primary" />
+            <img src="/map-pin.png" alt="" className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
           <Button
@@ -708,7 +708,7 @@ export default function RiskAssessment() {
               {submitRiskAssessment.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
-                <MapPinned className="w-4 h-4 mr-2" />
+                <img src="/map-pin.png" alt="" className="w-4 h-4 mr-2 inline" />
               )}
               Save Risk Assessment
             </Button>
