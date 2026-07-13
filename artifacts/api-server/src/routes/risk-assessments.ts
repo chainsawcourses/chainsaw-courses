@@ -244,7 +244,7 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
       doc.moveDown(0.6);
     }
 
-    // Emergency & site safety section
+    // Emergency & site safety section (always shown)
     const emergencyFields: [string, string | null][] = [
       ["Nearest A&E Hospital", row.nearestHospital],
       ["Hospital Phone Number", row.hospitalPhone],
@@ -254,23 +254,19 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
       ["Meeting Point", row.meetingPoint],
       ["Site Access", row.siteAccess],
     ];
-    const hasEmergency = emergencyFields.some(([, v]) => v);
-    if (hasEmergency) {
-      doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("EMERGENCY & SITE SAFETY INFO");
-      doc.moveDown(0.25);
-      const emgBoxY = doc.y;
-      const emgLines = emergencyFields.filter(([, v]) => v);
-      const emgH = emgLines.length * 14 + 8;
-      doc.rect(L, emgBoxY, W, emgH).fill("#FFF7ED");
-      let ey = emgBoxY + 5;
-      for (const [label, value] of emgLines) {
-        doc.fontSize(8).fillColor(mid).font("Helvetica-Bold").text(`${label}:`, L + 6, ey, { lineBreak: false, width: 170 });
-        doc.fontSize(8).fillColor(dark).font("Helvetica").text(value!, L + 180, ey, { lineBreak: false, width: W - 186 });
-        ey += 14;
-      }
-      doc.text("", L, emgBoxY + emgH + 6);
-      doc.moveDown(0.4);
+    doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("EMERGENCY & SITE SAFETY INFO");
+    doc.moveDown(0.25);
+    const emgBoxY = doc.y;
+    const emgH = emergencyFields.length * 14 + 8;
+    doc.rect(L, emgBoxY, W, emgH).fill("#FFF7ED");
+    let ey = emgBoxY + 5;
+    for (const [label, value] of emergencyFields) {
+      doc.fontSize(8).fillColor(mid).font("Helvetica-Bold").text(`${label}:`, L + 6, ey, { lineBreak: false, width: 170 });
+      doc.fontSize(8).fillColor(value ? dark : "#AAAAAA").font("Helvetica").text(value ?? "—", L + 180, ey, { lineBreak: false, width: W - 186 });
+      ey += 14;
     }
+    doc.text("", L, emgBoxY + emgH + 6);
+    doc.moveDown(0.4);
 
     // Hazards table
     doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("HAZARD ASSESSMENT");

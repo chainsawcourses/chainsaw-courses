@@ -86,6 +86,7 @@ const SHARED_CSS = `
   .field { display: grid; grid-template-columns: 130px 1fr; gap: 4px 8px; margin-bottom: 4px; }
   .field-label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.08em; color: #888; padding-top: 1px; }
   .field-value { font-size: 11px; color: #1a1a1a; }
+  .field-value.blank { color: #aaa; font-style: italic; }
   table { width: 100%; border-collapse: collapse; margin-top: 4px; }
   th { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; background: #1a1a1a; color: #fff; padding: 5px 7px; text-align: left; }
   td { padding: 5px 7px; vertical-align: top; border-bottom: 1px solid #e5e7eb; font-size: 10px; line-height: 1.4; }
@@ -179,15 +180,15 @@ export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, _logoB
   const locationParts = [data.address, data.gridReference ? `OS Grid: ${data.gridReference}` : null].filter(Boolean);
 
   const f = (label: string, value: string | null | undefined) =>
-    value ? `<div class="field"><span class="field-label">${label}</span><span class="field-value">${value}</span></div>` : "";
+    `<div class="field"><span class="field-label">${label}</span><span class="field-value${!value ? ' blank' : ''}">${value || "—"}</span></div>`;
 
   const body = `
     <h2>Site &amp; Task Details</h2>
     ${f("Task Description", data.taskDescription)}
     ${f("Site Description", data.siteDescription)}
-    ${locationParts.length ? `<div class="field"><span class="field-label">Location</span><span class="field-value">${locationParts.join(" · ")}</span></div>` : ""}
+    ${f("Location", locationParts.length ? locationParts.join(" · ") : null)}
     ${f("What3Words", data.what3Words)}
-    ${data.latitude && data.longitude ? `<div class="field"><span class="field-label">Coordinates</span><span class="field-value">${data.latitude}, ${data.longitude}</span></div>` : ""}
+    ${f("Coordinates", data.latitude && data.longitude ? `${data.latitude}, ${data.longitude}` : null)}
 
     <h2>Emergency &amp; Site Safety Info</h2>
     ${f("Nearest A&amp;E Hospital", data.nearestHospital)}
