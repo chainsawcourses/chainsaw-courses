@@ -92,6 +92,39 @@ function getChunks(): Chunk[] {
 }
 
 /**
+ * Maps colloquial phrases to the technical terms they actually refer to.
+ * Applied before keyword extraction so the search scores the right chunks.
+ */
+const PHRASE_INTENT: Array<{ pattern: RegExp; inject: string }> = [
+  // Engine stalling / stopping
+  { pattern: /\bcuts?\s+out\b/i,        inject: "engine stalls idle carburetor fuel" },
+  { pattern: /\bdies?\b/i,              inject: "engine stalls idle carburetor fuel" },
+  { pattern: /\bstalls?\b/i,            inject: "engine stalls idle carburetor fuel" },
+  { pattern: /\bkeeps?\s+stopping\b/i,  inject: "engine stalls idle carburetor fuel" },
+  // Starting problems
+  { pattern: /\bwon'?t\s+start\b/i,     inject: "starting ignition spark plug choke fuel" },
+  { pattern: /\bhard\s+to\s+start\b/i,  inject: "starting ignition spark plug choke" },
+  { pattern: /\bnot\s+starting\b/i,     inject: "starting ignition spark plug fuel" },
+  { pattern: /\bwon'?t\s+pull\b/i,      inject: "starter recoil starting" },
+  // Overheating / smoke
+  { pattern: /\bsmok(e|ing)\b/i,        inject: "oil lubrication overheating cooling" },
+  { pattern: /\boverheating\b/i,        inject: "cooling air filter oil lubrication" },
+  // Chain movement
+  { pattern: /\bchain\s+not\s+moving\b/i, inject: "clutch chain brake drive" },
+  { pattern: /\bchain\s+won'?t\s+move\b/i, inject: "clutch chain brake drive" },
+  // Vibration
+  { pattern: /\bvibrat/i,               inject: "anti-vibration mounts worn" },
+];
+
+function expandQuery(query: string): string {
+  let extra = "";
+  for (const { pattern, inject } of PHRASE_INTENT) {
+    if (pattern.test(query)) extra += " " + inject;
+  }
+  return extra ? query + " " + extra : query;
+}
+
+/**
  * Search the manual for passages relevant to a query.
  * Returns the top-N most relevant chunks.
  */
@@ -99,7 +132,8 @@ export function searchManual(query: string, topN = 3, minScore = 2): string[] {
   const chunks = getChunks();
   if (chunks.length === 0) return [];
 
-  const queryWords = extractKeywords(query);
+  const expanded = expandQuery(query);
+  const queryWords = extractKeywords(expanded);
   if (queryWords.length === 0) return [];
 
   const scored = chunks.map((chunk) => {
@@ -145,29 +179,18 @@ function formatChunk(chunk: Chunk): string {
  */
 export function buildTutorAnswer(query: string, passages: string[]): string {
   if (passages.length === 0) {
-    return (
-      "I don't have a specific answer for that in the training manual. " +
-      "Try rephrasing your question using keywords like: risk assessment, kickback, chain brake, PPE, or maintenance."
-    );
+    return "That topic isn't covered in the training manual. Try asking about starting, carburetor, chain brake, PPE, kickback, or maintenance.";
   }
 
-  const cleaned = passages.map((p) =>
-    p
-      // Replace any remaining tabs with a space
-      .replace(/\t/g, " ")
-      // Fix multiple spaces
-      .replace(/\s+/g, " ")
-      .trim()
-  );
+  // Take only the single best passage and trim it to ~300 chars to keep it short
+  const best = passages[0]
+    .replace(/\t/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const joined = cleaned
-    .map((p, i) => `\n\n${i + 1}. ${p}`)
-    .join("");
+  const trimmed = best.length > 350 ? best.slice(0, 347) + "…" : best;
 
-  return (
-    `Here is what the training manual says on that topic:${joined}\n\n` +
-    "Let me know if you'd like me to dig deeper into any specific area."
-  );
+  return trimmed;
 }
 
 function extractKeywords(text: string): string[] {
