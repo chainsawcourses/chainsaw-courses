@@ -226,7 +226,7 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
       doc.moveDown(0.6);
     }
 
-    if (row.address || row.gridReference || row.latitude) {
+    if (row.address || row.gridReference || row.latitude || row.what3Words) {
       doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("SITE LOCATION");
       doc.moveDown(0.2);
       if (row.address) {
@@ -235,10 +235,41 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
       if (row.gridReference) {
         doc.fontSize(9).fillColor(mid).font("Helvetica").text(`OS National Grid Reference: ${row.gridReference}`);
       }
+      if (row.what3Words) {
+        doc.fontSize(9).fillColor(mid).font("Helvetica").text(`What3Words: ${row.what3Words}`);
+      }
       if (row.latitude && row.longitude) {
         doc.fontSize(9).fillColor(mid).font("Helvetica").text(`Coordinates: ${row.latitude}, ${row.longitude}`);
       }
       doc.moveDown(0.6);
+    }
+
+    // Emergency & site safety section
+    const emergencyFields: [string, string | null][] = [
+      ["Nearest A&E Hospital", row.nearestHospital],
+      ["Hospital Phone Number", row.hospitalPhone],
+      ["Nearest AED (if known)", row.nearestAed],
+      ["Site First Aid Kit Location", row.firstAidKit],
+      ["Nearest Phone Signal", row.nearestSignal],
+      ["Meeting Point", row.meetingPoint],
+      ["Site Access", row.siteAccess],
+    ];
+    const hasEmergency = emergencyFields.some(([, v]) => v);
+    if (hasEmergency) {
+      doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("EMERGENCY & SITE SAFETY INFO");
+      doc.moveDown(0.25);
+      const emgBoxY = doc.y;
+      const emgLines = emergencyFields.filter(([, v]) => v);
+      const emgH = emgLines.length * 14 + 8;
+      doc.rect(L, emgBoxY, W, emgH).fill("#FFF7ED");
+      let ey = emgBoxY + 5;
+      for (const [label, value] of emgLines) {
+        doc.fontSize(8).fillColor(mid).font("Helvetica-Bold").text(`${label}:`, L + 6, ey, { lineBreak: false, width: 170 });
+        doc.fontSize(8).fillColor(dark).font("Helvetica").text(value!, L + 180, ey, { lineBreak: false, width: W - 186 });
+        ey += 14;
+      }
+      doc.text("", L, emgBoxY + emgH + 6);
+      doc.moveDown(0.4);
     }
 
     // Hazards table
