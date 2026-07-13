@@ -284,8 +284,8 @@ export default function RiskAssessment() {
 
   const addCustomHazard = () => {
     setHazards((prev) => [
-      ...prev,
       { id: `custom-${Date.now()}`, label: "", likelihood: 1, severity: 1, controlMeasures: "", isCustom: true },
+      ...prev,
     ]);
   };
 
