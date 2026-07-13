@@ -205,8 +205,9 @@ router.get("/inspections/:id/pdf", async (req, res) => {
       for (let i = 0; i < sectionItems.length; i++) {
         const item = sectionItems[i];
         const noteText = item.note ?? "";
-        const noteH = noteText ? doc.heightOfString(noteText, { width: colW.notes - 8 }) : 0;
-        const dynH = Math.max(rowH, noteH + 8);
+        const labelH = doc.heightOfString(item.label, { width: colW.item - 8, fontSize: 9 });
+        const noteH = noteText ? doc.heightOfString(noteText, { width: colW.notes - 8, fontSize: 8.5 }) : 0;
+        const dynH = Math.max(rowH, labelH + 8, noteH + 8);
 
         if (ty + dynH > 780) { doc.addPage(); ty = 50; }
 
@@ -215,7 +216,7 @@ router.get("/inspections/:id/pdf", async (req, res) => {
 
         cx = L;
         doc.fillColor(dark).fontSize(9).font("Helvetica");
-        doc.text(item.label, cx + 4, ty + 4, { width: colW.item - 8, lineBreak: false }); cx += colW.item;
+        doc.text(item.label, cx + 4, ty + 4, { width: colW.item - 8 }); cx += colW.item;
 
         // Status badge
         const isPass = item.status === "pass";
