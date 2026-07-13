@@ -688,16 +688,9 @@ export default function RiskAssessment() {
       {!showHistory && (
         <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest shrink-0">
-                {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
-              </span>
-              {submitted && (
-                <span className="flex items-center gap-1 font-mono text-[10px] text-primary uppercase tracking-widest animate-in fade-in duration-300">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> Assessment saved
-                </span>
-              )}
-            </div>
+            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest shrink-0">
+              {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
+            </span>
             <Button
               size="sm"
               onClick={handleSubmit}
