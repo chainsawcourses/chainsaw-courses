@@ -258,50 +258,6 @@ export default function TrainingList() {
                 <ChevronDown className={`w-5 h-5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
               </div>
             </button>
-            <a
-              href="https://chainsawcourses.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary ml-12"
-              title="Community"
-            >
-              <Users className="w-5 h-5" />
-            </a>
-            <Link
-              href="/ai-tutor"
-              className="text-muted-foreground hover:text-primary ml-2"
-              title="AI Tutor"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/inspection"
-              className="text-muted-foreground hover:text-primary ml-2"
-              title="Inspection Checklist"
-            >
-              <ClipboardCheck className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/risk-assessment"
-              className="text-muted-foreground hover:text-primary ml-2"
-              title="Dynamic Risk Assessment"
-            >
-              <MapPinned className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/biosecurity-map"
-              className="text-muted-foreground hover:text-primary ml-2"
-              title="Biosecurity & Hazard Map"
-            >
-              <img src="/bio-hazard.png" alt="biohazard" className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/chain-chart"
-              className="text-muted-foreground hover:text-primary ml-2"
-              title="Chain Identification Chart"
-            >
-              <Cog className="w-5 h-5" />
-            </Link>
 
             {brandMenuOpen && (
               <div
@@ -331,6 +287,61 @@ export default function TrainingList() {
                       </a>
                     </div>
                   </div>
+                </div>
+
+                {/* Navigation links */}
+                <div className="border-b border-border">
+                  <a
+                    href="https://chainsawcourses.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Users className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Community</span>
+                    <ExternalLink className="w-2.5 h-2.5 ml-auto text-muted-foreground shrink-0" />
+                  </a>
+                  <Link
+                    href="/ai-tutor"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>AI Tutor</span>
+                  </Link>
+                  <Link
+                    href="/inspection"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <ClipboardCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Inspection Checklist</span>
+                  </Link>
+                  <Link
+                    href="/risk-assessment"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <MapPinned className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Dynamic Risk Assessment</span>
+                  </Link>
+                  <Link
+                    href="/biosecurity-map"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <img src="/bio-hazard.png" alt="" className="w-3.5 h-3.5 shrink-0" />
+                    <span>Biosecurity &amp; Hazard Map</span>
+                  </Link>
+                  <Link
+                    href="/chain-chart"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Cog className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Chain ID Chart</span>
+                  </Link>
                 </div>
 
                 <div className="border-b border-border">
