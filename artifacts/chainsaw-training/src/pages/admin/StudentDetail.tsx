@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, User, MonitorSmartphone, FileSignature, CheckCircle, XCircle } from "lucide-react";
+import { bioHazardSrc } from "../../lib/customIcons";
 import { useGetStudent, useResetDeviceBond, getGetStudentQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
@@ -89,7 +90,7 @@ export default function StudentDetail() {
           <Card className="border-border bg-card/30">
             <CardHeader>
               <CardTitle className="font-mono uppercase tracking-widest flex items-center">
-                <img src="/bio-hazard.png" alt="" className="w-4 h-4 mr-2 inline" /> Security Status
+                <img src={bioHazardSrc} alt="" className="w-4 h-4 mr-2 inline" /> Security Status
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">

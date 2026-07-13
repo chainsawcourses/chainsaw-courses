@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   ArrowLeft, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2, FileDown, ClipboardCopy,
 } from "lucide-react";
+import { mapPinSrc } from "../lib/customIcons";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -344,7 +345,7 @@ export default function RiskAssessment() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <img src="/map-pin.png" alt="" className="w-4 h-4" />
+            <img src={mapPinSrc} alt="" className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
           <Button
@@ -708,7 +709,7 @@ export default function RiskAssessment() {
               {submitRiskAssessment.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
-                <img src="/map-pin.png" alt="" className="w-4 h-4 mr-2 inline" />
+                <img src={mapPinSrc} alt="" className="w-4 h-4 mr-2 inline" />
               )}
               Save Risk Assessment
             </Button>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save, CheckCircle2, FileText, FolderOpen } from "lucide-react";
+import { bioHazardSrc } from "../../lib/customIcons";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -94,7 +95,7 @@ export default function PdfSettings() {
             </div>
           </div>
           <div className="text-xs font-mono text-muted-foreground hidden sm:block">
-            <img src="/bio-hazard.png" alt="" className="w-3 h-3 inline mr-1" /> ADMIN ONLY
+            <img src={bioHazardSrc} alt="" className="w-3 h-3 inline mr-1" /> ADMIN ONLY
           </div>
         </div>
       </header>
