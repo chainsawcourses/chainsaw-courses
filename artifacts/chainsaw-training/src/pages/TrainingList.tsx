@@ -436,8 +436,33 @@ export default function TrainingList() {
           {/* Centre — empty */}
           <div />
 
-          {/* Right — empty */}
-          <div />
+          {/* Right — nav icons */}
+          <div className="flex items-center justify-end gap-3">
+            <a
+              href="https://chainsawcourses.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary"
+              title="Community"
+            >
+              <Users className="w-5 h-5" />
+            </a>
+            <Link href="/ai-tutor" className="text-muted-foreground hover:text-primary" title="AI Tutor">
+              <MessageCircle className="w-5 h-5" />
+            </Link>
+            <Link href="/inspection" className="text-muted-foreground hover:text-primary" title="Inspection Checklist">
+              <ClipboardCheck className="w-5 h-5" />
+            </Link>
+            <Link href="/risk-assessment" className="text-muted-foreground hover:text-primary" title="Dynamic Risk Assessment">
+              <MapPinned className="w-5 h-5" />
+            </Link>
+            <Link href="/biosecurity-map" className="text-muted-foreground hover:text-primary" title="Biosecurity & Hazard Map">
+              <img src="/bio-hazard.png" alt="biohazard" className="w-5 h-5" />
+            </Link>
+            <Link href="/chain-chart" className="text-muted-foreground hover:text-primary" title="Chain ID Chart">
+              <Cog className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </header>
 
