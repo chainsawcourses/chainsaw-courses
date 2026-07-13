@@ -458,39 +458,66 @@ export default function RiskAssessment() {
                   <label className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground">
                     Site Location
                   </label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={handleLocate}
-                    disabled={locating}
-                    className="font-mono text-[10px] uppercase tracking-widest"
-                  >
-                    {locating ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                    ) : (
-                      <LocateFixed className="w-3.5 h-3.5 mr-1" />
+                  <div className="flex items-center gap-2">
+                    {locating && accuracy !== null && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const best = bestCoordsRef.current;
+                          if (!best) return;
+                          stopWatch();
+                          void reverseGeocode(best.lat, best.lon).finally(() => setLocating(false));
+                        }}
+                        className="font-mono text-[10px] uppercase tracking-widest border-amber-500 text-amber-600 hover:bg-amber-50"
+                      >
+                        Use this fix (±{accuracy}m)
+                      </Button>
                     )}
-                    {locating ? "Getting GPS fix…" : "Use My Location"}
-                  </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleLocate}
+                      disabled={locating}
+                      className="font-mono text-[10px] uppercase tracking-widest"
+                    >
+                      {locating ? (
+                        <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                      ) : (
+                        <LocateFixed className="w-3.5 h-3.5 mr-1" />
+                      )}
+                      {locating ? "Getting GPS fix…" : "Use My Location"}
+                    </Button>
+                  </div>
                 </div>
-                {locating && accuracy !== null && (
+                {locating && (
                   <p className="font-mono text-[10px] text-muted-foreground">
-                    Improving accuracy… ±{accuracy}m
-                    {accuracy > 30 ? " (waiting for GPS lock)" : ""}
+                    {accuracy !== null
+                      ? `Improving accuracy… ±${accuracy}m${accuracy > 30 ? " — move outdoors for a GPS lock" : ""}`
+                      : "Requesting location…"}
                   </p>
                 )}
                 {locationError && (
                   <p className="font-mono text-[10px] text-destructive">{locationError}</p>
                 )}
                 {coords && (
-                  <div className="text-[10px] font-mono text-muted-foreground space-y-0.5 border border-border rounded p-2 bg-background/60">
-                    {address && <p className="text-foreground">{address}</p>}
+                  <div className="text-[10px] font-mono text-muted-foreground space-y-1.5 border border-border rounded p-2 bg-background/60">
+                    <div>
+                      <p className="uppercase tracking-widest text-[9px] text-muted-foreground mb-0.5">Address <span className="normal-case tracking-normal">(editable)</span></p>
+                      <Input
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Enter or correct the address"
+                        className="font-mono text-[11px] bg-background border-border h-7 px-2"
+                      />
+                    </div>
                     <p>Lat/Lon: {coords.lat.toFixed(6)}, {coords.lon.toFixed(6)}</p>
                     {gridReference && <p>OS Grid Reference: {gridReference}</p>}
                     {accuracy !== null && (
                       <p className={accuracy <= 30 ? "text-green-600" : "text-amber-600"}>
-                        {accuracy <= 30 ? `✓ GPS locked — ±${accuracy}m accuracy` : `±${accuracy}m accuracy (coarse fix)`}
+                        {accuracy <= 30 ? `✓ GPS locked — ±${accuracy}m` : `±${accuracy}m accuracy (coarse fix — address may be approximate)`}
                       </p>
                     )}
                   </div>
