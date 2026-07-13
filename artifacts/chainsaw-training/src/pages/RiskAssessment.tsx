@@ -699,16 +699,17 @@ export default function RiskAssessment() {
               )}
             </div>
             <Button
+              size="sm"
               onClick={handleSubmit}
               disabled={submitRiskAssessment.isPending || !taskDescription.trim()}
-              className="font-mono text-sm uppercase tracking-widest px-6 shrink-0"
+              className="font-mono text-xs uppercase tracking-widest px-4 shrink-0"
             >
               {submitRiskAssessment.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
               ) : (
-                <MapPin className="w-4 h-4 mr-2 inline" />
+                <MapPin className="w-3.5 h-3.5 mr-1.5 inline" />
               )}
-              Save Risk Assessment
+              Save Assessment
             </Button>
           </div>
         </div>
