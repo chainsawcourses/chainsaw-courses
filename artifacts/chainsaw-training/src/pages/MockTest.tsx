@@ -55,13 +55,19 @@ function tokenSet(text: string): Set<string> {
   const set = new Set<string>();
   for (const w of words) {
     set.add(w);
-    // Add common stems
-    if (w.endsWith("ing")) set.add(w.slice(0, -3));
-    if (w.endsWith("ed")) set.add(w.slice(0, -2));
+    if (w.endsWith("ing") && w.length > 4) set.add(w.slice(0, -3));
+    if (w.endsWith("ed") && w.length > 3) set.add(w.slice(0, -2));
     if (w.endsWith("s") && w.length > 2) set.add(w.slice(0, -1));
     if (w.endsWith("es") && w.length > 3) set.add(w.slice(0, -2));
-    if (w.endsWith("ly")) set.add(w.slice(0, -2));
-    if (w.endsWith("er")) set.add(w.slice(0, -2));
+    if (w.endsWith("ly") && w.length > 3) set.add(w.slice(0, -2));
+    if (w.endsWith("er") && w.length > 3) set.add(w.slice(0, -2));
+    // Extended stems: safety→safe, protection→protect, darkness→dark
+    if (w.endsWith("ty") && w.length > 4) set.add(w.slice(0, -2));
+    if (w.endsWith("tion") && w.length > 6) set.add(w.slice(0, -4));
+    if (w.endsWith("ness") && w.length > 5) set.add(w.slice(0, -4));
+    if (w.endsWith("ment") && w.length > 6) set.add(w.slice(0, -4));
+    if (w.endsWith("ance") && w.length > 6) set.add(w.slice(0, -4));
+    if (w.endsWith("ence") && w.length > 6) set.add(w.slice(0, -4));
   }
   return set;
 }
@@ -69,14 +75,21 @@ function tokenSet(text: string): Set<string> {
 function keywordCovers(transcript: string, keyword: string): boolean {
   const tNorm = normalize(transcript);
   const kwNorm = normalize(keyword);
-  // Exact substring still works (most reliable)
+  // Exact substring match (most reliable)
   if (tNorm.includes(kwNorm)) return true;
-  // Token-based: all keyword tokens must appear in transcript (any order)
   const tTokens = tokenSet(tNorm);
-  const kwTokens = normalize(keyword).split(" ");
-  const matched = kwTokens.filter((w) => w.length > 2 && tTokens.has(w));
-  // If >60% of keyword tokens appear, consider it a match
-  return kwTokens.length > 0 && matched.length / kwTokens.length >= 0.6;
+  const kwTokens = kwNorm.split(" ");
+  // Only consider meaningful tokens (>2 chars) — ignore stopwords like "to", "of", "it"
+  const relevantTokens = kwTokens.filter(w => w.length > 2);
+  if (relevantTokens.length === 0) return false;
+  const matched = relevantTokens.filter(w => {
+    if (tTokens.has(w)) return true;
+    // Cross-stem: stem the keyword token and check if any stem appears in transcript
+    const kwStems = tokenSet(w);
+    return [...kwStems].some(stem => stem.length > 2 && tTokens.has(stem));
+  });
+  // Accept if ≥50% of relevant keyword tokens are covered (more forgiving for short answers)
+  return matched.length / relevantTokens.length >= 0.5;
 }
 
 function matchKeyPoints(transcript: string, prompt: VocalPrompt): boolean[] {
