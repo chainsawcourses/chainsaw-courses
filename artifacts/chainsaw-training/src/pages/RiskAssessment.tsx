@@ -17,21 +17,7 @@ const BASE = import.meta.env.BASE_URL as string;
 
 function playBing() {
   try {
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(1047, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1397, ctx.currentTime + 0.06);
-    osc.frequency.exponentialRampToValueAtTime(1319, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.6);
-    osc.onended = () => ctx.close();
+    new Audio("/audio/ding.wav").play().catch(() => { /* silent fail */ });
   } catch {
     // audio not available — silent fail
   }
