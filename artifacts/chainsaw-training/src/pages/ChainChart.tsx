@@ -19,11 +19,15 @@ function normalise(s: string) {
   return s.trim().toUpperCase();
 }
 
-function findMatches(brand: Brand, query: string): ChainChartRow[] {
+function findMatches(brand: Brand, query: string, query2?: string): ChainChartRow[] {
   const q = normalise(query);
-  if (!q) return [];
+  const q2 = normalise(query2 ?? "");
+  if (!q && !q2) return [];
   return CHAIN_CHART.filter((row) =>
-    row[brand].some((code) => normalise(code) === q || normalise(code).includes(q))
+    row[brand].some((code) => {
+      const c = normalise(code);
+      return (q && (c === q || c.includes(q))) || (q2 && (c === q2 || c.includes(q2)));
+    })
   );
 }
 
@@ -39,8 +43,12 @@ export default function ChainChart() {
 
   const [brand, setBrand] = useState<Brand>("oregon");
   const [query, setQuery] = useState("");
+  const [stihlQuery2, setStihlQuery2] = useState("");
 
-  const matches = useMemo(() => findMatches(brand, query), [brand, query]);
+  const matches = useMemo(
+    () => findMatches(brand, query, brand === "stihl" ? stihlQuery2 : undefined),
+    [brand, query, stihlQuery2]
+  );
 
   if (!activationCode || !deviceId) return null;
 
@@ -67,11 +75,6 @@ export default function ChainChart() {
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
             Chain Identification Chart
           </h1>
-          <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            Straight from the manual's appendix. Look up your chain's pitch, gauge, file size and top plate
-            filing angle by the number stamped on the drive link (Oregon/Husqvarna) or drive link + depth
-            gauge (Stihl) — no more flipping to the back page.
-          </p>
         </div>
 
         {/* Quick lookup */}
@@ -85,7 +88,7 @@ export default function ChainChart() {
               {(Object.keys(BRAND_LABEL) as Brand[]).map((b) => (
                 <button
                   key={b}
-                  onClick={() => setBrand(b)}
+                  onClick={() => { setBrand(b); setQuery(""); setStihlQuery2(""); }}
                   className={`flex-1 font-mono text-xs uppercase tracking-wide py-2 rounded border transition-colors ${
                     brand === b
                       ? "bg-primary text-primary-foreground border-primary"
@@ -97,20 +100,39 @@ export default function ChainChart() {
               ))}
             </div>
 
-            <div>
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={
-                  brand === "stihl"
-                    ? "e.g. 63 (drive link + depth gauge number)"
-                    : "e.g. 91 (number stamped on the drive link)"
-                }
-                className="font-mono text-sm"
-              />
-            </div>
+            {brand === "stihl" ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Number near depth gauge</label>
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="e.g. 3"
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Number on drive link</label>
+                  <Input
+                    value={stihlQuery2}
+                    onChange={(e) => setStihlQuery2(e.target.value)}
+                    placeholder="e.g. 63"
+                    className="font-mono text-sm"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="e.g. 91 (number stamped on the drive link)"
+                  className="font-mono text-sm"
+                />
+              </div>
+            )}
 
-            {query.trim() && (
+            {(query.trim() || stihlQuery2.trim()) && (
               <div className="space-y-2">
                 {matches.length === 0 ? (
                   <p className="font-mono text-xs text-muted-foreground flex items-center gap-1.5">
