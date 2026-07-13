@@ -12,9 +12,13 @@ import { copyInspectionText, type InspectionExportData } from "../lib/exportPrin
 
 const BASE = import.meta.env.BASE_URL as string;
 
+const bingAudio = new Audio("/audio/ding.wav");
+bingAudio.load();
+
 function playBing() {
   try {
-    new Audio("/audio/ding.wav").play().catch(() => { /* silent fail */ });
+    bingAudio.currentTime = 0;
+    bingAudio.play().catch(() => { /* silent fail */ });
   } catch {
     // audio not available — silent fail
   }
