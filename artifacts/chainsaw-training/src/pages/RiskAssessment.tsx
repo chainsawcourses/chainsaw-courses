@@ -4,10 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  ArrowLeft, History, Loader2, LocateFixed, CheckCircle2, AlertTriangle, Plus, Trash2, FileDown, ClipboardCopy,
-} from "lucide-react";
-import { mapPinSrc } from "../lib/customIcons";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, FileDown, History, Loader2, LocateFixed, MapPin, Plus, Trash2 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -345,7 +342,7 @@ export default function RiskAssessment() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4" />
+            <MapPin className="w-4 h-4" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
           <Button
@@ -709,7 +706,7 @@ export default function RiskAssessment() {
               {submitRiskAssessment.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
-                <img src={mapPinSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-4 h-4 mr-2 inline" />
+                <MapPin className="w-4 h-4 mr-2 inline" />
               )}
               Save Risk Assessment
             </Button>

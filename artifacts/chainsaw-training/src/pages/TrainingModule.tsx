@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, CheckCircle2, LogOut, FileText, ExternalLink, ChevronRight, RotateCcw } from "lucide-react";
-import { bioHazardSrc } from "../lib/customIcons";
+import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, LogOut, RotateCcw } from "lucide-react";
 import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
@@ -363,7 +362,7 @@ export default function TrainingModule() {
         >
           <DialogHeader>
             <DialogTitle className="flex items-center font-mono text-destructive uppercase tracking-wide text-xl">
-              <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-6 h-6 mr-2 inline" /> SAFETY WARNING
+              <Biohazard className="w-6 h-6 mr-2 inline" /> SAFETY WARNING
             </DialogTitle>
             <DialogDescription className="font-mono text-foreground mt-4 text-sm leading-relaxed">
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-md mb-4">

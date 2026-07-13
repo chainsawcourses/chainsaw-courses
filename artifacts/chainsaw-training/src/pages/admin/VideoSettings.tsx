@@ -3,8 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Save, CheckCircle2, Video, Play, ChevronUp, ChevronDown, AlertTriangle } from "lucide-react";
-import { bioHazardSrc } from "../../lib/customIcons";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronUp, Play, Save, Video } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -132,7 +131,7 @@ export default function VideoSettings() {
             </div>
           </div>
           <div className="text-xs font-mono text-muted-foreground hidden sm:block">
-            <img src={bioHazardSrc} style={{ filter: "brightness(0) invert(0.65)" }} alt="" className="w-3 h-3 inline mr-1" /> ADMIN ONLY
+            <Biohazard className="w-3 h-3 inline mr-1" /> ADMIN ONLY
           </div>
         </div>
       </header>
