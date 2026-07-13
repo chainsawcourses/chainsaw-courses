@@ -56,8 +56,7 @@ export default function BiosecurityMap() {
             Biosecurity &amp; Hazard Map
           </h1>
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            UK chainsaw operator awareness tool. Use before site work to check for relevant pest,
-            disease or health hazards in your area.
+            Use this map to check for relevant pest, disease, or health hazards in the UK.
           </p>
         </div>
 
