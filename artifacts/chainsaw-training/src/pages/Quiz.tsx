@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation, useParams, Link } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -198,8 +198,14 @@ export default function Quiz() {
                   <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
                 </Button>
               ) : (
-                <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
-                  <Link href="/training">CONTINUE TRAINING</Link>
+                <Button
+                  className="w-full h-14 font-mono font-bold tracking-widest"
+                  onClick={() => {
+                    sessionStorage.setItem("scrollAfterModule", String(id));
+                    setLocation("/training");
+                  }}
+                >
+                  CONTINUE TRAINING
                 </Button>
               )}
             </div>
