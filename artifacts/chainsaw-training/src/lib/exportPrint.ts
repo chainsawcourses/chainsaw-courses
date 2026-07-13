@@ -1,4 +1,5 @@
 export interface RiskAssessmentExportData {
+  id?: number;
   taskDescription: string;
   siteDescription?: string | null;
   address?: string | null;
@@ -18,6 +19,7 @@ export interface RiskAssessmentExportData {
 }
 
 export interface InspectionExportData {
+  id?: number;
   sawIdentifier?: string | null;
   items: Array<{
     id: string;

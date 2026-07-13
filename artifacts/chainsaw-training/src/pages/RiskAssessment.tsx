@@ -11,10 +11,9 @@ import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
-import { downloadRiskAssessmentPdf, copyRiskAssessmentText, preloadLogoBase64, type RiskAssessmentExportData } from "../lib/exportPrint";
+import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
-function logoSrc() { return `${window.location.origin}${BASE}logo.png`; }
 
 function playBing() {
   try {
@@ -139,7 +138,7 @@ function riskBand(rating: number): { label: string; className: string } {
 
 export default function RiskAssessment() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName } = useUserSession();
+  const { activationCode, deviceId, fullName, userId } = useUserSession();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -166,12 +165,31 @@ export default function RiskAssessment() {
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
-  const logoB64Ref = useRef<string | null>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    void preloadLogoBase64(logoSrc()).then((b64) => { logoB64Ref.current = b64; });
-  }, []);
+  const downloadPdf = async (id: number) => {
+    try {
+      const res = await fetch(`${BASE}api/risk-assessments/${id}/pdf`, {
+        headers: {
+          deviceid: deviceId ?? "",
+          activationcode: activationCode ?? "",
+          ...(userId != null ? { userid: String(userId) } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `risk-assessment-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Could not download PDF. Please try again.");
+    }
+  };
 
   const stopWatch = () => {
     if (watchIdRef.current !== null) {
@@ -386,11 +404,7 @@ export default function RiskAssessment() {
                 const isDownloading = downloadingId === record.id;
                 const handleDownload = () => {
                   setDownloadingId(record.id);
-                  downloadRiskAssessmentPdf(
-                    { ...record, studentName: record.studentName || fullName || "" },
-                    logoB64Ref.current,
-                  );
-                  setDownloadingId(null);
+                  void downloadPdf(record.id).finally(() => setDownloadingId(null));
                 };
                 return (
                   <div
@@ -432,7 +446,7 @@ export default function RiskAssessment() {
                         onClick={handleDownload}
                       >
                         <FileDown className="w-3 h-3 mr-1" />
-                        {isDownloading ? "Opening…" : "PDF"}
+                        {isDownloading ? "Downloading…" : "PDF"}
                       </Button>
                       <Button
                         size="sm"
@@ -658,17 +672,13 @@ export default function RiskAssessment() {
                       }`}
                       onClick={() => {
                         setPdfDownloading(true);
-                        downloadRiskAssessmentPdf(
-                          { ...exportRecord, studentName: exportRecord.studentName || fullName || "" },
-                          logoB64Ref.current,
-                        );
-                        setTimeout(() => setPdfDownloading(false), 800);
+                        void downloadPdf(exportRecord.id!).finally(() => setPdfDownloading(false));
                       }}
                     >
                       {pdfDownloading
                         ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                         : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
-                      {pdfDownloading ? "Opening…" : "Save as PDF"}
+                      {pdfDownloading ? "Downloading…" : "Download PDF"}
                     </Button>
                     <Button
                       size="sm"

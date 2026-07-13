@@ -2,10 +2,13 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { inspectionRecordsTable, usersTable } from "@workspace/db";
 import { SubmitInspectionBody } from "@workspace/api-zod";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
+import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
@@ -96,6 +99,171 @@ router.get("/inspections", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching inspection history");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/inspections/:id/pdf", async (req, res) => {
+  const deviceId = req.headers["deviceid"] as string;
+  const activationCode = req.headers["activationcode"] as string;
+  const id = Number(req.params.id);
+
+  if (!deviceId || !activationCode || isNaN(id)) {
+    res.status(400).json({ error: "Missing auth headers or invalid id" });
+    return;
+  }
+
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const [row] = await db
+      .select()
+      .from(inspectionRecordsTable)
+      .where(and(eq(inspectionRecordsTable.id, id), eq(inspectionRecordsTable.userId, user.id)))
+      .limit(1);
+
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    const items: InspectionItem[] = JSON.parse(row.items);
+    const sections = Array.from(new Set(items.map((i) => i.section)));
+    const dateStr = new Date(row.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+    const timeStr = new Date(row.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    const safeName = (user.fullName ?? "record").replace(/[^a-z0-9]/gi, "-");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="inspection-${safeName}-${id}.pdf"`);
+
+    const doc = new PDFDocument({ margin: 0, size: "A4" });
+    doc.pipe(res);
+
+    const orange = "#D97706";
+    const dark = "#1C1C1C";
+    const mid = "#555555";
+    const green = "#16A34A";
+    const red = "#DC2626";
+    const L = 50;
+    const R = 545;
+    const W = R - L;
+
+    // Header
+    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
+    const logoSize = 52;
+    const headerY = 40;
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, L, headerY, { width: logoSize, height: logoSize });
+    }
+    const textX = fs.existsSync(logoPath) ? L + logoSize + 12 : L;
+    doc.fontSize(20).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 4, { lineBreak: false });
+    doc.fontSize(9).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 30, { lineBreak: false });
+    doc.text("", L, headerY + logoSize + 10);
+    doc.moveTo(L, doc.y).lineTo(R, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
+    doc.moveDown(0.8);
+
+    doc.fontSize(14).fillColor(dark).font("Helvetica-Bold").text("PRE-START & PRE-USE INSPECTION CHECKLIST", L, doc.y);
+    doc.moveDown(0.6);
+
+    // Student / date bar
+    const barY = doc.y;
+    doc.rect(L, barY, W, row.sawIdentifier ? 40 : 28).fill("#F3F4F6");
+    doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(user.fullName ?? "—", L + 8, barY + 5, { lineBreak: false });
+    doc.fontSize(9).fillColor(mid).font("Helvetica").text(`${dateStr}  ${timeStr}`, L + 8, barY + 16, { lineBreak: false });
+    if (row.sawIdentifier) {
+      doc.fontSize(9).fillColor(mid).font("Helvetica").text(`Saw / Equipment: ${row.sawIdentifier}`, L + 8, barY + 28, { lineBreak: false });
+    }
+    doc.text("", L, barY + (row.sawIdentifier ? 48 : 36));
+
+    // Columns: Item | Status | Notes
+    const colW = { item: 230, status: 65, notes: W - 230 - 65 };
+    const rowH = 16;
+
+    for (const section of sections) {
+      const sectionItems = items.filter((i) => i.section === section);
+
+      // Section header
+      doc.moveDown(0.5);
+      if (doc.y > 740) { doc.addPage(); doc.y = 50; }
+      doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text(section.toUpperCase() + " CHECKS", L, doc.y);
+      doc.moveDown(0.3);
+
+      let ty = doc.y;
+
+      // Table header
+      doc.rect(L, ty, W, rowH).fill(dark);
+      let cx = L;
+      doc.fillColor("#FFFFFF").fontSize(7.5).font("Helvetica-Bold");
+      doc.text("CHECK ITEM", cx + 4, ty + 4, { width: colW.item - 8, lineBreak: false }); cx += colW.item;
+      doc.text("RESULT", cx + 3, ty + 4, { width: colW.status - 6, lineBreak: false, align: "center" }); cx += colW.status;
+      doc.text("NOTES", cx + 4, ty + 4, { width: colW.notes - 8, lineBreak: false });
+      ty += rowH;
+
+      for (let i = 0; i < sectionItems.length; i++) {
+        const item = sectionItems[i];
+        const noteText = item.note ?? "";
+        const noteH = noteText ? doc.heightOfString(noteText, { width: colW.notes - 8 }) : 0;
+        const dynH = Math.max(rowH, noteH + 8);
+
+        if (ty + dynH > 780) { doc.addPage(); ty = 50; }
+
+        if (i % 2 === 0) doc.rect(L, ty, W, dynH).fill("#F9FAFB");
+        doc.rect(L, ty, W, dynH).strokeColor("#E5E7EB").lineWidth(0.4).stroke();
+
+        cx = L;
+        doc.fillColor(dark).fontSize(9).font("Helvetica");
+        doc.text(item.label, cx + 4, ty + 4, { width: colW.item - 8, lineBreak: false }); cx += colW.item;
+
+        // Status badge
+        const isPass = item.status === "pass";
+        const isFail = item.status === "fail";
+        const badgeColor = isPass ? green : isFail ? red : "#6B7280";
+        const badgeLabel = isPass ? "PASS" : isFail ? "FAIL" : "N/A";
+        const badgeW = 36;
+        const badgeX = cx + (colW.status - badgeW) / 2;
+        doc.rect(badgeX, ty + 3, badgeW, 11).fill(badgeColor);
+        doc.fillColor("#FFFFFF").fontSize(7).font("Helvetica-Bold")
+           .text(badgeLabel, badgeX + 2, ty + 5, { width: badgeW - 4, lineBreak: false, align: "center" });
+        cx += colW.status;
+
+        if (noteText) {
+          doc.fillColor(isFail ? red : mid).fontSize(8.5).font("Helvetica-Oblique")
+             .text(noteText, cx + 4, ty + 4, { width: colW.notes - 8 });
+        }
+
+        ty += dynH;
+      }
+
+      doc.text("", L, ty);
+    }
+
+    // Overall result
+    doc.moveDown(1);
+    if (doc.y > 720) { doc.addPage(); doc.y = 50; }
+    doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("OVERALL RESULT", L);
+    doc.moveDown(0.3);
+    const resultY = doc.y;
+    const resultColor = row.hasFailures ? red : green;
+    const resultLabel = row.hasFailures ? "FAILURES NOTED — DO NOT USE SAW" : "ALL CHECKS CLEAR";
+    doc.rect(L, resultY, W, 26).fill(resultColor);
+    doc.fillColor("#FFFFFF").fontSize(11).font("Helvetica-Bold")
+       .text(resultLabel, L, resultY + 7, { width: W, align: "center", lineBreak: false });
+    doc.text("", L, resultY + 34);
+
+    // Footer
+    doc.moveDown(1.5);
+    doc.moveTo(L, doc.y).lineTo(R, doc.y).strokeColor("#CCCCCC").lineWidth(0.5).stroke();
+    doc.moveDown(0.4);
+    doc.fontSize(7).fillColor(mid).font("Helvetica")
+       .text("Personal working record only — always follow manufacturer guidance and employer procedures. © Chainsaw Courses.", L, doc.y, { align: "center", width: W });
+
+    doc.end();
+  } catch (err) {
+    logger.error({ err }, "Error generating inspection PDF");
+    if (!res.headersSent) res.status(500).json({ error: "Failed to generate PDF" });
   }
 });
 
