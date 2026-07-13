@@ -205,9 +205,11 @@ router.get("/inspections/:id/pdf", async (req, res) => {
       for (let i = 0; i < sectionItems.length; i++) {
         const item = sectionItems[i];
         const noteText = item.note ?? "";
-        const labelH = doc.heightOfString(item.label, { width: colW.item - 8, fontSize: 9 });
-        const noteH = noteText ? doc.heightOfString(noteText, { width: colW.notes - 8, fontSize: 8.5 }) : 0;
-        const dynH = Math.max(rowH, labelH + 8, noteH + 8);
+        doc.fontSize(9).font("Helvetica");
+        const labelH = doc.heightOfString(item.label, { width: colW.item - 8 });
+        doc.fontSize(8.5).font("Helvetica-Oblique");
+        const noteH = noteText ? doc.heightOfString(noteText, { width: colW.notes - 8 }) : 0;
+        const dynH = Math.max(rowH, labelH + 12, noteH + 12);
 
         if (ty + dynH > 780) { doc.addPage(); ty = 50; }
 

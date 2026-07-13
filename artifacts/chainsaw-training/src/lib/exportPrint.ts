@@ -4,8 +4,16 @@ export interface RiskAssessmentExportData {
   siteDescription?: string | null;
   address?: string | null;
   gridReference?: string | null;
+  what3Words?: string | null;
   latitude?: string | null;
   longitude?: string | null;
+  nearestHospital?: string | null;
+  hospitalPhone?: string | null;
+  siteAccess?: string | null;
+  meetingPoint?: string | null;
+  firstAidKit?: string | null;
+  nearestAed?: string | null;
+  nearestSignal?: string | null;
   hazards: Array<{
     label: string;
     likelihood: number;
@@ -170,12 +178,25 @@ export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, _logoB
 
   const locationParts = [data.address, data.gridReference ? `OS Grid: ${data.gridReference}` : null].filter(Boolean);
 
+  const f = (label: string, value: string | null | undefined) =>
+    value ? `<div class="field"><span class="field-label">${label}</span><span class="field-value">${value}</span></div>` : "";
+
   const body = `
     <h2>Site &amp; Task Details</h2>
-    <div class="field"><span class="field-label">Task Description</span><span class="field-value">${data.taskDescription}</span></div>
-    ${data.siteDescription ? `<div class="field"><span class="field-label">Site Description</span><span class="field-value">${data.siteDescription}</span></div>` : ""}
+    ${f("Task Description", data.taskDescription)}
+    ${f("Site Description", data.siteDescription)}
     ${locationParts.length ? `<div class="field"><span class="field-label">Location</span><span class="field-value">${locationParts.join(" · ")}</span></div>` : ""}
+    ${f("What3Words", data.what3Words)}
     ${data.latitude && data.longitude ? `<div class="field"><span class="field-label">Coordinates</span><span class="field-value">${data.latitude}, ${data.longitude}</span></div>` : ""}
+
+    <h2>Emergency &amp; Site Safety Info</h2>
+    ${f("Nearest A&amp;E Hospital", data.nearestHospital)}
+    ${f("Hospital Phone", data.hospitalPhone)}
+    ${f("Nearest AED", data.nearestAed)}
+    ${f("Site First Aid Kit", data.firstAidKit)}
+    ${f("Nearest Phone Signal", data.nearestSignal)}
+    ${f("Meeting Point", data.meetingPoint)}
+    ${f("Site Access", data.siteAccess)}
 
     <h2>Hazard Assessment</h2>
     <table>
@@ -269,6 +290,8 @@ export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB")
     : new Date().toLocaleString("en-GB");
+  const opt = (label: string, value: string | null | undefined) => value ? `${label}: ${value}` : "";
+
   const lines: string[] = [
     "CHAINSAW COURSES — DYNAMIC SITE RISK ASSESSMENT",
     `Date: ${date}`,
@@ -276,9 +299,20 @@ export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {
     "",
     "TASK & SITE",
     `Task: ${data.taskDescription}`,
-    data.siteDescription ? `Site: ${data.siteDescription}` : "",
-    data.address ? `Location: ${data.address}` : "",
-    data.gridReference ? `OS Grid: ${data.gridReference}` : "",
+    opt("Site", data.siteDescription),
+    opt("Location", data.address),
+    opt("OS Grid", data.gridReference),
+    opt("What3Words", data.what3Words),
+    data.latitude && data.longitude ? `Coords: ${data.latitude}, ${data.longitude}` : "",
+    "",
+    "EMERGENCY & SITE SAFETY",
+    opt("Nearest A&E Hospital", data.nearestHospital),
+    opt("Hospital Phone", data.hospitalPhone),
+    opt("Nearest AED", data.nearestAed),
+    opt("Site First Aid Kit", data.firstAidKit),
+    opt("Nearest Phone Signal", data.nearestSignal),
+    opt("Meeting Point", data.meetingPoint),
+    opt("Site Access", data.siteAccess),
     "",
     "HAZARD ASSESSMENT",
     ...data.hazards.map((h) => {

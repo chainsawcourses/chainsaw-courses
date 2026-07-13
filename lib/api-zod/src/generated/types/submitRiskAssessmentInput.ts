@@ -16,5 +16,13 @@ export interface SubmitRiskAssessmentInput {
   longitude?: string;
   address?: string;
   gridReference?: string;
+  what3Words?: string;
+  nearestHospital?: string;
+  hospitalPhone?: string;
+  siteAccess?: string;
+  meetingPoint?: string;
+  firstAidKit?: string;
+  nearestAed?: string;
+  nearestSignal?: string;
   hazards: HazardEntryInput[];
 }

@@ -1227,6 +1227,22 @@ components:
           type: string
         gridReference:
           type: string
+        what3Words:
+          type: string
+        nearestHospital:
+          type: string
+        hospitalPhone:
+          type: string
+        siteAccess:
+          type: string
+        meetingPoint:
+          type: string
+        firstAidKit:
+          type: string
+        nearestAed:
+          type: string
+        nearestSignal:
+          type: string
         hazards:
           type: array
           items:
@@ -1249,6 +1265,22 @@ components:
         address:
           type: ["string", "null"]
         gridReference:
+          type: ["string", "null"]
+        what3Words:
+          type: ["string", "null"]
+        nearestHospital:
+          type: ["string", "null"]
+        hospitalPhone:
+          type: ["string", "null"]
+        siteAccess:
+          type: ["string", "null"]
+        meetingPoint:
+          type: ["string", "null"]
+        firstAidKit:
+          type: ["string", "null"]
+        nearestAed:
+          type: ["string", "null"]
+        nearestSignal:
           type: ["string", "null"]
         hazards:
           type: array

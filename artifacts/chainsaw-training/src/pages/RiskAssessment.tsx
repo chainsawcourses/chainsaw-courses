@@ -146,6 +146,15 @@ export default function RiskAssessment() {
   const watchIdRef = useRef<number | null>(null);
   const bestCoordsRef = useRef<{ lat: number; lon: number; accuracy: number } | null>(null);
 
+  const [what3Words, setWhat3Words] = useState("");
+  const [nearestHospital, setNearestHospital] = useState("");
+  const [hospitalPhone, setHospitalPhone] = useState("");
+  const [siteAccess, setSiteAccess] = useState("");
+  const [meetingPoint, setMeetingPoint] = useState("");
+  const [firstAidKit, setFirstAidKit] = useState("");
+  const [nearestAed, setNearestAed] = useState("");
+  const [nearestSignal, setNearestSignal] = useState("");
+
   const [hazards, setHazards] = useState<HazardRow[]>(DEFAULT_HAZARDS);
   const [submitted, setSubmitted] = useState(false);
   const [exportRecord, setExportRecord] = useState<RiskAssessmentExportData | null>(null);
@@ -318,6 +327,14 @@ export default function RiskAssessment() {
         longitude: coords ? coords.lon.toFixed(6) : undefined,
         address: address.trim() || undefined,
         gridReference: gridReference.trim() || undefined,
+        what3Words: what3Words.trim() || undefined,
+        nearestHospital: nearestHospital.trim() || undefined,
+        hospitalPhone: hospitalPhone.trim() || undefined,
+        siteAccess: siteAccess.trim() || undefined,
+        meetingPoint: meetingPoint.trim() || undefined,
+        firstAidKit: firstAidKit.trim() || undefined,
+        nearestAed: nearestAed.trim() || undefined,
+        nearestSignal: nearestSignal.trim() || undefined,
         hazards: hazards
           .filter((h) => h.label.trim())
           .map((h) => ({
@@ -544,6 +561,49 @@ export default function RiskAssessment() {
                   placeholder="e.g. Cross-cutting heavy logs on sloping ground"
                   className="font-mono text-sm bg-background border-border"
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card/60">
+              <CardContent className="p-4 space-y-3">
+                <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
+                  Emergency &amp; Site Safety Info
+                </h2>
+                <p className="font-mono text-[10px] text-muted-foreground">Fill in before starting work. All fields optional but strongly recommended.</p>
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Nearest A&amp;E Hospital</label>
+                    <Input value={nearestHospital} onChange={(e) => setNearestHospital(e.target.value)} placeholder="e.g. Royal Victoria Infirmary, Newcastle" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Hospital Phone Number</label>
+                    <Input value={hospitalPhone} onChange={(e) => setHospitalPhone(e.target.value)} placeholder="e.g. 0191 233 6161" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">What3Words Location</label>
+                    <Input value={what3Words} onChange={(e) => setWhat3Words(e.target.value)} placeholder="e.g. ///filled.count.soap" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Site Access</label>
+                    <Input value={siteAccess} onChange={(e) => setSiteAccess(e.target.value)} placeholder="e.g. 4x4 required — locked gate, key held by forester" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Meeting Point</label>
+                    <Input value={meetingPoint} onChange={(e) => setMeetingPoint(e.target.value)} placeholder="e.g. Main forestry entrance off B6342" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Location of Site First Aid Kit</label>
+                    <Input value={firstAidKit} onChange={(e) => setFirstAidKit(e.target.value)} placeholder="e.g. In red bag in operator's vehicle" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Nearest AED (if known)</label>
+                    <Input value={nearestAed} onChange={(e) => setNearestAed(e.target.value)} placeholder="e.g. Village hall, 1.2 miles north on A68" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Location of Nearest Phone Signal</label>
+                    <Input value={nearestSignal} onChange={(e) => setNearestSignal(e.target.value)} placeholder="e.g. Top of hill at site entrance — 1 bar 4G" className="font-mono text-sm bg-background border-border" />
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

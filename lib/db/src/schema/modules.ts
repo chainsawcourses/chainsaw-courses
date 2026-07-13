@@ -128,6 +128,14 @@ export const riskAssessmentsTable = pgTable("risk_assessments", {
   longitude: text("longitude"),
   address: text("address"),
   gridReference: text("grid_reference"),
+  what3Words: text("what3_words"),
+  nearestHospital: text("nearest_hospital"),
+  hospitalPhone: text("hospital_phone"),
+  siteAccess: text("site_access"),
+  meetingPoint: text("meeting_point"),
+  firstAidKit: text("first_aid_kit"),
+  nearestAed: text("nearest_aed"),
+  nearestSignal: text("nearest_signal"),
   hazards: text("hazards").notNull(), // JSON array of { id, label, likelihood, severity, riskRating, controlMeasures }
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

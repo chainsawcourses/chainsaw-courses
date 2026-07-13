@@ -255,6 +255,14 @@ export interface SubmitRiskAssessmentInput {
   longitude?: string;
   address?: string;
   gridReference?: string;
+  what3Words?: string;
+  nearestHospital?: string;
+  hospitalPhone?: string;
+  siteAccess?: string;
+  meetingPoint?: string;
+  firstAidKit?: string;
+  nearestAed?: string;
+  nearestSignal?: string;
   hazards: HazardEntryInput[];
 }
 
@@ -271,6 +279,22 @@ export interface RiskAssessmentEntry {
   address?: string | null;
   /** @nullable */
   gridReference?: string | null;
+  /** @nullable */
+  what3Words?: string | null;
+  /** @nullable */
+  nearestHospital?: string | null;
+  /** @nullable */
+  hospitalPhone?: string | null;
+  /** @nullable */
+  siteAccess?: string | null;
+  /** @nullable */
+  meetingPoint?: string | null;
+  /** @nullable */
+  firstAidKit?: string | null;
+  /** @nullable */
+  nearestAed?: string | null;
+  /** @nullable */
+  nearestSignal?: string | null;
   hazards: HazardEntryInput[];
   studentName?: string;
   createdAt: string;

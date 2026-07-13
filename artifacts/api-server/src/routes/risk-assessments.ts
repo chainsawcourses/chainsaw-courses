@@ -30,6 +30,14 @@ function serializeRecord(row: {
   longitude: string | null;
   address: string | null;
   gridReference: string | null;
+  what3Words: string | null;
+  nearestHospital: string | null;
+  hospitalPhone: string | null;
+  siteAccess: string | null;
+  meetingPoint: string | null;
+  firstAidKit: string | null;
+  nearestAed: string | null;
+  nearestSignal: string | null;
   hazards: string;
   createdAt: Date;
   studentName?: string | null;
@@ -42,6 +50,14 @@ function serializeRecord(row: {
     longitude: row.longitude ?? null,
     address: row.address ?? null,
     gridReference: row.gridReference ?? null,
+    what3Words: row.what3Words ?? null,
+    nearestHospital: row.nearestHospital ?? null,
+    hospitalPhone: row.hospitalPhone ?? null,
+    siteAccess: row.siteAccess ?? null,
+    meetingPoint: row.meetingPoint ?? null,
+    firstAidKit: row.firstAidKit ?? null,
+    nearestAed: row.nearestAed ?? null,
+    nearestSignal: row.nearestSignal ?? null,
     hazards: JSON.parse(row.hazards) as HazardEntry[],
     studentName: row.studentName ?? undefined,
     createdAt: row.createdAt.toISOString(),
@@ -61,7 +77,7 @@ router.post("/risk-assessments", async (req, res) => {
     return;
   }
 
-  const { deviceId, activationCode, siteDescription, taskDescription, latitude, longitude, address, gridReference, hazards } = parse.data;
+  const { deviceId, activationCode, siteDescription, taskDescription, latitude, longitude, address, gridReference, what3Words, nearestHospital, hospitalPhone, siteAccess, meetingPoint, firstAidKit, nearestAed, nearestSignal, hazards } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -79,6 +95,14 @@ router.post("/risk-assessments", async (req, res) => {
         longitude: longitude ?? null,
         address: address ?? null,
         gridReference: gridReference ?? null,
+        what3Words: what3Words ?? null,
+        nearestHospital: nearestHospital ?? null,
+        hospitalPhone: hospitalPhone ?? null,
+        siteAccess: siteAccess ?? null,
+        meetingPoint: meetingPoint ?? null,
+        firstAidKit: firstAidKit ?? null,
+        nearestAed: nearestAed ?? null,
+        nearestSignal: nearestSignal ?? null,
         hazards: JSON.stringify(hazards),
       })
       .returning();
@@ -310,6 +334,14 @@ router.get("/admin/risk-assessments", async (req, res) => {
         longitude: riskAssessmentsTable.longitude,
         address: riskAssessmentsTable.address,
         gridReference: riskAssessmentsTable.gridReference,
+        what3Words: riskAssessmentsTable.what3Words,
+        nearestHospital: riskAssessmentsTable.nearestHospital,
+        hospitalPhone: riskAssessmentsTable.hospitalPhone,
+        siteAccess: riskAssessmentsTable.siteAccess,
+        meetingPoint: riskAssessmentsTable.meetingPoint,
+        firstAidKit: riskAssessmentsTable.firstAidKit,
+        nearestAed: riskAssessmentsTable.nearestAed,
+        nearestSignal: riskAssessmentsTable.nearestSignal,
         hazards: riskAssessmentsTable.hazards,
         createdAt: riskAssessmentsTable.createdAt,
         studentName: usersTable.fullName,
