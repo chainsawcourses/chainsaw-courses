@@ -698,28 +698,6 @@ export default function TrainingList() {
                     </CardContent>
                   </div>
 
-                  {/* Acknowledge footer */}
-                  <div ref={equipmentFooterRef} className="border-t border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card/80">
-                    {equipmentAcknowledged ? (
-                      <span className="font-mono text-xs text-primary flex items-center gap-1.5">
-                        <CheckCircle className="w-3.5 h-3.5" /> Read &amp; understood
-                      </span>
-                    ) : (
-                      <>
-                        <span className="font-mono text-[10px] text-muted-foreground">
-                          {equipmentScrolled ? "You can now confirm you have read this list." : "Scroll to the bottom to continue."}
-                        </span>
-                        <Button
-                          size="sm"
-                          className="h-7 font-mono text-xs w-full sm:w-auto"
-                          disabled={!equipmentScrolled || completeVideo.isPending}
-                          onClick={handleEquipmentAcknowledge}
-                        >
-                          {completeVideo.isPending ? "Saving…" : "Read & Understood"}
-                        </Button>
-                      </>
-                    )}
-                  </div>
                 </Card>
               )}
             </div>
