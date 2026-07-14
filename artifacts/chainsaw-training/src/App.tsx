@@ -17,6 +17,7 @@ import Inspection from "@/pages/Inspection";
 import RiskAssessment from "@/pages/RiskAssessment";
 import BiosecurityMap from "@/pages/BiosecurityMap";
 import ChainChart from "@/pages/ChainChart";
+import News from "@/pages/News";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -26,6 +27,7 @@ import PdfSettings from "@/pages/admin/PdfSettings";
 import Feedback from "@/pages/admin/Feedback";
 import Inspections from "@/pages/admin/Inspections";
 import RiskAssessments from "@/pages/admin/RiskAssessments";
+import AdminNews from "@/pages/admin/News";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -56,6 +58,7 @@ function Router() {
       <Route path="/risk-assessment" component={RiskAssessment} />
       <Route path="/biosecurity-map" component={BiosecurityMap} />
       <Route path="/chain-chart" component={ChainChart} />
+      <Route path="/news" component={News} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />
@@ -66,6 +69,7 @@ function Router() {
       <Route path="/admin/feedback" component={Feedback} />
       <Route path="/admin/inspections" component={Inspections} />
       <Route path="/admin/risk-assessments" component={RiskAssessments} />
+      <Route path="/admin/news" component={AdminNews} />
 
       <Route component={NotFound} />
     </Switch>

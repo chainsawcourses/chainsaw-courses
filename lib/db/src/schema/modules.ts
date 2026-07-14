@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -148,6 +148,18 @@ export type ExamAttempt = typeof examAttemptsTable.$inferSelect;
 export type InspectionRecord = typeof inspectionRecordsTable.$inferSelect;
 export type RiskAssessmentRecord = typeof riskAssessmentsTable.$inferSelect;
 
+export const newsItemsTable = pgTable("news_items", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  excerpt: text("excerpt").notNull(),
+  url: text("url").notNull(),
+  imageUrl: text("image_url"),
+  publishedAt: timestamp("published_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [index("news_items_published_at_idx").on(t.publishedAt)]);
+
+export const insertNewsItemSchema = createInsertSchema(newsItemsTable).omit({ id: true, createdAt: true });
+
 export const insertModuleSchema = createInsertSchema(modulesTable).omit({ id: true, createdAt: true });
 export const insertUserProgressSchema = createInsertSchema(userProgressTable).omit({ id: true, updatedAt: true });
 export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).omit({ id: true });
@@ -156,6 +168,9 @@ export const insertModuleFeedbackSchema = createInsertSchema(moduleFeedbackTable
 export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).omit({ id: true });
 export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true });
 export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true });
+
+export type NewsItem = typeof newsItemsTable.$inferSelect;
+export type InsertNewsItem = z.infer<typeof insertNewsItemSchema>;
 
 export type Module = typeof modulesTable.$inferSelect;
 export type UserProgress = typeof userProgressTable.$inferSelect;

@@ -433,3 +433,31 @@ export interface ActivationCode {
   notes?: string | null;
 }
 
+export interface NewsItem {
+  id: number;
+  title: string;
+  excerpt: string;
+  url: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  publishedAt: string;
+  createdAt: string;
+}
+
+export interface CreateNewsItemInput {
+  title: string;
+  excerpt: string;
+  url: string;
+  imageUrl?: string;
+  publishedAt: string;
+}
+
+export interface UpdateNewsItemInput {
+  title?: string;
+  excerpt?: string;
+  url?: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  publishedAt?: string;
+}
+

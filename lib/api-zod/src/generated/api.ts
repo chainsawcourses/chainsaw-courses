@@ -739,3 +739,76 @@ export const CreateActivationCodeBody = zod.object({
 })
 
 
+/**
+ * @summary List all news items ordered by date
+ */
+export const ListNewsItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "excerpt": zod.string(),
+  "url": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "publishedAt": zod.string(),
+  "createdAt": zod.string()
+})
+export const ListNewsItemsResponse = zod.array(ListNewsItemsResponseItem)
+
+
+/**
+ * @summary Create a news item
+ */
+export const CreateNewsItemHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const CreateNewsItemBody = zod.object({
+  "title": zod.string(),
+  "excerpt": zod.string(),
+  "url": zod.string(),
+  "imageUrl": zod.string().optional(),
+  "publishedAt": zod.string()
+})
+
+
+/**
+ * @summary Update a news item
+ */
+export const UpdateNewsItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateNewsItemHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const UpdateNewsItemBody = zod.object({
+  "title": zod.string().optional(),
+  "excerpt": zod.string().optional(),
+  "url": zod.string().optional(),
+  "imageUrl": zod.string().nullish(),
+  "publishedAt": zod.string().optional()
+})
+
+export const UpdateNewsItemResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "excerpt": zod.string(),
+  "url": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "publishedAt": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a news item
+ */
+export const DeleteNewsItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteNewsItemHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+
