@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, Zap } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -436,6 +436,14 @@ export default function TrainingList() {
                     <span>Industry News</span>
                   </Link>
                   <Link
+                    href="/cross-cut-sim"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Zap className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Cross-Cut Simulator</span>
+                  </Link>
+                  <Link
                     href="/privacy"
                     className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
@@ -512,6 +520,9 @@ export default function TrainingList() {
             </Link>
             <Link href="/news" className="text-muted-foreground hover:text-primary" title="Industry News">
               <Newspaper className="w-5 h-5" />
+            </Link>
+            <Link href="/cross-cut-sim" className="text-muted-foreground hover:text-primary" title="Cross-Cut Simulator">
+              <Zap className="w-5 h-5" />
             </Link>
           </div>
         </div>

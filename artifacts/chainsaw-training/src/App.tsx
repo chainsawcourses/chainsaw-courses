@@ -19,6 +19,7 @@ import BiosecurityMap from "@/pages/BiosecurityMap";
 import ChainChart from "@/pages/ChainChart";
 import News from "@/pages/News";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import CrossCutSim from "@/pages/CrossCutSim";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/chain-chart" component={ChainChart} />
       <Route path="/news" component={News} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/cross-cut-sim" component={CrossCutSim} />
       <Route path="/qr/:moduleId" component={QrLanding} />
 
       {/* Admin Routes */}
