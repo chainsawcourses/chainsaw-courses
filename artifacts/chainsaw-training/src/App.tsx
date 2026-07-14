@@ -28,6 +28,8 @@ import Feedback from "@/pages/admin/Feedback";
 import Inspections from "@/pages/admin/Inspections";
 import RiskAssessments from "@/pages/admin/RiskAssessments";
 import AdminNews from "@/pages/admin/News";
+import AdminQrCodes from "@/pages/admin/QrCodes";
+import QrLanding from "@/pages/QrLanding";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -59,6 +61,7 @@ function Router() {
       <Route path="/biosecurity-map" component={BiosecurityMap} />
       <Route path="/chain-chart" component={ChainChart} />
       <Route path="/news" component={News} />
+      <Route path="/qr/:moduleId" component={QrLanding} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />
@@ -70,6 +73,7 @@ function Router() {
       <Route path="/admin/inspections" component={Inspections} />
       <Route path="/admin/risk-assessments" component={RiskAssessments} />
       <Route path="/admin/news" component={AdminNews} />
+      <Route path="/admin/qr-codes" component={AdminQrCodes} />
 
       <Route component={NotFound} />
     </Switch>
