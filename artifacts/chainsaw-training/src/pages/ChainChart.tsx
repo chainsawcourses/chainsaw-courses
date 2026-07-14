@@ -117,31 +117,59 @@ export default function ChainChart() {
               <div className="space-y-3">
                 <div>
                   <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Number near depth gauge</label>
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="e.g. 3"
-                    className="font-mono text-sm"
-                  />
+                  {query ? (
+                    <button
+                      onClick={() => setQuery("")}
+                      className="inline-flex items-center gap-2 font-mono text-sm font-bold bg-primary/10 text-primary border border-primary/30 rounded px-3 py-1.5 hover:bg-primary/20 transition-colors"
+                    >
+                      {query} <span className="text-xs font-normal opacity-60">✕ clear</span>
+                    </button>
+                  ) : (
+                    <Input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="e.g. 3"
+                      className="font-mono text-sm"
+                      autoFocus
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Number on drive link</label>
-                  <Input
-                    value={stihlQuery2}
-                    onChange={(e) => setStihlQuery2(e.target.value)}
-                    placeholder="e.g. 63"
-                    className="font-mono text-sm"
-                  />
+                  {stihlQuery2 ? (
+                    <button
+                      onClick={() => setStihlQuery2("")}
+                      className="inline-flex items-center gap-2 font-mono text-sm font-bold bg-primary/10 text-primary border border-primary/30 rounded px-3 py-1.5 hover:bg-primary/20 transition-colors"
+                    >
+                      {stihlQuery2} <span className="text-xs font-normal opacity-60">✕ clear</span>
+                    </button>
+                  ) : (
+                    <Input
+                      value={stihlQuery2}
+                      onChange={(e) => setStihlQuery2(e.target.value)}
+                      placeholder="e.g. 6"
+                      className="font-mono text-sm"
+                    />
+                  )}
                 </div>
               </div>
             ) : (
               <div>
-                <Input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="e.g. 91 (number stamped on the drive link)"
-                  className="font-mono text-sm"
-                />
+                {query ? (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="inline-flex items-center gap-2 font-mono text-sm font-bold bg-primary/10 text-primary border border-primary/30 rounded px-3 py-1.5 hover:bg-primary/20 transition-colors"
+                  >
+                    {query} <span className="text-xs font-normal opacity-60">✕ clear</span>
+                  </button>
+                ) : (
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="e.g. 91 (number stamped on the drive link)"
+                    className="font-mono text-sm"
+                  />
+                )}
               </div>
             )}
 
@@ -177,46 +205,6 @@ export default function ChainChart() {
           </CardContent>
         </Card>
 
-        {/* Full chart table */}
-        <Card className="border-border bg-card/60">
-          <CardContent className="p-4 space-y-3">
-            <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
-              Full Chain Identification Chart
-            </h2>
-            <div className="overflow-x-auto -mx-4 px-4">
-              <table className="w-full text-xs font-mono border-collapse min-w-[640px]">
-                <thead>
-                  <tr className="text-left text-muted-foreground border-b border-border">
-                    <th className="py-2 pr-3">Pitch</th>
-                    <th className="py-2 pr-3">Gauge</th>
-                    <th className="py-2 pr-3">Oregon DL#</th>
-                    <th className="py-2 pr-3">Stihl DL#</th>
-                    <th className="py-2 pr-3">Husqvarna DL#</th>
-                    <th className="py-2 pr-3">File Size</th>
-                    <th className="py-2">Top Plate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {CHAIN_CHART.map((row, i) => (
-                    <tr key={i} className="border-b border-border/50 align-top">
-                      <td className="py-2 pr-3 font-bold whitespace-nowrap">{row.pitch}</td>
-                      <td className="py-2 pr-3 whitespace-nowrap">{row.gauge}</td>
-                      <td className="py-2 pr-3">{row.oregon.join(", ")}</td>
-                      <td className="py-2 pr-3">{row.stihl.join(", ")}</td>
-                      <td className="py-2 pr-3">{row.husqvarna.join(", ")}</td>
-                      <td className="py-2 pr-3 whitespace-nowrap">{row.fileSize}</td>
-                      <td className="py-2 whitespace-nowrap">{row.topPlateAngle}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="font-mono text-[10px] text-muted-foreground italic">
-              Always cross-check against your chain box or manufacturer documentation if in doubt — chain
-              lettering and drive link numbers can change between product ranges.
-            </p>
-          </CardContent>
-        </Card>
 
         {/* Pitch to power guide */}
         <Card className="border-border bg-card/60">
