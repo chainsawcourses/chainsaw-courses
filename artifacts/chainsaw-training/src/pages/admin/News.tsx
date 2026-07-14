@@ -92,6 +92,8 @@ export default function AdminNews() {
   const [fetchResult, setFetchResult] = useState<{ fetched: number; inserted: number; skipped: number; errors: string[] } | null>(null);
   const [fetching, setFetching] = useState(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const openCreate = () => {
     setEditingId(null);
@@ -169,6 +171,18 @@ export default function AdminNews() {
       // ignore — server error already logged
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const handleDeleteAllPending = async () => {
+    if (!pendingItems?.length) return;
+    setDeleteAllConfirm(false);
+    setDeletingAll(true);
+    try {
+      await Promise.allSettled(pendingItems.map((item) => rejectItem.mutateAsync({ id: item.id })));
+      invalidate();
+    } finally {
+      setDeletingAll(false);
     }
   };
 
@@ -257,7 +271,7 @@ export default function AdminNews() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-border pb-2">
+        <div className="flex items-center gap-2 border-b border-border pb-2">
           <button
             onClick={() => setTab("live")}
             className={`font-mono text-xs uppercase tracking-widest px-3 py-1.5 rounded transition-colors ${
@@ -277,6 +291,18 @@ export default function AdminNews() {
               <Badge className="h-4 px-1.5 text-xs font-mono">{pendingCount}</Badge>
             )}
           </button>
+          {tab === "pending" && pendingCount > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDeleteAllConfirm(true)}
+              disabled={deletingAll || processingId !== null}
+              className="ml-auto font-mono text-xs uppercase tracking-widest text-destructive hover:text-destructive border-destructive/40 hover:border-destructive"
+            >
+              {deletingAll ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+              {deletingAll ? "Deleting…" : `Delete All (${pendingCount})`}
+            </Button>
+          )}
         </div>
 
         {/* Live articles tab */}
@@ -431,6 +457,25 @@ export default function AdminNews() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)} className="font-mono text-xs">Cancel</Button>
             <Button variant="destructive" onClick={handleDelete} className="font-mono text-xs">Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete all pending confirmation */}
+      <Dialog open={deleteAllConfirm} onOpenChange={setDeleteAllConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-mono uppercase tracking-widest text-sm">Delete All Pending?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will permanently remove all <span className="font-bold text-foreground">{pendingCount}</span> articles
+            waiting for review. This cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteAllConfirm(false)} className="font-mono text-xs">Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteAllPending} className="font-mono text-xs uppercase tracking-widest">
+              Delete All {pendingCount}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
