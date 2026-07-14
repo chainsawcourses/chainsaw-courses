@@ -13,7 +13,6 @@ import TrainingModule from "@/pages/TrainingModule";
 import Quiz from "@/pages/Quiz";
 import Exam from "@/pages/Exam";
 import MockTest from "@/pages/MockTest";
-import AiTutor from "@/pages/AiTutor";
 import Inspection from "@/pages/Inspection";
 import RiskAssessment from "@/pages/RiskAssessment";
 import BiosecurityMap from "@/pages/BiosecurityMap";
@@ -53,7 +52,6 @@ function Router() {
       <Route path="/quiz/:moduleId" component={Quiz} />
       <Route path="/exam" component={Exam} />
       <Route path="/mock-test" component={MockTest} />
-      <Route path="/ai-tutor" component={AiTutor} />
       <Route path="/inspection" component={Inspection} />
       <Route path="/risk-assessment" component={RiskAssessment} />
       <Route path="/biosecurity-map" component={BiosecurityMap} />

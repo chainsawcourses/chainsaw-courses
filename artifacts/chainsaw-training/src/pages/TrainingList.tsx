@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, MessageCircle, PlayCircle, Users } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, PlayCircle, Users } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -293,14 +293,6 @@ export default function TrainingList() {
                     <ExternalLink className="w-2.5 h-2.5 ml-auto text-muted-foreground shrink-0" />
                   </a>
                   <Link
-                    href="/ai-tutor"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <MessageCircle className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>AI Tutor</span>
-                  </Link>
-                  <Link
                     href="/inspection"
                     className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
@@ -437,9 +429,6 @@ export default function TrainingList() {
             >
               <Users className="w-5 h-5" />
             </a>
-            <Link href="/ai-tutor" className="text-muted-foreground hover:text-primary" title="AI Tutor">
-              <MessageCircle className="w-5 h-5" />
-            </Link>
             <Link href="/inspection" className="text-muted-foreground hover:text-primary" title="Inspection Checklist">
               <ClipboardCheck className="w-5 h-5" />
             </Link>
@@ -946,9 +935,6 @@ export default function TrainingList() {
         </div>
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center gap-3">
-          <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-6">
-            <Link href="/ai-tutor">AI Tutor</Link>
-          </Button>
           <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
             <Link href="/mock-test">MOCK ASSESSMENT</Link>
           </Button>
