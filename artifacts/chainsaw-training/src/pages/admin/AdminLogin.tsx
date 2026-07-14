@@ -40,8 +40,8 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Biohazard className="w-12 h-12 mx-auto mb-4" />
-          <h1 className="text-xl font-bold font-mono tracking-widest uppercase">Admin Portal</h1>
+          <Biohazard className="w-7 h-7 mx-auto mb-3" />
+          <h1 className="text-lg font-bold font-mono tracking-widest uppercase">Admin Portal</h1>
         </div>
         
         <Card className="border-border bg-card/50 backdrop-blur">
