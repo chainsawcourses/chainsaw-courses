@@ -12,8 +12,8 @@ export const RSS_SOURCES: RssSource[] = [
     country: "UK",
   },
   {
-    label: "Forestry England",
-    url: "https://www.forestryengland.uk/articles/rss.xml",
+    label: "Woodlands.co.uk",
+    url: "https://www.woodlands.co.uk/blog/feed/",
     country: "UK",
   },
   {
@@ -22,9 +22,9 @@ export const RSS_SOURCES: RssSource[] = [
     country: "UK",
   },
   {
-    label: "Arboricultural Association",
-    url: "https://www.trees.org.uk/News/RSS",
-    country: "UK",
+    label: "Tree Care Industry",
+    url: "https://www.treecareindustry.org/feed/",
+    country: "US",
   },
 
   // ── Chainsaw Manufacturers ───────────────────────────────────────────────
@@ -34,8 +34,8 @@ export const RSS_SOURCES: RssSource[] = [
     country: "UK",
   },
   {
-    label: "Husqvarna Newsroom",
-    url: "https://www.husqvarna.com/uk/newsroom/feed/",
+    label: "ProArborist",
+    url: "https://www.proarborist.com/feed/",
     country: "Global",
   },
   {
@@ -51,8 +51,8 @@ export const RSS_SOURCES: RssSource[] = [
     country: "US",
   },
   {
-    label: "US Forest Service News",
-    url: "https://www.fs.usda.gov/feeds/news/newsReleases.xml",
+    label: "Woodworking Network",
+    url: "https://www.woodworkingnetwork.com/rss.xml",
     country: "US",
   },
   {
@@ -63,14 +63,14 @@ export const RSS_SOURCES: RssSource[] = [
 
   // ── Canada ───────────────────────────────────────────────────────────────
   {
-    label: "TimberWest Magazine",
-    url: "https://www.timberwestmagazine.com/feed/",
+    label: "Sawmilling.com",
+    url: "https://www.sawmilling.com/feed/",
     country: "Canada",
   },
   {
-    label: "Canadian Forest Industries",
-    url: "https://www.canadianforestindustries.ca/feed/",
-    country: "Canada",
+    label: "Landward",
+    url: "https://www.landward.eu/feed/",
+    country: "UK",
   },
 
   // ── Australia ────────────────────────────────────────────────────────────
