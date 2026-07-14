@@ -18,6 +18,7 @@ import RiskAssessment from "@/pages/RiskAssessment";
 import BiosecurityMap from "@/pages/BiosecurityMap";
 import ChainChart from "@/pages/ChainChart";
 import News from "@/pages/News";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
 
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/biosecurity-map" component={BiosecurityMap} />
       <Route path="/chain-chart" component={ChainChart} />
       <Route path="/news" component={News} />
+      <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/qr/:moduleId" component={QrLanding} />
 
       {/* Admin Routes */}

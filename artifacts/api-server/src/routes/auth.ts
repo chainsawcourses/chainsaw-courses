@@ -4,6 +4,14 @@ import {
   activationCodesTable,
   usersTable,
   waiversTable,
+  userProgressTable,
+  quizAttemptsTable,
+  chatMessagesTable,
+  inspectionRecordsTable,
+  riskAssessmentsTable,
+  videoEngagementTable,
+  moduleFeedbackTable,
+  examAttemptsTable,
 } from "@workspace/db";
 import { ActivateCodeBody } from "@workspace/api-zod";
 import { eq, and, isNull } from "drizzle-orm";
@@ -203,12 +211,38 @@ router.delete("/auth/delete-account", async (req, res) => {
     return;
   }
 
-  await db
-    .update(usersTable)
-    .set({ deletedAt: new Date() })
-    .where(eq(usersTable.id, user.id));
+  try {
+    await db.transaction(async (tx) => {
+      const uid = user.id;
+      // Delete all personal data linked to this user
+      await tx.delete(waiversTable).where(eq(waiversTable.userId, uid));
+      await tx.delete(userProgressTable).where(eq(userProgressTable.userId, uid));
+      await tx.delete(quizAttemptsTable).where(eq(quizAttemptsTable.userId, uid));
+      await tx.delete(examAttemptsTable).where(eq(examAttemptsTable.userId, uid));
+      await tx.delete(chatMessagesTable).where(eq(chatMessagesTable.userId, uid));
+      await tx.delete(inspectionRecordsTable).where(eq(inspectionRecordsTable.userId, uid));
+      await tx.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.userId, uid));
+      await tx.delete(videoEngagementTable).where(eq(videoEngagementTable.userId, uid));
+      await tx.delete(moduleFeedbackTable).where(eq(moduleFeedbackTable.userId, uid));
+      // Anonymise the user row — keep the activation code bond marked as used
+      // so the code cannot be reactivated after erasure.
+      await tx
+        .update(usersTable)
+        .set({
+          fullName: "DELETED",
+          email: `deleted+${uid}@deleted.invalid`,
+          deviceId: `DELETED_${uid}`,
+          deletedAt: new Date(),
+        })
+        .where(eq(usersTable.id, uid));
+    });
 
-  res.json({ success: true, message: "Account deleted per GDPR Right to Erasure" });
+    logger.info({ userId: user.id }, "Account erased per GDPR Right to Erasure");
+    res.json({ success: true, message: "Account deleted per GDPR Right to Erasure" });
+  } catch (err) {
+    logger.error({ err }, "Error deleting account");
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export { resolveUser };

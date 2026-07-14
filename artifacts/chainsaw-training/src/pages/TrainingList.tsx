@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Users } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -36,9 +36,33 @@ export default function TrainingList() {
   const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [helpWatermarkOpen, setHelpWatermarkOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
+
+  const handleDeleteAccount = async () => {
+    if (!activationCode || !deviceId) return;
+    setDeletingAccount(true);
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        activationcode: activationCode,
+        deviceid: deviceId,
+      };
+      if (userId) headers["userid"] = String(userId);
+      const res = await fetch("/api/auth/delete-account", { method: "DELETE", headers });
+      if (!res.ok) throw new Error("Delete failed");
+      clearSession();
+      localStorage.removeItem("deviceId");
+      window.location.href = import.meta.env.BASE_URL;
+    } catch {
+      setDeletingAccount(false);
+      setDeleteConfirmOpen(false);
+      alert("Something went wrong. Please try again or contact support.");
+    }
+  };
 
   const queryClient = useQueryClient();
   const completeVideo = useCompleteVideo();
@@ -279,61 +303,7 @@ export default function TrainingList() {
                   </div>
                 </div>
 
-                {/* Navigation links */}
-                <div className="border-b border-border">
-                  <a
-                    href="https://chainsawcourses.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Users className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>Community</span>
-                    <ExternalLink className="w-2.5 h-2.5 ml-auto text-muted-foreground shrink-0" />
-                  </a>
-                  <Link
-                    href="/inspection"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <ClipboardCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>Inspection Checklist</span>
-                  </Link>
-                  <Link
-                    href="/risk-assessment"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
-                    <span>Dynamic Risk Assessment</span>
-                  </Link>
-                  <Link
-                    href="/biosecurity-map"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <Biohazard className="w-3.5 h-3.5 shrink-0" />
-                    <span>Biosecurity &amp; Hazard Map</span>
-                  </Link>
-                  <Link
-                    href="/chain-chart"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <Cog className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>Chain ID Chart</span>
-                  </Link>
-                  <Link
-                    href="/news"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <Newspaper className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>Industry News</span>
-                  </Link>
-                </div>
-
+                {/* Help accordions */}
                 <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
@@ -390,13 +360,13 @@ export default function TrainingList() {
                   </button>
                   {helpLostCodeOpen && (
                     <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      If you’ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can’t find it?{" "}
-                      <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we’ll locate it for you.
+                      If you&#39;ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can&#39;t find it?{" "}
+                      <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we&#39;ll locate it for you.
                     </div>
                   )}
                 </div>
 
-                <div>
+                <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
                     className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -412,13 +382,107 @@ export default function TrainingList() {
                   )}
                 </div>
 
-                {/* Log Out — bottom of brand dropdown */}
-                <button
-                  onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
-                  className="w-full flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors border-t border-border"
-                >
-                  <LogOut className="w-3 h-3" /> LOG OUT
-                </button>
+                {/* Navigation links */}
+                <div className="border-b border-border">
+                  <a
+                    href="https://chainsawcourses.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Users className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Community</span>
+                    <ExternalLink className="w-2.5 h-2.5 ml-auto text-muted-foreground shrink-0" />
+                  </a>
+                  <Link
+                    href="/inspection"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <ClipboardCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Inspection Checklist</span>
+                  </Link>
+                  <Link
+                    href="/risk-assessment"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <span>Dynamic Risk Assessment</span>
+                  </Link>
+                  <Link
+                    href="/biosecurity-map"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Biohazard className="w-3.5 h-3.5 shrink-0" />
+                    <span>Biosecurity &amp; Hazard Map</span>
+                  </Link>
+                  <Link
+                    href="/chain-chart"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Cog className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Chain ID Chart</span>
+                  </Link>
+                  <Link
+                    href="/news"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Newspaper className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Industry News</span>
+                  </Link>
+                  <Link
+                    href="/privacy"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Shield className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <span>Privacy Policy</span>
+                  </Link>
+                </div>
+
+                {/* Log Out + Delete Account */}
+                {!deleteConfirmOpen ? (
+                  <div className="flex border-t border-border">
+                    <button
+                      onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
+                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
+                    >
+                      <LogOut className="w-3 h-3" /> Log Out
+                    </button>
+                    <div className="w-px bg-border shrink-0" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(true); }}
+                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" /> Delete
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-t border-border p-3 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-destructive">Delete your account?</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">All personal data, progress, quiz records, and your waiver will be permanently erased. Your activation code cannot be reused. This cannot be undone.</p>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(false); }}
+                        className="flex-1 text-[10px] uppercase font-bold px-2 py-1.5 border border-border rounded hover:bg-accent transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleDeleteAccount}
+                        disabled={deletingAccount}
+                        className="flex-1 text-[10px] uppercase font-bold px-2 py-1.5 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 transition-colors disabled:opacity-50"
+                      >
+                        {deletingAccount ? "Deleting…" : "Yes, Delete"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
