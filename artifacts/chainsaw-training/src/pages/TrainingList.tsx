@@ -227,7 +227,7 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-20 grid grid-cols-3 items-center">
+        <div className="max-w-5xl mx-auto px-4 h-20 flex items-center gap-4">
           {/* Left — brand dropdown + logo + community */}
           <div className="relative flex items-center gap-2">
             <button
@@ -423,11 +423,8 @@ export default function TrainingList() {
             )}
           </div>
 
-          {/* Centre — empty */}
-          <div />
-
           {/* Right — nav icons */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex-1 flex items-center justify-evenly">
             <a
               href="https://chainsawcourses.com"
               target="_blank"
