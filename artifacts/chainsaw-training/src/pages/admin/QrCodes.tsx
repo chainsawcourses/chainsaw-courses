@@ -3,16 +3,25 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Download } from "lucide-react";
+import { ArrowLeft, Biohazard, Download, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useAdminSession } from "../../contexts/AdminContext";
 
-// Default number of sequential modules in the course
-const DEFAULT_MODULE_COUNT = 7;
+interface ModuleItem {
+  id: number;
+  title: string;
+  order: number;
+}
 
-function QrCodeCard({ moduleId, baseUrl }: { moduleId: number; baseUrl: string }) {
+function QrCodeCard({
+  module,
+  baseUrl,
+}: {
+  module: ModuleItem;
+  baseUrl: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const url = `${baseUrl.replace(/\/$/, "")}/qr/${moduleId}`;
+  const url = `${baseUrl.replace(/\/$/, "")}/qr/${module.id}`;
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -32,7 +41,11 @@ function QrCodeCard({ moduleId, baseUrl }: { moduleId: number; baseUrl: string }
       });
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `qr-module-${moduleId}.png`;
+      const safeName = module.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      a.download = `qr-${safeName}.png`;
       a.click();
     } catch {
       // ignore
@@ -42,15 +55,17 @@ function QrCodeCard({ moduleId, baseUrl }: { moduleId: number; baseUrl: string }
   return (
     <Card className="border-border bg-card/30">
       <CardHeader className="pb-2">
-        <CardTitle className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Module {moduleId}
+        <CardTitle className="font-mono text-xs uppercase tracking-widest text-muted-foreground leading-snug">
+          {module.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex justify-center bg-white rounded p-2">
           <canvas ref={canvasRef} />
         </div>
-        <p className="font-mono text-[10px] text-muted-foreground break-all text-center">{url}</p>
+        <p className="font-mono text-[10px] text-muted-foreground break-all text-center">
+          {url}
+        </p>
         <Button
           size="sm"
           variant="outline"
@@ -68,9 +83,25 @@ export default function AdminQrCodes() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady } = useAdminSession();
 
+  const [modules, setModules] = useState<ModuleItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
+
+  useEffect(() => {
+    if (!adminToken) return;
+    setLoading(true);
+    fetch("/api/admin/modules", { headers: { admintoken: adminToken } })
+      .then((r) => r.json())
+      .then((data: ModuleItem[]) => {
+        const sorted = [...data].sort((a, b) => a.order - b.order);
+        setModules(sorted);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [adminToken]);
 
   const defaultBase = (() => {
     const base = import.meta.env.BASE_URL ?? "/";
@@ -78,9 +109,6 @@ export default function AdminQrCodes() {
   })();
 
   const [baseUrl, setBaseUrl] = useState(defaultBase);
-  const [moduleCount, setModuleCount] = useState(DEFAULT_MODULE_COUNT);
-
-  const moduleIds = Array.from({ length: moduleCount }, (_, i) => i + 1);
 
   return (
     <div className="min-h-screen bg-background">
@@ -116,21 +144,11 @@ export default function AdminQrCodes() {
                 placeholder="https://your-app.replit.app/chainsaw-training"
               />
               <p className="text-xs text-muted-foreground font-mono">
-                QR codes will point to: <span className="text-foreground">{baseUrl.replace(/\/$/, "")}/qr/&lt;module-id&gt;</span>
+                QR codes will point to:{" "}
+                <span className="text-foreground">
+                  {baseUrl.replace(/\/$/, "")}/qr/&lt;module-id&gt;
+                </span>
               </p>
-            </div>
-            <div className="space-y-1.5">
-              <label className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                Number of modules
-              </label>
-              <Input
-                type="number"
-                min={1}
-                max={20}
-                value={moduleCount}
-                onChange={(e) => setModuleCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
-                className="font-mono text-sm w-24"
-              />
             </div>
           </CardContent>
         </Card>
@@ -150,11 +168,17 @@ export default function AdminQrCodes() {
         </Card>
 
         {/* QR grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {moduleIds.map((id) => (
-            <QrCodeCard key={id} moduleId={id} baseUrl={baseUrl} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-16 text-muted-foreground font-mono text-sm">
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading modules…
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {modules.map((mod) => (
+              <QrCodeCard key={mod.id} module={mod} baseUrl={baseUrl} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
