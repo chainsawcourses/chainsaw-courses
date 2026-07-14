@@ -22,11 +22,24 @@ function normalise(s: string) {
 function findMatches(brand: Brand, query: string, query2?: string): ChainChartRow[] {
   const q = normalise(query);
   const q2 = normalise(query2 ?? "");
-  if (!q && !q2) return [];
+
+  // Stihl: depth-gauge number + drive-link number concatenate to form the chain code (e.g. "2" + "6" = "26")
+  if (brand === "stihl") {
+    const combined = q + q2;
+    if (!combined) return [];
+    return CHAIN_CHART.filter((row) =>
+      row.stihl.some((code) => {
+        const c = normalise(code);
+        return c === combined || c.includes(combined);
+      })
+    );
+  }
+
+  if (!q) return [];
   return CHAIN_CHART.filter((row) =>
     row[brand].some((code) => {
       const c = normalise(code);
-      return (q && (c === q || c.includes(q))) || (q2 && (c === q2 || c.includes(q2)));
+      return c === q || c.includes(q);
     })
   );
 }
@@ -73,7 +86,7 @@ export default function ChainChart() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-16">
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
-            Chain Identification Chart
+            Chain Identification
           </h1>
         </div>
 
