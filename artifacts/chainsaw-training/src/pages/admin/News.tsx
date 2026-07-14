@@ -16,6 +16,8 @@ import {
   useApproveNewsItem,
   useRejectNewsItem,
   useTriggerNewsFetch,
+  getListNewsItemsQueryKey,
+  getListPendingNewsItemsQueryKey,
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -114,8 +116,8 @@ export default function AdminNews() {
   };
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ["listNewsItems"] });
-    queryClient.invalidateQueries({ queryKey: ["listPendingNewsItems"] });
+    queryClient.invalidateQueries({ queryKey: getListNewsItemsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListPendingNewsItemsQueryKey() });
   };
 
   const handleSave = async () => {
