@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Newspaper, Pencil, Plus, RefreshCw, Search, Trash2, X, XCircle } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Loader2, Newspaper, Pencil, Plus, RefreshCw, Search, Trash2, X, XCircle } from "lucide-react";
 import {
   useListNewsItems,
   useListPendingNewsItems,
@@ -91,6 +91,7 @@ export default function AdminNews() {
   const [saving, setSaving] = useState(false);
   const [fetchResult, setFetchResult] = useState<{ fetched: number; inserted: number; skipped: number; errors: string[] } | null>(null);
   const [fetching, setFetching] = useState(false);
+  const [processingId, setProcessingId] = useState<number | null>(null);
 
   const openCreate = () => {
     setEditingId(null);
@@ -146,13 +147,29 @@ export default function AdminNews() {
   };
 
   const handleApprove = async (id: number) => {
-    await approveItem.mutateAsync({ id });
-    invalidate();
+    if (processingId !== null) return;
+    setProcessingId(id);
+    try {
+      await approveItem.mutateAsync({ id });
+      invalidate();
+    } catch {
+      // ignore — server error already logged
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   const handleReject = async (id: number) => {
-    await rejectItem.mutateAsync({ id });
-    invalidate();
+    if (processingId !== null) return;
+    setProcessingId(id);
+    try {
+      await rejectItem.mutateAsync({ id });
+      invalidate();
+    } catch {
+      // ignore — server error already logged
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   const handleFetchNow = async () => {
@@ -342,12 +359,14 @@ export default function AdminNews() {
                     </div>
                     <div className="flex flex-col gap-2 shrink-0">
                       <Button size="sm" onClick={() => handleApprove(item.id)}
-                        className="font-mono text-xs bg-green-600 hover:bg-green-700 text-white">
-                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve
+                        disabled={processingId !== null}
+                        className="font-mono text-xs bg-green-600 hover:bg-green-700 text-white disabled:opacity-50">
+                        {processingId === item.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5 mr-1" />} Approve
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleReject(item.id)}
-                        className="font-mono text-xs text-destructive hover:text-destructive">
-                        <XCircle className="w-3.5 h-3.5 mr-1" /> Reject
+                        disabled={processingId !== null}
+                        className="font-mono text-xs text-destructive hover:text-destructive disabled:opacity-50">
+                        {processingId === item.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <XCircle className="w-3.5 h-3.5 mr-1" />} Reject
                       </Button>
                     </div>
                   </div>
