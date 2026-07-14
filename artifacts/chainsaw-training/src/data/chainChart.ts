@@ -5,11 +5,141 @@ export interface ChainChartRow {
   stihl: string[];
   husqvarna: string[];
   fileSize: string;
+  stihlFileSize?: string;
   topPlateAngle: string;
   notes?: string;
 }
 
 export const CHAIN_CHART: ChainChartRow[] = [
+  // ── 1/4" ──────────────────────────────────────────────────────────────
+  {
+    pitch: '1/4"',
+    gauge: '1.1mm (.043")',
+    oregon: ["24"],
+    stihl: ["71"],
+    husqvarna: ["11"],
+    fileSize: '4mm (5/32")',
+    stihlFileSize: '3.2mm (1/8")',
+    topPlateAngle: "30°",
+    notes: "Small chainsaws, power pruners, top-handled saws. Husqvarna file: 3.5mm (9/64\").",
+  },
+  {
+    pitch: '1/4"',
+    gauge: '1.3mm (.050")',
+    oregon: ["25"],
+    stihl: ["13"],
+    husqvarna: ["H00"],
+    fileSize: '4mm (5/32")',
+    stihlFileSize: '3.2mm (1/8")',
+    topPlateAngle: "30°",
+    notes: "Small chainsaws, power pruners, top-handled saws.",
+  },
+
+  // ── 3/8" Picco / Lo-Pro ───────────────────────────────────────────────
+  {
+    pitch: '3/8" Picco / Lo-Pro',
+    gauge: '1.1mm (.043")',
+    oregon: ["90"],
+    stihl: ["61"],
+    husqvarna: ["38"],
+    fileSize: '4mm (5/32")',
+    topPlateAngle: "30°",
+    notes: "Common on small/mid-sized saws.",
+  },
+  {
+    pitch: '3/8" Picco / Lo-Pro',
+    gauge: '1.3mm (.050")',
+    oregon: ["91", "95"],
+    stihl: ["13", "63"],
+    husqvarna: ["35", "36", "37", "93G"],
+    fileSize: '4mm (5/32")',
+    topPlateAngle: "30°",
+    notes: "Common on small/mid-sized saws. Not to be confused with standard 3/8\".",
+  },
+
+  // ── .325" ─────────────────────────────────────────────────────────────
+  {
+    pitch: '.325"',
+    gauge: '1.1mm (.043")',
+    oregon: ["80"],
+    stihl: ["61"],
+    husqvarna: ["SP21G", "Xcut"],
+    fileSize: '4mm (5/32")',
+    topPlateAngle: "30°",
+  },
+  {
+    pitch: '.325"',
+    gauge: '1.3mm (.050")',
+    oregon: ["20", "95", "95-S.Cut"],
+    stihl: ["23"],
+    husqvarna: ["22", "23", "25", "30", "33", "35", "37", "78", "SP-33G"],
+    fileSize: '4.8mm (3/16")',
+    topPlateAngle: "30°",
+    notes: "Oregon angle varies by chain type: Full Chisel 25°, Semi Chisel 30°, Speedcut 30°.",
+  },
+  {
+    pitch: '.325"',
+    gauge: '1.5mm (.058")',
+    oregon: ["21"],
+    stihl: ["25"],
+    husqvarna: ["21", "25", "38"],
+    fileSize: '4.8mm (3/16")',
+    topPlateAngle: "30°",
+  },
+  {
+    pitch: '.325"',
+    gauge: '1.6mm (.063")',
+    oregon: ["22"],
+    stihl: ["26"],
+    husqvarna: ["26", "28"],
+    fileSize: '4.8mm (3/16")',
+    topPlateAngle: "30°",
+  },
+
+  // ── 3/8" ─────────────────────────────────────────────────────────────
+  {
+    pitch: '3/8"',
+    gauge: '1.3mm (.050")',
+    oregon: ["72", "78"],
+    stihl: ["33"],
+    husqvarna: ["46", "47", "C83"],
+    fileSize: '5.5mm (7/32")',
+    topPlateAngle: "30°",
+    notes: "Oregon Full Chisel 25°.",
+  },
+  {
+    pitch: '3/8"',
+    gauge: '1.5mm (.058")',
+    oregon: ["73", "77"],
+    stihl: ["35"],
+    husqvarna: ["C85", "85-Xcut", "H-42", "48", "54", "81", "S-42", "48", "49"],
+    fileSize: '5.5mm (7/32")',
+    stihlFileSize: '5.2mm (13/64")',
+    topPlateAngle: "30°",
+    notes: "Oregon Semi Chisel 30°. Stihl file size differs: 5.2mm (13/64\").",
+  },
+  {
+    pitch: '3/8"',
+    gauge: '1.6mm (.063")',
+    oregon: ["75", "78"],
+    stihl: ["36"],
+    husqvarna: ["H-45", "50", "83", "S-42", "48", "49", "52"],
+    fileSize: '5.5mm (7/32")',
+    topPlateAngle: "30°",
+    notes: "Oregon Round Chisel 30° / Hexa 25°.",
+  },
+
+  // ── .404" ─────────────────────────────────────────────────────────────
+  {
+    pitch: '.404"',
+    gauge: '1.5mm (.058")',
+    oregon: [],
+    stihl: ["45"],
+    husqvarna: ["69"],
+    fileSize: '5.5mm (7/32")',
+    topPlateAngle: "30°",
+    notes: "No Oregon equivalent listed.",
+  },
   {
     pitch: '.404"',
     gauge: '1.6mm (.063")',
@@ -19,50 +149,11 @@ export const CHAIN_CHART: ChainChartRow[] = [
     fileSize: '5.5mm (7/32")',
     topPlateAngle: "30°",
   },
-  {
-    pitch: '3/8"',
-    gauge: '1.5mm (.058")',
-    oregon: ["72", "73", "75", "77", "78"],
-    stihl: ["35", "36"],
-    husqvarna: ["H-45", "50", "83", "S-42", "48", "49", "52"],
-    fileSize: '5.5mm (7/32")',
-    topPlateAngle: "30°",
-    notes: "Standard 3/8\" — not to be confused with 3/8\" Picco/Lo-Pro below",
-  },
-  {
-    pitch: '.325"',
-    gauge: '1.5mm (.058")',
-    oregon: ["20", "21", "22"],
-    stihl: ["23", "25", "26", "33"],
-    husqvarna: ["H-42", "48", "54", "81", "S-42", "48", "49"],
-    fileSize: '4.8mm (3/16")',
-    topPlateAngle: "30°",
-  },
-  {
-    pitch: '3/8" Picco / Lo-Pro',
-    gauge: '1.3mm (.050")',
-    oregon: ["91", "95", "95-S.Cut"],
-    stihl: ["61", "63"],
-    husqvarna: ["35", "36", "37", "93G"],
-    fileSize: '4.0mm (5/32")',
-    topPlateAngle: "30°",
-    notes: "Common on small/mid-sized 25cc–45cc saws — fits differently sized saws than standard 3/8\"",
-  },
-  {
-    pitch: '1/4"',
-    gauge: '1.1mm (.043")',
-    oregon: ["24"],
-    stihl: ["11", "13", "71"],
-    husqvarna: ["H00"],
-    fileSize: '3.2mm (1/8")',
-    topPlateAngle: "30°",
-    notes: "Small chainsaws, power pruners, top-handled saws",
-  },
 ];
 
 export const PITCH_POWER_GUIDE = [
   { pitch: '1/4"', power: "< 45cc", size: "Small chainsaws / power pruners / top-handled saws" },
-  { pitch: '3/8" Picco / .325" Picco', power: "25cc – 45cc", size: "Small chainsaws" },
+  { pitch: '3/8" Picco / Lo-Pro', power: "25cc – 45cc", size: "Small chainsaws" },
   { pitch: '.325"', power: "45cc – 60cc", size: "Mid-sized chainsaws" },
   { pitch: '3/8"', power: "60cc – 90cc", size: "Mid to large chainsaws" },
   { pitch: '.404"', power: "90cc – 120cc", size: "Large chainsaws" },

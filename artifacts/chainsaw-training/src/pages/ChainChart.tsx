@@ -190,7 +190,7 @@ export default function ChainChart() {
                         <span className="text-muted-foreground">Gauge</span>
                         <span className="font-bold">{row.gauge}</span>
                         <span className="text-muted-foreground">File Size</span>
-                        <span className="font-bold">{row.fileSize}</span>
+                        <span className="font-bold">{brand === "stihl" && row.stihlFileSize ? row.stihlFileSize : row.fileSize}</span>
                         <span className="text-muted-foreground">Top Plate Angle</span>
                         <span className="font-bold">{row.topPlateAngle}</span>
                       </div>
