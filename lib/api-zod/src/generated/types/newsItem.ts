@@ -15,4 +15,7 @@ export interface NewsItem {
   imageUrl?: string | null;
   publishedAt: string;
   createdAt: string;
+  status: string;
+  /** @nullable */
+  feedSource?: string | null;
 }

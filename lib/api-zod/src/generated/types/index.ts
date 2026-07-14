@@ -35,6 +35,7 @@ export * from './inspectionItemInput';
 export * from './inspectionItemInputStatus';
 export * from './module';
 export * from './moduleDetail';
+export * from './newsFetchResult';
 export * from './newsItem';
 export * from './progressSummary';
 export * from './quiz';

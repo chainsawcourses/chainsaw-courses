@@ -821,6 +821,90 @@ paths:
               schema:
                 $ref: "#/components/schemas/NewsItem"
 
+  /admin/news/pending:
+    get:
+      operationId: listPendingNewsItems
+      tags: [news]
+      summary: List news items pending admin approval
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pending news items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsItem"
+
+  /admin/news/fetch-now:
+    post:
+      operationId: triggerNewsFetch
+      tags: [news]
+      summary: Manually trigger an RSS fetch
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Fetch result summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsFetchResult"
+
+  /admin/news/{id}/approve:
+    post:
+      operationId: approveNewsItem
+      tags: [news]
+      summary: Approve a pending news item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsItem"
+
+  /admin/news/{id}/reject:
+    post:
+      operationId: rejectNewsItem
+      tags: [news]
+      summary: Reject (delete) a pending news item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Rejected
+
   /admin/news/{id}:
     patch:
       operationId: updateNewsItem
@@ -1599,7 +1683,7 @@ components:
 
     NewsItem:
       type: object
-      required: [id, title, excerpt, url, publishedAt, createdAt]
+      required: [id, title, excerpt, url, publishedAt, createdAt, status]
       properties:
         id:
           type: integer
@@ -1615,6 +1699,25 @@ components:
           type: string
         createdAt:
           type: string
+        status:
+          type: string
+        feedSource:
+          type: ["string", "null"]
+
+    NewsFetchResult:
+      type: object
+      required: [fetched, inserted, skipped, errors]
+      properties:
+        fetched:
+          type: integer
+        inserted:
+          type: integer
+        skipped:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
 
     CreateNewsItemInput:
       type: object

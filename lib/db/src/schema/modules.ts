@@ -156,6 +156,9 @@ export const newsItemsTable = pgTable("news_items", {
   imageUrl: text("image_url"),
   publishedAt: timestamp("published_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  status: text("status").notNull().default("approved"),
+  guid: text("guid").unique(),
+  feedSource: text("feed_source"),
 }, (t) => [index("news_items_published_at_idx").on(t.publishedAt)]);
 
 export const insertNewsItemSchema = createInsertSchema(newsItemsTable).omit({ id: true, createdAt: true });

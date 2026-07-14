@@ -442,6 +442,16 @@ export interface NewsItem {
   imageUrl?: string | null;
   publishedAt: string;
   createdAt: string;
+  status: string;
+  /** @nullable */
+  feedSource?: string | null;
+}
+
+export interface NewsFetchResult {
+  fetched: number;
+  inserted: number;
+  skipped: number;
+  errors: string[];
 }
 
 export interface CreateNewsItemInput {

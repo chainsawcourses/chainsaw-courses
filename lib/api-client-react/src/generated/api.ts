@@ -44,6 +44,7 @@ import type {
   InspectionEntry,
   Module,
   ModuleDetail,
+  NewsFetchResult,
   NewsItem,
   ProgressSummary,
   Quiz,
@@ -2599,6 +2600,293 @@ export const useCreateNewsItem = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getCreateNewsItemMutationOptions(options));
+    }
+
+export const getListPendingNewsItemsUrl = () => {
+
+
+
+
+  return `/api/admin/news/pending`
+}
+
+/**
+ * @summary List news items pending admin approval
+ */
+export const listPendingNewsItems = async ( options?: RequestInit): Promise<NewsItem[]> => {
+
+  return customFetch<NewsItem[]>(getListPendingNewsItemsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPendingNewsItemsQueryKey = () => {
+    return [
+    `/api/admin/news/pending`
+    ] as const;
+    }
+
+
+export const getListPendingNewsItemsQueryOptions = <TData = Awaited<ReturnType<typeof listPendingNewsItems>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPendingNewsItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPendingNewsItemsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPendingNewsItems>>> = ({ signal }) => listPendingNewsItems({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPendingNewsItems>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPendingNewsItemsQueryResult = NonNullable<Awaited<ReturnType<typeof listPendingNewsItems>>>
+export type ListPendingNewsItemsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List news items pending admin approval
+ */
+
+export function useListPendingNewsItems<TData = Awaited<ReturnType<typeof listPendingNewsItems>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPendingNewsItems>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPendingNewsItemsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getTriggerNewsFetchUrl = () => {
+
+
+
+
+  return `/api/admin/news/fetch-now`
+}
+
+/**
+ * @summary Manually trigger an RSS fetch
+ */
+export const triggerNewsFetch = async ( options?: RequestInit): Promise<NewsFetchResult> => {
+
+  return customFetch<NewsFetchResult>(getTriggerNewsFetchUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getTriggerNewsFetchMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerNewsFetch>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof triggerNewsFetch>>, TError,void, TContext> => {
+
+const mutationKey = ['triggerNewsFetch'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof triggerNewsFetch>>, void> = () => {
+
+
+          return  triggerNewsFetch(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TriggerNewsFetchMutationResult = NonNullable<Awaited<ReturnType<typeof triggerNewsFetch>>>
+
+    export type TriggerNewsFetchMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Manually trigger an RSS fetch
+ */
+export const useTriggerNewsFetch = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof triggerNewsFetch>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof triggerNewsFetch>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getTriggerNewsFetchMutationOptions(options));
+    }
+
+export const getApproveNewsItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/news/${id}/approve`
+}
+
+/**
+ * @summary Approve a pending news item
+ */
+export const approveNewsItem = async (id: number, options?: RequestInit): Promise<NewsItem> => {
+
+  return customFetch<NewsItem>(getApproveNewsItemUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getApproveNewsItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveNewsItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveNewsItem>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['approveNewsItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveNewsItem>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  approveNewsItem(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveNewsItemMutationResult = NonNullable<Awaited<ReturnType<typeof approveNewsItem>>>
+
+    export type ApproveNewsItemMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Approve a pending news item
+ */
+export const useApproveNewsItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveNewsItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof approveNewsItem>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getApproveNewsItemMutationOptions(options));
+    }
+
+export const getRejectNewsItemUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/news/${id}/reject`
+}
+
+/**
+ * @summary Reject (delete) a pending news item
+ */
+export const rejectNewsItem = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getRejectNewsItemUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRejectNewsItemMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectNewsItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof rejectNewsItem>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['rejectNewsItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof rejectNewsItem>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  rejectNewsItem(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RejectNewsItemMutationResult = NonNullable<Awaited<ReturnType<typeof rejectNewsItem>>>
+
+    export type RejectNewsItemMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Reject (delete) a pending news item
+ */
+export const useRejectNewsItem = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof rejectNewsItem>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof rejectNewsItem>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRejectNewsItemMutationOptions(options));
     }
 
 export const getUpdateNewsItemUrl = (id: number,) => {

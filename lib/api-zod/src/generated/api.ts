@@ -749,7 +749,9 @@ export const ListNewsItemsResponseItem = zod.object({
   "url": zod.string(),
   "imageUrl": zod.string().nullish(),
   "publishedAt": zod.string(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "status": zod.string(),
+  "feedSource": zod.string().nullish()
 })
 export const ListNewsItemsResponse = zod.array(ListNewsItemsResponseItem)
 
@@ -767,6 +769,78 @@ export const CreateNewsItemBody = zod.object({
   "url": zod.string(),
   "imageUrl": zod.string().optional(),
   "publishedAt": zod.string()
+})
+
+
+/**
+ * @summary List news items pending admin approval
+ */
+export const ListPendingNewsItemsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ListPendingNewsItemsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "excerpt": zod.string(),
+  "url": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "publishedAt": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.string(),
+  "feedSource": zod.string().nullish()
+})
+export const ListPendingNewsItemsResponse = zod.array(ListPendingNewsItemsResponseItem)
+
+
+/**
+ * @summary Manually trigger an RSS fetch
+ */
+export const TriggerNewsFetchHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const TriggerNewsFetchResponse = zod.object({
+  "fetched": zod.number(),
+  "inserted": zod.number(),
+  "skipped": zod.number(),
+  "errors": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Approve a pending news item
+ */
+export const ApproveNewsItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ApproveNewsItemHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ApproveNewsItemResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "excerpt": zod.string(),
+  "url": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "publishedAt": zod.string(),
+  "createdAt": zod.string(),
+  "status": zod.string(),
+  "feedSource": zod.string().nullish()
+})
+
+
+/**
+ * @summary Reject (delete) a pending news item
+ */
+export const RejectNewsItemParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RejectNewsItemHeader = zod.object({
+  "adminToken": zod.string()
 })
 
 
@@ -796,7 +870,9 @@ export const UpdateNewsItemResponse = zod.object({
   "url": zod.string(),
   "imageUrl": zod.string().nullish(),
   "publishedAt": zod.string(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "status": zod.string(),
+  "feedSource": zod.string().nullish()
 })
 
 
