@@ -24,6 +24,9 @@ function buildGuid(sourceLabel: string, link: string, title: string): string {
   return `${sourceLabel}::${link || title}`;
 }
 
+const MAX_PER_SOURCE = 3;   // newest articles to consider from each feed
+const MAX_TOTAL_INSERT = 20; // hard cap on new items saved per run
+
 export async function fetchAllFeeds(): Promise<{ fetched: number; inserted: number; skipped: number; errors: string[] }> {
   let fetched = 0;
   let inserted = 0;
@@ -31,12 +34,17 @@ export async function fetchAllFeeds(): Promise<{ fetched: number; inserted: numb
   const errors: string[] = [];
 
   for (const source of RSS_SOURCES) {
+    if (inserted >= MAX_TOTAL_INSERT) break; // global cap reached
+
     try {
       const feed = await parser.parseURL(source.url);
-      const items = feed.items ?? [];
+      const allItems = feed.items ?? [];
+      // Take only the most recent N from this source (RSS is newest-first)
+      const items = allItems.slice(0, MAX_PER_SOURCE);
       fetched += items.length;
 
       for (const item of items) {
+        if (inserted >= MAX_TOTAL_INSERT) break; // global cap mid-source
         const rawLink = item.link ?? item.guid ?? "";
         const cleanLink = extractGoogleUrl(rawLink);
         const title = (item.title ?? "").replace(/<[^>]*>/g, "").trim();
