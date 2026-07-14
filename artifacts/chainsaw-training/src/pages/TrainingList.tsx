@@ -32,10 +32,6 @@ export default function TrainingList() {
   const [nptcOpen, setNptcOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
-  const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
-  const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
-  const [helpAdminOpen, setHelpAdminOpen] = useState(false);
-  const [helpWatermarkOpen, setHelpWatermarkOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -121,7 +117,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpLostCodeOpen || helpAdminOpen || helpWatermarkOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -131,10 +127,6 @@ export default function TrainingList() {
     setNptcOpen(false);
     setBrandMenuOpen(false);
     setHelpHowItWorksOpen(false);
-    setHelpDeviceLockOpen(false);
-    setHelpLostCodeOpen(false);
-    setHelpAdminOpen(false);
-    setHelpWatermarkOpen(false);
   }, []);
 
   useEffect(() => {
@@ -303,81 +295,56 @@ export default function TrainingList() {
                   </div>
                 </div>
 
-                {/* Help accordions */}
+                {/* Help — single "How It Works" accordion containing all sub-sections */}
                 <div className="border-b border-border">
                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>How It Works</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
                   </button>
                   {helpHowItWorksOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
-                    </div>
-                  )}
-                </div>
+                    <div className="px-3 pb-3 space-y-4">
+                      {/* Intro */}
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                      </p>
 
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Device Lock</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpDeviceLockOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset? Contact admin{" "}
-                      <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">here</a>.
-                    </div>
-                  )}
-                </div>
+                      {/* Device Lock */}
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Device Lock</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset?{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">Contact admin</a>.
+                        </p>
+                      </div>
 
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Why Is My Email On Screen?</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpWatermarkOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpWatermarkOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
-                    </div>
-                  )}
-                </div>
+                      {/* Watermark */}
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Why Is My Email On Screen?</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
+                        </p>
+                      </div>
 
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Lost Your Code?</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpLostCodeOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpLostCodeOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      If you&#39;ve lost your activation code, check your original purchase email from chainsawcourses.com. Still can&#39;t find it?{" "}
-                      <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we&#39;ll locate it for you.
-                    </div>
-                  )}
-                </div>
+                      {/* Lost Code */}
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Lost Your Code?</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Check your original purchase email from chainsawcourses.com. Still can&#39;t find it?{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we&#39;ll locate it for you.
+                        </p>
+                      </div>
 
-                <div className="border-b border-border">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    <span>Admin Support</span>
-                    <ChevronDown className={`w-3 h-3 transition-all shrink-0 ${helpAdminOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {helpAdminOpen && (
-                    <div className="px-3 pb-2 text-[10px] text-muted-foreground leading-relaxed">
-                      Any issues please contact admin support{" "}
-                      <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
+                      {/* Admin Support */}
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Admin Support</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Any issues? Contact admin support{" "}
+                          <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -388,67 +355,67 @@ export default function TrainingList() {
                     href="https://chainsawcourses.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Users className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <Users className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Community</span>
-                    <ExternalLink className="w-2.5 h-2.5 ml-auto text-muted-foreground shrink-0" />
+                    <ExternalLink className="w-3 h-3 ml-auto text-muted-foreground shrink-0" />
                   </a>
                   <Link
                     href="/inspection"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <ClipboardCheck className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <ClipboardCheck className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Inspection Checklist</span>
                   </Link>
                   <Link
                     href="/risk-assessment"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <MapPin className="w-4 h-4 shrink-0" />
                     <span>Dynamic Risk Assessment</span>
                   </Link>
                   <Link
                     href="/biosecurity-map"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Biohazard className="w-3.5 h-3.5 shrink-0" />
+                    <Biohazard className="w-4 h-4 shrink-0" />
                     <span>Biosecurity &amp; Hazard Map</span>
                   </Link>
                   <Link
                     href="/chain-chart"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Cog className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <Cog className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Chain ID Chart</span>
                   </Link>
                   <Link
                     href="/news"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Newspaper className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <Newspaper className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Industry News</span>
                   </Link>
                   <Link
                     href="/cross-cut-sim"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Zap className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <Zap className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Cross-Cut Simulator</span>
                   </Link>
                   <Link
                     href="/privacy"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 uppercase tracking-widest font-bold hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Shield className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                    <Shield className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Privacy Policy</span>
                   </Link>
                 </div>
