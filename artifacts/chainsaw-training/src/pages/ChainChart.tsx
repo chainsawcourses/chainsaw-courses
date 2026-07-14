@@ -56,11 +56,14 @@ export default function ChainChart() {
 
   const [brand, setBrand] = useState<Brand>("oregon");
   const [query, setQuery] = useState("");
+  const [lockedQuery, setLockedQuery] = useState("");
   const [stihlQuery2, setStihlQuery2] = useState("");
 
+  const searchQuery = brand === "stihl" ? query : lockedQuery;
+
   const matches = useMemo(
-    () => findMatches(brand, query, brand === "stihl" ? stihlQuery2 : undefined),
-    [brand, query, stihlQuery2]
+    () => findMatches(brand, searchQuery, brand === "stihl" ? stihlQuery2 : undefined),
+    [brand, searchQuery, stihlQuery2]
   );
 
   if (!activationCode || !deviceId) return null;
@@ -101,7 +104,7 @@ export default function ChainChart() {
               {(Object.keys(BRAND_LABEL) as Brand[]).map((b) => (
                 <button
                   key={b}
-                  onClick={() => { setBrand(b); setQuery(""); setStihlQuery2(""); }}
+                  onClick={() => { setBrand(b); setQuery(""); setLockedQuery(""); setStihlQuery2(""); }}
                   className={`flex-1 font-mono text-xs uppercase tracking-wide py-2 rounded border transition-colors ${
                     brand === b
                       ? "bg-primary text-primary-foreground border-primary"
@@ -155,29 +158,30 @@ export default function ChainChart() {
               </div>
             ) : (
               <div>
-                {query ? (
+                {lockedQuery ? (
                   <button
-                    onClick={() => setQuery("")}
+                    onClick={() => { setLockedQuery(""); setQuery(""); }}
                     className="inline-flex items-center gap-2 font-mono text-sm font-bold bg-primary/10 text-primary border border-primary/30 rounded px-3 py-1.5 hover:bg-primary/20 transition-colors"
                   >
-                    {query} <span className="text-xs font-normal opacity-60">✕ clear</span>
+                    {lockedQuery} <span className="text-xs font-normal opacity-60">✕ clear</span>
                   </button>
                 ) : (
                   <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="e.g. 91 (number stamped on the drive link)"
+                    onKeyDown={(e) => { if (e.key === "Enter" && query.trim()) setLockedQuery(query.trim()); }}
+                    placeholder="Type number then press Enter"
                     className="font-mono text-sm"
                   />
                 )}
               </div>
             )}
 
-            {(query.trim() || stihlQuery2.trim()) && (
+            {(searchQuery.trim() || stihlQuery2.trim()) && (
               <div className="space-y-2">
                 {matches.length === 0 ? (
                   <p className="font-mono text-xs text-muted-foreground flex items-center gap-1.5">
-                    <Info className="w-3.5 h-3.5 shrink-0" /> No match found for "{query}" on {BRAND_LABEL[brand]}. Double check the number, or refer to your chain box.
+                    <Info className="w-3.5 h-3.5 shrink-0" /> No match found for "{searchQuery}" on {BRAND_LABEL[brand]}. Double check the number, or refer to your chain box.
                   </p>
                 ) : (
                   matches.map((row, i) => (
