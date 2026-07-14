@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ClipboardCheck, MinusCircle, XCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ClipboardCheck, MinusCircle, Search, X, XCircle } from "lucide-react";
 import { useListAllInspections, getListAllInspectionsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -20,7 +21,19 @@ export default function Inspections() {
     query: { queryKey: getListAllInspectionsQueryKey(), enabled: !!adminToken },
   });
 
+  const [search, setSearch] = useState("");
+  const [failuresOnly, setFailuresOnly] = useState(false);
+
   const failureCount = inspections?.filter((i) => i.hasFailures).length ?? 0;
+
+  const q = search.trim().toLowerCase();
+  const filtered = inspections?.filter((r) => {
+    const matchesSearch = !q ||
+      (r.studentName ?? "").toLowerCase().includes(q) ||
+      (r.sawIdentifier ?? "").toLowerCase().includes(q);
+    const matchesFilter = !failuresOnly || r.hasFailures;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,12 +62,44 @@ export default function Inspections() {
           </CardContent>
         </Card>
 
+        {/* Search + filter */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by student name or saw identifier…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <Button
+            variant={failuresOnly ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFailuresOnly((v) => !v)}
+            className="font-mono text-xs h-10 shrink-0"
+          >
+            <AlertTriangle className="w-3.5 h-3.5 mr-1.5" /> Failures only
+          </Button>
+        </div>
+
         {isLoading && (
           <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
         )}
 
+        {!isLoading && filtered?.length === 0 && (
+          <p className="text-center text-muted-foreground font-mono text-sm py-8">
+            {q || failuresOnly ? "No records match your search" : "No inspections submitted yet"}
+          </p>
+        )}
+
         <div className="space-y-3">
-          {inspections?.map((record) => (
+          {filtered?.map((record) => (
             <Card key={record.id} className={record.hasFailures ? "border-destructive/50" : undefined}>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-sm font-mono">

@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Biohazard, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Biohazard, Search, Star, X } from "lucide-react";
 import { useListFeedback, getListFeedbackQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -20,9 +21,20 @@ export default function Feedback() {
     query: { queryKey: getListFeedbackQueryKey(), enabled: !!adminToken },
   });
 
+  const [search, setSearch] = useState("");
+
   const avgRating = feedback && feedback.length > 0
     ? (feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length).toFixed(1)
     : null;
+
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? feedback?.filter((f) =>
+        f.moduleTitle.toLowerCase().includes(q) ||
+        (f.comment ?? "").toLowerCase().includes(q) ||
+        (f.studentName ?? "").toLowerCase().includes(q)
+      )
+    : feedback;
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,12 +61,34 @@ export default function Feedback() {
           </CardContent>
         </Card>
 
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by module, student or comment…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
         {isLoading && (
           <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
         )}
 
+        {!isLoading && filtered?.length === 0 && (
+          <p className="text-center text-muted-foreground font-mono text-sm py-8">
+            {q ? `No results for "${search}"` : "No feedback submitted yet"}
+          </p>
+        )}
+
         <div className="space-y-3">
-          {feedback?.map((f) => (
+          {filtered?.map((f) => (
             <Card key={f.id}>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-sm font-mono">

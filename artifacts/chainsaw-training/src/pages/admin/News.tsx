@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Newspaper, Pencil, Plus, RefreshCw, Trash2, XCircle } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Newspaper, Pencil, Plus, RefreshCw, Search, Trash2, X, XCircle } from "lucide-react";
 import {
   useListNewsItems,
   useListPendingNewsItems,
@@ -56,9 +56,26 @@ export default function AdminNews() {
   }, [isReady, adminToken, setLocation]);
 
   const [tab, setTab] = useState<Tab>("live");
+  const [search, setSearch] = useState("");
 
   const { data: liveItems, isLoading: liveLoading } = useListNewsItems();
   const { data: pendingItems, isLoading: pendingLoading } = useListPendingNewsItems();
+
+  const q = search.trim().toLowerCase();
+  const filteredLive = q
+    ? liveItems?.filter((i) =>
+        i.title.toLowerCase().includes(q) ||
+        i.excerpt.toLowerCase().includes(q) ||
+        (i.feedSource ?? "").toLowerCase().includes(q)
+      )
+    : liveItems;
+  const filteredPending = q
+    ? pendingItems?.filter((i) =>
+        i.title.toLowerCase().includes(q) ||
+        i.excerpt.toLowerCase().includes(q) ||
+        (i.feedSource ?? "").toLowerCase().includes(q)
+      )
+    : pendingItems;
 
   const createItem = useCreateNewsItem();
   const updateItem = useUpdateNewsItem();
@@ -206,6 +223,22 @@ export default function AdminNews() {
           </Card>
         )}
 
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by title, summary or source…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-2 border-b border-border pb-2">
           <button
@@ -214,7 +247,7 @@ export default function AdminNews() {
               tab === "live" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Live ({liveItems?.length ?? 0})
+            Live ({filteredLive?.length ?? 0})
           </button>
           <button
             onClick={() => setTab("pending")}
@@ -233,10 +266,12 @@ export default function AdminNews() {
         {tab === "live" && (
           <div className="space-y-3">
             {liveLoading && <p className="text-muted-foreground text-sm font-mono text-center py-8">Loading…</p>}
-            {!liveLoading && liveItems?.length === 0 && (
-              <p className="text-muted-foreground text-sm font-mono text-center py-8">No live articles yet.</p>
+            {!liveLoading && filteredLive?.length === 0 && (
+              <p className="text-muted-foreground text-sm font-mono text-center py-8">
+                {q ? `No live articles match "${search}"` : "No live articles yet."}
+              </p>
             )}
-            {liveItems?.map((item) => (
+            {filteredLive?.map((item) => (
               <Card key={item.id}>
                 <CardContent className="p-4">
                   <div className="flex gap-4">
@@ -282,12 +317,12 @@ export default function AdminNews() {
         {tab === "pending" && (
           <div className="space-y-3">
             {pendingLoading && <p className="text-muted-foreground text-sm font-mono text-center py-8">Loading…</p>}
-            {!pendingLoading && pendingItems?.length === 0 && (
+            {!pendingLoading && filteredPending?.length === 0 && (
               <p className="text-muted-foreground text-sm font-mono text-center py-8">
-                No articles pending review. Click "Fetch RSS Now" to pull the latest from all sources.
+                {q ? `No pending articles match "${search}"` : `No articles pending review. Click "Fetch RSS Now" to pull the latest from all sources.`}
               </p>
             )}
-            {pendingItems?.map((item) => (
+            {filteredPending?.map((item) => (
               <Card key={item.id} className="border-amber-200">
                 <CardContent className="p-4">
                   <div className="flex gap-4">
