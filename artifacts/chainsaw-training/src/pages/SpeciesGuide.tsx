@@ -370,15 +370,7 @@ export default function SpeciesGuide() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <Leaf className="w-5 h-5 text-primary shrink-0" />
-          <div className="min-w-0">
-            <h1 className="font-black tracking-tighter text-base uppercase leading-none">Species Characteristics</h1>
-            <p className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest leading-none mt-0.5">
-              30 most common species found in the UK
-            </p>
-          </div>
-          <span className="ml-auto text-[11px] font-mono text-muted-foreground shrink-0">
-            {results.length}/{SPECIES.length}
-          </span>
+          <h1 className="font-black tracking-tighter text-base uppercase leading-none">Species Characteristics</h1>
         </div>
       </header>
 
@@ -418,12 +410,19 @@ export default function SpeciesGuide() {
               </button>
             ))}
             <span className="border-l border-border mx-0.5" />
-            {(["all", "Excellent", "Good", "Poor"] as const).map((v) => (
-              <button key={v} onClick={() => setFilterFirewood(v)}
-                className={`px-2.5 py-1 rounded-full border transition-colors ${filterFirewood === v ? "bg-primary text-white border-primary" : "bg-white border-border text-muted-foreground hover:border-primary/50"}`}>
-                {v === "all" ? "All Firewood" : `🔥 ${v}`}
-              </button>
-            ))}
+            {(["all", "Excellent", "Good", "Poor"] as const).map((v) => {
+              const activeClass =
+                v === "Excellent" ? "bg-green-600 text-white border-green-600" :
+                v === "Good"      ? "bg-amber-500 text-white border-amber-500" :
+                v === "Poor"      ? "bg-red-500 text-white border-red-500" :
+                                    "bg-primary text-white border-primary";
+              return (
+                <button key={v} onClick={() => setFilterFirewood(v)}
+                  className={`px-2.5 py-1 rounded-full border transition-colors ${filterFirewood === v ? activeClass : "bg-white border-border text-muted-foreground hover:border-primary/50"}`}>
+                  {v === "all" ? "All Firewood" : `🔥 ${v}`}
+                </button>
+              );
+            })}
           </div>
 
           {/* Row 2: Timber + Spit */}
@@ -492,7 +491,10 @@ function SpeciesCard({ species: s }: { species: Species }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="border border-border rounded bg-white/90 overflow-hidden flex flex-col">
+    <div
+      className="border border-border rounded bg-white/90 overflow-hidden flex flex-col cursor-pointer"
+      onClick={() => setExpanded((v) => !v)}
+    >
       {/* Card header */}
       <div className="px-4 pt-4 pb-3 border-b border-border/60">
         <div className="flex items-start justify-between gap-2">
@@ -588,13 +590,10 @@ function SpeciesCard({ species: s }: { species: Species }) {
         </div>
       )}
 
-      {/* Expand toggle */}
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full px-4 py-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground hover:text-primary hover:bg-accent/50 transition-colors text-center"
-      >
-        {expanded ? "Show less ▲" : "Show traits & uses ▼"}
-      </button>
+      {/* Tap hint */}
+      <div className="w-full px-4 py-2 text-[11px] font-mono uppercase tracking-widest text-muted-foreground text-center select-none">
+        {expanded ? "Tap to collapse ▲" : "Tap for traits & uses ▼"}
+      </div>
     </div>
   );
 }
