@@ -1,4 +1,5 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import React from "react";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -48,8 +49,18 @@ const queryClient = new QueryClient({
   },
 });
 
+function PageFade({ children }: { children: React.ReactNode }) {
+  const [path] = useLocation();
+  return (
+    <div key={path} className="page-fade-in">
+      {children}
+    </div>
+  );
+}
+
 function Router() {
   return (
+    <PageFade>
     <Switch>
       {/* Student Routes */}
       <Route path="/" component={Activation} />
@@ -82,6 +93,7 @@ function Router() {
 
       <Route component={NotFound} />
     </Switch>
+    </PageFade>
   );
 }
 
