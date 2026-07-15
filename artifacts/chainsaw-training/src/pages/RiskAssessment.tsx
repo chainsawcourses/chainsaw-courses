@@ -225,8 +225,8 @@ export default function RiskAssessment() {
     setAccuracy(null);
     bestCoordsRef.current = null;
 
-    const GOOD_ENOUGH_M = 30;
-    const MAX_WAIT_MS = 30000;
+    const GOOD_ENOUGH_M = 20;
+    const MAX_WAIT_MS = 45000;
 
     // After MAX_WAIT_MS, accept whatever best fix we have
     const timeoutId = setTimeout(() => {
@@ -617,7 +617,7 @@ export default function RiskAssessment() {
                 {locating && (
                   <p className="font-mono text-[10px] text-muted-foreground">
                     {accuracy !== null
-                      ? `Improving accuracy… ±${accuracy}m${accuracy > 30 ? " — move outdoors for a GPS lock" : ""}`
+                      ? `Improving accuracy… ±${accuracy}m${accuracy > 20 ? " — move outdoors for a GPS lock" : ""}`
                       : "Requesting location…"}
                   </p>
                 )}
@@ -638,8 +638,8 @@ export default function RiskAssessment() {
                     <p>Lat/Lon: {coords.lat.toFixed(6)}, {coords.lon.toFixed(6)}</p>
                     {gridReference && <p>OS Grid Reference: {gridReference}</p>}
                     {accuracy !== null && (
-                      <p className={accuracy <= 30 ? "text-green-600" : "text-amber-600"}>
-                        {accuracy <= 30 ? `✓ GPS locked — ±${accuracy}m` : `±${accuracy}m accuracy (coarse fix — address may be approximate)`}
+                      <p className={accuracy <= 20 ? "text-green-600" : "text-amber-600"}>
+                        {accuracy <= 20 ? `✓ GPS locked — ±${accuracy}m` : `±${accuracy}m accuracy (coarse fix — address may be approximate)`}
                       </p>
                     )}
                   </div>
