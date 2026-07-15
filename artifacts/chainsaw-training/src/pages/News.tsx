@@ -26,10 +26,14 @@ export default function News() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-4">
-        <p className="text-muted-foreground text-sm font-mono">
-          Recent arboriculture and forestry news curated by your training provider.
-          Click any article to read it on the original source.
-        </p>
+        <div className="space-y-1 pb-2">
+          <h1 className="font-black tracking-tighter text-xl uppercase text-foreground leading-tight">
+            Stay Sharp in the Field
+          </h1>
+          <p className="text-muted-foreground text-sm font-mono leading-relaxed">
+            The industry moves fast — new legislation, equipment recalls, biosecurity alerts, and best-practice updates can directly affect how you work safely. These articles are hand-picked for chainsaw operators and arborists. Tap any headline to read the full story.
+          </p>
+        </div>
 
         {isLoading && (
           <div className="flex items-center gap-2 text-muted-foreground text-sm py-12 justify-center">
