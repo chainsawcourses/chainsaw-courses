@@ -43,7 +43,7 @@ const PRE_START_ITEMS: ChecklistItem[] = [
   { id: "air-filter", label: "Air filter is clean and correctly seated" },
   { id: "handguard", label: "Front and rear handguards are present and undamaged" },
   { id: "chain-catcher", label: "Chain catcher is present and secure" },
-  { id: "muffler", label: "Muffler / spark arrestor is secure and undamaged" },
+  { id: "muffler", label: "Exhaust / spark arrestor is secure and undamaged" },
   { id: "anti-vibration", label: "Anti-vibration mounts are intact and not perished" },
   { id: "controls", label: "Throttle, throttle lock, and on/off switch operate freely" },
 ];
