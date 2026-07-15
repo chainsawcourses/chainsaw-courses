@@ -466,13 +466,13 @@ export default function TrainingList() {
                       onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(true); }}
                       className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
                     >
-                      <Trash2 className="w-3 h-3" /> Delete
+                      <Trash2 className="w-3 h-3" /> Delete Account
                     </button>
                   </div>
                 ) : (
                   <div className="border-t border-border p-3 space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-destructive">Delete your account?</p>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed">All personal data, progress, quiz records, and your waiver will be permanently erased. Your activation code cannot be reused. This cannot be undone.</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">All personal data, progress, quiz records, and your waiver will be permanently erased. Your activation code cannot be reused and you will have to purchase another course. This cannot be undone.</p>
                     <div className="flex gap-2 pt-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(false); }}
@@ -496,15 +496,7 @@ export default function TrainingList() {
 
           {/* Right — nav icons */}
           <div className="flex-1 flex items-center justify-evenly">
-            <a
-              href="https://chainsawcourses.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary"
-              title="Community"
-            >
-              <Users className="w-5 h-5" />
-            </a>
+            {/* Community link kept for future use — icon hidden for now */}
             <Link href="/inspection" className="text-muted-foreground hover:text-primary" title="Inspection Checklist">
               <ClipboardCheck className="w-5 h-5" />
             </Link>
