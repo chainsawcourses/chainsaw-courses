@@ -216,25 +216,19 @@ export default function ChainChart() {
             <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
               Pitch to Power Guide
             </h2>
-            <div className="overflow-x-auto -mx-4 px-4">
-              <table className="w-full text-xs font-mono border-collapse min-w-[480px]">
-                <thead>
-                  <tr className="text-left text-muted-foreground border-b border-border">
-                    <th className="py-2 pr-3">Pitch</th>
-                    <th className="py-2 pr-3">Power</th>
-                    <th className="py-2">Typical Chainsaw Size</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PITCH_POWER_GUIDE.map((row, i) => (
-                    <tr key={i} className="border-b border-border/50">
-                      <td className="py-2 pr-3 font-bold whitespace-nowrap">{row.pitch}</td>
-                      <td className="py-2 pr-3 whitespace-nowrap">{row.power}</td>
-                      <td className="py-2">{row.size}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {PITCH_POWER_GUIDE.map((row, i) => (
+                <div key={i} className="grid grid-cols-3 gap-2 border-b border-border/50 pb-2 last:border-0 last:pb-0 text-xs font-mono">
+                  <span className="font-bold text-foreground">{row.pitch}</span>
+                  <span className="text-muted-foreground">{row.power}</span>
+                  <span className="text-muted-foreground">{row.size}</span>
+                </div>
+              ))}
+              <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-muted-foreground/60 pt-1">
+                <span>Pitch</span>
+                <span>Power</span>
+                <span>Typical Size</span>
+              </div>
             </div>
           </CardContent>
         </Card>
