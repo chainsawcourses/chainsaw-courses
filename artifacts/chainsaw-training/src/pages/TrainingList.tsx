@@ -320,13 +320,13 @@ export default function TrainingList() {
                       </p>
 
                       {/* Device Lock */}
-                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                      <div className="border-t border-border -mx-3 pl-6 pr-3 pt-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
-                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                          className="w-full flex items-center justify-between py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-left hover:text-primary transition-colors"
                         >
                           <span>Device Lock</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-3 h-3 shrink-0 transition-all ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
                         </button>
                         {helpDeviceLockOpen && (
                           <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
@@ -337,13 +337,13 @@ export default function TrainingList() {
                       </div>
 
                       {/* Watermark */}
-                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                      <div className="border-t border-border -mx-3 pl-6 pr-3 pt-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
-                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                          className="w-full flex items-center justify-between py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-left hover:text-primary transition-colors"
                         >
                           <span>Why Is My Email On Screen?</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpWatermarkOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-3 h-3 shrink-0 transition-all ${helpWatermarkOpen ? "rotate-180" : ""}`} />
                         </button>
                         {helpWatermarkOpen && (
                           <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
@@ -353,13 +353,13 @@ export default function TrainingList() {
                       </div>
 
                       {/* Lost Code */}
-                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                      <div className="border-t border-border -mx-3 pl-6 pr-3 pt-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
-                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                          className="w-full flex items-center justify-between py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-left hover:text-primary transition-colors"
                         >
                           <span>Lost Your Code?</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-3 h-3 shrink-0 transition-all ${helpLostCodeOpen ? "rotate-180" : ""}`} />
                         </button>
                         {helpLostCodeOpen && (
                           <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
@@ -370,13 +370,13 @@ export default function TrainingList() {
                       </div>
 
                       {/* Admin Support */}
-                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                      <div className="border-t border-border -mx-3 pl-6 pr-3 pt-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
-                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                          className="w-full flex items-center justify-between py-1 text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-left hover:text-primary transition-colors"
                         >
                           <span>Admin Support</span>
-                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpAdminOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`w-3 h-3 shrink-0 transition-all ${helpAdminOpen ? "rotate-180" : ""}`} />
                         </button>
                         {helpAdminOpen && (
                           <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
