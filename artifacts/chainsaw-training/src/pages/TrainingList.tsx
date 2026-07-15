@@ -422,7 +422,7 @@ export default function TrainingList() {
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Cog className="w-4 h-4 shrink-0 text-muted-foreground" />
-                    <span>Chain ID Chart</span>
+                    <span>Chain Identification</span>
                   </Link>
                   <Link
                     href="/news"
