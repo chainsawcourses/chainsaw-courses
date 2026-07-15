@@ -462,7 +462,7 @@ export default function RiskAssessment() {
             Dynamic Site Risk Assessment
           </h1>
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            Use this before real-world chainsaw work to record your site location and run through common hazards.
+            Use this risk assessment framework to record your site location and run through common hazards.
             This is a personal working record — it does not unlock or affect your course progress, and it does not
             replace a full written method statement or your employer's formal RAMS process.
           </p>
