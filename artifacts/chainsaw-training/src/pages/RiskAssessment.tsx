@@ -597,22 +597,6 @@ export default function RiskAssessment() {
                     Site Location
                   </label>
                   <div className="flex items-center gap-2">
-                    {locating && accuracy !== null && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          const best = bestCoordsRef.current;
-                          if (!best) return;
-                          stopWatch();
-                          void reverseGeocode(best.lat, best.lon).finally(() => setLocating(false));
-                        }}
-                        className="font-mono text-[10px] uppercase tracking-widest border-amber-500 text-amber-600 hover:bg-amber-50"
-                      >
-                        Use this fix (±{accuracy}m)
-                      </Button>
-                    )}
                     <Button
                       type="button"
                       size="sm"
