@@ -52,7 +52,7 @@ const PRE_USE_ITEMS: ChecklistItem[] = [
   { id: "chain-brake", label: "Chain brake — engages and releases correctly (push bar forward, check chain stops; pull back to release)" },
   { id: "on-off-switch", label: "On/off switch — operates correctly and cuts engine immediately when switched off" },
   { id: "chain-creep", label: "Chain creep — chain does not move at idle; adjust idle speed if creep is present" },
-  { id: "oiling", label: "Oiling — oil is reaching the bar and chain (hold over paper or light surface and check spray pattern)" },
+  { id: "oiling", label: "Oiling — oil is reaching the bar and chain (hold over stump/timber or light surface and check spray pattern)" },
 ];
 
 const buildInitialItems = (): Record<string, Status> => {
