@@ -23,6 +23,7 @@ import News from "@/pages/News";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import CrossCutSim from "@/pages/CrossCutSim";
 
+import SpeciesGuide from "@/pages/SpeciesGuide";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import StudentDetail from "@/pages/admin/StudentDetail";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/news" component={News} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/cross-cut-sim" component={CrossCutSim} />
+      <Route path="/species-guide" component={SpeciesGuide} />
       <Route path="/qr/:moduleId" component={QrLanding} />
 
       {/* Admin Routes */}

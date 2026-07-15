@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -433,6 +433,14 @@ export default function TrainingList() {
                     <span>Industry News</span>
                   </Link>
                   <Link
+                    href="/species-guide"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <Leaf className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <span>Species Guide</span>
+                  </Link>
+                  <Link
                     href="/privacy"
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
@@ -501,6 +509,9 @@ export default function TrainingList() {
             </Link>
             <Link href="/news" className="text-muted-foreground hover:text-primary" title="Industry News">
               <Newspaper className="w-5 h-5" />
+            </Link>
+            <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Species Guide">
+              <Leaf className="w-5 h-5" />
             </Link>
           </div>
         </div>
