@@ -391,17 +391,7 @@ export default function TrainingList() {
 
                 {/* Navigation links */}
                 <div className="border-b border-border">
-                  <a
-                    href="https://chainsawcourses.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Users className="w-4 h-4 shrink-0 text-muted-foreground" />
-                    <span>Community</span>
-                    <ExternalLink className="w-3 h-3 ml-auto text-muted-foreground shrink-0" />
-                  </a>
+                  {/* Community link kept for future use — hidden for now */}
                   <Link
                     href="/inspection"
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
