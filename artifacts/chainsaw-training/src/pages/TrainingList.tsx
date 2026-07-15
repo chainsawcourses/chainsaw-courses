@@ -32,6 +32,10 @@ export default function TrainingList() {
   const [nptcOpen, setNptcOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
+  const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
+  const [helpWatermarkOpen, setHelpWatermarkOpen] = useState(false);
+  const [helpLostCodeOpen, setHelpLostCodeOpen] = useState(false);
+  const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
@@ -117,7 +121,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -127,6 +131,10 @@ export default function TrainingList() {
     setNptcOpen(false);
     setBrandMenuOpen(false);
     setHelpHowItWorksOpen(false);
+    setHelpDeviceLockOpen(false);
+    setHelpWatermarkOpen(false);
+    setHelpLostCodeOpen(false);
+    setHelpAdminOpen(false);
   }, []);
 
   useEffect(() => {
@@ -312,38 +320,70 @@ export default function TrainingList() {
                       </p>
 
                       {/* Device Lock */}
-                      <div>
-                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Device Lock</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset?{" "}
-                          <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">Contact admin</a>.
-                        </p>
+                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setHelpDeviceLockOpen((o) => !o); }}
+                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                        >
+                          <span>Device Lock</span>
+                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpDeviceLockOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {helpDeviceLockOpen && (
+                          <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
+                            Your activation code is bonded to this device for security. It cannot be transferred to another phone, tablet, or computer. Need a reset?{" "}
+                            <a href="mailto:info@chainsawcourses.com?subject=Device%20Lock%20Reset" className="text-primary font-bold hover:underline">Contact admin</a>.
+                          </p>
+                        )}
                       </div>
 
                       {/* Watermark */}
-                      <div>
-                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Why Is My Email On Screen?</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
-                        </p>
+                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setHelpWatermarkOpen((o) => !o); }}
+                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                        >
+                          <span>Why Is My Email On Screen?</span>
+                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpWatermarkOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {helpWatermarkOpen && (
+                          <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
+                            Your email is shown alongside a dynamic watermark on every video to identify you as the licensed user. This is a copyright protection measure. Sharing, recording, or distributing course content is strictly prohibited and may result in account termination.
+                          </p>
+                        )}
                       </div>
 
                       {/* Lost Code */}
-                      <div>
-                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Lost Your Code?</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Check your original purchase email from chainsawcourses.com. Still can&#39;t find it?{" "}
-                          <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we&#39;ll locate it for you.
-                        </p>
+                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setHelpLostCodeOpen((o) => !o); }}
+                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                        >
+                          <span>Lost Your Code?</span>
+                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpLostCodeOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {helpLostCodeOpen && (
+                          <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
+                            Check your original purchase email from chainsawcourses.com. Still can&#39;t find it?{" "}
+                            <a href="mailto:info@chainsawcourses.com?subject=Lost%20My%20Code" className="text-primary font-bold hover:underline">Contact admin</a>{" "}and we&#39;ll locate it for you.
+                          </p>
+                        )}
                       </div>
 
                       {/* Admin Support */}
-                      <div>
-                        <p className="text-sm font-black uppercase tracking-widest text-foreground mb-1">Admin Support</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Any issues? Contact admin support{" "}
-                          <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
-                        </p>
+                      <div className="border-t border-border -mx-3 px-3 pt-2">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setHelpAdminOpen((o) => !o); }}
+                          className="w-full flex items-center justify-between py-1.5 text-sm font-black uppercase tracking-widest text-foreground text-left hover:text-primary transition-colors"
+                        >
+                          <span>Admin Support</span>
+                          <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${helpAdminOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {helpAdminOpen && (
+                          <p className="pb-2 text-xs text-muted-foreground leading-relaxed">
+                            Any issues? Contact admin support{" "}
+                            <a href="mailto:info@chainsawcourses.com?subject=Help%20Me!" className="text-primary font-bold hover:underline">here</a>.
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}
