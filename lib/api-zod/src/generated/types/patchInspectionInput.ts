@@ -7,14 +7,9 @@
  */
 import type { InspectionItemInput } from './inspectionItemInput';
 
-export interface InspectionEntry {
-  id: number;
-  /** @nullable */
-  sawIdentifier?: string | null;
+export interface PatchInspectionInput {
+  deviceId: string;
+  activationCode: string;
+  sawIdentifier?: string;
   items: InspectionItemInput[];
-  hasFailures: boolean;
-  studentName?: string;
-  createdAt: string;
-  /** @nullable */
-  amendedAt?: string | null;
 }

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy,
+  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Edit2, X,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
@@ -23,7 +23,7 @@ function playBing() {
     // audio not available — silent fail
   }
 }
-import { useSubmitInspection, useListMyInspections, getListMyInspectionsQueryKey } from "@workspace/api-client-react";
+import { useSubmitInspection, useListMyInspections, getListMyInspectionsQueryKey, usePatchInspection } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 type Status = "pass" | "fail" | "na";
@@ -113,6 +113,8 @@ export default function Inspection() {
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
   const downloadPdf = async (id: number) => {
@@ -171,12 +173,47 @@ export default function Inspection() {
     },
   });
 
+  const patchInspection = usePatchInspection({
+    mutation: {
+      onSuccess: (data) => {
+        setSubmitted({ hasFailures: data.hasFailures });
+        setExportRecord(data);
+        setEditingId(null);
+        setEditingOriginalDate(null);
+        playBing();
+        queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
+        setTimeout(() => {
+          exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      },
+    },
+  });
+
   const history = useListMyInspections({
     query: {
       queryKey: getListMyInspectionsQueryKey(),
       enabled: showHistory && !!deviceId && !!activationCode,
     },
   });
+
+  const loadForEdit = (record: NonNullable<typeof history.data>[number]) => {
+    setSawIdentifier(record.sawIdentifier ?? "");
+    const newItems: Record<string, Status> = buildInitialItems();
+    const newNotes: Record<string, string> = {};
+    for (const item of record.items) {
+      if (item.id in newItems) {
+        newItems[item.id] = item.status as Status;
+        if (item.note) newNotes[item.id] = item.note;
+      }
+    }
+    setItems(newItems);
+    setNotes(newNotes);
+    setEditingId(record.id);
+    setEditingOriginalDate(record.createdAt);
+    setSubmitted(null);
+    setExportRecord(null);
+    setShowHistory(false);
+  };
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode) return;
@@ -188,14 +225,26 @@ export default function Inspection() {
       note: notes[item.id]?.trim() || undefined,
     }));
 
-    submitInspection.mutate({
-      data: {
-        deviceId,
-        activationCode,
-        sawIdentifier: sawIdentifier.trim() || undefined,
-        items: payload,
-      },
-    });
+    if (editingId !== null) {
+      patchInspection.mutate({
+        id: editingId,
+        data: {
+          deviceId,
+          activationCode,
+          sawIdentifier: sawIdentifier.trim() || undefined,
+          items: payload,
+        },
+      });
+    } else {
+      submitInspection.mutate({
+        data: {
+          deviceId,
+          activationCode,
+          sawIdentifier: sawIdentifier.trim() || undefined,
+          items: payload,
+        },
+      });
+    }
   };
 
   if (!activationCode || !deviceId) return null;
@@ -304,20 +353,15 @@ export default function Inspection() {
                   void downloadPdf(record.id).finally(() => setDownloadingId(null));
                 };
                 return (
-                  <div
-                    key={record.id}
-                    onClick={handleDownload}
-                    className={`border rounded p-3 space-y-1.5 cursor-pointer transition-all duration-150 select-none
-                      ${isDownloading
-                        ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
-                        : "border-border hover:border-primary/50 hover:bg-primary/5 active:bg-primary/10 active:border-primary"
-                      }`}
-                  >
+                  <div key={record.id} className="border rounded p-3 space-y-1.5 border-border">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[11px] text-muted-foreground">
                         {new Date(record.createdAt).toLocaleString()}
                       </span>
                       <div className="flex items-center gap-2">
+                        {record.amendedAt && (
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-amber-600 border border-amber-400 rounded px-1.5 py-0.5">amended</span>
+                        )}
                         {record.hasFailures ? (
                           <span className="font-mono text-[10px] uppercase tracking-widest text-destructive flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" /> Failures noted
@@ -327,16 +371,23 @@ export default function Inspection() {
                             <CheckCircle2 className="w-3 h-3" /> All clear
                           </span>
                         )}
-                        {isDownloading
-                          ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                          : <FileDown className="w-3.5 h-3.5 text-muted-foreground" />
-                        }
                       </div>
                     </div>
                     {record.sawIdentifier && (
                       <p className="font-mono text-[11px] text-foreground">Saw: {record.sawIdentifier}</p>
                     )}
-                    <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    {record.amendedAt && (
+                      <p className="font-mono text-[10px] text-amber-600">Amended: {new Date(record.amendedAt).toLocaleString()}</p>
+                    )}
+                    <div className="flex gap-2 pt-1 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => loadForEdit(record)}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" /> Edit
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -344,7 +395,7 @@ export default function Inspection() {
                         disabled={isDownloading}
                         onClick={handleDownload}
                       >
-                        <FileDown className="w-3 h-3 mr-1" />
+                        {isDownloading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FileDown className="w-3 h-3 mr-1" />}
                         {isDownloading ? "Downloading…" : "PDF"}
                       </Button>
                       <Button
@@ -365,6 +416,34 @@ export default function Inspection() {
           </Card>
         ) : (
           <>
+            {editingId !== null && editingOriginalDate && (
+              <Card className="border-amber-500 bg-amber-500/10">
+                <CardContent className="p-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Edit2 className="w-4 h-4 text-amber-600 shrink-0" />
+                    <p className="font-mono text-xs text-amber-700 truncate">
+                      Editing inspection from {new Date(editingOriginalDate).toLocaleString()} — save to update record.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0 h-7 px-2"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditingOriginalDate(null);
+                      setSawIdentifier("");
+                      setItems(buildInitialItems());
+                      setNotes({});
+                      setSubmitted(null);
+                      setExportRecord(null);
+                    }}
+                  >
+                    <X className="w-3 h-3 mr-1" /> Cancel
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
             <Card className="border-border bg-card/60">
               <CardContent className="p-4">
                 <label className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground block mb-2">
@@ -456,15 +535,15 @@ export default function Inspection() {
             </span>
             <Button
               onClick={handleSubmit}
-              disabled={submitInspection.isPending}
+              disabled={submitInspection.isPending || patchInspection.isPending}
               className="font-mono text-sm uppercase tracking-widest px-6"
             >
-              {submitInspection.isPending ? (
+              {(submitInspection.isPending || patchInspection.isPending) ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : (
                 <ClipboardCheck className="w-4 h-4 mr-2" />
               )}
-              Save Inspection
+              {editingId !== null ? "Update Inspection" : "Save Inspection"}
             </Button>
           </div>
         </div>

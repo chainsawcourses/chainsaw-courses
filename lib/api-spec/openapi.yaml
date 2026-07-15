@@ -471,6 +471,31 @@ paths:
                 items:
                   $ref: "#/components/schemas/InspectionEntry"
 
+  /inspections/{id}:
+    patch:
+      operationId: patchInspection
+      tags: [inspections]
+      summary: Amend a saved inspection record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchInspectionInput"
+      responses:
+        "200":
+          description: Inspection updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InspectionEntry"
+
   /admin/inspections:
     get:
       operationId: listAllInspections
@@ -534,6 +559,31 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RiskAssessmentEntry"
+
+  /risk-assessments/{id}:
+    patch:
+      operationId: patchRiskAssessment
+      tags: [risk-assessments]
+      summary: Amend a saved risk assessment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchRiskAssessmentInput"
+      responses:
+        "200":
+          description: Risk assessment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskAssessmentEntry"
 
   /admin/risk-assessments:
     get:
@@ -1361,6 +1411,23 @@ components:
           type: string
         createdAt:
           type: string
+        amendedAt:
+          type: ["string", "null"]
+
+    PatchInspectionInput:
+      type: object
+      required: [deviceId, activationCode, items]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        sawIdentifier:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InspectionItemInput"
 
     HazardEntryInput:
       type: object
@@ -1464,6 +1531,49 @@ components:
           type: string
         createdAt:
           type: string
+        amendedAt:
+          type: ["string", "null"]
+
+    PatchRiskAssessmentInput:
+      type: object
+      required: [deviceId, activationCode, taskDescription, hazards]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        siteDescription:
+          type: string
+        taskDescription:
+          type: string
+        latitude:
+          type: string
+        longitude:
+          type: string
+        address:
+          type: string
+        gridReference:
+          type: string
+        what3Words:
+          type: string
+        nearestHospital:
+          type: string
+        hospitalPhone:
+          type: string
+        siteAccess:
+          type: string
+        meetingPoint:
+          type: string
+        firstAidKit:
+          type: string
+        nearestAed:
+          type: string
+        nearestSignal:
+          type: string
+        hazards:
+          type: array
+          items:
+            $ref: "#/components/schemas/HazardEntryInput"
 
     FeedbackEntry:
       type: object

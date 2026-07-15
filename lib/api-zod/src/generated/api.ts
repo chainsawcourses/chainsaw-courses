@@ -364,7 +364,8 @@ export const SubmitInspectionResponse = zod.object({
 })),
   "hasFailures": zod.boolean(),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 
 
@@ -388,9 +389,47 @@ export const ListMyInspectionsResponseItem = zod.object({
 })),
   "hasFailures": zod.boolean(),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 export const ListMyInspectionsResponse = zod.array(ListMyInspectionsResponseItem)
+
+
+/**
+ * @summary Amend a saved inspection record
+ */
+export const PatchInspectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PatchInspectionBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "sawIdentifier": zod.string().optional(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+}))
+})
+
+export const PatchInspectionResponse = zod.object({
+  "id": zod.number(),
+  "sawIdentifier": zod.string().nullish(),
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "section": zod.string(),
+  "status": zod.enum(['pass', 'fail', 'na']),
+  "note": zod.string().optional()
+})),
+  "hasFailures": zod.boolean(),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
+})
 
 
 /**
@@ -412,7 +451,8 @@ export const ListAllInspectionsResponseItem = zod.object({
 })),
   "hasFailures": zod.boolean(),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 export const ListAllInspectionsResponse = zod.array(ListAllInspectionsResponseItem)
 
@@ -474,7 +514,8 @@ export const SubmitRiskAssessmentResponse = zod.object({
   "isCustom": zod.boolean().optional()
 })),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 
 
@@ -512,9 +553,76 @@ export const ListMyRiskAssessmentsResponseItem = zod.object({
   "isCustom": zod.boolean().optional()
 })),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 export const ListMyRiskAssessmentsResponse = zod.array(ListMyRiskAssessmentsResponseItem)
+
+
+/**
+ * @summary Amend a saved risk assessment
+ */
+export const PatchRiskAssessmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PatchRiskAssessmentBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "siteDescription": zod.string().optional(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().optional(),
+  "longitude": zod.string().optional(),
+  "address": zod.string().optional(),
+  "gridReference": zod.string().optional(),
+  "what3Words": zod.string().optional(),
+  "nearestHospital": zod.string().optional(),
+  "hospitalPhone": zod.string().optional(),
+  "siteAccess": zod.string().optional(),
+  "meetingPoint": zod.string().optional(),
+  "firstAidKit": zod.string().optional(),
+  "nearestAed": zod.string().optional(),
+  "nearestSignal": zod.string().optional(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+}))
+})
+
+export const PatchRiskAssessmentResponse = zod.object({
+  "id": zod.number(),
+  "siteDescription": zod.string().nullish(),
+  "taskDescription": zod.string(),
+  "latitude": zod.string().nullish(),
+  "longitude": zod.string().nullish(),
+  "address": zod.string().nullish(),
+  "gridReference": zod.string().nullish(),
+  "what3Words": zod.string().nullish(),
+  "nearestHospital": zod.string().nullish(),
+  "hospitalPhone": zod.string().nullish(),
+  "siteAccess": zod.string().nullish(),
+  "meetingPoint": zod.string().nullish(),
+  "firstAidKit": zod.string().nullish(),
+  "nearestAed": zod.string().nullish(),
+  "nearestSignal": zod.string().nullish(),
+  "hazards": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "likelihood": zod.number(),
+  "severity": zod.number(),
+  "riskRating": zod.number(),
+  "controlMeasures": zod.string().optional(),
+  "isCustom": zod.boolean().optional()
+})),
+  "studentName": zod.string().optional(),
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
+})
 
 
 /**
@@ -550,7 +658,8 @@ export const ListAllRiskAssessmentsResponseItem = zod.object({
   "isCustom": zod.boolean().optional()
 })),
   "studentName": zod.string().optional(),
-  "createdAt": zod.string()
+  "createdAt": zod.string(),
+  "amendedAt": zod.string().nullish()
 })
 export const ListAllRiskAssessmentsResponse = zod.array(ListAllRiskAssessmentsResponseItem)
 

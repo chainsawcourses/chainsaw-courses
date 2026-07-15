@@ -234,6 +234,15 @@ export interface InspectionEntry {
   hasFailures: boolean;
   studentName?: string;
   createdAt: string;
+  /** @nullable */
+  amendedAt?: string | null;
+}
+
+export interface PatchInspectionInput {
+  deviceId: string;
+  activationCode: string;
+  sawIdentifier?: string;
+  items: InspectionItemInput[];
 }
 
 export interface HazardEntryInput {
@@ -298,6 +307,28 @@ export interface RiskAssessmentEntry {
   hazards: HazardEntryInput[];
   studentName?: string;
   createdAt: string;
+  /** @nullable */
+  amendedAt?: string | null;
+}
+
+export interface PatchRiskAssessmentInput {
+  deviceId: string;
+  activationCode: string;
+  siteDescription?: string;
+  taskDescription: string;
+  latitude?: string;
+  longitude?: string;
+  address?: string;
+  gridReference?: string;
+  what3Words?: string;
+  nearestHospital?: string;
+  hospitalPhone?: string;
+  siteAccess?: string;
+  meetingPoint?: string;
+  firstAidKit?: string;
+  nearestAed?: string;
+  nearestSignal?: string;
+  hazards: HazardEntryInput[];
 }
 
 export interface FeedbackEntry {

@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { riskAssessmentsTable, usersTable } from "@workspace/db";
 import { SubmitRiskAssessmentBody } from "@workspace/api-zod";
 import { eq, desc, and } from "drizzle-orm";
+import { z } from "zod/v4";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
@@ -40,6 +41,7 @@ function serializeRecord(row: {
   nearestSignal: string | null;
   hazards: string;
   createdAt: Date;
+  amendedAt: Date | null;
   studentName?: string | null;
 }) {
   return {
@@ -61,6 +63,7 @@ function serializeRecord(row: {
     hazards: JSON.parse(row.hazards) as HazardEntry[],
     studentName: row.studentName ?? undefined,
     createdAt: row.createdAt.toISOString(),
+    amendedAt: row.amendedAt?.toISOString() ?? null,
   };
 }
 
@@ -207,11 +210,17 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
     doc.moveDown(0.6);
 
     // Student / date bar
+    const amendedDateStr = row.amendedAt ? new Date(row.amendedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }) : null;
+    const amendedTimeStr = row.amendedAt ? new Date(row.amendedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : null;
+    const barH = row.amendedAt ? 40 : 28;
     const barY = doc.y;
-    doc.rect(L, barY, W, 28).fill("#F3F4F6");
+    doc.rect(L, barY, W, barH).fill("#F3F4F6");
     doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(user.fullName ?? "—", L + 8, barY + 5, { lineBreak: false });
     doc.fontSize(9).fillColor(mid).font("Helvetica").text(`${dateStr}  ${timeStr}`, L + 8, barY + 16, { lineBreak: false });
-    doc.text("", L, barY + 35);
+    if (row.amendedAt) {
+      doc.fontSize(9).fillColor(orange).font("Helvetica-Bold").text(`Amended: ${amendedDateStr}  ${amendedTimeStr}`, L + 8, barY + 28, { lineBreak: false });
+    }
+    doc.text("", L, barY + barH + 7);
 
     // Task & site section
     doc.fontSize(9).fillColor(mid).font("Helvetica-Bold").text("TASK DESCRIPTION", L);
@@ -345,6 +354,90 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
   }
 });
 
+router.patch("/risk-assessments/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Bad request" });
+    return;
+  }
+
+  const PatchBody = z.object({
+    deviceId: z.string(),
+    activationCode: z.string(),
+    siteDescription: z.string().optional(),
+    taskDescription: z.string(),
+    latitude: z.string().optional(),
+    longitude: z.string().optional(),
+    address: z.string().optional(),
+    gridReference: z.string().optional(),
+    what3Words: z.string().optional(),
+    nearestHospital: z.string().optional(),
+    hospitalPhone: z.string().optional(),
+    siteAccess: z.string().optional(),
+    meetingPoint: z.string().optional(),
+    firstAidKit: z.string().optional(),
+    nearestAed: z.string().optional(),
+    nearestSignal: z.string().optional(),
+    hazards: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      likelihood: z.number().int(),
+      severity: z.number().int(),
+      riskRating: z.number().int(),
+      controlMeasures: z.string().optional(),
+      isCustom: z.boolean().optional(),
+    })),
+  });
+
+  const parse = PatchBody.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+
+  const { deviceId, activationCode, siteDescription, taskDescription, latitude, longitude, address, gridReference, what3Words, nearestHospital, hospitalPhone, siteAccess, meetingPoint, firstAidKit, nearestAed, nearestSignal, hazards } = parse.data;
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  try {
+    const [updated] = await db
+      .update(riskAssessmentsTable)
+      .set({
+        siteDescription: siteDescription ?? null,
+        taskDescription,
+        latitude: latitude ?? null,
+        longitude: longitude ?? null,
+        address: address ?? null,
+        gridReference: gridReference ?? null,
+        what3Words: what3Words ?? null,
+        nearestHospital: nearestHospital ?? null,
+        hospitalPhone: hospitalPhone ?? null,
+        siteAccess: siteAccess ?? null,
+        meetingPoint: meetingPoint ?? null,
+        firstAidKit: firstAidKit ?? null,
+        nearestAed: nearestAed ?? null,
+        nearestSignal: nearestSignal ?? null,
+        hazards: JSON.stringify(hazards),
+        amendedAt: new Date(),
+      })
+      .where(and(eq(riskAssessmentsTable.id, id), eq(riskAssessmentsTable.userId, user.id)))
+      .returning();
+
+    if (!updated) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    res.json(serializeRecord(updated));
+  } catch (err) {
+    logger.error({ err }, "Error updating risk assessment");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/admin/risk-assessments", async (req, res) => {
   if (!verifyAdmin(req)) {
     res.status(401).json({ error: "Unauthorized" });
@@ -371,6 +464,7 @@ router.get("/admin/risk-assessments", async (req, res) => {
         nearestSignal: riskAssessmentsTable.nearestSignal,
         hazards: riskAssessmentsTable.hazards,
         createdAt: riskAssessmentsTable.createdAt,
+        amendedAt: riskAssessmentsTable.amendedAt,
         studentName: usersTable.fullName,
       })
       .from(riskAssessmentsTable)

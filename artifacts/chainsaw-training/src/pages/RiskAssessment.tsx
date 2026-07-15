@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, FileDown, History, Loader2, LocateFixed, MapPin, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, Edit2, FileDown, History, Loader2, LocateFixed, MapPin, Plus, Trash2, X } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
-import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey } from "@workspace/api-client-react";
+import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toOsGridReference } from "../lib/osGridRef";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
@@ -162,6 +162,8 @@ export default function RiskAssessment() {
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
   const downloadPdf = async (id: number) => {
@@ -308,6 +310,22 @@ export default function RiskAssessment() {
     },
   });
 
+  const patchRiskAssessment = usePatchRiskAssessment({
+    mutation: {
+      onSuccess: (data) => {
+        setSubmitted(true);
+        setExportRecord(data);
+        setEditingId(null);
+        setEditingOriginalDate(null);
+        playBing();
+        queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
+        setTimeout(() => {
+          exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      },
+    },
+  });
+
   const history = useListMyRiskAssessments({
     query: {
       queryKey: getListMyRiskAssessmentsQueryKey(),
@@ -315,39 +333,99 @@ export default function RiskAssessment() {
     },
   });
 
+  const loadForEdit = (record: NonNullable<typeof history.data>[number]) => {
+    setTaskDescription(record.taskDescription);
+    setSiteDescription(record.siteDescription ?? "");
+    setAddress(record.address ?? "");
+    setGridReference(record.gridReference ?? "");
+    setWhat3Words(record.what3Words ?? "");
+    setNearestHospital(record.nearestHospital ?? "");
+    setHospitalPhone(record.hospitalPhone ?? "");
+    setSiteAccess(record.siteAccess ?? "");
+    setMeetingPoint(record.meetingPoint ?? "");
+    setFirstAidKit(record.firstAidKit ?? "");
+    setNearestAed(record.nearestAed ?? "");
+    setNearestSignal(record.nearestSignal ?? "");
+    setHazards(record.hazards.map((h) => ({
+      id: h.id,
+      label: h.label,
+      likelihood: h.likelihood,
+      severity: h.severity,
+      controlMeasures: h.controlMeasures ?? "",
+      isCustom: h.isCustom ?? false,
+    })));
+    if (record.latitude && record.longitude) {
+      setCoords({ lat: parseFloat(record.latitude), lon: parseFloat(record.longitude) });
+    } else {
+      setCoords(null);
+    }
+    setEditingId(record.id);
+    setEditingOriginalDate(record.createdAt);
+    setSubmitted(false);
+    setExportRecord(null);
+    setShowHistory(false);
+  };
+
   const handleSubmit = () => {
     if (!deviceId || !activationCode || !taskDescription.trim()) return;
-    submitRiskAssessment.mutate({
-      data: {
-        deviceId,
-        activationCode,
-        siteDescription: siteDescription.trim() || undefined,
-        taskDescription: taskDescription.trim(),
-        latitude: coords ? coords.lat.toFixed(6) : undefined,
-        longitude: coords ? coords.lon.toFixed(6) : undefined,
-        address: address.trim() || undefined,
-        gridReference: gridReference.trim() || undefined,
-        what3Words: what3Words.trim() || undefined,
-        nearestHospital: nearestHospital.trim() || undefined,
-        hospitalPhone: hospitalPhone.trim() || undefined,
-        siteAccess: siteAccess.trim() || undefined,
-        meetingPoint: meetingPoint.trim() || undefined,
-        firstAidKit: firstAidKit.trim() || undefined,
-        nearestAed: nearestAed.trim() || undefined,
-        nearestSignal: nearestSignal.trim() || undefined,
-        hazards: hazards
-          .filter((h) => h.label.trim())
-          .map((h) => ({
-            id: h.id,
-            label: h.label.trim(),
-            likelihood: h.likelihood,
-            severity: h.severity,
-            riskRating: riskRatingOf(h.likelihood, h.severity),
-            controlMeasures: h.controlMeasures.trim() || undefined,
-            isCustom: h.isCustom,
-          })),
-      },
-    });
+    const hazardPayload = hazards
+      .filter((h) => h.label.trim())
+      .map((h) => ({
+        id: h.id,
+        label: h.label.trim(),
+        likelihood: h.likelihood,
+        severity: h.severity,
+        riskRating: riskRatingOf(h.likelihood, h.severity),
+        controlMeasures: h.controlMeasures.trim() || undefined,
+        isCustom: h.isCustom,
+      }));
+
+    if (editingId !== null) {
+      patchRiskAssessment.mutate({
+        id: editingId,
+        data: {
+          deviceId,
+          activationCode,
+          siteDescription: siteDescription.trim() || undefined,
+          taskDescription: taskDescription.trim(),
+          latitude: coords ? coords.lat.toFixed(6) : undefined,
+          longitude: coords ? coords.lon.toFixed(6) : undefined,
+          address: address.trim() || undefined,
+          gridReference: gridReference.trim() || undefined,
+          what3Words: what3Words.trim() || undefined,
+          nearestHospital: nearestHospital.trim() || undefined,
+          hospitalPhone: hospitalPhone.trim() || undefined,
+          siteAccess: siteAccess.trim() || undefined,
+          meetingPoint: meetingPoint.trim() || undefined,
+          firstAidKit: firstAidKit.trim() || undefined,
+          nearestAed: nearestAed.trim() || undefined,
+          nearestSignal: nearestSignal.trim() || undefined,
+          hazards: hazardPayload,
+        },
+      });
+    } else {
+      submitRiskAssessment.mutate({
+        data: {
+          deviceId,
+          activationCode,
+          siteDescription: siteDescription.trim() || undefined,
+          taskDescription: taskDescription.trim(),
+          latitude: coords ? coords.lat.toFixed(6) : undefined,
+          longitude: coords ? coords.lon.toFixed(6) : undefined,
+          address: address.trim() || undefined,
+          gridReference: gridReference.trim() || undefined,
+          what3Words: what3Words.trim() || undefined,
+          nearestHospital: nearestHospital.trim() || undefined,
+          hospitalPhone: hospitalPhone.trim() || undefined,
+          siteAccess: siteAccess.trim() || undefined,
+          meetingPoint: meetingPoint.trim() || undefined,
+          firstAidKit: firstAidKit.trim() || undefined,
+          nearestAed: nearestAed.trim() || undefined,
+          nearestSignal: nearestSignal.trim() || undefined,
+          hazards: hazardPayload,
+        },
+      });
+    }
   };
 
   if (!activationCode || !deviceId) return null;
@@ -412,27 +490,18 @@ export default function RiskAssessment() {
                   void downloadPdf(record.id).finally(() => setDownloadingId(null));
                 };
                 return (
-                  <div
-                    key={record.id}
-                    onClick={handleDownload}
-                    className={`border rounded p-3 space-y-1.5 cursor-pointer transition-all duration-150 select-none
-                      ${isDownloading
-                        ? "border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm"
-                        : "border-border hover:border-primary/50 hover:bg-primary/5 active:bg-primary/10 active:border-primary"
-                      }`}
-                  >
+                  <div key={record.id} className="border rounded p-3 space-y-1.5 border-border">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[11px] text-muted-foreground">
                         {new Date(record.createdAt).toLocaleString()}
                       </span>
                       <div className="flex items-center gap-2">
+                        {record.amendedAt && (
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-amber-600 border border-amber-400 rounded px-1.5 py-0.5">amended</span>
+                        )}
                         <span className={`font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
                           {band.label} risk
                         </span>
-                        {isDownloading
-                          ? <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                          : <FileDown className="w-3.5 h-3.5 text-muted-foreground" />
-                        }
                       </div>
                     </div>
                     <p className="font-mono text-[11px] text-foreground">{record.taskDescription}</p>
@@ -442,7 +511,18 @@ export default function RiskAssessment() {
                     {record.gridReference && (
                       <p className="font-mono text-[10px] text-muted-foreground">Grid ref: {record.gridReference}</p>
                     )}
-                    <div className="flex gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                    {record.amendedAt && (
+                      <p className="font-mono text-[10px] text-amber-600">Amended: {new Date(record.amendedAt).toLocaleString()}</p>
+                    )}
+                    <div className="flex gap-2 pt-1 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => loadForEdit(record)}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" /> Edit
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -450,7 +530,7 @@ export default function RiskAssessment() {
                         disabled={isDownloading}
                         onClick={handleDownload}
                       >
-                        <FileDown className="w-3 h-3 mr-1" />
+                        {isDownloading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FileDown className="w-3 h-3 mr-1" />}
                         {isDownloading ? "Downloading…" : "PDF"}
                       </Button>
                       <Button
@@ -471,6 +551,45 @@ export default function RiskAssessment() {
           </Card>
         ) : (
           <>
+            {editingId !== null && editingOriginalDate && (
+              <Card className="border-amber-500 bg-amber-500/10">
+                <CardContent className="p-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Edit2 className="w-4 h-4 text-amber-600 shrink-0" />
+                    <p className="font-mono text-xs text-amber-700 truncate">
+                      Editing assessment from {new Date(editingOriginalDate).toLocaleString()} — save to update record.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground shrink-0 h-7 px-2"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditingOriginalDate(null);
+                      setTaskDescription("Cross-cutting felled/heavy timber into logs");
+                      setSiteDescription("");
+                      setAddress("");
+                      setGridReference("");
+                      setWhat3Words("");
+                      setNearestHospital("");
+                      setHospitalPhone("");
+                      setSiteAccess("");
+                      setMeetingPoint("");
+                      setFirstAidKit("");
+                      setNearestAed("");
+                      setNearestSignal("");
+                      setCoords(null);
+                      setHazards(DEFAULT_HAZARDS);
+                      setSubmitted(false);
+                      setExportRecord(null);
+                    }}
+                  >
+                    <X className="w-3 h-3 mr-1" /> Cancel
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
             <Card className="border-border bg-card/60">
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
@@ -758,15 +877,15 @@ export default function RiskAssessment() {
             <Button
               size="sm"
               onClick={handleSubmit}
-              disabled={submitRiskAssessment.isPending || !taskDescription.trim()}
+              disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending || !taskDescription.trim()}
               className="font-mono text-xs uppercase tracking-widest px-4 shrink-0"
             >
-              {submitRiskAssessment.isPending ? (
+              {(submitRiskAssessment.isPending || patchRiskAssessment.isPending) ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
               ) : (
                 <MapPin className="w-3.5 h-3.5 mr-1.5 inline" />
               )}
-              Save Assessment
+              {editingId !== null ? "Update Assessment" : "Save Assessment"}
             </Button>
           </div>
         </div>

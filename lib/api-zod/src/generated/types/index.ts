@@ -37,6 +37,8 @@ export * from './module';
 export * from './moduleDetail';
 export * from './newsFetchResult';
 export * from './newsItem';
+export * from './patchInspectionInput';
+export * from './patchRiskAssessmentInput';
 export * from './progressSummary';
 export * from './quiz';
 export * from './quizAnswer';

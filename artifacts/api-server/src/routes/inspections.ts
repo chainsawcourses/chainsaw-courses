@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { inspectionRecordsTable, usersTable } from "@workspace/db";
 import { SubmitInspectionBody } from "@workspace/api-zod";
 import { eq, desc, and } from "drizzle-orm";
+import { z } from "zod/v4";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
@@ -26,6 +27,7 @@ function serializeRecord(row: {
   items: string;
   hasFailures: boolean;
   createdAt: Date;
+  amendedAt: Date | null;
   studentName?: string | null;
 }) {
   return {
@@ -35,6 +37,7 @@ function serializeRecord(row: {
     hasFailures: row.hasFailures,
     studentName: row.studentName ?? undefined,
     createdAt: row.createdAt.toISOString(),
+    amendedAt: row.amendedAt?.toISOString() ?? null,
   };
 }
 
@@ -169,14 +172,23 @@ router.get("/inspections/:id/pdf", async (req, res) => {
     doc.moveDown(0.6);
 
     // Student / date bar
+    const amendedDateStr = row.amendedAt ? new Date(row.amendedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }) : null;
+    const amendedTimeStr = row.amendedAt ? new Date(row.amendedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : null;
+    const extraLines = (row.sawIdentifier ? 1 : 0) + (row.amendedAt ? 1 : 0);
+    const barH = 28 + extraLines * 12;
     const barY = doc.y;
-    doc.rect(L, barY, W, row.sawIdentifier ? 40 : 28).fill("#F3F4F6");
+    doc.rect(L, barY, W, barH).fill("#F3F4F6");
     doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(user.fullName ?? "—", L + 8, barY + 5, { lineBreak: false });
     doc.fontSize(9).fillColor(mid).font("Helvetica").text(`${dateStr}  ${timeStr}`, L + 8, barY + 16, { lineBreak: false });
+    let infoLineY = barY + 28;
     if (row.sawIdentifier) {
-      doc.fontSize(9).fillColor(mid).font("Helvetica").text(`Saw / Equipment: ${row.sawIdentifier}`, L + 8, barY + 28, { lineBreak: false });
+      doc.fontSize(9).fillColor(mid).font("Helvetica").text(`Saw / Equipment: ${row.sawIdentifier}`, L + 8, infoLineY, { lineBreak: false });
+      infoLineY += 12;
     }
-    doc.text("", L, barY + (row.sawIdentifier ? 48 : 36));
+    if (row.amendedAt) {
+      doc.fontSize(9).fillColor(orange).font("Helvetica-Bold").text(`Amended: ${amendedDateStr}  ${amendedTimeStr}`, L + 8, infoLineY, { lineBreak: false });
+    }
+    doc.text("", L, barY + barH + 8);
 
     // Columns: Item | Status | Notes
     const colW = { item: 230, status: 65, notes: W - 230 - 65 };
@@ -270,6 +282,64 @@ router.get("/inspections/:id/pdf", async (req, res) => {
   }
 });
 
+router.patch("/inspections/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Bad request" });
+    return;
+  }
+
+  const PatchBody = z.object({
+    deviceId: z.string(),
+    activationCode: z.string(),
+    sawIdentifier: z.string().optional(),
+    items: z.array(z.object({
+      id: z.string(),
+      label: z.string(),
+      section: z.string(),
+      status: z.enum(["pass", "fail", "na"]),
+      note: z.string().optional(),
+    })),
+  });
+
+  const parse = PatchBody.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+
+  const { deviceId, activationCode, sawIdentifier, items } = parse.data;
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const hasFailures = items.some((item) => item.status === "fail");
+
+  try {
+    const [updated] = await db
+      .update(inspectionRecordsTable)
+      .set({
+        sawIdentifier: sawIdentifier ?? null,
+        items: JSON.stringify(items),
+        hasFailures,
+        amendedAt: new Date(),
+      })
+      .where(and(eq(inspectionRecordsTable.id, id), eq(inspectionRecordsTable.userId, user.id)))
+      .returning();
+
+    if (!updated) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+
+    res.json(serializeRecord(updated));
+  } catch (err) {
+    logger.error({ err }, "Error updating inspection record");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/admin/inspections", async (req, res) => {
   if (!verifyAdmin(req)) {
     res.status(401).json({ error: "Unauthorized" });
@@ -284,6 +354,7 @@ router.get("/admin/inspections", async (req, res) => {
         items: inspectionRecordsTable.items,
         hasFailures: inspectionRecordsTable.hasFailures,
         createdAt: inspectionRecordsTable.createdAt,
+        amendedAt: inspectionRecordsTable.amendedAt,
         studentName: usersTable.fullName,
       })
       .from(inspectionRecordsTable)

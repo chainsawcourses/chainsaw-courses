@@ -46,6 +46,8 @@ import type {
   ModuleDetail,
   NewsFetchResult,
   NewsItem,
+  PatchInspectionInput,
+  PatchRiskAssessmentInput,
   ProgressSummary,
   Quiz,
   QuizResult,
@@ -1413,6 +1415,78 @@ export function useListMyInspections<TData = Awaited<ReturnType<typeof listMyIns
 
 
 
+export const getPatchInspectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/inspections/${id}`
+}
+
+/**
+ * @summary Amend a saved inspection record
+ */
+export const patchInspection = async (id: number,
+    patchInspectionInput: PatchInspectionInput, options?: RequestInit): Promise<InspectionEntry> => {
+
+  return customFetch<InspectionEntry>(getPatchInspectionUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchInspectionInput,)
+  }
+);}
+
+
+
+
+export const getPatchInspectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchInspection>>, TError,{id: number;data: BodyType<PatchInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof patchInspection>>, TError,{id: number;data: BodyType<PatchInspectionInput>}, TContext> => {
+
+const mutationKey = ['patchInspection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchInspection>>, {id: number;data: BodyType<PatchInspectionInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  patchInspection(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchInspectionMutationResult = NonNullable<Awaited<ReturnType<typeof patchInspection>>>
+    export type PatchInspectionMutationBody = BodyType<PatchInspectionInput>
+    export type PatchInspectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Amend a saved inspection record
+ */
+export const usePatchInspection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchInspection>>, TError,{id: number;data: BodyType<PatchInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof patchInspection>>,
+        TError,
+        {id: number;data: BodyType<PatchInspectionInput>},
+        TContext
+      > => {
+      return useMutation(getPatchInspectionMutationOptions(options));
+    }
+
 export const getListAllInspectionsUrl = () => {
 
 
@@ -1637,6 +1711,78 @@ export function useListMyRiskAssessments<TData = Awaited<ReturnType<typeof listM
 
 
 
+
+export const getPatchRiskAssessmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/risk-assessments/${id}`
+}
+
+/**
+ * @summary Amend a saved risk assessment
+ */
+export const patchRiskAssessment = async (id: number,
+    patchRiskAssessmentInput: PatchRiskAssessmentInput, options?: RequestInit): Promise<RiskAssessmentEntry> => {
+
+  return customFetch<RiskAssessmentEntry>(getPatchRiskAssessmentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchRiskAssessmentInput,)
+  }
+);}
+
+
+
+
+export const getPatchRiskAssessmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchRiskAssessment>>, TError,{id: number;data: BodyType<PatchRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof patchRiskAssessment>>, TError,{id: number;data: BodyType<PatchRiskAssessmentInput>}, TContext> => {
+
+const mutationKey = ['patchRiskAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof patchRiskAssessment>>, {id: number;data: BodyType<PatchRiskAssessmentInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  patchRiskAssessment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PatchRiskAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof patchRiskAssessment>>>
+    export type PatchRiskAssessmentMutationBody = BodyType<PatchRiskAssessmentInput>
+    export type PatchRiskAssessmentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Amend a saved risk assessment
+ */
+export const usePatchRiskAssessment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof patchRiskAssessment>>, TError,{id: number;data: BodyType<PatchRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof patchRiskAssessment>>,
+        TError,
+        {id: number;data: BodyType<PatchRiskAssessmentInput>},
+        TContext
+      > => {
+      return useMutation(getPatchRiskAssessmentMutationOptions(options));
+    }
 
 export const getListAllRiskAssessmentsUrl = () => {
 

@@ -39,4 +39,6 @@ export interface RiskAssessmentEntry {
   hazards: HazardEntryInput[];
   studentName?: string;
   createdAt: string;
+  /** @nullable */
+  amendedAt?: string | null;
 }

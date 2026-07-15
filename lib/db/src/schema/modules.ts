@@ -117,6 +117,7 @@ export const inspectionRecordsTable = pgTable("inspection_records", {
   items: text("items").notNull(), // JSON array of { id, label, section, status: 'pass'|'fail'|'na', note? }
   hasFailures: boolean("has_failures").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  amendedAt: timestamp("amended_at"),
 });
 
 export const riskAssessmentsTable = pgTable("risk_assessments", {
@@ -138,6 +139,7 @@ export const riskAssessmentsTable = pgTable("risk_assessments", {
   nearestSignal: text("nearest_signal"),
   hazards: text("hazards").notNull(), // JSON array of { id, label, likelihood, severity, riskRating, controlMeasures }
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  amendedAt: timestamp("amended_at"),
 });
 
 export type HazardReference = typeof hazardReferenceTable.$inferSelect;
@@ -169,8 +171,8 @@ export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).o
 export const insertChatMessageSchema = createInsertSchema(chatMessagesTable).omit({ id: true, createdAt: true });
 export const insertModuleFeedbackSchema = createInsertSchema(moduleFeedbackTable).omit({ id: true, createdAt: true });
 export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).omit({ id: true });
-export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true });
-export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true });
+export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true, amendedAt: true });
+export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true, amendedAt: true });
 
 export type NewsItem = typeof newsItemsTable.$inferSelect;
 export type InsertNewsItem = z.infer<typeof insertNewsItemSchema>;

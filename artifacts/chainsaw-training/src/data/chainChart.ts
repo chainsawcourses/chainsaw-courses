@@ -62,6 +62,7 @@ export const CHAIN_CHART: ChainChartRow[] = [
     pitch: '.325"',
     gauge: '1.1mm (.043")',
     oregon: ["80"],
+    stihl: [],
     husqvarna: ["SP21G", "Xcut"],
     fileSize: '4mm (5/32")',
     topPlateAngle: "30°",
