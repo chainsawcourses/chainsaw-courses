@@ -6,10 +6,10 @@ const BASE = import.meta.env.BASE_URL as string;
 type Phase = "logo-in" | "expand" | "content" | "leaving";
 
 const STEPS = [
-  { emoji: "📹", text: "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass)." },
-  { emoji: "🧠", text: "Use the AI Mock Test when you're ready to practise for the written exam." },
-  { emoji: "📋", text: "The Inspection Checklist and Risk Assessment are standalone tools for your real-world use." },
-  { emoji: "🗺️", text: "The Biosecurity Map and Chain Chart are available from the main menu anytime." },
+  "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).",
+  "Use the AI Mock Test when you're ready to practise for the written exam.",
+  "The Inspection Checklist and Risk Assessment are standalone tools for your real-world use.",
+  "The Biosecurity Map and Chain Chart are available from the main menu anytime.",
 ];
 
 export default function WelcomeModal() {
@@ -39,7 +39,7 @@ export default function WelcomeModal() {
   if (!mounted) return null;
 
   const isCircle = phase === "logo-in" || phase === "expand";
-  const logoVisible = phase === "logo-in" || phase === "expand";
+  const logoVisible = phase !== "leaving";
   const showContent = phase === "content";
   const isLeaving = phase === "leaving";
 
@@ -141,24 +141,19 @@ export default function WelcomeModal() {
             </p>
 
             <div style={{ textAlign: "left", marginBottom: 22 }}>
-              {STEPS.map(({ emoji, text }) => (
-                <div
-                  key={emoji}
-                  style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 11 }}
+              {STEPS.map((text) => (
+                <p
+                  key={text}
+                  style={{
+                    fontFamily: "ui-monospace, monospace",
+                    fontSize: "0.72rem",
+                    color: "#111827",
+                    lineHeight: 1.65,
+                    margin: "0 0 11px",
+                  }}
                 >
-                  <span style={{ fontSize: "0.95rem", flexShrink: 0, lineHeight: 1.6 }}>{emoji}</span>
-                  <p
-                    style={{
-                      fontFamily: "ui-monospace, monospace",
-                      fontSize: "0.72rem",
-                      color: "#111827",
-                      lineHeight: 1.65,
-                      margin: 0,
-                    }}
-                  >
-                    {text}
-                  </p>
-                </div>
+                  {text}
+                </p>
               ))}
             </div>
 
