@@ -431,7 +431,7 @@ export default function SpeciesGuide() {
             {(["all", "High", "Medium", "Low"] as const).map((v) => (
               <button key={v} onClick={() => setFilterTimber(v)}
                 className={`px-2.5 py-1 rounded-full border transition-colors ${filterTimber === v ? "bg-primary text-white border-primary" : "bg-white border-border text-muted-foreground hover:border-primary/50"}`}>
-                {v === "all" ? "All Timber" : `🪵 Timber: ${v}`}
+                {v === "all" ? "All Timber Quality" : `🪵 Timber Quality: ${v}`}
               </button>
             ))}
             <span className="border-l border-border mx-0.5" />
@@ -473,9 +473,9 @@ export default function SpeciesGuide() {
             <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${FIREWOOD_COLOURS.Poor}`}>Firewood: Poor</span></div>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">
-            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.High}`}>Timber: High</span></div>
-            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.Medium}`}>Timber: Medium</span></div>
-            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.Low}`}>Timber: Low</span></div>
+            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.High}`}>Timber Quality: High</span></div>
+            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.Medium}`}>Timber Quality: Medium</span></div>
+            <div className="flex items-center gap-1.5"><span className={`px-2 py-0.5 rounded border font-mono ${TIMBER_COLOURS.Low}`}>Timber Quality: Low</span></div>
           </div>
           <p className="text-[10px] text-muted-foreground font-mono">Spit Risk — <span className={SPIT_COLOURS.High}>High</span> means keep distance from open flames when unseasoned</p>
         </div>
@@ -506,7 +506,7 @@ function SpeciesCard({ species: s }: { species: Species }) {
               Firewood: {s.firewood.value}
             </span>
             <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-bold uppercase ${TIMBER_COLOURS[s.timber.value]}`}>
-              Timber: {s.timber.value}
+              Timber Quality: {s.timber.value}
             </span>
           </div>
         </div>
@@ -540,7 +540,7 @@ function SpeciesCard({ species: s }: { species: Species }) {
 
           {/* Timber note */}
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Timber Use</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Timber Quality &amp; Use</p>
             <p className="font-mono text-foreground/80 leading-relaxed">{s.timber.note}</p>
           </div>
 
