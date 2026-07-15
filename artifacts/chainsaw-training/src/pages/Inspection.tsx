@@ -328,7 +328,7 @@ export default function Inspection() {
             Pre-Start &amp; Pre-Use Checklist
           </h1>
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            Use this tool before any real-world chainsaw use to run through the standard pre-start and pre-use safety
+            Use this checklist before using your chainsaw to run through the standard pre-start and pre-use safety
             checks. This is a personal record only — it does not unlock or affect your course progress.
           </p>
         </div>
