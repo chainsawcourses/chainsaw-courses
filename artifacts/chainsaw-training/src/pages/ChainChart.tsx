@@ -80,7 +80,7 @@ export default function ChainChart() {
           </Button>
           <div className="flex items-center gap-2">
             <Cog className="w-4 h-4 text-primary" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Chain Chart</span>
+            <span className="font-mono font-bold uppercase tracking-widest text-sm">Chain Identification</span>
           </div>
           <div className="w-14" />
         </div>
