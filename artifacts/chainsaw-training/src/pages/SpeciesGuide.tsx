@@ -325,7 +325,7 @@ export default function SpeciesGuide() {
           <div className="min-w-0">
             <h1 className="font-black tracking-tighter text-base uppercase leading-none">Species Characteristics</h1>
             <p className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest leading-none mt-0.5">
-              {results.length} of {SPECIES.length} species
+              30 most common species found in the UK
             </p>
           </div>
         </div>
@@ -465,7 +465,7 @@ function SpeciesCard({ species: s }: { species: Species }) {
             <p className="text-muted-foreground text-xs italic mt-0.5">{s.scientific}</p>
           </div>
           <span className={`shrink-0 mt-0.5 px-2 py-0.5 rounded border text-[10px] font-mono font-bold uppercase ${FIREWOOD_VALUE_COLOURS[s.firewood.value]}`}>
-            {s.firewood.value}
+            Firewood: {s.firewood.value}
           </span>
         </div>
 
@@ -475,10 +475,7 @@ function SpeciesCard({ species: s }: { species: Species }) {
             {s.native ? "Native" : "Non-Native"}
           </span>
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-mono ${WILDLIFE_COLOURS[s.wildlifeValue]}`}>
-            Wildlife: {s.wildlifeValue}
-          </span>
-          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-mono font-bold bg-white ${SPIT_COLOURS[s.firewood.spitRisk]} border-current/20`}>
-            Spit: {s.firewood.spitRisk}
+            Wildlife Value: {s.wildlifeValue}
           </span>
         </div>
       </div>
@@ -498,6 +495,12 @@ function SpeciesCard({ species: s }: { species: Species }) {
       {/* Expandable detail */}
       {expanded && (
         <div className="px-4 py-3 space-y-3 text-xs border-b border-border/60">
+          {/* Spit risk */}
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Spit Risk</p>
+            <span className={`font-mono font-bold text-xs ${SPIT_COLOURS[s.firewood.spitRisk]}`}>{s.firewood.spitRisk}</span>
+          </div>
+
           {/* Traits */}
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1.5 flex items-center gap-1">
