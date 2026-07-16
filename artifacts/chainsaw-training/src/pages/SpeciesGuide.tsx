@@ -303,9 +303,9 @@ const FIREWOOD_COLOURS: Record<Species["firewood"]["value"], string> = {
 };
 
 const TIMBER_COLOURS: Record<Species["timber"]["value"], string> = {
-  High:   "bg-blue-100 text-blue-800 border-blue-200",
-  Medium: "bg-purple-100 text-purple-800 border-purple-200",
-  Low:    "bg-gray-100 text-gray-600 border-gray-200",
+  High:   "bg-green-100 text-green-800 border-green-200",
+  Medium: "bg-amber-100 text-amber-800 border-amber-200",
+  Low:    "bg-red-100 text-red-700 border-red-200",
 };
 
 const SPIT_COLOURS: Record<Species["firewood"]["spitRisk"], string> = {
