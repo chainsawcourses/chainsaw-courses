@@ -622,7 +622,13 @@ export default function TrainingList() {
                   <Card className="border-border bg-card/60 mt-1">
                     <CardContent className="p-4">
                       <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {howToUseText}
+                        {(() => {
+                          const injected = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
+                          const marker = "Mock Assessment Practice:";
+                          const idx = howToUseText!.indexOf(marker);
+                          if (idx === -1) return howToUseText;
+                          return howToUseText!.slice(0, idx) + injected + howToUseText!.slice(idx);
+                        })()}
                       </p>
                     </CardContent>
                   </Card>
