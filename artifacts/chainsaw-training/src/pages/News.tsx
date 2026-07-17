@@ -1,8 +1,10 @@
-import { ArrowLeft, ExternalLink, Newspaper, RefreshCw } from "lucide-react";
+import { ArrowLeft, Bell, BellOff, ExternalLink, Newspaper, RefreshCw } from "lucide-react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useListNewsItems } from "@workspace/api-client-react";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-GB", {
@@ -14,6 +16,7 @@ function formatDate(dateStr: string) {
 
 export default function News() {
   const { data: items, isLoading, isError } = useListNewsItems();
+  const { state: notifState, subscribe, unsubscribe } = usePushNotifications();
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,6 +29,35 @@ export default function News() {
           <span className="font-mono font-bold uppercase tracking-widest text-sm text-primary">
             Industry News
           </span>
+          <div className="ml-auto">
+            {notifState === "unsupported" ? null : notifState === "denied" ? (
+              <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+                Notifications blocked
+              </span>
+            ) : notifState === "subscribed" ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={unsubscribe}
+                className="font-mono text-[10px] uppercase tracking-widest gap-1.5"
+              >
+                <BellOff className="w-3.5 h-3.5" />
+                Notifications On
+              </Button>
+            ) : notifState === "unsubscribed" ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={subscribe}
+                className="font-mono text-[10px] uppercase tracking-widest gap-1.5 border-primary/40 text-primary hover:bg-primary/10"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                Enable Notifications
+              </Button>
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
+            )}
+          </div>
         </div>
       </header>
 

@@ -14,6 +14,7 @@ import documentsRouter from "./documents";
 import inspectionsRouter from "./inspections";
 import newsRouter from "./news";
 import riskAssessmentsRouter from "./risk-assessments";
+import pushRouter from "./push";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(documentsRouter);
 router.use(inspectionsRouter);
 router.use(newsRouter);
 router.use(riskAssessmentsRouter);
+router.use(pushRouter);
 
 export default router;

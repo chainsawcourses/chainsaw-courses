@@ -5,6 +5,7 @@ import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import { fetchAllFeeds } from "../lib/rssFetcher";
 import { z } from "zod/v4";
+import { sendPushToAll } from "./push";
 
 const router = Router();
 
@@ -80,6 +81,11 @@ router.post("/admin/news/:id/approve", async (req, res) => {
       .returning();
     if (!item) { res.status(404).json({ error: "Not found" }); return; }
     res.json(item);
+    void sendPushToAll({
+      title: "New Chainsaw Safety Article",
+      body: item.title,
+      url: item.url,
+    }).catch((err) => logger.warn({ err }, "Push notification failed after approve"));
   } catch (err) {
     logger.error({ err }, "Failed to approve news item");
     res.status(500).json({ error: "Failed to approve" });
@@ -116,6 +122,11 @@ router.post("/admin/news", async (req, res) => {
       .values({ title, excerpt, url, imageUrl: imageUrl ?? null, publishedAt: new Date(publishedAt), status: "approved" })
       .returning();
     res.status(201).json(item);
+    void sendPushToAll({
+      title: "New Chainsaw Safety Article",
+      body: item.title,
+      url: item.url,
+    }).catch((err) => logger.warn({ err }, "Push notification failed after create"));
   } catch (err) {
     logger.error({ err }, "Failed to create news item");
     res.status(500).json({ error: "Failed to create news item" });

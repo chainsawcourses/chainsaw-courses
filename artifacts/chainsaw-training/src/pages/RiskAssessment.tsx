@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, Edit2, FileDown, History, Loader2, LocateFixed, MapPin, Plus, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, Edit2, FileDown, History, Loader2, MapPin, Plus, Trash2, X } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toOsGridReference } from "../lib/osGridRef";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
 
 const BASE = import.meta.env.BASE_URL as string;
@@ -137,14 +136,8 @@ export default function RiskAssessment() {
 
   const [siteDescription, setSiteDescription] = useState("");
   const [taskDescription, setTaskDescription] = useState("Cross-cutting felled/heavy timber into logs");
-  const [locating, setLocating] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
   const [address, setAddress] = useState("");
   const [gridReference, setGridReference] = useState("");
-  const watchIdRef = useRef<number | null>(null);
-  const bestCoordsRef = useRef<{ lat: number; lon: number; accuracy: number } | null>(null);
 
   const [what3Words, setWhat3Words] = useState("");
   const [nearestHospital, setNearestHospital] = useState("");
@@ -188,91 +181,6 @@ export default function RiskAssessment() {
     } catch {
       alert("Could not download PDF. Please try again.");
     }
-  };
-
-  const stopWatch = () => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-  };
-
-  const reverseGeocode = async (lat: number, lon: number) => {
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-        { headers: { Accept: "application/json" } }
-      );
-      if (res.ok) {
-        const data = await res.json() as { display_name?: string };
-        setAddress(data.display_name ?? `${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-      } else {
-        setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-      }
-    } catch {
-      setAddress(`${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-    }
-  };
-
-  const handleLocate = () => {
-    if (!("geolocation" in navigator)) {
-      setLocationError("Location services are not available on this device.");
-      return;
-    }
-    stopWatch();
-    setLocating(true);
-    setLocationError(null);
-    setAccuracy(null);
-    bestCoordsRef.current = null;
-
-    const GOOD_ENOUGH_M = 20;
-    const MAX_WAIT_MS = 45000;
-
-    // After MAX_WAIT_MS, accept whatever best fix we have
-    const timeoutId = setTimeout(() => {
-      stopWatch();
-      const best = bestCoordsRef.current;
-      if (best) {
-        void reverseGeocode(best.lat, best.lon).finally(() => setLocating(false));
-      } else {
-        setLocating(false);
-        setLocationError("Could not get a GPS fix. Try again outdoors with a clear view of the sky, or enter your site location manually.");
-      }
-    }, MAX_WAIT_MS);
-
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const acc = Math.round(pos.coords.accuracy);
-
-        // Always update live display with best fix so far
-        bestCoordsRef.current = { lat, lon, accuracy: acc };
-        setAccuracy(acc);
-        setCoords({ lat, lon });
-        setGridReference(toOsGridReference(lat, lon) ?? "");
-
-        // Once accuracy is good enough, stop watching and geocode
-        if (acc <= GOOD_ENOUGH_M) {
-          clearTimeout(timeoutId);
-          stopWatch();
-          void reverseGeocode(lat, lon).finally(() => setLocating(false));
-        }
-      },
-      (err) => {
-        clearTimeout(timeoutId);
-        stopWatch();
-        setLocating(false);
-        setLocationError(
-          err.code === err.PERMISSION_DENIED
-            ? "Location permission denied. Enable it in your browser or device settings and try again."
-            : err.code === 2
-            ? "Location unavailable. Move outdoors and try again, or enter your site details manually."
-            : "Could not determine your location. Enter site details manually below."
-        );
-      },
-      { enableHighAccuracy: true, timeout: MAX_WAIT_MS, maximumAge: 0 }
-    );
   };
 
   const updateHazard = (id: string, patch: Partial<HazardRow>) => {
@@ -354,11 +262,6 @@ export default function RiskAssessment() {
       controlMeasures: h.controlMeasures ?? "",
       isCustom: h.isCustom ?? false,
     })));
-    if (record.latitude && record.longitude) {
-      setCoords({ lat: parseFloat(record.latitude), lon: parseFloat(record.longitude) });
-    } else {
-      setCoords(null);
-    }
     setEditingId(record.id);
     setEditingOriginalDate(record.createdAt);
     setSubmitted(false);
@@ -388,8 +291,6 @@ export default function RiskAssessment() {
           activationCode,
           siteDescription: siteDescription.trim() || undefined,
           taskDescription: taskDescription.trim(),
-          latitude: coords ? coords.lat.toFixed(6) : undefined,
-          longitude: coords ? coords.lon.toFixed(6) : undefined,
           address: address.trim() || undefined,
           gridReference: gridReference.trim() || undefined,
           what3Words: what3Words.trim() || undefined,
@@ -410,8 +311,6 @@ export default function RiskAssessment() {
           activationCode,
           siteDescription: siteDescription.trim() || undefined,
           taskDescription: taskDescription.trim(),
-          latitude: coords ? coords.lat.toFixed(6) : undefined,
-          longitude: coords ? coords.lon.toFixed(6) : undefined,
           address: address.trim() || undefined,
           gridReference: gridReference.trim() || undefined,
           what3Words: what3Words.trim() || undefined,
@@ -579,7 +478,6 @@ export default function RiskAssessment() {
                       setFirstAidKit("");
                       setNearestAed("");
                       setNearestSignal("");
-                      setCoords(null);
                       setHazards(DEFAULT_HAZARDS);
                       setSubmitted(false);
                       setExportRecord(null);
@@ -592,62 +490,25 @@ export default function RiskAssessment() {
             )}
             <Card className="border-border bg-card/60">
               <CardContent className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground">
-                    Site Location
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={handleLocate}
-                      disabled={locating}
-                      className="font-mono text-[10px] uppercase tracking-widest"
-                    >
-                      {locating ? (
-                        <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                      ) : (
-                        <LocateFixed className="w-3.5 h-3.5 mr-1" />
-                      )}
-                      {locating ? "Getting GPS fix…" : "Use My Location"}
-                    </Button>
-                  </div>
-                </div>
-                {locating && (
-                  <p className="font-mono text-[10px] text-muted-foreground">
-                    {accuracy !== null
-                      ? `Improving accuracy… ±${accuracy}m${accuracy > 20 ? " — move outdoors for a GPS lock" : ""}`
-                      : "Requesting location…"}
-                  </p>
-                )}
-                {locationError && (
-                  <p className="font-mono text-[10px] text-destructive">{locationError}</p>
-                )}
-                {coords && (
-                  <div className="text-[10px] font-mono text-muted-foreground space-y-1.5 border border-border rounded p-2 bg-background/60">
-                    <div>
-                      <p className="uppercase tracking-widest text-[9px] text-muted-foreground mb-0.5">Address <span className="normal-case tracking-normal">(editable)</span></p>
-                      <Input
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Enter or correct the address"
-                        className="font-mono text-[11px] bg-background border-border h-7 px-2"
-                      />
-                    </div>
-                    <p>Lat/Lon: {coords.lat.toFixed(6)}, {coords.lon.toFixed(6)}</p>
-                    {gridReference && <p>OS Grid Reference: {gridReference}</p>}
-                    {accuracy !== null && (
-                      <p className={accuracy <= 20 ? "text-green-600" : "text-amber-600"}>
-                        {accuracy <= 20 ? `✓ GPS locked — ±${accuracy}m` : `±${accuracy}m accuracy (coarse fix — address may be approximate)`}
-                      </p>
-                    )}
-                  </div>
-                )}
+                <label className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground">
+                  Site Location
+                </label>
                 <Input
                   value={siteDescription}
                   onChange={(e) => setSiteDescription(e.target.value)}
                   placeholder="Site name / description (e.g. Oakfield Wood, Compartment 4)"
+                  className="font-mono text-sm bg-background border-border"
+                />
+                <Input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Full address (e.g. Oakfield Farm, Hexham, NE46 1AB)"
+                  className="font-mono text-sm bg-background border-border"
+                />
+                <Input
+                  value={gridReference}
+                  onChange={(e) => setGridReference(e.target.value)}
+                  placeholder="OS Grid Reference (e.g. NY 9356 6420)"
                   className="font-mono text-sm bg-background border-border"
                 />
               </CardContent>
