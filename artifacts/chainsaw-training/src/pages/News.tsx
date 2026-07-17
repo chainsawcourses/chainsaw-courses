@@ -1,4 +1,5 @@
-import { ExternalLink, Newspaper, RefreshCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, Newspaper, RefreshCw } from "lucide-react";
+import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useListNewsItems } from "@workspace/api-client-react";
@@ -18,6 +19,9 @@ export default function News() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+          <Link href="/training" className="text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <Newspaper className="w-5 h-5 text-primary" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm text-primary">
             Industry News
