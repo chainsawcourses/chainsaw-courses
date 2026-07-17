@@ -82,7 +82,7 @@ router.post("/admin/news/:id/approve", async (req, res) => {
     if (!item) { res.status(404).json({ error: "Not found" }); return; }
     res.json(item);
     void sendPushToAll({
-      title: "New Chainsaw Safety Article",
+      title: "🌳 Forestry & Arb News 🌳",
       body: item.title,
       url: item.url,
     }).catch((err) => logger.warn({ err }, "Push notification failed after approve"));
@@ -123,7 +123,7 @@ router.post("/admin/news", async (req, res) => {
       .returning();
     res.status(201).json(item);
     void sendPushToAll({
-      title: "New Chainsaw Safety Article",
+      title: "🌳 Forestry & Arb News 🌳",
       body: item.title,
       url: item.url,
     }).catch((err) => logger.warn({ err }, "Push notification failed after create"));
