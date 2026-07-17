@@ -740,7 +740,7 @@ export default function TrainingList() {
                   <div
                     ref={equipmentScrollRef}
                     onScroll={handleEquipmentScroll}
-                    className="max-h-44 sm:max-h-72 overflow-y-auto"
+                    className="max-h-[70vh] overflow-y-auto"
                   >
                     <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
                       <div>
