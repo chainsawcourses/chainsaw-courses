@@ -167,19 +167,34 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
-  // After returning from a completed video, scroll to the next unlocked module
+  // After returning from a passed quiz, scroll to the newly-unlocked next module.
+  // We intentionally do NOT clear the sessionStorage key until we see fresh data
+  // (i.e. the next module is no longer locked), so stale TanStack Query cache hits
+  // don't consume the key before the refetch delivers the unlocked state.
   useEffect(() => {
     const completedId = sessionStorage.getItem("scrollAfterModule");
     if (!completedId || !modules) return;
-    sessionStorage.removeItem("scrollAfterModule");
     const completedIdx = modules.findIndex((m) => m.id === parseInt(completedId));
-    if (completedIdx === -1) return;
-    const nextModule = modules.slice(completedIdx + 1).find((m) => !m.isLocked);
-    if (!nextModule) return;
+    if (completedIdx === -1) {
+      sessionStorage.removeItem("scrollAfterModule");
+      return;
+    }
+    // The module immediately after the one just completed is what got unlocked.
+    const nextModule = modules[completedIdx + 1];
+    if (!nextModule) {
+      // End of course — nothing to scroll to.
+      sessionStorage.removeItem("scrollAfterModule");
+      return;
+    }
+    // If the next module is still locked, we're looking at stale cached data.
+    // Leave the key in place and wait for the refetch to deliver fresh state.
+    if (nextModule.isLocked) return;
+    // Fresh data confirmed — clear key and scroll.
+    sessionStorage.removeItem("scrollAfterModule");
     setTimeout(() => {
       const el = document.getElementById(`module-${nextModule.id}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 400);
+    }, 300);
   }, [modules]);
 
   // Index of "5 Steps To Risk Assessment" in the full ordered module list
