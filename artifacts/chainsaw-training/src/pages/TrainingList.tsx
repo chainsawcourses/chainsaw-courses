@@ -29,6 +29,7 @@ export default function TrainingList() {
   );
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
+  const [preparingOpen, setPreparingOpen] = useState(false);
   const [nptcOpen, setNptcOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
@@ -121,13 +122,14 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || preparingOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
     setHazardsOpen(false);
     setDisclaimerOpen(false);
     setHowToUseOpen(false);
+    setPreparingOpen(false);
     setNptcOpen(false);
     setBrandMenuOpen(false);
     setHelpHowItWorksOpen(false);
@@ -635,6 +637,42 @@ export default function TrainingList() {
                 )}
               </div>
             )}
+
+            {/* Preparing for Your Assessment — collapsible */}
+            <div>
+              <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
+                onClick={(e) => { e.stopPropagation(); setPreparingOpen((o) => !o); }}
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  Preparing for Your Assessment
+                </h3>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${preparingOpen ? "rotate-180 text-primary" : ""}`} />
+              </button>
+              {preparingOpen && (
+                <Card className="border-border bg-card/60 mt-1">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Know the syllabus.</span> The NPTC/Lantra assessment tests your knowledge across chainsaw safety, legislation, personal protective equipment, chainsaw components and maintenance, hazard identification, cross-cutting techniques, and safe working practices. Every training module on this platform maps directly to a syllabus area — complete them all before attempting the real assessment.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Use the mock assessment.</span> Once you have completed all seven training modules, a Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to kickback prevention, PPE standards, and tree assessment procedures — these are consistently high-weighted topics.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Your certificate.</span> Upon passing the online final exam here (80% or above), your Certificate of Theoretical Competency is issued automatically to your registered email. Present this alongside your practical assessment results to your employer or awarding body as evidence of your theoretical training hours.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             {/* NPTC Resources — collapsible, all 3 links */}
             <div>
