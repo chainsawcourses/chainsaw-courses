@@ -262,21 +262,47 @@ export default function TrainingModule() {
         {/* ── VIDEO MODULE ── */}
         {!isPdf && (
           <>
+            {/* Module info — title + description shown ABOVE the video */}
+            <div className="bg-card/30 p-5 rounded-lg border border-border">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold font-mono uppercase mb-1">{module.title}</h2>
+                  <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
+                  {(module.learningOutcome || module.assessmentCriteria) && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {module.learningOutcome && (
+                        <span className="text-[10px] font-mono uppercase tracking-wide bg-primary/10 text-primary border border-primary/30 rounded px-1.5 py-0.5">
+                          {module.learningOutcome}
+                        </span>
+                      )}
+                      {module.assessmentCriteria && (
+                        <span className="text-[10px] font-mono uppercase tracking-wide bg-secondary/40 text-muted-foreground border border-border rounded px-1.5 py-0.5">
+                          {module.assessmentCriteria}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {module.isCompleted && (
+                  <div className="flex items-center text-primary font-mono font-bold text-xs shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> COMPLETE
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Video player */}
             <div className="relative w-full max-w-3xl mx-auto">
-              {/* pointer-events-none only when the completion overlay is active (video just ended this session) */}
               {(() => {
                 const hasRealVideo = module.vimeoId && module.vimeoId !== "76979871";
                 if (canPlay && hasRealVideo) {
                   return (
-                    <div>
-                      <VimeoPlayer
-                        ref={playerRef}
-                        vimeoId={module.vimeoId!}
-                        onTimeUpdate={handleTimeUpdate}
-                        onEnded={handleVideoEnded}
-                      />
-                    </div>
+                    <VimeoPlayer
+                      ref={playerRef}
+                      vimeoId={module.vimeoId!}
+                      onTimeUpdate={handleTimeUpdate}
+                      onEnded={handleVideoEnded}
+                    />
                   );
                 }
                 return (
@@ -292,9 +318,9 @@ export default function TrainingModule() {
                 );
               })()}
 
-              {/* Completion overlay — only shown when video ends in this session */}
+              {/* Completion overlay — shown when video ends in this session */}
               {videoCompleted && (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/75 rounded-lg p-4 text-center">
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black/75 rounded-lg p-4 text-center">
                   <div className="flex items-center gap-2 text-primary">
                     <CheckCircle2 className="w-5 h-5" />
                     <span className="font-mono font-bold text-sm uppercase tracking-wide">
@@ -303,6 +329,15 @@ export default function TrainingModule() {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full max-w-[260px]">
+                    <Button
+                      size="sm"
+                      className="font-mono font-bold tracking-widest w-full gap-1.5"
+                      asChild
+                    >
+                      <Link href={`/quiz/${module.id}`}>
+                        <ChevronRight className="w-3.5 h-3.5" /> TAKE MODULE QUIZ
+                      </Link>
+                    </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs gap-1.5" onClick={handleReplay}>
                       <RotateCcw className="w-3 h-3" /> REPLAY VIDEO
                     </Button>
@@ -311,44 +346,19 @@ export default function TrainingModule() {
               )}
             </div>
 
-            {/* Module info panel */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card/30 p-5 rounded-lg border border-border">
-              <div>
-                <h2 className="text-lg font-bold font-mono uppercase mb-1">{module.title}</h2>
-                <p className="text-muted-foreground text-sm max-w-2xl">{module.description}</p>
-                {(module.learningOutcome || module.assessmentCriteria) && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {module.learningOutcome && (
-                      <span className="text-[10px] font-mono uppercase tracking-wide bg-primary/10 text-primary border border-primary/30 rounded px-1.5 py-0.5">
-                        {module.learningOutcome}
-                      </span>
-                    )}
-                    {module.assessmentCriteria && (
-                      <span className="text-[10px] font-mono uppercase tracking-wide bg-secondary/40 text-muted-foreground border border-border rounded px-1.5 py-0.5">
-                        {module.assessmentCriteria}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="shrink-0 flex flex-col items-end gap-2 w-full sm:w-auto">
-                {(videoCompleted || module.isCompleted) ? (
-                  <>
-                    {module.isCompleted && (
-                      <div className="flex items-center text-primary font-mono font-bold text-sm">
-                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> VIDEO COMPLETE
-                      </div>
-                    )}
-                    <Button className="w-full sm:w-auto font-mono tracking-widest" asChild>
-                      <Link href={`/mock-test?module=${module.id}&title=${encodeURIComponent(module.title)}`}>{module.title} Questions</Link>
-                    </Button>
-                  </>
-                ) : (
-                  <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider text-right">
-                    Watch video<br />to continue
-                  </span>
-                )}
-              </div>
+            {/* Quiz button — always visible, disabled until video is watched */}
+            <div className="flex justify-center max-w-3xl mx-auto w-full">
+              {(videoCompleted || module.isCompleted) ? (
+                <Button className="w-full font-mono tracking-widest" asChild>
+                  <Link href={`/quiz/${module.id}`}>
+                    <ChevronRight className="w-4 h-4 mr-1.5" /> TAKE MODULE QUIZ
+                  </Link>
+                </Button>
+              ) : (
+                <Button className="w-full font-mono tracking-widest" disabled>
+                  QUIZ LOCKED — WATCH VIDEO FIRST
+                </Button>
+              )}
             </div>
           </>
         )}
