@@ -38,9 +38,9 @@ const HAZARDS: { category: "site" | "chainsaw" | "job"; hazard: string; controlM
   { category: "chainsaw", hazard: "Flying debris and sawdust (eye injuries)", controlMeasure: "Wear a mesh or polycarbonate face shield along with safety glasses underneath to protect against fine particles." },
   { category: "chainsaw", hazard: "Exhaust fumes and carbon monoxide poisoning", controlMeasure: "Never operate a petrol chainsaw indoors or in poorly ventilated areas; ensure the saw is properly tuned." },
   { category: "chainsaw", hazard: "Accidental starting of the chainsaw", controlMeasure: "Always start the chainsaw on the ground or firmly supported; never \"drop-start\" the chainsaw; keep fingers off the throttle trigger during start." },
-  { category: "chainsaw", hazard: "Fire or fuel spills during refueling", controlMeasure: "Allow the engine to cool before refueling, use a fuel container with a spill-proof spout, refuel on bare ground away from sources of ignition, and move 3m away before starting." },
+  { category: "chainsaw", hazard: "Fire or fuel spills during refuelling", controlMeasure: "Allow the engine to cool before refuelling, use a fuel container with a spill-proof spout, refuel on bare ground away from sources of ignition, and move 3m away before starting." },
   { category: "chainsaw", hazard: "Chain breakage or derailment", controlMeasure: "Inspect chain tension regularly, check for damaged links, ensure the chain catcher is intact, and replace worn sprockets." },
-  { category: "chainsaw", hazard: "Burns from hot engine parts (muffler)", controlMeasure: "Avoid contact with the exhaust muffler, let the chainsaw cool down before servicing or refueling, and handle with gloves." },
+  { category: "chainsaw", hazard: "Burns from hot engine parts (muffler)", controlMeasure: "Avoid contact with the exhaust muffler, let the chainsaw cool down before servicing or refuelling, and handle with gloves." },
   { category: "chainsaw", hazard: "Blunts or poorly sharpened chain causing extra physical strain", controlMeasure: "Sharpen the chain regularly, check depth gauges, and replace dull or damaged chains immediately." },
   { category: "chainsaw", hazard: "Entanglement of clothing or hair in moving parts", controlMeasure: "Avoid wearing loose clothing, jewelry, or unsecured long hair; keep clothing securely fastened." },
   { category: "chainsaw", hazard: "Inoperable chain brake system", controlMeasure: "Conduct a pre-start check of the chain brake mechanism; do not use the saw if the brake fails to engage or stop the chain instantly." },
@@ -70,7 +70,7 @@ const HAZARDS: { category: "site" | "chainsaw" | "job"; hazard: string; controlM
   { category: "job", hazard: "Inadequate first aid response for severe bleeding", controlMeasure: "Ensure a specialized trauma first aid kit (including tourniquets and haemostatic dressings) is on-site, and at least one worker is trained in first aid." },
   { category: "job", hazard: "Working at heights (climbing or using platforms)", controlMeasure: "Use specialized climbing harnesses, ropes, and anchoring systems; comply with work-at-height regulations." },
   { category: "job", hazard: "Struck by falling timber/branches (by colleagues)", controlMeasure: "Establish clear communication before felling or cross-cutting; enforce strict exclusion zones for ground workers." },
-  { category: "job", hazard: "Slipping while carrying a running chainsaw", controlMeasure: "Always engage the chain brake when walking or changing positions, even for short distances; shut off the engine if moving further than 3 meters." },
+  { category: "job", hazard: "Slipping while carrying a running chainsaw", controlMeasure: "Always engage the chain brake when walking or changing positions, even for short distances; shut off the engine if moving further than 3 metres." },
   { category: "job", hazard: "Tree hung up in adjacent trees during felling", controlMeasure: "Never walk under a hung-up tree; use a winch, cable, or specialized machinery to pull it down safely; mark the area as dangerous." },
   { category: "job", hazard: "Root plate rebound after felling or windthrow cutting", controlMeasure: "Assess the root plate weight, sever the root ball carefully from a safe angle, and avoid standing directly behind the root plate." },
   { category: "job", hazard: "Splitting or snapping of timber under tension (kick-back of logs)", controlMeasure: "Make relief cuts on the compression side before cutting the tension side; stand clear of the path of release." },
@@ -81,8 +81,8 @@ const HAZARDS: { category: "site" | "chainsaw" | "job"; hazard: string; controlM
   { category: "job", hazard: "Improper use or fit of personal protective equipment (PPE)", controlMeasure: "Ensure PPE is correctly sized, fits comfortably, is inspected daily for damage, and is replaced if cut or compromised." },
   { category: "job", hazard: "Working near moving site machinery (excavators, chippers)", controlMeasure: "Maintain a clear safety distance from machinery (typically two tree lengths or as specified by the operator); establish eye contact before approaching." },
   { category: "job", hazard: "Distractions from personal devices (mobile phones)", controlMeasure: "Ban the use of personal mobile phones or devices while operating or ground-managing a chainsaw." },
-  { category: "job", hazard: "Misjudging the center of gravity or lean of a tree", controlMeasure: "Use plumb lines or visual checks from multiple angles; use mechanical assistance (winches, wedges) to overcome lean." },
-  { category: "job", hazard: "Slips/trips while fueling or servicing on site", controlMeasure: "Establish a designated clean, flat, well-organized service and fueling area away from the main cutting zone." },
+  { category: "job", hazard: "Misjudging the centre of gravity or lean of a tree", controlMeasure: "Use plumb lines or visual checks from multiple angles; use mechanical assistance (winches, wedges) to overcome lean." },
+  { category: "job", hazard: "Slips/trips while fuelling or servicing on site", controlMeasure: "Establish a designated clean, flat, well-organised service and fuelling area away from the main cutting zone." },
 ];
 
 async function main() {

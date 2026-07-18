@@ -1002,8 +1002,8 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
       prompt: "What is the safe working distance between operators when cross cutting?",
       threshold: 1,
       keyPoints: [
-        { label: "Two tree lengths", keywords: ["two tree length", "two times", "two tree", "height of tree", "tallest tree", "two lengths", "exclusion zone", "twice the height of the tree", "twice tree length", "minimum 5 meters", "5 meters", "5m", "twice the tree height", "double the tree", "two times the height", "safe distance", "far apart", "well apart", "plenty of space", "keep well back"] },
-        { label: "two times the height of the tallest tree being worked on (minimum)", keywords: ["two tree length", "two times", "two tree", "height of tree", "tallest tree", "two lengths", "exclusion zone", "twice the height of the tree", "twice tree length", "minimum 5 meters", "5 meters", "5m"] },
+        { label: "Two tree lengths", keywords: ["two tree length", "two times", "two tree", "height of tree", "tallest tree", "two lengths", "exclusion zone", "twice the height of the tree", "twice tree length", "minimum 5 metres", "5 metres", "5m", "twice the tree height", "double the tree", "two times the height", "safe distance", "far apart", "well apart", "plenty of space", "keep well back"] },
+        { label: "two times the height of the tallest tree being worked on (minimum)", keywords: ["two tree length", "two times", "two tree", "height of tree", "tallest tree", "two lengths", "exclusion zone", "twice the height of the tree", "twice tree length", "minimum 5 metres", "5 metres", "5m"] },
       ],
     }],
   },
