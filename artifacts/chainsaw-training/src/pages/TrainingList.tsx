@@ -765,6 +765,7 @@ export default function TrainingList() {
                             "Hand cleaning facilities.",
                             "An outside area dedicated to fueling and starting the chainsaw.",
                             "Sufficient timber of suitable length and weight to exert tension and compression (between 200mm and 380mm in diameter).",
+                            "The candidate must start and cut under the direct supervision of a competent person who holds a current first aid at work certificate.",
                           ].map(item => (
                             <li key={item} className="flex items-start gap-2"><span className="text-primary mt-0.5">—</span>{item}</li>
                           ))}
