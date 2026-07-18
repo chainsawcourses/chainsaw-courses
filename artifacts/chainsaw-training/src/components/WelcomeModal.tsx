@@ -5,17 +5,44 @@ const BASE = import.meta.env.BASE_URL as string;
 
 type Phase = "logo-in" | "expand" | "content" | "leaving";
 
-const STEPS = [
+const DEFAULT_INTRO = "Thank you for purchasing the course. Here's a quick guide to help you get started.";
+const DEFAULT_STEPS = [
   "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).",
   "Use the AI Mock Test when you're ready to practise for the written exam.",
   "The Inspection Checklist and Risk Assessment are standalone tools for your real-world use.",
-  "The Biosecurity Map and Chain Chart are available from the main menu anytime.",
+  "The Biosecurity Map, Chain Chart, Species Guide, and Cross-Cut Simulator are all available from the main menu.",
+  "Check the News section for the latest chainsaw safety updates and industry guidance.",
 ];
+
+interface WelcomeConfig {
+  intro: string;
+  steps: string[];
+}
 
 export default function WelcomeModal() {
   const { userId } = useUserSession();
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<Phase>("logo-in");
+  const [config, setConfig] = useState<WelcomeConfig>({ intro: DEFAULT_INTRO, steps: DEFAULT_STEPS });
+
+  useEffect(() => {
+    fetch("/api/config/welcome-note")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data: { value: string } | null) => {
+        if (data?.value) {
+          try {
+            const parsed: WelcomeConfig = JSON.parse(data.value);
+            setConfig({
+              intro: parsed.intro || DEFAULT_INTRO,
+              steps: Array.isArray(parsed.steps) && parsed.steps.length > 0 ? parsed.steps : DEFAULT_STEPS,
+            });
+          } catch {
+            // keep defaults
+          }
+        }
+      })
+      .catch(() => {/* keep defaults */});
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
@@ -137,13 +164,13 @@ export default function WelcomeModal() {
                 margin: "0 0 20px",
               }}
             >
-              Thank you for purchasing the course. Here's a quick guide to help you get started.
+              {config.intro}
             </p>
 
             <div style={{ textAlign: "left", marginBottom: 22 }}>
-              {STEPS.map((text) => (
+              {config.steps.map((text, i) => (
                 <p
-                  key={text}
+                  key={i}
                   style={{
                     fontFamily: "ui-monospace, monospace",
                     fontSize: "0.72rem",

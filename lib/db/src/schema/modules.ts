@@ -183,6 +183,14 @@ export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).o
 export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true, amendedAt: true });
 export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true, amendedAt: true });
 
+export const appConfigTable = pgTable("app_config", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type AppConfig = typeof appConfigTable.$inferSelect;
+
 export type NewsItem = typeof newsItemsTable.$inferSelect;
 export type InsertNewsItem = z.infer<typeof insertNewsItemSchema>;
 

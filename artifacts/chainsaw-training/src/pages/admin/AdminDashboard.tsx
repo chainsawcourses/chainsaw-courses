@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Biohazard, ClipboardCheck, ExternalLink, FileText, LogOut, MapPin, Newspaper, Plus, QrCode, Search, Star, Users, Video, X } from "lucide-react";
+import { Biohazard, ClipboardCheck, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, Star, Users, Video, X } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -215,6 +215,9 @@ export default function AdminDashboard() {
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/qr-codes"><QrCode className="w-4 h-4 mr-2" /> QR CODES</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <Link href="/admin/welcome-note"><MessageSquare className="w-4 h-4 mr-2" /> WELCOME NOTE</Link>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
               <LogOut className="w-4 h-4 mr-2" /> LOGOUT

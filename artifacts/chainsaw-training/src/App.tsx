@@ -34,6 +34,7 @@ import Inspections from "@/pages/admin/Inspections";
 import RiskAssessments from "@/pages/admin/RiskAssessments";
 import AdminNews from "@/pages/admin/News";
 import AdminQrCodes from "@/pages/admin/QrCodes";
+import WelcomeNoteSettings from "@/pages/admin/WelcomeNote";
 import QrLanding from "@/pages/QrLanding";
 
 // Light theme — ensure dark class is removed
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/admin/risk-assessments" component={RiskAssessments} />
       <Route path="/admin/news" component={AdminNews} />
       <Route path="/admin/qr-codes" component={AdminQrCodes} />
+      <Route path="/admin/welcome-note" component={WelcomeNoteSettings} />
 
       <Route component={NotFound} />
     </Switch>

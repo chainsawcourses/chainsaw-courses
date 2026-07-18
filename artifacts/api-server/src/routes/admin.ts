@@ -7,6 +7,7 @@ import {
   userProgressTable,
   modulesTable,
   quizAttemptsTable,
+  appConfigTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
 import { eq, isNull, gte, count } from "drizzle-orm";
@@ -352,6 +353,47 @@ router.patch("/admin/modules/:moduleId", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     logger.error({ err }, "Error updating module vimeoId");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Public: GET /config/:key
+router.get("/config/:key", async (req, res) => {
+  const { key } = req.params;
+  try {
+    const [row] = await db.select().from(appConfigTable).where(eq(appConfigTable.key, key));
+    if (!row) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json({ key: row.key, value: row.value });
+  } catch (err) {
+    logger.error({ err }, "Error fetching app config");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Admin: PUT /admin/config/:key
+router.put("/admin/config/:key", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { key } = req.params;
+  const { value } = req.body as { value?: unknown };
+  if (typeof value !== "string") {
+    res.status(400).json({ error: "value must be a string" });
+    return;
+  }
+  try {
+    await db
+      .insert(appConfigTable)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: appConfigTable.key, set: { value, updatedAt: new Date() } });
+    logger.info({ key }, "App config updated by admin");
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error updating app config");
     res.status(500).json({ error: "Internal server error" });
   }
 });
