@@ -2,7 +2,7 @@ import { db, hazardReferenceTable } from "@workspace/db";
 
 const HAZARDS: { category: "site" | "chainsaw" | "job"; hazard: string; controlMeasure: string }[] = [
   // ── SITE HAZARDS ─────────────────────────────────────────────────────────────
-  { category: "site", hazard: "Public or bystanders entering the work zone", controlMeasure: "Erect warning signs, establish a 15-meter exclusion zone, and use a Banks person / lookout." },
+  { category: "site", hazard: "Public or bystanders entering the work zone", controlMeasure: "Erect warning signs, establish an effective exclusion zone, and use a Banks person / lookout." },
   { category: "site", hazard: "Overhead power lines or utilities", controlMeasure: "Maintain statutory safe clearance distances, conduct a pre-work site survey, and contact the utility company if work is nearby." },
   { category: "site", hazard: "Uneven or slippery terrain (slopes/mud)", controlMeasure: "Wear high-grip chainsaw safety boots, clear a path of retreat/escape route, and always work from the uphill side of logs." },
   { category: "site", hazard: "Deadwood or unstable \"widowmaker\" branches overhead", controlMeasure: "Perform a thorough look-up assessment before cutting, wear a safety helmet, and remove or avoid hazardous trees using appropriate machinery." },
