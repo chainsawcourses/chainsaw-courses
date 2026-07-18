@@ -13,7 +13,7 @@ const HAZARDS: { category: "site" | "chainsaw" | "job"; hazard: string; controlM
   { category: "site", hazard: "Sharp thorns or brush causing puncture injuries", controlMeasure: "Wear durable protective clothing, including heavy-duty gloves and chainsaw jackets." },
   { category: "site", hazard: "Presence of vehicular traffic", controlMeasure: "Set up approved road-work signs, cones, and traffic management/flagging as required by local regulations." },
   { category: "site", hazard: "Hidden underground utilities (pipes/cables) near roots", controlMeasure: "Review site utility maps, perform hand digging if necessary, and use a cable avoidance tool (CAT)." },
-  { category: "site", hazard: "Fences, walls, or property lines", controlMeasure: "Establish a clear felling direction away from structures, use guide ropes/winches, or dismantle trees in sections." },
+  { category: "site", hazard: "Fences, walls, or property lines", controlMeasure: "Establish a clear escape route away from structures, use guide ropes/winches or machinery to move timber into a clear area." },
   { category: "site", hazard: "Nearby water bodies (rivers/ponds)", controlMeasure: "Implement drowning risk controls, wear life jackets if working near deep water, and use environmental spill kits for fuel." },
   { category: "site", hazard: "Unstable structures or ruins nearby", controlMeasure: "Establish an exclusion zone around fragile walls, avoid felling trees towards structures, and seek structural advice if needed." },
   { category: "site", hazard: "Falling into holes, old wells, or trenches", controlMeasure: "Conduct a thorough ground walkover, mark and barricade any open holes, and stay on cleared paths." },
