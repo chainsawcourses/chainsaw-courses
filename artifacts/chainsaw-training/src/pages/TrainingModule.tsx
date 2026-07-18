@@ -185,12 +185,10 @@ export default function TrainingModule() {
   // Cleanup on unmount
   useEffect(() => () => stopAudio(), [stopAudio]);
 
-  // Scroll video to top of viewport when page loads
+  // Scroll to very top of page when module loads
   useEffect(() => {
-    if (mainRef.current && !isLoading && module) {
-      setTimeout(() => {
-        mainRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+    if (!isLoading && module) {
+      window.scrollTo({ top: 0, behavior: "instant" });
     }
   }, [isLoading, module]);
 
