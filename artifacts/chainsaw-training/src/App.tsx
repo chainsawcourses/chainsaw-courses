@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "./contexts/UserContext";
 import { AdminProvider } from "./contexts/AdminContext";
-import WelcomeModal from "./components/WelcomeModal";
+
 
 import NotFound from "@/pages/not-found";
 import Activation from "@/pages/Activation";
@@ -114,7 +114,6 @@ function App() {
               />
               <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.88)" }} />
             </div>
-            <WelcomeModal />
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <Router />
             </WouterRouter>

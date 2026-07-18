@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import WelcomeModal from "../components/WelcomeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
@@ -267,6 +268,7 @@ export default function TrainingList() {
   // HEADER V11 - logo h-16, chevron tight
   return (
     <div className="min-h-screen pb-20">
+      <WelcomeModal />
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center gap-4">
           {/* Left — brand dropdown + logo + community */}
