@@ -61,6 +61,9 @@ export default function Quiz() {
         console.warn("Disappointment audio error:", e);
       }
     }
+    if (result) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
     if (!result) {
       applausePlayedRef.current = false;
       disappointmentPlayedRef.current = false;
