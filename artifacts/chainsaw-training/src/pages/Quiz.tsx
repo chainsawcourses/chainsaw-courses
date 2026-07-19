@@ -245,8 +245,8 @@ export default function Quiz() {
         <Progress value={progress} className="h-1 bg-secondary rounded-none" />
       </header>
 
-      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
-        <div className="flex-1 flex flex-col justify-center">
+      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-4 pb-8">
+        <div className="flex-1 flex flex-col">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
             80% required to pass — unlimited retries available
           </p>
