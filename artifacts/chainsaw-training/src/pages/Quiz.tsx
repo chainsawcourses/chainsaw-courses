@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star } from "lucide-react";
 import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
-import { APPLAUSE_URL } from "../data/audioFiles";
+import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
 
 export default function Quiz() {
   const { moduleId } = useParams();
@@ -27,6 +27,7 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<QuizResult | null>(null);
   const applausePlayedRef = useRef(false);
+  const disappointmentPlayedRef = useRef(false);
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
@@ -38,22 +39,31 @@ export default function Quiz() {
     }
   }, [activationCode, deviceId, setLocation]);
 
-  // Play applause when quiz result shows and user passed
+  // Play applause on pass, disappointment on fail
   useEffect(() => {
     if (result && result.passed && !applausePlayedRef.current) {
       applausePlayedRef.current = true;
       try {
         const audio = new Audio(APPLAUSE_URL);
         audio.volume = 0.7;
-        audio.play().catch((e) => {
-          console.warn("Applause audio failed to play:", e);
-        });
+        audio.play().catch((e) => { console.warn("Applause audio failed to play:", e); });
       } catch (e) {
         console.warn("Applause audio error:", e);
       }
     }
+    if (result && !result.passed && !disappointmentPlayedRef.current) {
+      disappointmentPlayedRef.current = true;
+      try {
+        const audio = new Audio(DISAPPOINTMENT_URL);
+        audio.volume = 0.7;
+        audio.play().catch((e) => { console.warn("Disappointment audio failed to play:", e); });
+      } catch (e) {
+        console.warn("Disappointment audio error:", e);
+      }
+    }
     if (!result) {
       applausePlayedRef.current = false;
+      disappointmentPlayedRef.current = false;
     }
   }, [result]);
 
