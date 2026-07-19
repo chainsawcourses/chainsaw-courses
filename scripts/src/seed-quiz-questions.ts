@@ -84,7 +84,7 @@ const questions: { moduleId: number; question: string; options: string[]; correc
   // ─── Module 22: Sprocket ─────────────────────────────────────────────────────
   { moduleId: 22, order: 1, question: "Why must a worn drive sprocket be replaced?", options: ["To improve the appearance of the saw", "A worn sprocket reduces vibration", "Worn teeth improve chain engagement", "Worn teeth accelerate chain and bar wear and can cause chain derailment"], correctOption: 3 },
   { moduleId: 22, order: 2, question: "When fitting a new chain, what else should always be inspected for wear?", options: ["The drive sprocket, as chain and sprocket wear together", "The air filter", "The spark plug", "The fuel filter"], correctOption: 0 },
-  { moduleId: 22, order: 3, question: "What is the maximum recommended sprocket wear before it must be replaced?", options: ["0.1mm", "1.0mm", "0.3mm or as specified by the manufacturer", "2.0mm"], correctOption: 2 },
+  { moduleId: 22, order: 3, question: "What is the maximum recommended sprocket wear before it must be replaced?", options: ["0.1mm", "1.0mm", "0.5mm or as specified by the manufacturer", "2.0mm"], correctOption: 2 },
   { moduleId: 22, order: 4, question: "A rim (spur) sprocket design allows:", options: ["Greater cutting accuracy", "Higher idle speeds", "Direct drive to the chain without a clutch", "The rim to be replaced without replacing the complete clutch drum"], correctOption: 3 },
 
   // ─── Module 23: Chain Brake ───────────────────────────────────────────────────
