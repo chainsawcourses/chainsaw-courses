@@ -96,7 +96,7 @@ const questions: { moduleId: number; question: string; options: string[]; correc
   // ─── Module 24: Guidebar ─────────────────────────────────────────────────────
   { moduleId: 24, order: 1, question: "Why should the guide bar be regularly rotated 180 degrees?", options: ["To improve chain speed", "To change the cutting direction", "To allow even wear on both sides of the bar rail", "To clear the bar oil feed holes"], correctOption: 2 },
   { moduleId: 24, order: 2, question: "What should be checked in the guide bar groove during inspection?", options: ["Fuel tank level", "Bar length only", "Drive link count", "Groove depth, rail burrs, and bar oil holes for blockage"], correctOption: 3 },
-  { moduleId: 24, order: 3, question: "A guide bar with a peened (closed or damaged) rail groove causes:", options: ["Reduced chain lubrication and premature bar and chain wear", "Improved cutting accuracy", "Faster chain speed", "Reduced vibration"], correctOption: 0 },
+  { moduleId: 24, order: 3, question: "A guide bar with a pinched (closed or damaged) rail groove causes:", options: ["Reduced chain lubrication and premature bar and chain wear", "Improved cutting accuracy", "Faster chain speed", "Reduced vibration"], correctOption: 0 },
   { moduleId: 24, order: 4, question: "Bar oil feed holes must be kept clear to ensure:", options: ["Correct chain tension is maintained", "Correct chain brake function", "Adequate lubrication of the chain and bar throughout cutting", "Engine cooling airflow"], correctOption: 2 },
 
   // ─── Module 25: Chain Basics ─────────────────────────────────────────────────
