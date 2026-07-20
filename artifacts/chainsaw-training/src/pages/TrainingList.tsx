@@ -928,11 +928,6 @@ export default function TrainingList() {
                                   {isPdf && (
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
-                                  {module.isHighRisk && !module.isLocked && (
-                                    <Badge variant="destructive" className="font-mono text-[9px] rounded-none py-0 shrink-0">
-                                      <Biohazard className="w-2.5 h-2.5 mr-0.5 inline" /> HIGH RISK
-                                    </Badge>
-                                  )}
                                 </div>
                                 {module.isCompleted && (
                                   <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
