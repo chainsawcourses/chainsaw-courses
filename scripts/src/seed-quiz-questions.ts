@@ -194,6 +194,12 @@ const questions: { moduleId: number; question: string; options: string[]; correc
   { moduleId: 42, order: 2, question: "Which part of the bar is most likely to cause kickback?", options: ["The heel of the bar closest to the engine", "The middle section of the bar", "The nose (tip) of the bar — the kickback zone", "The upper edge of the bar"], correctOption: 2 },
   { moduleId: 42, order: 3, question: "Which chainsaw safety feature is designed to stop the chain in the event of kickback?", options: ["The throttle lock", "The rear hand guard", "The chain brake", "The anti-vibration system"], correctOption: 2 },
   { moduleId: 42, order: 4, question: "How can the risk of kickback be reduced?", options: ["By using a longer guide bar", "By running the saw at half throttle only", "By always cutting with the nose of the bar", "By using a low-kickback chain, maintaining a sharp chain, and avoiding contact with the bar nose"], correctOption: 3 },
+
+  // ─── Module 43: Additional Cuts (quiz only — excluded from final exam) ────────
+  { moduleId: 43, order: 1, question: "When cutting a branch that will swing when severed, the operator must first:", options: ["Cut quickly through in a single pass", "Assess the direction of swing and position clear of the arc", "Stand directly beneath the branch for stability", "Rev the engine to maximum before cutting"], correctOption: 1 },
+  { moduleId: 43, order: 2, question: "A step cut is used when:", options: ["The timber is too wet to cut cleanly", "The chain needs re-tensioning mid-job", "A single cut would cause the wood to bind on the bar", "The bar is longer than the timber diameter"], correctOption: 2 },
+  { moduleId: 43, order: 3, question: "When processing a branch supported at one end and free at the other, you should:", options: ["Cut from above only in a single pass", "Cut from the free end toward the supported end", "Use the tip of the bar for precision", "Cut from the underside first, then complete from above"], correctOption: 3 },
+  { moduleId: 43, order: 4, question: "Before attempting any additional or specialist cut, the operator must:", options: ["Increase chain speed to maximum", "Remove PPE for better mobility", "Consult the manufacturer handbook for chain speed", "Assess tension, compression and escape routes specific to that cut"], correctOption: 3 },
 ];
 
 async function main() {
