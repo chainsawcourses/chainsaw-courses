@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { usersTable, modulesTable, userProgressTable, examAttemptsTable } from "@workspace/db";
-import { eq, asc, and, desc } from "drizzle-orm";
+import { usersTable, examAttemptsTable } from "@workspace/db";
+import { eq, and, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
@@ -10,8 +10,12 @@ import path from "path";
 
 const router = Router();
 
-// Resolve the logo once at startup (path relative to project root)
 const LOGO_PATH = path.resolve("artifacts/chainsaw-training/public/logo.png");
+
+// Centre a string horizontally on the page
+function centreX(text: string, size: number, font: Awaited<ReturnType<PDFDocument["embedFont"]>>, pageWidth: number) {
+  return (pageWidth - font.widthOfTextAtSize(text, size)) / 2;
+}
 
 router.get("/certificate", async (req, res) => {
   const deviceId = req.headers["deviceid"] as string;
@@ -29,7 +33,6 @@ router.get("/certificate", async (req, res) => {
       return;
     }
 
-    // Fetch the most recent passed exam attempt
     const passedAttempts = await db
       .select()
       .from(examAttemptsTable)
@@ -37,241 +40,181 @@ router.get("/certificate", async (req, res) => {
       .orderBy(desc(examAttemptsTable.attemptedAt))
       .limit(1);
 
-    const passedAt = passedAttempts.length > 0
-      ? passedAttempts[0].attemptedAt
-      : new Date();
+    const passedAt = passedAttempts.length > 0 ? passedAttempts[0].attemptedAt : new Date();
 
-    const passedScore = passedAttempts.length > 0
-      ? passedAttempts[0].score
-      : null;
-
-    // Fetch all active video modules in order
-    const modules = await db
-      .select()
-      .from(modulesTable)
-      .where(and(eq(modulesTable.isActive, true), eq(modulesTable.contentType, "video")))
-      .orderBy(asc(modulesTable.order));
-
-    // -----------------------------------------------------------------------
-    // Build PDF
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // Page setup — A4 landscape for a more certificate-like feel
+    // -------------------------------------------------------------------------
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); // A4 portrait
+    const page = pdfDoc.addPage([842, 595]); // A4 landscape
     const { width, height } = page.getSize();
 
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontBold    = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+    const fontItalic  = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
-    // Colours
-    const orange = rgb(0.82, 0.38, 0.05);   // primary brand orange
-    const dark   = rgb(0.1,  0.1,  0.1);
-    const mid    = rgb(0.35, 0.35, 0.35);
-    const light  = rgb(0.6,  0.6,  0.6);
+    const orange = rgb(0.82, 0.38, 0.05);
+    const dark   = rgb(0.08, 0.08, 0.08);
+    const mid    = rgb(0.4,  0.4,  0.4);
+    const light  = rgb(0.65, 0.65, 0.65);
+    const white  = rgb(1,    1,    1);
+
+    // ---- Outer border -------------------------------------------------------
+    page.drawRectangle({ x: 24, y: 24, width: width - 48, height: height - 48,
+      borderColor: orange, borderWidth: 1.5, color: white });
+
+    // ---- Thin inner border --------------------------------------------------
+    page.drawRectangle({ x: 32, y: 32, width: width - 64, height: height - 64,
+      borderColor: rgb(0.9, 0.9, 0.9), borderWidth: 0.5, color: white });
 
     // ---- Logo ---------------------------------------------------------------
+    let logoHeight = 0;
     try {
       const logoBytes = fs.readFileSync(LOGO_PATH);
       const logoImg   = await pdfDoc.embedPng(logoBytes);
-      const logoDim   = logoImg.scaleToFit(100, 100);
+      const logoDim   = logoImg.scaleToFit(90, 90);
+      logoHeight = logoDim.height;
       page.drawImage(logoImg, {
         x: (width - logoDim.width) / 2,
-        y: height - 40 - logoDim.height,
-        width: logoDim.width,
+        y: height - 50 - logoDim.height,
+        width:  logoDim.width,
         height: logoDim.height,
       });
-    } catch {
-      // Logo not available — skip silently
-    }
+    } catch { /* skip */ }
 
-    let y = height - 160;
+    let y = height - 50 - logoHeight - 16;
 
-    // ---- Top rule -----------------------------------------------------------
-    page.drawRectangle({ x: 40, y, width: width - 80, height: 2, color: orange });
-    y -= 24;
-
-    // ---- Main heading -------------------------------------------------------
-    const heading = "CERTIFICATE OF";
-    const heading2 = "THEORETICAL COMPETENCY";
-    const h1Size = 22;
-    const h2Size = 18;
-
-    page.drawText(heading, {
-      x: (width - fontBold.widthOfTextAtSize(heading, h1Size)) / 2,
+    // ---- Brand name ---------------------------------------------------------
+    const brand = "Chainsaw Courses";
+    const brandSize = 13;
+    page.drawText(brand, {
+      x: centreX(brand, brandSize, fontBold, width),
       y,
-      size: h1Size,
-      font: fontBold,
-      color: dark,
-    });
-    y -= 28;
-    page.drawText(heading2, {
-      x: (width - fontBold.widthOfTextAtSize(heading2, h2Size)) / 2,
-      y,
-      size: h2Size,
+      size: brandSize,
       font: fontBold,
       color: orange,
     });
-    y -= 14;
+    y -= 22;
 
-    // ---- Bottom rule --------------------------------------------------------
-    page.drawRectangle({ x: 40, y, width: width - 80, height: 2, color: orange });
+    // ---- Thin rule ----------------------------------------------------------
+    page.drawRectangle({ x: width / 2 - 120, y, width: 240, height: 0.75, color: rgb(0.82, 0.38, 0.05) });
     y -= 28;
 
-    // ---- Issued to ----------------------------------------------------------
-    const issueLabel = "This certificate is awarded to";
-    page.drawText(issueLabel, {
-      x: (width - fontItalic.widthOfTextAtSize(issueLabel, 11)) / 2,
+    // ---- "This is to certify that" ------------------------------------------
+    const certify = "This is to certify that";
+    page.drawText(certify, {
+      x: centreX(certify, 10, fontItalic, width),
       y,
-      size: 11,
+      size: 10,
+      font: fontItalic,
+      color: mid,
+    });
+    y -= 38;
+
+    // ---- Student name -------------------------------------------------------
+    const nameSize = 32;
+    page.drawText(user.fullName, {
+      x: centreX(user.fullName, nameSize, fontBold, width),
+      y,
+      size: nameSize,
+      font: fontBold,
+      color: dark,
+    });
+    y -= 22;
+
+    // ---- Email --------------------------------------------------------------
+    page.drawText(user.email, {
+      x: centreX(user.email, 9, fontRegular, width),
+      y,
+      size: 9,
+      font: fontRegular,
+      color: light,
+    });
+    y -= 32;
+
+    // ---- "has successfully completed" ---------------------------------------
+    const completed = "has successfully completed";
+    page.drawText(completed, {
+      x: centreX(completed, 10, fontItalic, width),
+      y,
+      size: 10,
       font: fontItalic,
       color: mid,
     });
     y -= 30;
 
-    page.drawText(user.fullName, {
-      x: (width - fontBold.widthOfTextAtSize(user.fullName, 24)) / 2,
-      y,
-      size: 24,
-      font: fontBold,
-      color: dark,
-    });
-    y -= 20;
-
-    page.drawText(user.email, {
-      x: (width - fontRegular.widthOfTextAtSize(user.email, 10)) / 2,
-      y,
-      size: 10,
-      font: fontRegular,
-      color: light,
-    });
-    y -= 30;
-
-    // ---- Course description -------------------------------------------------
-    const courseTitle = "Chainsaw Safety & Operations — Professional Training Course";
+    // ---- Course title -------------------------------------------------------
+    const courseTitle = "Chainsaw Maintenance & Cross Cutting";
+    const courseTitleSize = 18;
     page.drawText(courseTitle, {
-      x: (width - fontBold.widthOfTextAtSize(courseTitle, 11)) / 2,
+      x: centreX(courseTitle, courseTitleSize, fontBold, width),
       y,
-      size: 11,
+      size: courseTitleSize,
       font: fontBold,
       color: dark,
     });
-    y -= 14;
+    y -= 18;
 
-    const courseSubtitle = "Vocational Chainsaw Safety Certification Programme";
-    page.drawText(courseSubtitle, {
-      x: (width - fontRegular.widthOfTextAtSize(courseSubtitle, 9)) / 2,
-      y,
-      size: 9,
-      font: fontRegular,
-      color: light,
-    });
-    y -= 28;
-
-    // ---- Divider ------------------------------------------------------------
-    page.drawRectangle({ x: 120, y: y + 4, width: width - 240, height: 1, color: rgb(0.85, 0.85, 0.85) });
-    y -= 20;
-
-    // ---- Modules heading ----------------------------------------------------
-    page.drawText("MODULES COMPLETED", {
-      x: (width - fontBold.widthOfTextAtSize("MODULES COMPLETED", 9)) / 2,
-      y,
-      size: 9,
-      font: fontBold,
-      color: orange,
-    });
-    y -= 16;
-
-    // ---- Module list --------------------------------------------------------
-    const colLeft  = 80;
-    const colRight = width / 2 + 10;
-    const mid2 = Math.ceil(modules.length / 2);
-
-    for (let i = 0; i < mid2; i++) {
-      const left  = modules[i];
-      const right = modules[i + mid2];
-
-      const drawModule = (mod: typeof left, x: number) => {
-        if (!mod) return;
-        const label = `${mod.order}. ${mod.title}`;
-        // bullet
-        page.drawText(">", { x, y, size: 8, font: fontBold, color: orange });
-        page.drawText(label, { x: x + 14, y, size: 8, font: fontRegular, color: dark });
-      };
-
-      drawModule(left, colLeft);
-      if (right) drawModule(right, colRight);
-      y -= 14;
-    }
-
-    y -= 10;
-
-    // ---- Final exam score ---------------------------------------------------
-    if (passedScore !== null) {
-      const scoreText = `Final Summative Exam — Score: ${passedScore}%`;
-      page.drawText(scoreText, {
-        x: (width - fontBold.widthOfTextAtSize(scoreText, 9)) / 2,
-        y,
-        size: 9,
-        font: fontBold,
-        color: mid,
-      });
-      y -= 14;
-    }
-
-    // ---- Divider ------------------------------------------------------------
-    page.drawRectangle({ x: 120, y: y + 4, width: width - 240, height: 1, color: rgb(0.85, 0.85, 0.85) });
-    y -= 20;
-
-    // ---- Date + signature block --------------------------------------------
-    const dateStr = passedAt.toLocaleDateString("en-GB", {
-      day: "numeric", month: "long", year: "numeric",
-    });
-
-    const dateLabel = `Date of Completion:  ${dateStr}`;
-    page.drawText(dateLabel, {
-      x: (width - fontRegular.widthOfTextAtSize(dateLabel, 10)) / 2,
+    // ---- Course subtitle ----------------------------------------------------
+    const courseSub = "Professional Training Course";
+    page.drawText(courseSub, {
+      x: centreX(courseSub, 10, fontRegular, width),
       y,
       size: 10,
       font: fontRegular,
-      color: dark,
+      color: mid,
     });
     y -= 40;
 
-    // Signature lines
-    const lineY = y;
-    const lineLen = 160;
-    const leftX  = 80;
-    const rightX = width - 80 - lineLen;
+    // ---- Thin rule ----------------------------------------------------------
+    page.drawRectangle({ x: width / 2 - 100, y, width: 200, height: 0.75, color: rgb(0.85, 0.85, 0.85) });
+    y -= 22;
 
-    page.drawRectangle({ x: leftX,  y: lineY, width: lineLen, height: 1, color: dark });
-    page.drawRectangle({ x: rightX, y: lineY, width: lineLen, height: 1, color: dark });
-    page.drawText("Authorised Signatory", { x: leftX,  y: lineY - 12, size: 8, font: fontRegular, color: light });
-    page.drawText("Course Director",      { x: rightX, y: lineY - 12, size: 8, font: fontRegular, color: light });
+    // ---- Date ---------------------------------------------------------------
+    const dateStr = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const dateText = dateStr;
+    page.drawText(dateText, {
+      x: centreX(dateText, 10, fontRegular, width),
+      y,
+      size: 10,
+      font: fontRegular,
+      color: mid,
+    });
+    y -= 48;
 
-    y = lineY - 30;
+    // ---- Signature lines ----------------------------------------------------
+    const lineLen = 150;
+    const gap     = 100;
+    const totalSig = lineLen * 2 + gap;
+    const sigLeft  = (width - totalSig) / 2;
+    const sigRight = sigLeft + lineLen + gap;
+    const lineY    = y;
 
-    // ---- Bottom orange band --------------------------------------------------
-    page.drawRectangle({ x: 0, y: 0, width: width, height: 28, color: orange });
-    page.drawText("Chainsaw Courses — chainsawcourses.co.uk", {
-      x: (width - fontRegular.widthOfTextAtSize("Chainsaw Courses — chainsawcourses.co.uk", 9)) / 2,
-      y: 9,
+    page.drawRectangle({ x: sigLeft,  y: lineY, width: lineLen, height: 0.75, color: rgb(0.5, 0.5, 0.5) });
+    page.drawRectangle({ x: sigRight, y: lineY, width: lineLen, height: 0.75, color: rgb(0.5, 0.5, 0.5) });
+
+    page.drawText("Authorised Signatory", {
+      x: sigLeft  + (lineLen - fontRegular.widthOfTextAtSize("Authorised Signatory", 8)) / 2,
+      y: lineY - 13, size: 8, font: fontRegular, color: light,
+    });
+    page.drawText("Course Director", {
+      x: sigRight + (lineLen - fontRegular.widthOfTextAtSize("Course Director", 8)) / 2,
+      y: lineY - 13, size: 8, font: fontRegular, color: light,
+    });
+
+    // ---- Bottom orange band -------------------------------------------------
+    page.drawRectangle({ x: 0, y: 0, width: width, height: 32, color: orange });
+    const footerText = "chainsawcourses.co.uk";
+    page.drawText(footerText, {
+      x: centreX(footerText, 9, fontRegular, width),
+      y: 11,
       size: 9,
       font: fontRegular,
-      color: rgb(1, 1, 1),
+      color: white,
     });
 
-    // ---- Corner decorations (simple rectangles) -----------------------------
-    const corner = 6;
-    [
-      [40, height - 40], [width - 40 - corner, height - 40],
-      [40, 40], [width - 40 - corner, 40],
-    ].forEach(([cx, cy]) => {
-      page.drawRectangle({ x: cx, y: cy, width: corner, height: corner, color: orange });
-    });
-
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     const pdfBytes = await pdfDoc.save();
-
     const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="Certificate_${safeName}.pdf"`);
