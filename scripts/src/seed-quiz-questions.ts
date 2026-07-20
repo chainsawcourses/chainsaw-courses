@@ -101,7 +101,7 @@ const questions: { moduleId: number; question: string; options: string[]; correc
 
   // ─── Module 25: Chain Basics ─────────────────────────────────────────────────
   { moduleId: 25, order: 1, question: "Drive links on a chainsaw chain serve to:", options: ["Cut through the wood", "Reduce vibration transmission", "Measure the chain length", "Engage with the drive sprocket and guide bar groove to drive and guide the chain"], correctOption: 3 },
-  { moduleId: 25, order: 2, question: "The pitch of a chainsaw chain is defined as:", options: ["The average distance between chain links (every other rivet distance divided by two)", "The angle of the cutter teeth", "The depth gauge height", "The overall chain width"], correctOption: 0 },
+  { moduleId: 25, order: 2, question: "What is a semi-chisel chain profile good for?", options: ["Cutting timber under tension", "Cutting mostly softwood with increased kickback", "Cutting mostly hardwood with reduced kickback", "Cutting metal and other foreign objects"], correctOption: 2 },
   { moduleId: 25, order: 3, question: "The depth gauge (raker) on a chain cutter controls:", options: ["Chain speed", "Chain tension", "The depth of cut each cutter tooth takes into the wood", "Bar lubrication flow"], correctOption: 2 },
   { moduleId: 25, order: 4, question: "Which part of the chainsaw chain actually cuts the wood?", options: ["The tie straps", "The drive links", "The left and right cutter teeth", "The bumper drive links"], correctOption: 2 },
 
