@@ -6,3 +6,9 @@ id = "kX9li0IcCe3ZsufCqo5rT"
 uri = "file://artifacts/chainsaw-training/public/applause.mp3"
 type = "audio"
 title = "applause"
+
+[[outputs]]
+id = "YTmJm1zatLSH-DYp7_cd4"
+uri = "file://artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
+type = "pdf"
+title = "IIRSM Accreditation Submission Brief"
