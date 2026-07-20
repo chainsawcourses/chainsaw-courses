@@ -145,7 +145,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           isPausedRef.current = true;
           setIsPaused(true);
           setHasEnded(true);
-          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+          setIsFullscreen(false);
           onEnded?.();
         }
       } catch { /* ignore */ }
@@ -176,19 +176,17 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     return () => clearInterval(id);
   }, []);
 
-  // Fullscreen
-  useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+  // CSS fake fullscreen — never calls requestFullscreen() so the browser
+  // never shows the "domain — to exit" notification.
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(prev => !prev);
   }, []);
 
-  const toggleFullscreen = useCallback(() => {
-    if (!containerRef.current) return;
-    document.fullscreenElement
-      ? document.exitFullscreen().catch(() => {})
-      : containerRef.current.requestFullscreen().catch(() => {});
-  }, []);
+  // Lock body scroll while in fake fullscreen
+  useEffect(() => {
+    document.body.style.overflow = isFullscreen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isFullscreen]);
 
   // Tap overlay handler (desktop only — see isHoverDevice).
   // Asks Vimeo for the actual pause state rather than trusting our tracked
@@ -222,9 +220,15 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
   return (
-    <div ref={containerRef}>
+    <div
+      ref={containerRef}
+      style={isFullscreen ? {
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "black", display: "flex", flexDirection: "column",
+      } : undefined}
+    >
       {/* ── Video frame ── */}
-      <div className="vimeo-portrait-container relative w-full aspect-video bg-black rounded-t-lg overflow-hidden border-x border-t border-border shadow-2xl">
+      <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isFullscreen ? "flex-1 rounded-none" : "aspect-video rounded-t-lg"}`}>
         <iframe
           ref={iframeRef}
           key={vimeoId}
