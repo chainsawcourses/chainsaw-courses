@@ -1106,13 +1106,11 @@ export default function TrainingList() {
             </Button>
           )}
         </div>
-        {activationCode === "ADMIN-PREVIEW" && (
-          <div className="flex justify-center pb-1">
-            <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
-              <Link href="/exam-preview">PREVIEW END SCREEN</Link>
-            </Button>
-          </div>
-        )}
+        <div className="flex justify-center pb-1">
+          <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
+            <Link href="/exam-preview">PREVIEW END SCREEN</Link>
+          </Button>
+        </div>
         {!courseUnlocked && (
           <div className="text-center text-[10px] font-mono text-muted-foreground/70 tracking-widest pb-1">
             Complete all videos &amp; quizzes to unlock

@@ -115,7 +115,7 @@ export default function ExamPreview() {
 
             <div className="flex gap-4 w-full">
               <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
-                <Link href="/admin/dashboard">BACK TO ADMIN</Link>
+                <Link href="/training">BACK TO TRAINING</Link>
               </Button>
             </div>
 
