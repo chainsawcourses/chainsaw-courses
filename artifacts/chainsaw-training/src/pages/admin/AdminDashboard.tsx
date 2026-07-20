@@ -219,6 +219,11 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/welcome-note"><MessageSquare className="w-4 h-4 mr-2" /> WELCOME NOTE</Link>
             </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
+                <FileText className="w-4 h-4 mr-2" /> IIRSM BRIEF
+              </a>
+            </Button>
             <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
               <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-2" /> FULL APP PREVIEW</a>
             </Button>
