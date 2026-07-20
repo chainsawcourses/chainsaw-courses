@@ -245,32 +245,32 @@ export default function Quiz() {
         <Progress value={progress} className="h-1 bg-secondary rounded-none" />
       </header>
 
-      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-6 pb-8">
+      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-4 pb-4">
         <div className="flex-1 flex flex-col">
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">
             80% required to pass — unlimited retries available
           </p>
 
-          <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold font-mono leading-tight mb-4">
             {currentQuestion.question}
           </h2>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             {currentQuestion.options.map((opt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSelectOption(idx)}
-                className={`w-full text-left p-4 sm:p-6 rounded-lg border-2 transition-all font-mono text-sm sm:text-base ${
+                className={`w-full text-left p-3 rounded-lg border-2 transition-all font-mono text-sm ${
                   currentAnswer === idx
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border bg-card hover:border-primary/50 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <div className="flex items-start">
-                  <div className={`shrink-0 w-6 h-6 mr-4 rounded-full border-2 flex items-center justify-center ${
+                  <div className={`shrink-0 w-5 h-5 mr-3 mt-0.5 rounded-full border-2 flex items-center justify-center ${
                     currentAnswer === idx ? "border-primary" : "border-muted-foreground"
                   }`}>
-                    {currentAnswer === idx && <div className="w-3 h-3 bg-primary rounded-full" />}
+                    {currentAnswer === idx && <div className="w-2.5 h-2.5 bg-primary rounded-full" />}
                   </div>
                   <div>{opt}</div>
                 </div>
@@ -279,10 +279,10 @@ export default function Quiz() {
           </div>
         </div>
 
-        <div className="mt-8 shrink-0 flex justify-end">
+        <div className="mt-4 shrink-0 flex justify-end">
           <Button
             size="lg"
-            className="h-14 px-8 font-mono font-bold tracking-widest"
+            className="h-12 px-8 font-mono font-bold tracking-widest"
             disabled={!canProceed || submitQuiz.isPending}
             onClick={handleNext}
           >
