@@ -1116,13 +1116,16 @@ export default function TrainingList() {
               if (!res.ok) return;
               const blob = await res.blob();
               const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url; a.download = "Chainsaw_Certificate.pdf"; a.click();
-              URL.revokeObjectURL(url);
+              const w = window.open(url, "_blank");
+              if (!w) {
+                const a = document.createElement("a");
+                a.href = url; a.target = "_blank"; a.click();
+              }
+              setTimeout(() => URL.revokeObjectURL(url), 10000);
             }}
             className="flex items-center gap-1 text-[11px] font-mono text-primary/60 hover:text-primary underline underline-offset-2 tracking-widest uppercase"
           >
-            <FileDown className="w-3 h-3" /> Download Certificate
+            <FileDown className="w-3 h-3" /> View Certificate
           </button>
           <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
             <Link href="/exam-preview">PREVIEW END SCREEN</Link>
