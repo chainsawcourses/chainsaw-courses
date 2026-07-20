@@ -219,6 +219,9 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
               <Link href="/admin/welcome-note"><MessageSquare className="w-4 h-4 mr-2" /> WELCOME NOTE</Link>
             </Button>
+            <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
+              <a href="/training"><ExternalLink className="w-4 h-4 mr-2" /> VIEW TRAINING APP</a>
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
               <LogOut className="w-4 h-4 mr-2" /> LOGOUT
             </Button>
