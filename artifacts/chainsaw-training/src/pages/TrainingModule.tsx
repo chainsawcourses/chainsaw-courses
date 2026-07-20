@@ -33,7 +33,7 @@ export default function TrainingModule() {
   const mainRef = useRef<HTMLElement>(null);
 
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(5);
   const [canPlay, setCanPlay] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
 
