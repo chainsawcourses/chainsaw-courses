@@ -26,7 +26,7 @@ export const MODULE_QUESTION_MAP: Record<number, number[]> = {
   24: [39, 40, 41],                          // Guidebar
   25: [],                                    // Chain Basics (Q42/Q43 are physical actions only)
   26: [],                                    // Chain Tension (Q42/Q43 are physical actions only)
-  27: [44, 45, 46, 47, 48],                  // Identifying The Chain
+  27: [44, 45, 46, 47, 48],                  // How to identify a chainsaw chain
   28: [44, 45],                              // Replacing The Chain (Q42/Q43 excluded as actions)
   29: [49, 50, 51, 52, 53, 54, 55, 56, 57], // Chain Sharpening
   42: [76],                                  // Kickback

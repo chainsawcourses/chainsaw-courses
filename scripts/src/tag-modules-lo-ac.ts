@@ -24,7 +24,7 @@ const TAGS: Record<number, { lo: string; ac: string }> = {
   24: { lo: "LO4", ac: "AC 4.3" }, // Guidebar
   25: { lo: "LO4", ac: "AC 4.4" }, // Chain Basics
   26: { lo: "LO4", ac: "AC 4.4" }, // Chain Tension
-  27: { lo: "LO4", ac: "AC 4.4" }, // Identifying The Chain
+  27: { lo: "LO4", ac: "AC 4.4" }, // How to identify a chainsaw chain
   28: { lo: "LO4", ac: "AC 4.4" }, // Replacing The Chain
   29: { lo: "LO4", ac: "AC 4.4" }, // Chain Sharpening
   42: { lo: "LO6", ac: "AC 6.3" }, // Kickback

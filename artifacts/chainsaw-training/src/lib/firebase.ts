@@ -40,7 +40,7 @@ remoteConfig.defaultConfig = {
     { id: 18, vimeoId: "", title: "Guidebar", description: "" },
     { id: 19, vimeoId: "", title: "Chain Basics", description: "" },
     { id: 20, vimeoId: "", title: "Chain Tension", description: "" },
-    { id: 21, vimeoId: "", title: "Identifying The Chain", description: "" },
+    { id: 21, vimeoId: "", title: "How to identify a chainsaw chain", description: "" },
     { id: 22, vimeoId: "", title: "Replacing The Chain", description: "" },
     { id: 23, vimeoId: "", title: "Chain Sharpening", description: "" },
     { id: 24, vimeoId: "", title: "Stacking", description: "" },
