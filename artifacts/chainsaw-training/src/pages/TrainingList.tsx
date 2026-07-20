@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -1106,7 +1106,24 @@ export default function TrainingList() {
             </Button>
           )}
         </div>
-        <div className="flex justify-center pb-1">
+        <div className="flex justify-center gap-3 pb-1">
+          <button
+            onClick={async () => {
+              if (!activationCode || !deviceId) return;
+              const res = await fetch("/api/certificate", {
+                headers: { activationcode: activationCode, deviceid: deviceId },
+              });
+              if (!res.ok) return;
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url; a.download = "Chainsaw_Certificate.pdf"; a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex items-center gap-1 text-[11px] font-mono text-primary/60 hover:text-primary underline underline-offset-2 tracking-widest uppercase"
+          >
+            <FileDown className="w-3 h-3" /> Download Certificate
+          </button>
           <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
             <Link href="/exam-preview">PREVIEW END SCREEN</Link>
           </Button>
