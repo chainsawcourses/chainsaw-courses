@@ -1,0 +1,103 @@
+================================================================================
+                    [INSERT YOUR COMPANY/TRAINING LOGO HERE]
+================================================================================
+
+              IIRSM TRAINING COURSE ACCREDITATION SUBMISSION BRIEF
+       TECHNICAL SPECIFICATION: CHAINSAW MAINTENANCE & CROSS-CUTTING V1.4
+                                  (GROUND LEVEL)
+
+================================================================================
+
+## SECTION 1: COURSE SPECIFICATION & OPERATIONAL METRICS
+
+This course brief details the structural, educational, and risk-control parameters of the training program submitted for formal IIRSM course approval[cite: 3]. The curriculum provides high-quality theoretical training independently mapped to United Kingdom National Occupational Standards (NOS) and professional risk-management parameters[cite: 3].
+
+| Evaluation Parameter | Course Training Framework Specifications |
+| :--- | :--- |
+| **Official Course Title** | Chainsaw Maintenance & Cross Cutting (Ground Level Framework)[cite: 3] |
+| **Accreditation Mapping** | Mapped to UK National Occupational Standards (NOS)[cite: 3] |
+| **Continuing Professional Development** | Certified for 5 Verifiable CPD Points / Structured Hours[cite: 3] |
+| **Guided Learning Hours (GLH)** | 16 Hours (Assigned via technical text, video assets, and diagrams)[cite: 3] |
+| **Total Qualification Time (TQT)** | 19 Hours (Includes self-study, scenario analysis, and examinations)[cite: 3] |
+| **Minimum Passing Threshold** | Exact 80% or Higher on the Summative Examination[cite: 3] |
+| **Target Audience** | Commercial operators, forestry workers, arborists, and estate grounds teams[cite: 3] |
+
+---
+
+## SECTION 2: DIGITAL LEARNING MANAGEMENT SYSTEM (LMS) QUALITY GATEWAYS
+
+To satisfy the quality parameters required for formal e-learning certification, the digital learning platform implements a strict compliance verification infrastructure:
+
+*   **Anti-Scrubbing Controls:** Media timeline scrubbing features are disabled for first-time viewings to ensure students fully engage with the core safety video assets and satisfy the 16 Guided Learning Hours (GLH) mandate[cite: 3].
+*   **Time & Engagement Logging:** The system backend logs specific timestamp metadata for every student, tracking course entry, active video engagement duration, and module review times to provide a verifiable audit trail.
+*   **Formative Knowledge Gates:** The system locks progression between major structural chapters. Students must pass interactive hazard-identification checks and scenario micro-quizzes before the subsequent section unlocks[cite: 3].
+*   **Randomized Summative Exam:** Certification requires completing a randomized, 45-question multiple-choice examination drawn dynamically from a comprehensive database mapping to City & Guilds NPTC testing parameters[cite: 3].
+
+---
+
+## SECTION 3: CORE PROGRAM LEARNING OUTCOMES (LO)
+
+### UNIT 1: Occupational Standards, Statutory Law, and Workspace Risk Evaluation
+
+#### Learning Outcome 1 (LO1): Understand the statutory legal framework and personal safety requirements dictating chainsaw ground operations[cite: 3].
+*   **AC 1.1:** Identify core employer and employee duties of care under the **Health and Safety at Work etc. Act 1974 (HSWA)** and global workplace equivalents[cite: 1, 3].
+*   **AC 1.2:** Explain machinery compliance parameters, operator training mandates, and technological safety feature requirements under the **Provision and Use of Work Equipment Regulations 1998 (PUWER)**[cite: 1, 3].
+*   **AC 1.3:** Outline substance risk assessment, inhalation mitigation, and dermal exposure rules under **COSHH 2002** regarding two-stroke fuel mixtures, technical lubricants, alkylate oils, and toxic wood dusts[cite: 1, 3].
+*   **AC 1.4:** Detail standard European (CE/UKCA) and global markings alongside manufacturing shelf-life limits for protective helmets, ear defenders, visors, cut-resistant gloves, chainsaw safety boots, and Type A versus Type C protective trousers[cite: 1, 3].
+
+#### Learning Outcome 2 (LO2): Evaluate environmental hazards, land management constraints, and emergency response frameworks[cite: 3].
+*   **AC 2.1:** Execute a site-specific risk assessment isolating localized ground hazards, slope dynamics, public footprints, and overhead obstacles[cite: 1, 3].
+*   **AC 2.2:** Formulate a detailed emergency extraction map detailing accurate Ordnance Survey grid references, postal indicators, What3Words locations, and dedicated trauma box locations[cite: 1, 3].
+*   **AC 2.3:** Detail mandatory biosecurity tool disinfection protocols necessary to interrupt the transmission of aggressive pathogens (including Ash Dieback, Sudden Oak Death, and Sweet Chestnut Blight)[cite: 1, 4].
+*   **AC 2.4:** Define legal felling constraints under the **Forestry Act 1967**, including the 5 cubic meters quarterly volumetric allowance and commercial trading exemptions[cite: 1].
+*   **AC 2.5:** Outline statutory land control protocols under the **Town and Country Planning Act 1990**, specifically executing a Section 211 Notice within a Conservation Area and checking local registers for active Tree Preservation Orders (TPOs)[cite: 1].
+*   **AC 2.6:** Summarize protected wildlife and habitat constraints mandated by the **Wildlife and Countryside Act 1981**, the **Protection of Badgers Act 1992**, and active **Sites of Special Scientific Interest (SSSIs)**[cite: 1].
+
+---
+
+### UNIT 2: Power Unit Architecture, Mechanical Integrity, and Diagnostic Maintenance
+
+#### Learning Outcome 3 (LO3): Analyze mechanical differences, structural attributes, and physical safety configurations of internal combustion and battery platforms[cite: 3].
+*   **AC 3.1:** Map the mechanical interface and function of the 10 standard physical safety components: Front Hand Guard/Chain Brake, Exhaust Muffler, Low-Kickback Loop Profiles, Chain Catcher, Anti-Vibration Mounts, Off Switch, Throttle Lockout Trigger, Safety Decals, Right-Hand Flare Guard, and Bar Scabbard[cite: 1, 3].
+*   **AC 3.2:** Describe the two-stroke combustion cycle ("Suck-Squeeze-Bang-Blow") and accurately execute standard 50:1 fuel-to-lubricant calculations[cite: 1, 3].
+*   **AC 3.3:** Identify operational risks unique to high-capacity lithium-ion battery cells, focusing on impact deformation, moisture entry, and battery charger thermal runaway[cite: 3].
+
+#### Learning Outcome 4 (LO4): Diagnose, service, and maintain the structural integrity of a commercial cutting assembly[cite: 3].
+*   **AC 4.1:** Detail daily air filtration mesh cleaning steps and evaluate mechanical engine health by interpreting spark plug electrode color indicators (Healthy Brown vs. Lean Grey vs. Rich Black)[cite: 3].
+*   **AC 4.2:** Compare Rim and Spur drive sprockets and diagnose guidebar rail wear patterns, including burr formations, channel splaying, and thermal bluing[cite: 3].
+*   **AC 4.3:** Identify chain components, loop configurations, and tooth geometries (Full-Chisel vs. Semi-Chisel vs. Chipper)[cite: 3].
+*   **AC 4.4:** Calculate exact sharpening profiles, applying top-plate filing angles ($25^\circ\text{ to }35^\circ$) and $85^\circ$ side-plate wave hooks[cite: 3].
+*   **AC 4.5:** Measure depth gauge clearances using precise raker tools to prevent cutter jamming or loop stall conditions.
+
+---
+
+### UNIT 3: System Startups, Operational Proving, and Ground Processing Mechanics
+
+#### Learning Outcome 5 (LO5): Implement safe pre-use inspection protocols and starting methodologies[cite: 3].
+*   **AC 5.1:** Differentiate between the cold-start floor anchor method and the upright knee-clamp warm-start technique[cite: 3].
+*   **AC 5.2:** Execute a 4-point dynamic check assessing chain brake engagement speed, guidebar oil dispersion lines, tick-over static loop balance (eliminating chain creep), and off-switch engine cutout functionality[cite: 3].
+
+#### Learning Outcome 6 (LO6): Apply structural mechanical principles to safely resolve tension and compression forces during ground timber cutting[cite: 3].
+*   **AC 6.1:** Analyze a downed log to determine where compression and tension forces reside to eliminate guidebar pinching and timber splitting hazards[cite: 3].
+*   **AC 6.2:** Explain the physical behavior of pushing versus pulling chain forces during processing tasks[cite: 3].
+*   **AC 6.3:** Define the upper nose quadrant kickback zone of the guidebar to outline how rotational inertia accidents occur and explain how to safely execute precise plunge bore entries[cite: 3].
+*   **AC 6.4:** Sequence and execute safe cutting workflows for logs under normal stress, oversized stems, advanced step cuts, box splits, and heavy timber under extreme tension[cite: 3].
+*   **AC 6.5:** Identify emergency extraction techniques for safely freeing a trapped or pinched guidebar under load[cite: 3].
+
+---
+
+## SECTION 4: SCOPE LIMITATION & LIABILITY THRESHOLDS
+
+*   **Theory-Only Boundary Notice:** This instructional program provides theoretical validation and professional Continuing Professional Development (CPD) data tracking only[cite: 3].
+*   **No Practical Competency Invalidation:** Completing this digital training path does not certify a learner as a qualified chainsaw operator, nor does it replace the mandatory requirement to undergo face-to-face instruction and practical assessment administered by a registered professional[cite: 3].
+
+---
+
+## SECTION 5: ADVANCED VOLUNTARY ENRICHMENT PATHS (NON-ASSESSED)
+
+The following components are included within the textbook and e-learning app strictly for technical enrichment and advanced field awareness. These modules are classified as entirely separate from the regulated assessment criteria and are not tested during the summative final exam[cite: 3]:
+
+1.  **Carburettor Needle Adjustment:** Manual tuning using factory Idle (LA/T), Low (L), and High (H) limit screws under tachometer validation[cite: 3].
+2.  **Oil Pump Mechanical Reconditioned Overhauls:** Extracting centrifugal clutch shoes to expose the underlying automated oil pump mechanism and internal pickup tubes[cite: 3].
+3.  **Advanced Windblown Tree Processing:** Managing complex energy vectors inside tangled root-plate windfalls[cite: 3].
+4.  **Winch Rigging & Pull Constraints:** Configuring multi-redirect blocks and heavy winches to stabilize large root plates before cutting the main stem[cite: 3].
