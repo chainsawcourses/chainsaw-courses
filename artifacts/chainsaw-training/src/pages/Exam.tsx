@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +6,118 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award } from "lucide-react";
 import { useGetExam, useSubmitExam, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { DISAPPOINTMENT_URL } from "../data/audioFiles";
+
+const CROWD_APPLAUSE_URL = `${import.meta.env.BASE_URL}crowd-applause.mp3`;
+
+// ─── Confetti ────────────────────────────────────────────────────────────────
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: string;
+  rotation: number;
+  rotationSpeed: number;
+  width: number;
+  height: number;
+  opacity: number;
+}
+
+const COLORS = ["#f97316", "#facc15", "#4ade80", "#60a5fa", "#e879f9", "#fb7185", "#34d399", "#f59e0b"];
+
+function createParticle(canvasWidth: number): Particle {
+  return {
+    x: Math.random() * canvasWidth,
+    y: -10 - Math.random() * 100,
+    vx: (Math.random() - 0.5) * 4,
+    vy: 2 + Math.random() * 4,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    rotation: Math.random() * 360,
+    rotationSpeed: (Math.random() - 0.5) * 8,
+    width: 8 + Math.random() * 10,
+    height: 4 + Math.random() * 6,
+    opacity: 1,
+  };
+}
+
+function ConfettiCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const rafRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(Date.now());
+  const DURATION = 6000;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Spawn 220 particles in bursts
+    for (let i = 0; i < 220; i++) {
+      const p = createParticle(canvas.width);
+      p.y = -10 - Math.random() * 400;
+      particlesRef.current.push(p);
+    }
+
+    const animate = () => {
+      const elapsed = Date.now() - startTimeRef.current;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particlesRef.current = particlesRef.current.filter((p) => p.opacity > 0.01);
+
+      for (const p of particlesRef.current) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.08; // gravity
+        p.vx *= 0.99;
+        p.rotation += p.rotationSpeed;
+        if (p.y > canvas.height * 0.7) {
+          p.opacity -= 0.025;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.width / 2, -p.height / 2, p.width, p.height);
+        ctx.restore();
+      }
+
+      if (elapsed < DURATION || particlesRef.current.length > 0) {
+        rafRef.current = requestAnimationFrame(animate);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-50"
+    />
+  );
+}
+
+// ─── Exam ─────────────────────────────────────────────────────────────────────
 
 export default function Exam() {
   const [, setLocation] = useLocation();
@@ -20,6 +132,47 @@ export default function Exam() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<ExamResult | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const applausePlayedRef = useRef(false);
+  const disappointmentPlayedRef = useRef(false);
+
+  // Play sounds and trigger confetti when result arrives
+  useEffect(() => {
+    if (!result) return;
+
+    if (result.passed && !applausePlayedRef.current) {
+      applausePlayedRef.current = true;
+      try {
+        const audio = new Audio(CROWD_APPLAUSE_URL);
+        audio.volume = 0.7;
+        audio.play().catch((e) => console.warn("Applause audio failed:", e));
+      } catch (e) {
+        console.warn("Applause audio error:", e);
+      }
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 7000);
+    }
+
+    if (!result.passed && !disappointmentPlayedRef.current) {
+      disappointmentPlayedRef.current = true;
+      try {
+        const audio = new Audio(DISAPPOINTMENT_URL);
+        audio.volume = 0.7;
+        audio.play().catch((e) => console.warn("Disappointment audio failed:", e));
+      } catch (e) {
+        console.warn("Disappointment audio error:", e);
+      }
+    }
+  }, [result]);
+
+  const handleReset = useCallback(() => {
+    setResult(null);
+    setCurrentQuestionIdx(0);
+    setAnswers({});
+    applausePlayedRef.current = false;
+    disappointmentPlayedRef.current = false;
+  }, []);
 
   if (!activationCode || !deviceId) {
     setLocation("/");
@@ -83,55 +236,54 @@ export default function Exam() {
 
   if (result) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-2xl border-border bg-card/80 backdrop-blur-sm">
-          <CardContent className="p-8 text-center flex flex-col items-center">
-            {result.passed ? (
-              <Award className="w-20 h-20 text-primary mb-6" />
-            ) : (
-              <XCircle className="w-20 h-20 text-destructive mb-6" />
-            )}
-
-            <h1 className="text-3xl font-black font-mono uppercase tracking-wide mb-2">
-              {result.passed ? "Certification Exam Passed" : "Exam Not Passed"}
-            </h1>
-
-            <p className="text-muted-foreground font-mono mb-2">
-              You scored {result.correct} out of {result.total} ({result.score}%)
-            </p>
-
-            {!result.passed && (
-              <p className="text-sm text-muted-foreground font-mono mb-8">
-                You need {result.passingScore}% to pass. You may retake the exam at any time.
-              </p>
-            )}
-            {result.passed && (
-              <p className="text-sm text-primary font-mono mb-8">
-                Congratulations — you have met the {result.passingScore}% pass mark for the final summative exam.
-              </p>
-            )}
-
-            <div className="flex gap-4 w-full">
-              {!result.passed ? (
-                <Button
-                  onClick={() => {
-                    setResult(null);
-                    setCurrentQuestionIdx(0);
-                    setAnswers({});
-                  }}
-                  className="w-full h-14 font-mono font-bold tracking-widest"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
-                </Button>
+      <>
+        {showConfetti && <ConfettiCanvas />}
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <Card className="w-full max-w-2xl border-border bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-8 text-center flex flex-col items-center">
+              {result.passed ? (
+                <Award className="w-20 h-20 text-primary mb-6" />
               ) : (
-                <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
-                  <Link href="/training">BACK TO TRAINING</Link>
-                </Button>
+                <XCircle className="w-20 h-20 text-destructive mb-6" />
               )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
+              <h1 className="text-3xl font-black font-mono uppercase tracking-wide mb-2">
+                {result.passed ? "Certification Exam Passed" : "Exam Not Passed"}
+              </h1>
+
+              <p className="text-muted-foreground font-mono mb-2">
+                You scored {result.correct} out of {result.total} ({result.score}%)
+              </p>
+
+              {!result.passed && (
+                <p className="text-sm text-muted-foreground font-mono mb-8">
+                  You need {result.passingScore}% to pass. You may retake the exam at any time.
+                </p>
+              )}
+              {result.passed && (
+                <p className="text-sm text-primary font-mono mb-8">
+                  Congratulations — you have met the {result.passingScore}% pass mark for the final summative exam.
+                </p>
+              )}
+
+              <div className="flex gap-4 w-full">
+                {!result.passed ? (
+                  <Button
+                    onClick={handleReset}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
+                  </Button>
+                ) : (
+                  <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
+                    <Link href="/training">BACK TO TRAINING</Link>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
