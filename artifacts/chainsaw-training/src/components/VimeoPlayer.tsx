@@ -112,7 +112,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
         if (data.event === "ready") {
           isReadyRef.current = true;
           setLoadError(null);
-          sendCommand("setVolume", 0.7);
+          sendCommand("setVolume", 0.95);
           sendCommand("addEventListener", "pause");
           sendCommand("addEventListener", "play");
           sendCommand("addEventListener", "finish");
