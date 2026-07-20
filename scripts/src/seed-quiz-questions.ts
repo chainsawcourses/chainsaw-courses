@@ -188,6 +188,12 @@ const questions: { moduleId: number; question: string; options: string[]; correc
   { moduleId: 39, order: 2, question: "The key additional hazard when working with large diameter timber is:", options: ["Roll hazard — large logs can roll unexpectedly during or after cutting", "The increased weight of the chainsaw", "Increased noise levels from the larger log", "Excessive sawdust production"], correctOption: 0 },
   { moduleId: 39, order: 3, question: "Tensioned timber creates a specific risk of:", options: ["The wood burning during the cutting process", "The chain becoming magnetised", "Sudden and unpredictable movement of log sections endangering the operator", "Fuel contamination from the timber"], correctOption: 2 },
   { moduleId: 39, order: 4, question: "Before cutting oversized or tensioned timber, the operator must:", options: ["Thoroughly assess the timber, identify tension/compression zones, plan all cuts, and confirm escape route", "Begin cutting immediately to release the tension safely", "Ask a bystander to watch from a safe distance", "Wait 10 minutes after the timber has come to rest before cutting"], correctOption: 0 },
+
+  // ─── Module 42: Kickback ─────────────────────────────────────────────────────
+  { moduleId: 42, order: 1, question: "What is chainsaw kickback?", options: ["The vibration felt when the chain contacts hardwood", "The rapid upward and backward rotation of the bar when the nose contacts an object or the chain pinches", "The recoil from starting the engine", "The chain slipping off the bar during cutting"], correctOption: 1 },
+  { moduleId: 42, order: 2, question: "Which part of the bar is most likely to cause kickback?", options: ["The heel of the bar closest to the engine", "The middle section of the bar", "The nose (tip) of the bar — the kickback zone", "The upper edge of the bar"], correctOption: 2 },
+  { moduleId: 42, order: 3, question: "Which chainsaw safety feature is designed to stop the chain in the event of kickback?", options: ["The throttle lock", "The rear hand guard", "The chain brake", "The anti-vibration system"], correctOption: 2 },
+  { moduleId: 42, order: 4, question: "How can the risk of kickback be reduced?", options: ["By using a longer guide bar", "By running the saw at half throttle only", "By always cutting with the nose of the bar", "By using a low-kickback chain, maintaining a sharp chain, and avoiding contact with the bar nose"], correctOption: 3 },
 ];
 
 async function main() {
