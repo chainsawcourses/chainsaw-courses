@@ -12,3 +12,27 @@ id = "YTmJm1zatLSH-DYp7_cd4"
 uri = "file://artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 type = "pdf"
 title = "IIRSM Submission Brief v1.4 — Signed"
+
+[[outputs]]
+id = "iw93YlzKUoPZHjslZZ2Qy"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Terms_and_Conditions_Liability_Waiver.pdf"
+type = "pdf"
+title = "Terms & Conditions and Liability Waiver"
+
+[[outputs]]
+id = "2FTq5pVKhUVQwan7Z0leu"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Refund_and_Cancellation_Policy.pdf"
+type = "pdf"
+title = "Refund & Cancellation Policy"
+
+[[outputs]]
+id = "iSS0dq9CCtXd9Lfk64_9U"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Data_Protection_Policy.pdf"
+type = "pdf"
+title = "Data Protection Policy (UK GDPR)"
+
+[[outputs]]
+id = "6PJEOHR8AZsbXadTDiMwU"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Complaints_Procedure.pdf"
+type = "pdf"
+title = "Complaints Procedure"
