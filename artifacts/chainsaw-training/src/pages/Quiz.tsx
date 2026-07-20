@@ -246,7 +246,7 @@ export default function Quiz() {
       </header>
 
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-4 pb-4">
-        <div className="flex-1 flex flex-col">
+        <div className="flex flex-col">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">
             80% required to pass — unlimited retries available
           </p>
