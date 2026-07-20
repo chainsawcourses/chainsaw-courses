@@ -15,6 +15,7 @@ import inspectionsRouter from "./inspections";
 import newsRouter from "./news";
 import riskAssessmentsRouter from "./risk-assessments";
 import pushRouter from "./push";
+import certificateRouter from "./certificate";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(inspectionsRouter);
 router.use(newsRouter);
 router.use(riskAssessmentsRouter);
 router.use(pushRouter);
+router.use(certificateRouter);
 
 export default router;

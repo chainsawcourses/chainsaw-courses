@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Award, ArrowLeft } from "lucide-react";
+import { Award, ArrowLeft, FileDown } from "lucide-react";
+import { useUserSession } from "../contexts/UserContext";
 
 const CROWD_APPLAUSE_URL = `${import.meta.env.BASE_URL}crowd-applause.mp3`;
 
@@ -12,6 +13,45 @@ interface Particle {
   x: number; y: number; vx: number; vy: number;
   color: string; rotation: number; rotationSpeed: number;
   width: number; height: number; opacity: number;
+}
+
+function PreviewCertificateButton() {
+  const { activationCode, deviceId } = useUserSession();
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    const code = activationCode ?? "ADMIN-PREVIEW";
+    const device = deviceId ?? "admin-preview-device-001";
+    setLoading(true);
+    try {
+      const res = await fetch("/api/certificate", {
+        headers: { activationcode: code, deviceid: device },
+      });
+      if (!res.ok) throw new Error("Failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw_Certificate.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silent retry
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      onClick={handleDownload}
+      disabled={loading}
+      className="w-full h-14 font-mono font-bold tracking-widest gap-2"
+    >
+      <FileDown className="w-5 h-5" />
+      {loading ? "GENERATING..." : "VIEW COMPLETION CERTIFICATE"}
+    </Button>
+  );
 }
 
 function createParticle(w: number): Particle {
@@ -113,8 +153,9 @@ export default function ExamPreview() {
               Congratulations — you have met the 80% pass mark for the final summative exam.
             </p>
 
-            <div className="flex gap-4 w-full">
-              <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
+            <div className="flex flex-col gap-3 w-full">
+              <PreviewCertificateButton />
+              <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
                 <Link href="/training">BACK TO TRAINING</Link>
               </Button>
             </div>

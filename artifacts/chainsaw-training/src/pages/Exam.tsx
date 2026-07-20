@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown } from "lucide-react";
 import { useGetExam, useSubmitExam, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
@@ -114,6 +114,46 @@ function ConfettiCanvas() {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-50"
     />
+  );
+}
+
+// ─── Certificate download button ─────────────────────────────────────────────
+
+function CertificateButton() {
+  const { activationCode, deviceId } = useUserSession();
+  const [loading, setLoading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!activationCode || !deviceId) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/certificate", {
+        headers: { activationcode: activationCode, deviceid: deviceId },
+      });
+      if (!res.ok) throw new Error("Failed to generate certificate");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw_Certificate.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silent — user can retry
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      onClick={handleDownload}
+      disabled={loading}
+      className="w-full h-14 font-mono font-bold tracking-widest gap-2"
+    >
+      <FileDown className="w-5 h-5" />
+      {loading ? "GENERATING..." : "VIEW COMPLETION CERTIFICATE"}
+    </Button>
   );
 }
 
@@ -266,7 +306,7 @@ export default function Exam() {
                 </p>
               )}
 
-              <div className="flex gap-4 w-full">
+              <div className="flex flex-col gap-3 w-full">
                 {!result.passed ? (
                   <Button
                     onClick={handleReset}
@@ -275,9 +315,12 @@ export default function Exam() {
                     <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
                   </Button>
                 ) : (
-                  <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
-                    <Link href="/training">BACK TO TRAINING</Link>
-                  </Button>
+                  <>
+                    <CertificateButton />
+                    <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
+                      <Link href="/training">BACK TO TRAINING</Link>
+                    </Button>
+                  </>
                 )}
               </div>
             </CardContent>
