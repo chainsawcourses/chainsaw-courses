@@ -131,7 +131,7 @@ const questions: { moduleId: number; question: string; options: string[]; correc
 
   // ─── Module 30: Stacking ─────────────────────────────────────────────────────
   { moduleId: 30, order: 1, question: "What is the maximum recommended height for a freestanding timber stack without additional support?", options: ["1.0 metre", "3.0 metres", "There is no recommended maximum height", "As specified in the site risk assessment (typically 1.5m)"], correctOption: 3 },
-  { moduleId: 30, order: 2, question: "Cross-stacking the top layer of a timber stack is done to:", options: ["Improve stability and prevent the stack rolling or collapsing", "Make log counting easier", "Allow faster timber drying", "Mark the stack for collection"], correctOption: 0 },
+  { moduleId: 30, order: 2, question: "When stacking multiple different species, what should you do?", options: ["Stack them randomly to save time", "Arrange and separate species into their respective stacks", "Mix species to improve stability", "Only stack one species per day"], correctOption: 1 },
   { moduleId: 30, order: 3, question: "The stacking work area should be:", options: ["Uneven ground to give better grip to stacked timber", "As close to felling operations as possible regardless of slope", "On stable, clear ground away from slope run-out zones", "Directly beside any active felling work"], correctOption: 2 },
   { moduleId: 30, order: 4, question: "Before approaching an existing timber stack for further work, you must:", options: ["Approach quickly to check for hazards", "Place additional timber on top to test stability", "Ignore the stack and focus on other nearby work", "Visually assess the stack for signs of instability before approaching"], correctOption: 3 },
 
