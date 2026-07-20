@@ -6,9 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users } from "lucide-react";
+import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
@@ -90,6 +90,17 @@ export default function TrainingList() {
   const { data: waiverStatus } = useGetWaiver({
     query: { queryKey: getGetWaiverQueryKey(), enabled: !!activationCode && !!deviceId }
   });
+
+  const { data: examStatus } = useGetExamStatus({
+    query: {
+      queryKey: getGetExamStatusQueryKey(),
+      enabled: !!activationCode && !!deviceId,
+      staleTime: 0,
+      refetchOnMount: "always",
+    }
+  });
+
+  const courseUnlocked = examStatus?.unlocked ?? false;
 
   const equipmentListModule = useMemo(
     () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
@@ -1064,13 +1075,32 @@ export default function TrainingList() {
         </div>
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
         <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center gap-3">
-          <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
-            <Link href="/mock-test">MOCK ASSESSMENT</Link>
-          </Button>
-          <Button asChild variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary">
-            <Link href="/exam">FINAL EXAM</Link>
-          </Button>
+          {courseUnlocked ? (
+            <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
+              <Link href="/mock-test">MOCK ASSESSMENT</Link>
+            </Button>
+          ) : (
+            <Button disabled className="font-mono text-sm uppercase tracking-widest px-8 opacity-40 cursor-not-allowed gap-2">
+              <LockKeyhole className="w-3.5 h-3.5" />
+              MOCK ASSESSMENT
+            </Button>
+          )}
+          {courseUnlocked ? (
+            <Button asChild variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary">
+              <Link href="/exam">FINAL EXAM</Link>
+            </Button>
+          ) : (
+            <Button disabled variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary opacity-40 cursor-not-allowed gap-2">
+              <LockKeyhole className="w-3.5 h-3.5" />
+              FINAL EXAM
+            </Button>
+          )}
         </div>
+        {!courseUnlocked && (
+          <div className="text-center text-[10px] font-mono text-muted-foreground/70 tracking-widest pb-1">
+            Complete all videos &amp; quizzes to unlock
+          </div>
+        )}
         <div className="text-center pb-1 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
           COURSE CONTENT v{COURSE_CONTENT_VERSION}
         </div>

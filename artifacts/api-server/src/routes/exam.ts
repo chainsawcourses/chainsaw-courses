@@ -33,7 +33,10 @@ async function isCourseComplete(userId: number): Promise<boolean> {
   const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
   const quizCountMap = new Map(quizCounts.map((q) => [q.moduleId, q.count]));
 
-  return modules.every((mod) => {
+  // Only video modules count toward course completion — PDF/document modules are excluded
+  const videoModules = modules.filter((mod) => mod.contentType === "video");
+
+  return videoModules.every((mod) => {
     const p = progressMap.get(mod.id);
     const hasQuiz = (quizCountMap.get(mod.id) ?? 0) > 0;
     return !!(p?.videoCompleted && (!hasQuiz || p?.quizPassed));
