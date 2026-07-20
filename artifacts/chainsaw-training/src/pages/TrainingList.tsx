@@ -480,6 +480,16 @@ export default function TrainingList() {
                   </Link>
                 </div>
 
+                {/* Admin shortcut */}
+                <a
+                  href="/admin"
+                  className="w-full flex items-center gap-2 px-3 py-2 border-t border-border text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                  onClick={() => setBrandMenuOpen(false)}
+                >
+                  <Cog className="w-3 h-3 shrink-0" />
+                  Admin Panel
+                </a>
+
                 {/* Log Out + Delete Account */}
                 {!deleteConfirmOpen ? (
                   <div className="flex border-t border-border">
