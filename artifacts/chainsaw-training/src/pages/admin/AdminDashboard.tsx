@@ -220,7 +220,10 @@ export default function AdminDashboard() {
               <Link href="/admin/welcome-note"><MessageSquare className="w-4 h-4 mr-2" /> WELCOME NOTE</Link>
             </Button>
             <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
-              <a href="/training"><ExternalLink className="w-4 h-4 mr-2" /> VIEW TRAINING APP</a>
+              <a href="/admin-preview" target="_blank"><ExternalLink className="w-4 h-4 mr-2" /> FULL APP PREVIEW</a>
+            </Button>
+            <Button size="sm" variant="outline" className="font-mono text-xs" asChild>
+              <a href="/exam-preview" target="_blank"><Star className="w-4 h-4 mr-2" /> EXAM FANFARE</a>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
               <LogOut className="w-4 h-4 mr-2" /> LOGOUT

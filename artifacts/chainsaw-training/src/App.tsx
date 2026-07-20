@@ -36,6 +36,8 @@ import AdminNews from "@/pages/admin/News";
 import AdminQrCodes from "@/pages/admin/QrCodes";
 import WelcomeNoteSettings from "@/pages/admin/WelcomeNote";
 import QrLanding from "@/pages/QrLanding";
+import ExamPreview from "@/pages/ExamPreview";
+import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -81,6 +83,9 @@ function Router() {
       <Route path="/cross-cut-sim" component={CrossCutSim} />
       <Route path="/species-guide" component={SpeciesGuide} />
       <Route path="/qr/:moduleId" component={QrLanding} />
+
+      <Route path="/exam-preview" component={ExamPreview} />
+      <Route path="/admin-preview" component={AdminPreviewLogin} />
 
       {/* Admin Routes */}
       <Route path="/admin" component={AdminLogin} />
