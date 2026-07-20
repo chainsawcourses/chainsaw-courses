@@ -13,8 +13,17 @@ export default function AdminLogin() {
   const { setToken } = useAdminSession();
   const { toast } = useToast();
   const login = useAdminLogin();
-  
+
   const [password, setPassword] = useState("");
+
+  // After login, honour a ?redirect= query param (used by admin-preview bounce)
+  const redirectTo = (() => {
+    try {
+      return new URLSearchParams(window.location.search).get("redirect") ?? null;
+    } catch {
+      return null;
+    }
+  })();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,15 +33,20 @@ export default function AdminLogin() {
         onSuccess: (data) => {
           if (data.success && data.token) {
             setToken(data.token);
-            setLocation("/admin/dashboard");
+            // Navigate to the redirect destination if one was set, otherwise dashboard
+            if (redirectTo) {
+              window.location.href = `${import.meta.env.BASE_URL}${redirectTo}`;
+            } else {
+              setLocation("/admin/dashboard");
+            }
           } else {
             toast({ variant: "destructive", title: "Access Denied", description: "Invalid credentials." });
           }
         },
         onError: () => {
           toast({ variant: "destructive", title: "Access Denied", description: "Invalid credentials." });
-        }
-      }
+        },
+      },
     );
   };
 
@@ -42,23 +56,30 @@ export default function AdminLogin() {
         <div className="mb-8 text-center">
           <Biohazard className="w-7 h-7 mx-auto mb-3" />
           <h1 className="text-lg font-bold font-mono tracking-widest uppercase">Admin Portal</h1>
+          {redirectTo && (
+            <p className="mt-2 text-xs font-mono text-muted-foreground uppercase tracking-wider">
+              Session expired — please log in again
+            </p>
+          )}
         </div>
-        
+
         <Card className="border-border bg-card/50 backdrop-blur">
           <CardHeader className="text-center">
-            <CardTitle className="font-mono text-sm text-muted-foreground uppercase tracking-wider">Authentication Required</CardTitle>
+            <CardTitle className="font-mono text-sm text-muted-foreground uppercase tracking-wider">
+              Authentication Required
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <Input 
+              <Input
                 type="password"
                 placeholder="PASSWORD"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-12 font-mono text-center tracking-widest bg-secondary/50 border-input"
               />
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-12 font-mono font-bold tracking-widest"
                 disabled={login.isPending || !password}
               >
