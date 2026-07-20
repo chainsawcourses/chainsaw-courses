@@ -114,14 +114,7 @@ export default function ExamPreview() {
             </p>
 
             <div className="flex gap-4 w-full">
-              <Button
-                onClick={() => { setPlayed(false); setTimeout(() => setPlayed(true), 50); }}
-                variant="outline"
-                className="flex-1 h-14 font-mono font-bold tracking-widest"
-              >
-                REPLAY FANFARE
-              </Button>
-              <Button asChild className="flex-1 h-14 font-mono font-bold tracking-widest">
+              <Button asChild className="w-full h-14 font-mono font-bold tracking-widest">
                 <Link href="/admin/dashboard">BACK TO ADMIN</Link>
               </Button>
             </div>

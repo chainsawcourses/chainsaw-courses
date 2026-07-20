@@ -398,4 +398,47 @@ router.put("/admin/config/:key", async (req, res) => {
   }
 });
 
+// Rebind the ADMIN-PREVIEW account to the requesting device so the admin
+// can open the training app fully unlocked on their own device.
+router.post("/admin/bind-preview", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { deviceId } = req.body as { deviceId?: string };
+  if (!deviceId) {
+    res.status(400).json({ error: "deviceId required" });
+    return;
+  }
+  try {
+    const users = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.activationCode, "ADMIN-PREVIEW"));
+
+    if (users.length === 0) {
+      res.status(404).json({ error: "Preview account not found" });
+      return;
+    }
+    const user = users[0];
+
+    // Update device_id to admin's current device
+    await db
+      .update(usersTable)
+      .set({ deviceId })
+      .where(eq(usersTable.id, user.id));
+
+    res.json({
+      userId: user.id,
+      activationCode: "ADMIN-PREVIEW",
+      fullName: user.fullName,
+      email: user.email,
+      deviceId,
+    });
+  } catch (err) {
+    logger.error({ err }, "Error binding preview account");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
