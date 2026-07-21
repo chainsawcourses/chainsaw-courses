@@ -21,6 +21,7 @@ import BiosecurityMap from "@/pages/BiosecurityMap";
 import ChainChart from "@/pages/ChainChart";
 import News from "@/pages/News";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import LegalDocs from "@/pages/LegalDocs";
 import CrossCutSim from "@/pages/CrossCutSim";
 
 import SpeciesGuide from "@/pages/SpeciesGuide";
@@ -80,6 +81,7 @@ function Router() {
       <Route path="/chain-chart" component={ChainChart} />
       <Route path="/news" component={News} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/legal" component={LegalDocs} />
       <Route path="/cross-cut-sim" component={CrossCutSim} />
       <Route path="/species-guide" component={SpeciesGuide} />
       <Route path="/qr/:moduleId" component={QrLanding} />
