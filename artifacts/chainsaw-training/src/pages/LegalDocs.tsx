@@ -1,6 +1,7 @@
-import React from "react";
-import { FileText, Download, ArrowLeft } from "lucide-react";
+import React, { useState } from "react";
+import { FileText, Download, ArrowLeft, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
+import { downloadPdf } from "../lib/downloadPdf";
 
 type Doc = {
   title: string;
@@ -114,10 +115,44 @@ const SECTIONS: Section[] = [
   },
 ];
 
+function DocCard({ doc, base }: { doc: Doc; base: string }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleDownload() {
+    if (loading) return;
+    setLoading(true);
+    const url = `${base}/pdfs/${doc.file}`;
+    await downloadPdf(url, doc.file);
+    setLoading(false);
+  }
+
+  return (
+    <div className="border border-border rounded-lg p-4 flex items-start gap-4 bg-card hover:border-primary/30 transition-colors">
+      <div className="shrink-0 w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+        <FileText className="w-4 h-4 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-bold text-sm text-foreground leading-tight">{doc.title}</h3>
+        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{doc.description}</p>
+        <span className="text-[10px] text-muted-foreground/60 mt-1 block">
+          {doc.pages} · Version 1.0 · July 2026
+        </span>
+      </div>
+      <button
+        onClick={handleDownload}
+        disabled={loading}
+        className="shrink-0 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+        {loading ? "…" : "PDF"}
+      </button>
+    </div>
+  );
+}
+
 export default function LegalDocs() {
   const [, navigate] = useLocation();
   const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-
   const totalDocs = SECTIONS.reduce((sum, s) => sum + s.docs.length, 0);
 
   return (
@@ -141,38 +176,10 @@ export default function LegalDocs() {
               {section.label}
             </h2>
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed">{section.intro}</p>
-
             <div className="space-y-3">
-              {section.docs.map((doc) => {
-                const url = `${base}/pdfs/${doc.file}`;
-                return (
-                  <div
-                    key={doc.file}
-                    className="border border-border rounded-lg p-4 flex items-start gap-4 bg-card hover:border-primary/30 transition-colors"
-                  >
-                    <div className="shrink-0 w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-sm text-foreground leading-tight">{doc.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{doc.description}</p>
-                      <span className="text-[10px] text-muted-foreground/60 mt-1 block">
-                        {doc.pages} · Version 1.0 · July 2026
-                      </span>
-                    </div>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                      className="shrink-0 flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-semibold px-3 py-2 rounded-md hover:bg-primary/90 transition-colors"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      PDF
-                    </a>
-                  </div>
-                );
-              })}
+              {section.docs.map((doc) => (
+                <DocCard key={doc.file} doc={doc} base={base} />
+              ))}
             </div>
           </div>
         ))}

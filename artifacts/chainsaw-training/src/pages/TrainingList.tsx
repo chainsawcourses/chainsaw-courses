@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { downloadPdf } from "../lib/downloadPdf";
 import WelcomeModal from "../components/WelcomeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -984,19 +985,19 @@ export default function TrainingList() {
                       { label: "Equality, Diversity & Inclusion Policy", file: "Equality_Diversity_Inclusion_Policy.pdf" },
                       { label: "Safeguarding Policy", file: "Safeguarding_Policy.pdf" },
                       { label: "Environmental & Sustainability Policy", file: "Environmental_and_Sustainability_Policy.pdf" },
-                    ].map(({ label, file }) => (
-                      <a
-                        key={file}
-                        href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/pdfs/${file}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        className="flex items-center gap-2 py-1.5 px-1 text-muted-foreground hover:text-primary transition-colors rounded group/doc"
-                      >
-                        <FileDown className="w-3.5 h-3.5 shrink-0" />
-                        <span className="uppercase tracking-widest font-semibold">{label}</span>
-                      </a>
-                    ))}
+                    ].map(({ label, file }) => {
+                      const url = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/pdfs/${file}`;
+                      return (
+                        <button
+                          key={file}
+                          onClick={() => downloadPdf(url, file)}
+                          className="w-full flex items-center gap-2 py-1.5 px-1 text-muted-foreground hover:text-primary transition-colors rounded text-left"
+                        >
+                          <FileDown className="w-3.5 h-3.5 shrink-0" />
+                          <span className="uppercase tracking-widest font-semibold">{label}</span>
+                        </button>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               )}
