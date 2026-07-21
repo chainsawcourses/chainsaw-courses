@@ -287,14 +287,14 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
     let ty = doc.y;
 
     // Table header
-    doc.rect(tableX, ty, W, rowH).fill(dark);
+    doc.rect(tableX, ty, W, rowH).fill(orange);
     let cx = tableX;
     doc.fillColor("#FFFFFF").fontSize(7.5).font("Helvetica-Bold");
-    doc.text("HAZARD", cx + 4, ty + 4, { width: colW.hazard - 8, lineBreak: false }); cx += colW.hazard;
+    doc.text("HAZARD", cx + 4, ty + 4, { width: colW.hazard - 8, lineBreak: false, align: "center" }); cx += colW.hazard;
     doc.text("LIKE.", cx + 3, ty + 4, { width: colW.like - 6, lineBreak: false, align: "center" }); cx += colW.like;
     doc.text("SEV.", cx + 3, ty + 4, { width: colW.sev - 6, lineBreak: false, align: "center" }); cx += colW.sev;
     doc.text("RISK", cx + 3, ty + 4, { width: colW.risk - 6, lineBreak: false, align: "center" }); cx += colW.risk;
-    doc.text("CONTROL MEASURES", cx + 4, ty + 4, { width: colW.controls - 8, lineBreak: false });
+    doc.text("CONTROL MEASURES", cx + 4, ty + 4, { width: colW.controls - 8, lineBreak: false, align: "center" });
     ty += rowH;
 
     for (let i = 0; i < hazards.length; i++) {

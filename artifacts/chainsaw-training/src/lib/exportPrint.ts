@@ -88,7 +88,7 @@ const SHARED_CSS = `
   .field-value { font-size: 11px; color: #1a1a1a; }
   .field-value.blank { color: #aaa; font-style: italic; }
   table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-  th { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; background: #1a1a1a; color: #fff; padding: 5px 7px; text-align: left; }
+  th { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; background: #ea5c0c; color: #fff; padding: 5px 7px; text-align: center; }
   td { padding: 5px 7px; vertical-align: top; border-bottom: 1px solid #e5e7eb; font-size: 10px; line-height: 1.4; }
   tr:nth-child(even) td { background: #f9fafb; }
   .badge { display: inline-block; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 5px; border-radius: 3px; white-space: nowrap; }

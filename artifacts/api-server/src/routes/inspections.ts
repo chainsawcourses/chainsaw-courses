@@ -206,12 +206,12 @@ router.get("/inspections/:id/pdf", async (req, res) => {
       let ty = doc.y;
 
       // Table header
-      doc.rect(L, ty, W, rowH).fill(dark);
+      doc.rect(L, ty, W, rowH).fill(orange);
       let cx = L;
       doc.fillColor("#FFFFFF").fontSize(7.5).font("Helvetica-Bold");
-      doc.text("CHECK ITEM", cx + 4, ty + 4, { width: colW.item - 8, lineBreak: false }); cx += colW.item;
+      doc.text("CHECK ITEM", cx + 4, ty + 4, { width: colW.item - 8, lineBreak: false, align: "center" }); cx += colW.item;
       doc.text("RESULT", cx + 3, ty + 4, { width: colW.status - 6, lineBreak: false, align: "center" }); cx += colW.status;
-      doc.text("NOTES", cx + 4, ty + 4, { width: colW.notes - 8, lineBreak: false });
+      doc.text("NOTES", cx + 4, ty + 4, { width: colW.notes - 8, lineBreak: false, align: "center" });
       ty += rowH;
 
       for (let i = 0; i < sectionItems.length; i++) {
