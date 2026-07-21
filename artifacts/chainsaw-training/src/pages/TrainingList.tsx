@@ -6,13 +6,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, Cylinder, ExternalLink, FileDown, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
 import { COURSE_CONTENT_VERSION } from "../data/version";
+
+function LogEndIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="7.2" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.75" />
+      <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.6" />
+      <circle cx="12" cy="12" r="2.2" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.5" />
+      <circle cx="12" cy="12" r="0.7" fill="currentColor" />
+      <line x1="12" y1="2" x2="12" y2="22" stroke="currentColor" strokeWidth="0.4" strokeOpacity="0.2" />
+      <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" strokeWidth="0.4" strokeOpacity="0.2" />
+    </svg>
+  );
+}
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
@@ -468,7 +485,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Cylinder className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <LogEndIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
                     <span>Species Guide</span>
                   </Link>
                   <Link
@@ -552,7 +569,7 @@ export default function TrainingList() {
               <Newspaper className="w-5 h-5" />
             </Link>
             <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Species Guide">
-              <Cylinder className="w-5 h-5" />
+              <LogEndIcon className="w-5 h-5" />
             </Link>
           </div>
         </div>
