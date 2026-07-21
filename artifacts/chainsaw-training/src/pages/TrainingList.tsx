@@ -57,9 +57,28 @@ export default function TrainingList() {
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [certPressed, setCertPressed] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
+
+  const handleViewCertificate = async () => {
+    if (!activationCode || !deviceId) return;
+    setCertPressed(true);
+    setTimeout(() => setCertPressed(false), 220);
+    const res = await fetch("/api/certificate", {
+      headers: { activationcode: activationCode, deviceid: deviceId },
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, "_blank");
+    if (!w) {
+      const a = document.createElement("a");
+      a.href = url; a.target = "_blank"; a.click();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  };
 
   const handleDeleteAccount = async () => {
     if (!activationCode || !deviceId) return;
@@ -618,6 +637,25 @@ export default function TrainingList() {
           </CardContent>
         </Card>
 
+        {/* View Certificate — only shown after exam passed */}
+        {examPassed && (
+          <button
+            onClick={handleViewCertificate}
+            className={[
+              "w-full flex items-center justify-center gap-3 py-4 px-6 rounded-lg",
+              "font-mono font-black text-sm uppercase tracking-widest text-white",
+              "transition-all duration-150 select-none",
+              certPressed
+                ? "bg-orange-700 scale-95 shadow-inner"
+                : "bg-orange-500 shadow-lg hover:bg-orange-600 active:scale-95 active:bg-orange-700",
+            ].join(" ")}
+          >
+            <Award className="w-5 h-5 shrink-0" />
+            View Your Certificate
+            <FileDown className="w-5 h-5 shrink-0" />
+          </button>
+        )}
+
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (
           <div className="space-y-2">
@@ -1132,26 +1170,6 @@ export default function TrainingList() {
           )}
         </div>
         <div className="flex justify-center gap-3 pb-1">
-          <button
-            onClick={async () => {
-              if (!activationCode || !deviceId) return;
-              const res = await fetch("/api/certificate", {
-                headers: { activationcode: activationCode, deviceid: deviceId },
-              });
-              if (!res.ok) return;
-              const blob = await res.blob();
-              const url = URL.createObjectURL(blob);
-              const w = window.open(url, "_blank");
-              if (!w) {
-                const a = document.createElement("a");
-                a.href = url; a.target = "_blank"; a.click();
-              }
-              setTimeout(() => URL.revokeObjectURL(url), 10000);
-            }}
-            className="flex items-center gap-1 text-[11px] font-mono text-primary/60 hover:text-primary underline underline-offset-2 tracking-widest uppercase"
-          >
-            <FileDown className="w-3 h-3" /> View Certificate
-          </button>
           <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
             <Link href="/exam-preview">PREVIEW END SCREEN</Link>
           </Button>
