@@ -595,7 +595,7 @@ export default function TrainingList() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8 pb-10 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 pt-8 pb-8 space-y-8">
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
@@ -1219,10 +1219,10 @@ export default function TrainingList() {
           </div>
         )}
       </div>
-      <div className="text-center mt-12 pb-6 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
+      </main>
+      <div className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest pointer-events-none">
         COURSE CONTENT v{COURSE_CONTENT_VERSION}
       </div>
-      </main>
     </div>
   );
 }
