@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, Biohazard, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, Cylinder, ExternalLink, FileDown, FileText, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, Cylinder, ExternalLink, FileDown, FileText, Leaf, Lock, LogOut, MapPin, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -444,7 +444,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Biohazard className="w-4 h-4 shrink-0" />
+                    <Leaf className="w-4 h-4 shrink-0" />
                     <span>Biosecurity &amp; Hazard Map</span>
                   </Link>
                   <Link
@@ -543,7 +543,7 @@ export default function TrainingList() {
               <MapPin className="w-5 h-5" />
             </Link>
             <Link href="/biosecurity-map" className="text-muted-foreground hover:text-primary" title="Biosecurity & Hazard Map">
-              <Biohazard className="w-5 h-5" />
+              <Leaf className="w-5 h-5" />
             </Link>
             <Link href="/chain-chart" className="text-muted-foreground hover:text-primary" title="Chain ID Chart">
               <Cog className="w-5 h-5" />
