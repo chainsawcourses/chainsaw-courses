@@ -637,21 +637,7 @@ export default function TrainingList() {
           </CardContent>
         </Card>
 
-        {/* View Certificate — only shown after exam passed */}
-        {examPassed && (
-          <button
-            onClick={handleViewCertificate}
-            className={[
-              "flex items-center justify-center gap-2 mx-auto px-6 py-2",
-              "font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 tracking-widest uppercase",
-              "transition-all duration-150 select-none",
-              certPressed ? "scale-95 opacity-60" : "",
-            ].join(" ")}
-          >
-            <FileDown className="w-4 h-4 shrink-0" />
-            View Certificate
-          </button>
-        )}
+
 
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (
