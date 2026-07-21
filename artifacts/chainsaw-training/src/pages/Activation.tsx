@@ -105,8 +105,8 @@ export default function Activation() {
               Chainsaw Courses
             </h1>
           </div>
-          <p className="uppercase tracking-widest text-xs mt-2 text-muted-foreground">
-            Chainsaw Maintenance &amp; Cross Cutting
+          <p className="uppercase tracking-widest text-sm sm:text-base mt-2 text-muted-foreground font-bold leading-tight text-center">
+            Chainsaw Maintenance<br className="sm:hidden" />{" "}&amp; Cross Cutting
           </p>
         </div>
         
