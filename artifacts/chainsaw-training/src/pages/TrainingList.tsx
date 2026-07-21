@@ -595,7 +595,7 @@ export default function TrainingList() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8 pb-8 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 pt-8 pb-0 space-y-8">
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
@@ -1137,9 +1137,12 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
-      <div className="border-t border-border/40 mt-4">
-        {/* Final Exam — centred */}
-        <div className="pt-4 flex justify-center">
+      </main>
+
+      {/* ── Bottom controls — outside <main> so space-y-8 cannot interfere ── */}
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Final Exam — border-t acts as separator; py-5 gives identical gap above and below */}
+        <div className="border-t border-border/40 py-5 flex justify-center">
           {examPassed ? (
             <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
               <Link href="/exam">
@@ -1158,8 +1161,8 @@ export default function TrainingList() {
             </Button>
           )}
         </div>
-        {/* Mock Assessment — link style, left aligned, equal gap below exam button */}
-        <div className="pt-4 flex justify-start">
+        {/* Mock Assessment — sits exactly py-5 below exam button (from the pb side above) */}
+        <div className="flex justify-start">
           {courseUnlocked ? (
             <Link
               href="/mock-test"
@@ -1173,11 +1176,11 @@ export default function TrainingList() {
             </span>
           )}
         </div>
-        {/* NPTC Resources — collapsible, below Mock Assessment */}
+        {/* NPTC Resources */}
         <div className="pt-6 pb-2">
           <button
             onClick={() => setNptcBarOpen((o) => !o)}
-            className="flex items-center gap-2 pt-2 text-left group"
+            className="flex items-center gap-2 text-left group"
           >
             <h3 className="font-mono text-xs text-muted-foreground/60 group-hover:text-primary uppercase tracking-widest transition-colors">
               NPTC Resources
@@ -1219,7 +1222,6 @@ export default function TrainingList() {
           </div>
         )}
       </div>
-      </main>
       <div className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest pointer-events-none">
         COURSE CONTENT v{COURSE_CONTENT_VERSION}
       </div>
