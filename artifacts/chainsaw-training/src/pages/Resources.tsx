@@ -33,7 +33,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Provision and Use of Work Equipment Regulations 1998 (PUWER)",
-        description: "Requires work equipment to be suitable, maintained, and used only by trained and competent persons. Regulation 9 is particularly relevant — it specifically requires adequate training for chainsaw operators.",
+        description: "Requires work equipment to be suitable, maintained, and used only by trained and competent persons. Regulation 9 specifically requires adequate training for chainsaw operators.",
         url: "https://www.legislation.gov.uk/uksi/1998/2306/contents",
         type: "Statutory Instrument",
       },
@@ -51,7 +51,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Control of Noise at Work Regulations 2005",
-        description: "Sets exposure action values for noise at work: Lower (80 dB(A)) and Upper (85 dB(A)) Exposure Action Values, and a 87 dB(A) Exposure Limit Value. Chainsaws typically operate at 100–115 dB(A).",
+        description: "Sets Lower (80 dB(A)) and Upper (85 dB(A)) Exposure Action Values and an Exposure Limit Value of 87 dB(A). Chainsaws typically operate at 100–115 dB(A) — well above all thresholds.",
         url: "https://www.legislation.gov.uk/uksi/2005/1643/contents",
         type: "Statutory Instrument",
       },
@@ -77,56 +77,50 @@ const SECTIONS: Section[] = [
   },
   {
     id: "hse",
-    label: "HSE Guidance",
+    label: "HSE & FISA Guidance",
     icon: <FileText className="w-4 h-4 text-primary" />,
-    intro: "The Health and Safety Executive (HSE) publishes free guidance for chainsaw operators and arboricultural contractors. The AFAG (Arboriculture and Forestry Advisory Group) series is the primary sector-specific reference.",
+    intro: "The Health and Safety Executive (HSE) and the Forestry Industry Safety Accord (FISA) are the two principal bodies producing chainsaw and forestry safety guidance in the UK. The old AFAG series has been superseded — current guidance is published jointly by HSE and FISA.",
     resources: [
       {
-        title: "HSE Chainsaws at Work (INDG317)",
+        title: "HSE — Chainsaws at Work (INDG317)",
         description: "The HSE's introductory guide to the safe use of chainsaws at work. Covers the legal requirements for training, PPE, and risk assessment. Free to download — essential reading for all operators.",
         url: "https://www.hse.gov.uk/pubns/indg317.htm",
         type: "HSE Leaflet",
       },
       {
-        title: "AFAG 301 — Chainsaw Maintenance and Crosscutting",
-        description: "The primary AFAG guidance sheet for chainsaw maintenance and cross-cutting operations. Directly relevant to the content of this course.",
-        url: "https://www.hse.gov.uk/pubns/afag/afag301.htm",
-        type: "AFAG Guidance",
+        title: "FISA — Forestry Industry Safety Accord",
+        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). Visit fisa.org.uk for the current chainsaw, felling, and work-at-height guidance sheets.",
+        url: "https://www.fisa.org.uk/",
+        type: "FISA Guidance",
       },
       {
-        title: "AFAG 303 — Felling Small Trees",
-        description: "Guidance on the safe felling of small trees using a chainsaw. Covers planning, escape routes, directional felling, and snedding.",
-        url: "https://www.hse.gov.uk/pubns/afag/afag303.htm",
-        type: "AFAG Guidance",
+        title: "HSE — Agriculture, Forestry and Related Industries",
+        description: "HSE's main hub for agriculture, forestry, and related industries. Includes current guidance on chainsaw use, PPE selection, noise, vibration, and safe systems of work.",
+        url: "https://www.hse.gov.uk/agriculture/",
+        type: "HSE Guidance",
       },
       {
-        title: "AFAG 702 — Use of a Chainsaw from a Rope and Harness",
-        description: "Guidance for aerial chainsaw operators working from rope and harness systems. Relevant for arborists undertaking aerial tree surgery.",
-        url: "https://www.hse.gov.uk/pubns/afag/afag702.htm",
-        type: "AFAG Guidance",
-      },
-      {
-        title: "AFAG 804 — Managing the Risks from Hand-Arm Vibration",
-        description: "Guidance on controlling hand-arm vibration exposure in arboricultural and forestry operations, including chainsaw use. Includes practical control measures and exposure calculation guidance.",
-        url: "https://www.hse.gov.uk/pubns/afag/afag804.htm",
-        type: "AFAG Guidance",
-      },
-      {
-        title: "HSE Noise at Work Guidance",
+        title: "HSE — Noise at Work",
         description: "HSE's main guidance portal for noise at work, including a noise calculator for chainsaw operations and guidance on selecting appropriate hearing protection.",
         url: "https://www.hse.gov.uk/noise/",
         type: "HSE Guidance",
       },
       {
-        title: "HSE Five Steps to Risk Assessment (INDG163)",
-        description: "The HSE's clear, practical guide to carrying out a risk assessment using the five-step process. The basis of Module 2 of this course.",
-        url: "https://www.hse.gov.uk/pubns/indg163.htm",
+        title: "HSE — Five Steps to Risk Assessment (INDG163)",
+        description: "The HSE's clear, practical guide to carrying out a risk assessment using the five-step process. The basis of the Five Steps to Risk Assessment module in this course.",
+        url: "https://www.hse.gov.uk/pubns/indg163.pdf",
         type: "HSE Leaflet",
       },
       {
-        title: "HSE Work at Height Regulations — Guidance",
+        title: "HSE — Work at Height",
         description: "Guidance on the Work at Height Regulations 2005, relevant to arboricultural operations involving climbing, aerial platforms, or working near excavations.",
         url: "https://www.hse.gov.uk/work-at-height/",
+        type: "HSE Guidance",
+      },
+      {
+        title: "HSE — Risk Assessment: A Brief Guide",
+        description: "A concise introduction to risk assessment principles including hazard identification, risk rating, and control measures. Complements the HSE five-step approach.",
+        url: "https://www.hse.gov.uk/risk/",
         type: "HSE Guidance",
       },
     ],
@@ -135,35 +129,35 @@ const SECTIONS: Section[] = [
     id: "qualification",
     label: "Qualifications & Standards",
     icon: <BookOpen className="w-4 h-4 text-primary" />,
-    intro: "Completing this theoretical course is a valuable first step. For professional chainsaw use in the UK, a practical NPTC qualification is required by law. The following resources will help you find an assessment centre and understand the qualification pathway.",
+    intro: "Completing this theoretical course is a valuable first step. For professional chainsaw use in the UK, a practical NPTC or Lantra qualification is required by law. The following resources will help you find an assessment centre and understand the qualification pathway.",
     resources: [
       {
-        title: "City & Guilds NPTC 0039-20 — Chainsaw Maintenance and Cross Cutting",
-        description: "The practical qualification required by UK legislation (PUWER Reg. 9) for professional chainsaw operators at ground level. Includes both a written knowledge test and a practical assessment. Find an approved assessment centre via the City & Guilds website.",
-        url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/land-based-services/arboriculture-and-forestry",
+        title: "City & Guilds — Land-Based Services Qualifications",
+        description: "The NPTC 0039-20 (Chainsaw Maintenance and Cross Cutting) practical qualification is managed by City & Guilds NPTC. Search here for approved assessment centres near you.",
+        url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/land-based-services",
         type: "Qualification",
       },
       {
         title: "NPTC Group — Land-Based Qualifications",
-        description: "NPTC Group is the awarding organisation for land-based vocational qualifications in the UK, including chainsaw certificates of competence. Search for approved assessment centres near you.",
+        description: "NPTC Group is the awarding organisation for land-based vocational qualifications in the UK, including chainsaw certificates of competence.",
         url: "https://www.nptcgroup.ac.uk/",
         type: "Awarding Body",
       },
       {
-        title: "Lantra Awards — Chainsaw Qualifications",
-        description: "Lantra is an alternative awarding body for land-based chainsaw qualifications. Their chainsaw training and assessment programmes are widely recognised by employers.",
-        url: "https://www.lantra.co.uk/qualifications/chainsaw",
+        title: "Lantra — Arboriculture Sector",
+        description: "Lantra is an alternative awarding body for land-based chainsaw qualifications. Their chainsaw training and assessment programmes are widely recognised by employers and local authorities.",
+        url: "https://www.lantra.co.uk/sectors/arboriculture",
         type: "Awarding Body",
       },
       {
-        title: "UK National Occupational Standards — Treework",
-        description: "The NOS for treework set the standards of performance and underpinning knowledge required for competent chainsaw operation. The content of this course is independently mapped to the relevant NOS.",
-        url: "https://www.lantra.co.uk/industry-standards",
-        type: "National Standards",
+        title: "Lantra — Training Finder",
+        description: "Find Lantra-approved training providers and assessment centres offering chainsaw qualifications near you.",
+        url: "https://www.lantra.co.uk/training",
+        type: "Awarding Body",
       },
       {
-        title: "IIRSM — Course Approval Scheme",
-        description: "Information on the IIRSM course approval process. This course has been submitted for IIRSM eLearning Course Approval. IIRSM approval provides independent confirmation that courses meet recognised quality standards.",
+        title: "IIRSM — eLearning Course Approval Scheme",
+        description: "Information on the IIRSM course approval process. This course has been submitted for IIRSM eLearning Course Approval, providing independent quality assurance by a nationally recognised safety body.",
         url: "https://www.iirsm.org/corporates/course-approvals",
         type: "Approval Body",
       },
@@ -177,7 +171,7 @@ const SECTIONS: Section[] = [
     resources: [
       {
         title: "Arboricultural Association (AA)",
-        description: "The UK's leading professional body for arborists and tree surgeons. Provides a register of approved contractors, technical guidance, CPD events, and industry publications. Membership demonstrates professional commitment.",
+        description: "The UK's leading professional body for arborists and tree surgeons. Provides a register of approved contractors, technical guidance, CPD events, and industry publications.",
         url: "https://www.trees.org.uk/",
         type: "Professional Body",
       },
@@ -188,20 +182,20 @@ const SECTIONS: Section[] = [
         type: "Professional Body",
       },
       {
-        title: "Forestry Commission / Forestry England",
+        title: "Forestry England",
         description: "Government body responsible for the protection and expansion of forests and woodlands in England. Produces biosecurity guidance, felling licences, and UK Forestry Standard documents.",
         url: "https://www.forestryengland.uk/",
         type: "Government Body",
       },
       {
         title: "Animal and Plant Health Agency (APHA)",
-        description: "Executive agency of Defra responsible for managing statutory plant health obligations including tree disease containment zones (e.g. ash dieback, oak processionary moth). Relevant to operators working in or near statutory zones.",
+        description: "Executive agency of Defra responsible for managing statutory plant health obligations including tree disease containment zones (e.g. ash dieback, oak processionary moth).",
         url: "https://www.gov.uk/government/organisations/animal-and-plant-health-agency",
         type: "Government Body",
       },
       {
         title: "RoSPA — Royal Society for the Prevention of Accidents",
-        description: "UK charity dedicated to accident prevention. Offers training, occupational safety guidance, and a Course Assurance scheme for training providers. A recognised quality benchmark for health and safety training.",
+        description: "UK charity dedicated to accident prevention. Offers training, occupational safety guidance, and a Course Assurance scheme for training providers.",
         url: "https://www.rospa.com/",
         type: "Professional Body",
       },
@@ -217,30 +211,30 @@ const SECTIONS: Section[] = [
     id: "equipment",
     label: "Equipment & PPE Standards",
     icon: <Wrench className="w-4 h-4 text-primary" />,
-    intro: "Chainsaw PPE must meet specific EN (European Norm) standards to provide effective protection. The following references cover the key standards for each item of PPE.",
+    intro: "Chainsaw PPE must meet specific EN standards to provide effective protection. The following references cover the key standards for each item of PPE.",
     resources: [
       {
         title: "EN ISO 11393 — Chainsaw Protective Clothing",
-        description: "The standard governing the performance requirements for chainsaw protective clothing (chaps and trousers). All chainsaw PPE should be marked with EN ISO 11393 and a class rating. Class 1 provides protection at 20 m/s chain speed; Class 3 at 28 m/s.",
-        url: "https://www.bsigroup.com/",
+        description: "The standard governing chainsaw protective clothing (chaps and trousers). Class 1 provides protection at 20 m/s chain speed; Class 3 at 28 m/s. All chainsaw trousers must carry this marking.",
+        url: "https://www.bsigroup.com/en-GB/standards/",
         type: "PPE Standard",
       },
       {
         title: "EN 381-7 — Chainsaw Protective Gloves",
         description: "The standard for gloves offering protection against chainsaw cuts. Chainsaw gloves should provide cut protection on the back of the left hand as a minimum.",
-        url: "https://www.bsigroup.com/",
+        url: "https://www.bsigroup.com/en-GB/standards/",
         type: "PPE Standard",
       },
       {
-        title: "EN 397 — Industrial Safety Helmets / Forestry Helmets",
-        description: "The standard governing safety helmets for forestry use. Forestry helmets additionally integrate face shields (EN 1731) and ear defenders (EN 352). All components must meet their respective EN standards.",
-        url: "https://www.bsigroup.com/",
+        title: "EN 397 / EN 1731 / EN 352 — Forestry Helmet Systems",
+        description: "Forestry helmets integrate a safety helmet (EN 397), face shield (EN 1731), and ear defenders (EN 352). All components must meet their respective EN standards.",
+        url: "https://www.bsigroup.com/en-GB/standards/",
         type: "PPE Standard",
       },
       {
-        title: "HSE Guide to Selecting Chainsaw PPE",
-        description: "HSE guidance on choosing the correct class and type of chainsaw protective clothing for the work being undertaken, including the difference between Type A and Type C protection.",
-        url: "https://www.hse.gov.uk/forestry/chainsaw-ppe.htm",
+        title: "HSE — Agriculture, Forestry & Related Industries (PPE section)",
+        description: "HSE guidance on choosing the correct class and type of chainsaw protective clothing for the work being undertaken, including Type A and Type C protection differences.",
+        url: "https://www.hse.gov.uk/agriculture/",
         type: "HSE Guidance",
       },
     ],
@@ -252,25 +246,25 @@ const SECTIONS: Section[] = [
     intro: "Operators working across multiple sites have a duty to avoid inadvertently spreading tree pests and diseases. The following resources provide current guidance on UK tree health threats and statutory containment obligations.",
     resources: [
       {
-        title: "Forestry Commission — Tree Pests and Diseases",
-        description: "The Forestry Commission's main resource for tree health information, including current outbreak maps, identification guides, and reporting tools for notifiable pests and diseases.",
+        title: "Forest Research — Tree Pests and Diseases Hub",
+        description: "Forest Research's main resource for tree health information, including current outbreak maps, identification guides, and reporting tools for notifiable pests and diseases.",
         url: "https://www.forestresearch.gov.uk/tools-and-resources/fthr/",
         type: "Government Resource",
       },
       {
         title: "TreeAlert — Report a Tree Pest or Disease",
-        description: "The Forestry Commission's online reporting tool for suspected tree pests and diseases. Operators who identify signs of a notifiable pest or disease have a responsibility to report it.",
-        url: "https://www.treealert.org.uk/",
+        description: "Forest Research's online reporting tool for suspected tree pests and diseases. Operators who identify signs of a notifiable pest or disease have a responsibility to report it.",
+        url: "https://treealert.forestresearch.gov.uk/",
         type: "Reporting Tool",
       },
       {
-        title: "Ash Dieback (Hymenoscyphus fraxineus) — FC Guidance",
-        description: "Current guidance on ash dieback, the most widespread tree disease currently affecting UK woodlands. Includes management and felling guidance for affected trees.",
-        url: "https://www.forestresearch.gov.uk/tools-and-resources/fthr/tree-pests-and-diseases/chalara-ash-dieback/",
+        title: "Ash Dieback (Hymenoscyphus fraxineus) — Forest Research Guidance",
+        description: "Current guidance on ash dieback, the most widespread tree disease affecting UK woodlands. Includes management and felling guidance for affected trees, plus latest research.",
+        url: "https://www.forestresearch.gov.uk/tools-and-resources/fthr/tree-pests-and-diseases/ash-dieback/",
         type: "Disease Guidance",
       },
       {
-        title: "Oak Processionary Moth (OPM) — FC Guidance",
+        title: "Oak Processionary Moth (OPM) — Forest Research Guidance",
         description: "OPM caterpillars carry hairs that cause severe irritation to the skin, eyes, and respiratory system. Operators working on or near infested oaks must be aware of the risks and appropriate controls.",
         url: "https://www.forestresearch.gov.uk/tools-and-resources/fthr/tree-pests-and-diseases/oak-processionary-moth/",
         type: "Pest Guidance",
@@ -289,11 +283,10 @@ const TYPE_COLOURS: Record<string, string> = {
   "Primary Legislation": "text-red-500 border-red-500/40",
   "Statutory Instrument": "text-orange-500 border-orange-500/40",
   "HSE Leaflet": "text-blue-500 border-blue-500/40",
-  "AFAG Guidance": "text-blue-500 border-blue-500/40",
+  "FISA Guidance": "text-green-600 border-green-600/40",
   "HSE Guidance": "text-blue-500 border-blue-500/40",
   "Qualification": "text-green-500 border-green-500/40",
   "Awarding Body": "text-green-500 border-green-500/40",
-  "National Standards": "text-green-500 border-green-500/40",
   "Approval Body": "text-primary border-primary/40",
   "Professional Body": "text-purple-500 border-purple-500/40",
   "Government Body": "text-orange-500 border-orange-500/40",
@@ -324,7 +317,7 @@ export default function Resources() {
         {/* Intro */}
         <div className="border-l-2 border-primary pl-4">
           <p className="text-xs font-mono text-muted-foreground leading-relaxed">
-            Official guidance, legislation, qualification pathways, and industry body resources to support your professional development as a chainsaw operator. All links open official sources.
+            Official guidance, legislation, qualification pathways, and industry body resources to support your professional development as a chainsaw operator. All links have been verified and open official sources.
           </p>
           <p className="text-[10px] font-mono text-muted-foreground mt-2 opacity-70">
             Links open in a new tab. Overleaf Publishers Ltd is not responsible for the content of external websites.
@@ -333,7 +326,6 @@ export default function Resources() {
 
         {SECTIONS.map((section) => (
           <div key={section.id}>
-            {/* Section header */}
             <div className="flex items-center gap-2 mb-2">
               {section.icon}
               <h2 className="font-mono font-black uppercase tracking-widest text-sm text-foreground">{section.label}</h2>
@@ -382,7 +374,7 @@ export default function Resources() {
 
         <div className="pt-4 border-t border-border">
           <p className="font-mono text-[9px] text-muted-foreground text-center">
-            Resources compiled by Overleaf Publishers Ltd with reference to HSE AFAG guidance, NPTC 0039-20, and current UK legislation. © 2026 Overleaf Publishers Ltd — chainsawcourses.com
+            Resources verified July 2026. Compiled by Overleaf Publishers Ltd with reference to HSE, FISA, and current UK legislation. © 2026 Overleaf Publishers Ltd — chainsawcourses.com
           </p>
         </div>
       </main>
