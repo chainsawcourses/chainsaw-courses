@@ -66,6 +66,7 @@ router.get("/certificate", async (req, res) => {
     const fReg    = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
+    // ── Palette ───────────────────────────────────────────────────────────────
     const orange = rgb(0.82, 0.38, 0.05);
     const black  = rgb(0.08, 0.08, 0.08);
     const dark   = rgb(0.15, 0.15, 0.15);
@@ -74,7 +75,13 @@ router.get("/certificate", async (req, res) => {
     const silver = rgb(0.80, 0.80, 0.80);
     const white  = rgb(1.00, 1.00, 1.00);
 
-    const ML = 52;   // left / right margin
+    // ── Border dimensions — defined once, used to keep everything inside ──────
+    const BI = 14;   // border inset from page edge
+    const BW = 2.2;  // border stroke width
+    // inner edge of the border stroke = BI + BW/2
+    // content must stay above this on all sides
+
+    const ML = 52;  // text left/right margin
 
     // ── Background ────────────────────────────────────────────────────────────
     try {
@@ -86,25 +93,155 @@ router.get("/certificate", async (req, res) => {
         x: (W - drawW) / 2, y: (H - drawH) / 2,
         width: drawW, height: drawH,
       });
-    } catch { /* white fallback */ }
-
-    // White wash over background
+    } catch { /* plain white */ }
     page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: white, opacity: 0.91 });
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Helper: full-width rule ───────────────────────────────────────────────
     function rule(y: number, opacity = 0.40) {
       page.drawRectangle({ x: ML, y, width: W - ML * 2, height: 0.6, color: lgrey, opacity });
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    //  FIXED LAYOUT  (all y values are baseline positions, measured from page bottom)
-    //  Page height = 842. y=0 = bottom, y=842 = top.
-    // ──────────────────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  ALL Y VALUES ARE FIXED — measured in points from page bottom (y=0).
+    //  Orange border bottom is at y=BI=14. Footer strip sits just inside it.
+    //  Nothing is drawn below y=BI+BW+2 ≈ y=17.
+    // ═══════════════════════════════════════════════════════════════════════════
 
-    // ── LOGOS (top section) ───────────────────────────────────────────────────
-    const LOGO_H = 70;
-    const logoBottom = 742;           // logos sit near the top
-    const logoGap    = 52;
+    // ── FOOTER — drawn inside the border, before the orange rule ─────────────
+    // Strip from y=BI+BW to BI+BW+36, inset left/right to stay inside border
+    const FOOTER_Y0 = Math.ceil(BI + BW);          // ≈ 17 — bottom of footer strip
+    const FOOTER_H  = 34;
+    const FOOTER_X  = FOOTER_Y0;                   // same inset on x
+    page.drawRectangle({
+      x: FOOTER_X, y: FOOTER_Y0,
+      width: W - FOOTER_X * 2, height: FOOTER_H,
+      color: dark,
+    });
+    const footer = "chainsawcourses.co.uk  |  IIRSM Approved Training Provider";
+    page.drawText(footer, {
+      x: cx(footer, 8, fReg, W),
+      y: FOOTER_Y0 + 12,
+      size: 8, font: fReg, color: white,
+    });
+
+    // ── CERT REFERENCE — above footer, inside border ──────────────────────────
+    const CERT_REF_Y = FOOTER_Y0 + FOOTER_H + 12;   // ≈ 63
+    const ref = certRef(user.id, passedAt);
+    const refStr = `Certificate Ref: ${ref}`;
+    page.drawText(refStr, {
+      x: cx(refStr, 7, fReg, W),
+      y: CERT_REF_Y,
+      size: 7, font: fReg, color: lgrey,
+    });
+
+    // ── SIGNATURES — pinned above cert ref, well inside border ───────────────
+    const SIG_LINE_Y  = 158;   // horizontal rule under each sig block
+    const SIG_IMAGE_Y = SIG_LINE_Y + 10;   // image sits just above the line
+    const SIG_LABEL_Y = SIG_LINE_Y - 18;   // label sits just below the line
+
+    const sigZoneW = 175;
+    const sigL = ML;
+    const sigR = W - ML - sigZoneW;
+
+    // Director signature image above right sig line
+    try {
+      const sigBytes = fs.readFileSync(SIG_PATH);
+      const sigImg   = await pdfDoc.embedPng(sigBytes);
+      const d        = sigImg.scaleToFit(sigZoneW - 20, 44);
+      page.drawImage(sigImg, {
+        x: sigR + (sigZoneW - d.width) / 2,
+        y: SIG_IMAGE_Y,
+        width: d.width, height: d.height,
+      });
+    } catch { /* no sig image */ }
+
+    // Sig lines
+    page.drawRectangle({ x: sigL, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
+    page.drawRectangle({ x: sigR, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
+
+    // Labels under sig lines
+    const lbl1 = "Authorised Signatory";
+    const lbl2 = "Course Director";
+    page.drawText(lbl1, {
+      x: sigL + (sigZoneW - fReg.widthOfTextAtSize(lbl1, 7.5)) / 2,
+      y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey,
+    });
+    page.drawText(lbl2, {
+      x: sigR + (sigZoneW - fReg.widthOfTextAtSize(lbl2, 7.5)) / 2,
+      y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey,
+    });
+
+    // ── DATE ──────────────────────────────────────────────────────────────────
+    rule(254);
+    const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const dateLine = `Date of Award:  ${dateStr}`;
+    page.drawText(dateLine, {
+      x: cx(dateLine, 10, fReg, W),
+      y: 232, size: 10, font: fReg, color: mid,
+    });
+
+    // ── CPD BLOCK ─────────────────────────────────────────────────────────────
+    rule(330);
+    page.drawText("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", {
+      x: cx("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", 9.5, fBold, W),
+      y: 308, size: 9.5, font: fBold, color: black,
+    });
+    let cpdY = 290;
+    if (passedScore !== null) {
+      const scoreLine = `Assessment Score: ${passedScore}%`;
+      page.drawText(scoreLine, {
+        x: cx(scoreLine, 9, fReg, W),
+        y: cpdY, size: 9, font: fReg, color: mid,
+      });
+      cpdY -= 18;
+    }
+    page.drawText("International Institute of Risk and Safety Management", {
+      x: cx("International Institute of Risk and Safety Management", 8, fItalic, W),
+      y: cpdY, size: 8, font: fItalic, color: lgrey,
+    });
+
+    // ── COURSE ────────────────────────────────────────────────────────────────
+    rule(416);
+    page.drawText("has successfully completed the following IIRSM approved course:", {
+      x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
+      y: 392, size: 9.5, font: fItalic, color: mid,
+    });
+    page.drawText("Chainsaw Maintenance & Cross Cutting", {
+      x: cx("Chainsaw Maintenance & Cross Cutting", 21, fBold, W),
+      y: 352, size: 21, font: fBold, color: black,
+    });
+    page.drawText("Professional Training Course  \u00B7  Theory & Knowledge Assessment", {
+      x: cx("Professional Training Course  \u00B7  Theory & Knowledge Assessment", 9, fReg, W),
+      y: 328, size: 9, font: fReg, color: lgrey,
+    });
+
+    // ── STUDENT NAME ──────────────────────────────────────────────────────────
+    rule(514);
+    page.drawText("This is to certify that", {
+      x: cx("This is to certify that", 10, fItalic, W),
+      y: 488, size: 10, font: fItalic, color: mid,
+    });
+    page.drawText(user.fullName, {
+      x: cx(user.fullName, 32, fBold, W),
+      y: 444, size: 32, font: fBold, color: black,
+    });
+    page.drawText(user.email, {
+      x: cx(user.email, 9, fReg, W),
+      y: 416, size: 9, font: fReg, color: lgrey,
+    });
+
+    // ── TITLE BAND ────────────────────────────────────────────────────────────
+    rule(580);
+    page.drawText("CERTIFICATE OF COMPLETION", {
+      x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
+      y: 554, size: 20, font: fBold, color: black,
+    });
+    rule(540);
+
+    // ── LOGOS + PROVIDER STRAP ────────────────────────────────────────────────
+    const LOGO_H    = 72;
+    const logoBottom = 628;
+    const logoGap   = 52;
 
     let ccImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null  = null;
     let iirImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
@@ -138,139 +275,24 @@ router.get("/certificate", async (req, res) => {
       });
     }
 
-    // Rule under logos
-    page.drawRectangle({ x: ML, y: 730, width: W - ML * 2, height: 0.9, color: dark, opacity: 0.5 });
-
-    // Provider strap
+    // Rule and provider strap below logos
+    page.drawRectangle({ x: ML, y: 618, width: W - ML * 2, height: 0.9, color: dark, opacity: 0.5 });
     const strap = "CHAINSAW COURSES  |  IIRSM Approved Training Provider";
-    page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 716, size: 7.5, font: fBold, color: mid });
+    page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 604, size: 7.5, font: fBold, color: mid });
 
-    // ── TITLE BAND ────────────────────────────────────────────────────────────
-    rule(694);
-    page.drawText("CERTIFICATE OF COMPLETION", {
-      x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
-      y: 666, size: 20, font: fBold, color: black,
-    });
-    rule(648);
+    // Thin rule under strap
+    page.drawRectangle({ x: ML, y: 595, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.5 });
 
-    // ── CERTIFY LINE ──────────────────────────────────────────────────────────
-    page.drawText("This is to certify that", {
-      x: cx("This is to certify that", 10, fItalic, W),
-      y: 620, size: 10, font: fItalic, color: mid,
+    // ── ORANGE BORDER — drawn absolutely last so it sits over everything ───────
+    page.drawRectangle({
+      x: BI, y: BI, width: W - BI * 2, height: H - BI * 2,
+      borderColor: orange, borderWidth: BW,
     });
-
-    // ── STUDENT NAME ──────────────────────────────────────────────────────────
-    page.drawText(user.fullName, {
-      x: cx(user.fullName, 32, fBold, W),
-      y: 574, size: 32, font: fBold, color: black,
+    // subtle inner rule
+    page.drawRectangle({
+      x: BI + 6, y: BI + 6, width: W - (BI + 6) * 2, height: H - (BI + 6) * 2,
+      borderColor: silver, borderWidth: 0.5,
     });
-    page.drawText(user.email, {
-      x: cx(user.email, 9, fReg, W),
-      y: 546, size: 9, font: fReg, color: lgrey,
-    });
-
-    // ── COURSE ────────────────────────────────────────────────────────────────
-    rule(516);
-    page.drawText("has successfully completed the following IIRSM approved course:", {
-      x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
-      y: 492, size: 9.5, font: fItalic, color: mid,
-    });
-    page.drawText("Chainsaw Maintenance & Cross Cutting", {
-      x: cx("Chainsaw Maintenance & Cross Cutting", 21, fBold, W),
-      y: 452, size: 21, font: fBold, color: black,
-    });
-    page.drawText("Professional Training Course  \u00B7  Theory & Knowledge Assessment", {
-      x: cx("Professional Training Course  \u00B7  Theory & Knowledge Assessment", 9, fReg, W),
-      y: 428, size: 9, font: fReg, color: lgrey,
-    });
-
-    // ── CPD BLOCK ─────────────────────────────────────────────────────────────
-    rule(400);
-    page.drawText("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", {
-      x: cx("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", 9.5, fBold, W),
-      y: 378, size: 9.5, font: fBold, color: black,
-    });
-    let cpdBaseY = 360;
-    if (passedScore !== null) {
-      const scoreLine = `Assessment Score: ${passedScore}%`;
-      page.drawText(scoreLine, {
-        x: cx(scoreLine, 9, fReg, W),
-        y: cpdBaseY, size: 9, font: fReg, color: mid,
-      });
-      cpdBaseY -= 18;
-    }
-    page.drawText("International Institute of Risk and Safety Management", {
-      x: cx("International Institute of Risk and Safety Management", 8, fItalic, W),
-      y: cpdBaseY, size: 8, font: fItalic, color: lgrey,
-    });
-
-    // ── DATE ──────────────────────────────────────────────────────────────────
-    rule(316);
-    const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-    const dateLine = `Date of Award:  ${dateStr}`;
-    page.drawText(dateLine, {
-      x: cx(dateLine, 10, fReg, W),
-      y: 294, size: 10, font: fReg, color: mid,
-    });
-
-    // ── SIGNATURES — fixed at bottom, completely separate from flowing content ─
-    //  Sig line at y=200. Labels at y=186. Image immediately above line (y=208–248).
-    const sigZoneW = 175;
-    const sigL = ML;
-    const sigR = W - ML - sigZoneW;
-    const SIG_LINE_Y   = 200;   // the horizontal rule under each sig
-    const SIG_IMAGE_Y  = SIG_LINE_Y + 10;   // image sits just above the line
-    const SIG_LABEL_Y  = SIG_LINE_Y - 16;   // label sits just below the line
-
-    // Director signature image above right sig line
-    try {
-      const sigBytes = fs.readFileSync(SIG_PATH);
-      const sigImg   = await pdfDoc.embedPng(sigBytes);
-      const d        = sigImg.scaleToFit(sigZoneW - 20, 44);
-      page.drawImage(sigImg, {
-        x: sigR + (sigZoneW - d.width) / 2,
-        y: SIG_IMAGE_Y,
-        width: d.width, height: d.height,
-      });
-    } catch { /* no sig */ }
-
-    // Sig lines
-    page.drawRectangle({ x: sigL, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
-    page.drawRectangle({ x: sigR, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
-
-    // Labels under sig lines
-    const lbl1 = "Authorised Signatory";
-    const lbl2 = "Course Director";
-    page.drawText(lbl1, {
-      x: sigL + (sigZoneW - fReg.widthOfTextAtSize(lbl1, 7.5)) / 2,
-      y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey,
-    });
-    page.drawText(lbl2, {
-      x: sigR + (sigZoneW - fReg.widthOfTextAtSize(lbl2, 7.5)) / 2,
-      y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey,
-    });
-
-    // ── CERT REFERENCE ────────────────────────────────────────────────────────
-    const ref = certRef(user.id, passedAt);
-    const refStr = `Certificate Ref: ${ref}`;
-    page.drawText(refStr, {
-      x: cx(refStr, 7, fReg, W),
-      y: 58, size: 7, font: fReg, color: lgrey,
-    });
-
-    // ── FOOTER — charcoal strip ───────────────────────────────────────────────
-    page.drawRectangle({ x: 0, y: 0, width: W, height: 42, color: dark });
-    const footer = "chainsawcourses.co.uk  |  IIRSM Approved Training Provider";
-    page.drawText(footer, {
-      x: cx(footer, 8.5, fReg, W), y: 16,
-      size: 8.5, font: fReg, color: white,
-    });
-
-    // ── ORANGE BORDER — drawn last so it sits on top of footer strip ──────────
-    page.drawRectangle({ x: 16, y: 16, width: W - 32, height: H - 32,
-      borderColor: orange, borderWidth: 2.2 });
-    page.drawRectangle({ x: 24, y: 24, width: W - 48, height: H - 48,
-      borderColor: silver, borderWidth: 0.6, opacity: 0.45 });
 
     // ── SEND ──────────────────────────────────────────────────────────────────
     const pdfBytes = await pdfDoc.save();
