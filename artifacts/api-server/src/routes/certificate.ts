@@ -175,12 +175,12 @@ router.get("/certificate", async (req, res) => {
       y: 186, size: 10, font: fReg, color: mid,
     });
 
-    //  CPD BLOCK  (generous gap above date)
+    //  CPD BLOCK
     page.drawText("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", {
       x: cx("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", 10, fBold, W),
-      y: 284, size: 10, font: fBold, color: black,
+      y: 300, size: 10, font: fBold, color: black,
     });
-    let cpdY = 264;
+    let cpdY = 280;
     if (passedScore !== null) {
       const scoreLine = `Assessment Score: ${passedScore}%`;
       page.drawText(scoreLine, {
@@ -194,38 +194,38 @@ router.get("/certificate", async (req, res) => {
       y: cpdY, size: 8.5, font: fItalic, color: lgrey,
     });
 
-    //  COURSE BLOCK
-    page.drawText("has successfully completed the following IIRSM approved course:", {
-      x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
-      y: 390, size: 9.5, font: fItalic, color: mid,
-    });
+    //  COURSE BLOCK — sits above CPD, below the certify/name block
     page.drawText("Chainsaw Maintenance & Cross Cutting", {
       x: cx("Chainsaw Maintenance & Cross Cutting", 22, fBold, W),
-      y: 346, size: 22, font: fBold, color: black,
+      y: 398, size: 22, font: fBold, color: black,
     });
     page.drawText("Professional Training Course  \u00B7  Theory & Knowledge Assessment", {
       x: cx("Professional Training Course  \u00B7  Theory & Knowledge Assessment", 9, fReg, W),
-      y: 318, size: 9, font: fReg, color: lgrey,
-    });
-
-    //  STUDENT NAME BLOCK
-    page.drawText("This is to certify that", {
-      x: cx("This is to certify that", 10, fItalic, W),
-      y: 492, size: 10, font: fItalic, color: mid,
-    });
-    page.drawText(user.fullName, {
-      x: cx(user.fullName, 34, fBold, W),
-      y: 440, size: 34, font: fBold, color: black,
-    });
-    page.drawText(user.email, {
-      x: cx(user.email, 9.5, fReg, W),
-      y: 408, size: 9.5, font: fReg, color: lgrey,
+      y: 368, size: 9, font: fReg, color: lgrey,
     });
 
     //  TITLE BAND
     page.drawText("CERTIFICATE OF COMPLETION", {
       x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
-      y: 602, size: 20, font: fBold, color: black,
+      y: 610, size: 20, font: fBold, color: black,
+    });
+
+    //  CERTIFY BLOCK — immediately below title
+    page.drawText("This is to certify that", {
+      x: cx("This is to certify that", 10, fItalic, W),
+      y: 576, size: 10, font: fItalic, color: mid,
+    });
+    page.drawText(user.fullName, {
+      x: cx(user.fullName, 34, fBold, W),
+      y: 530, size: 34, font: fBold, color: black,
+    });
+    page.drawText(user.email, {
+      x: cx(user.email, 9.5, fReg, W),
+      y: 500, size: 9.5, font: fReg, color: lgrey,
+    });
+    page.drawText("has successfully completed the following IIRSM approved course:", {
+      x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
+      y: 476, size: 9.5, font: fItalic, color: mid,
     });
 
     //  LOGOS + PROVIDER STRAP
