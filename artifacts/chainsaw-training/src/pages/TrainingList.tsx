@@ -595,7 +595,7 @@ export default function TrainingList() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8 pb-36 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 pt-8 pb-10 space-y-8">
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
@@ -1137,9 +1137,9 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
-      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border/40">
+      <div className="border-t border-border/40 mt-6">
         {/* Final Exam — centred */}
-        <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-center">
+        <div className="pt-6 flex justify-center">
           {examPassed ? (
             <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
               <Link href="/exam">
@@ -1159,7 +1159,7 @@ export default function TrainingList() {
           )}
         </div>
         {/* Mock Assessment — link style, left aligned, equal gap below exam button */}
-        <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-start">
+        <div className="pt-4 flex justify-start">
           {courseUnlocked ? (
             <Link
               href="/mock-test"
@@ -1174,7 +1174,7 @@ export default function TrainingList() {
           )}
         </div>
         {/* NPTC Resources — collapsible, below Mock Assessment */}
-        <div className="max-w-5xl mx-auto px-4 pb-2">
+        <div className="pb-4">
           <button
             onClick={() => setNptcBarOpen((o) => !o)}
             className="flex items-center gap-2 pt-2 text-left group"
