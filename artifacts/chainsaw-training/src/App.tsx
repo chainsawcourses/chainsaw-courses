@@ -26,6 +26,7 @@ import CrossCutSim from "@/pages/CrossCutSim";
 import StudentFeedback from "@/pages/StudentFeedback";
 import Glossary from "@/pages/Glossary";
 import Resources from "@/pages/Resources";
+import ManualFlipbook from "@/pages/ManualFlipbook";
 
 import SpeciesGuide from "@/pages/SpeciesGuide";
 import AdminLogin from "@/pages/admin/AdminLogin";
@@ -90,6 +91,7 @@ function Router() {
       <Route path="/glossary" component={Glossary} />
       <Route path="/resources" component={Resources} />
       <Route path="/feedback" component={StudentFeedback} />
+      <Route path="/manual" component={ManualFlipbook} />
       <Route path="/qr/:moduleId" component={QrLanding} />
 
       <Route path="/exam-preview" component={ExamPreview} />

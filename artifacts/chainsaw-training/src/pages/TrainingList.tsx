@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -625,6 +625,9 @@ export default function TrainingList() {
             </Link>
             <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Species Guide">
               <LogEndIcon className="w-5 h-5" />
+            </Link>
+            <Link href="/manual" className="text-muted-foreground hover:text-primary" title="Training Manual">
+              <BookMarked className="w-5 h-5" />
             </Link>
             <Link href="/glossary" className="text-muted-foreground hover:text-primary" title="Glossary of Terms">
               <BookOpen className="w-5 h-5" />
