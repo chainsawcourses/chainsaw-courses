@@ -1038,8 +1038,9 @@ export default function TrainingList() {
                             className={`border-border transition-all duration-150 group ${
                               effectiveLocked
                                 ? "opacity-40 bg-card/30"
-                                : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
+                                : "cursor-pointer hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
+                            onClick={!effectiveLocked ? () => setLocation(`/training/${module.id}`) : undefined}
                           >
                             <CardContent className="p-2.5 flex items-center gap-3">
                               <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
@@ -1068,7 +1069,7 @@ export default function TrainingList() {
                               </div>
 
                               {!effectiveLocked && (
-                                <div className="shrink-0">
+                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                                   <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                     <Link href={`/training/${module.id}`}>
                                       {isPdf ? (
