@@ -88,9 +88,9 @@ const SECTIONS: Section[] = [
         type: "HSE Leaflet",
       },
       {
-        title: "FISA — Forestry Industry Safety Accord",
-        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). Visit fisa.uk for the current chainsaw, felling, and work-at-height guidance sheets.",
-        url: "https://fisa.uk/",
+        title: "FISA — Publications & Guidance Sheets",
+        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). This page lists the current chainsaw, felling, and work-at-height guidance sheets available to download.",
+        url: "https://fisa.uk/publications/",
         type: "FISA Guidance",
       },
       {
@@ -132,9 +132,9 @@ const SECTIONS: Section[] = [
     intro: "Completing this theoretical course is a valuable first step. For professional chainsaw use in the UK, a practical NPTC or Lantra qualification is required by law. The following resources will help you find an assessment centre and understand the qualification pathway.",
     resources: [
       {
-        title: "City & Guilds — Land-Based Services Qualifications",
-        description: "The NPTC 0039-20 (Chainsaw Maintenance and Cross Cutting) practical qualification is managed by City & Guilds NPTC. Search here for approved assessment centres near you.",
-        url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/land-based-services",
+        title: "City & Guilds",
+        description: "City & Guilds NPTC manages the 0039-20 (Chainsaw Maintenance and Cross Cutting) practical qualification. Visit their main website to find qualifications, approved assessment centres, and certification information.",
+        url: "https://www.cityandguilds.com/",
         type: "Qualification",
       },
       {
@@ -211,29 +211,17 @@ const SECTIONS: Section[] = [
     id: "equipment",
     label: "Equipment & PPE Standards",
     icon: <Wrench className="w-4 h-4 text-primary" />,
-    intro: "Chainsaw PPE must meet specific EN standards to provide effective protection. The following references cover the key standards for each item of PPE.",
+    intro: "Chainsaw PPE must meet specific EN standards to provide effective protection. The following HSE resources cover PPE selection, maintenance, and legal requirements for chainsaw operators.",
     resources: [
       {
-        title: "EN ISO 11393 — Chainsaw Protective Clothing",
-        description: "The standard governing chainsaw protective clothing (chaps and trousers). Class 1 provides protection at 20 m/s chain speed; Class 3 at 28 m/s. All chainsaw trousers must carry this marking.",
-        url: "https://www.bsigroup.com/en-GB/standards/",
-        type: "PPE Standard",
-      },
-      {
-        title: "EN 381-7 — Chainsaw Protective Gloves",
-        description: "The standard for gloves offering protection against chainsaw cuts. Chainsaw gloves should provide cut protection on the back of the left hand as a minimum.",
-        url: "https://www.bsigroup.com/en-GB/standards/",
-        type: "PPE Standard",
-      },
-      {
-        title: "EN 397 / EN 1731 / EN 352 — Forestry Helmet Systems",
-        description: "Forestry helmets integrate a safety helmet (EN 397), face shield (EN 1731), and ear defenders (EN 352). All components must meet their respective EN standards.",
-        url: "https://www.bsigroup.com/en-GB/standards/",
-        type: "PPE Standard",
+        title: "HSE — Personal Protective Equipment at Work",
+        description: "HSE's main PPE guidance portal covering employer duties, PPE selection principles, and maintenance requirements under the PPE at Work Regulations 2022. Applies directly to chainsaw operators and their employers.",
+        url: "https://www.hse.gov.uk/ppe/",
+        type: "HSE Guidance",
       },
       {
         title: "HSE — Agriculture, Forestry & Related Industries (PPE section)",
-        description: "HSE guidance on choosing the correct class and type of chainsaw protective clothing for the work being undertaken, including Type A and Type C protection differences.",
+        description: "HSE guidance specific to chainsaw PPE: choosing the correct class of chainsaw protective trousers (EN ISO 11393), gloves (EN 381-7), forestry helmets (EN 397 / EN 1731 / EN 352), and boot protection standards.",
         url: "https://www.hse.gov.uk/agriculture/",
         type: "HSE Guidance",
       },
@@ -270,9 +258,9 @@ const SECTIONS: Section[] = [
         type: "Pest Guidance",
       },
       {
-        title: "Fera Science — Plant Health Portal",
-        description: "The UK Government's plant health portal providing access to statutory pest and disease information, surveillance data, and regulatory guidance from the Animal and Plant Health Agency.",
-        url: "https://planthealthportal.defra.gov.uk/",
+        title: "GOV.UK — Plant Health Controls",
+        description: "Official UK Government guidance on plant health controls, statutory pest and disease notifications, and import/movement restrictions. Covers operator obligations when working in or near containment zones.",
+        url: "https://www.gov.uk/guidance/plant-health-controls",
         type: "Government Resource",
       },
     ],
