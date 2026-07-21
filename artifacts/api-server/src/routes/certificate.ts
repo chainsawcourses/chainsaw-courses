@@ -89,7 +89,7 @@ router.get("/certificate", async (req, res) => {
       const dw = BG_W * scale, dh = BG_H * scale;
       page.drawImage(bgImg, { x: (W - dw) / 2, y: (H - dh) / 2, width: dw, height: dh });
     } catch { /* white page */ }
-    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: white, opacity: 0.92 });
+    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: white });
 
     // ── Helper ────────────────────────────────────────────────────────────────
     function rule(y: number, opacity = 0.38) {
