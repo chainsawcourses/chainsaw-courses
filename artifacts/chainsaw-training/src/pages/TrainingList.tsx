@@ -315,30 +315,30 @@ export default function TrainingList() {
     );
   }
 
-  // HEADER V11 - logo h-16, chevron tight
+  // HEADER V12 - logo above title, stacked brand button
   return (
     <div className="min-h-screen pb-20">
       <WelcomeModal />
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-20 flex items-center gap-4">
-          {/* Left — brand dropdown + logo + community */}
-          <div className="relative flex items-center gap-2">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+          {/* Left — brand dropdown: logo above title */}
+          <div className="relative flex items-center">
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex items-center gap-2 group"
+              className="flex flex-col items-center gap-0.5 group"
             >
               <img
                 src={`${import.meta.env.BASE_URL}logo.png?v=20`}
                 alt="Chainsaw Courses"
-                className="h-8 w-auto object-contain"
+                className="h-5 w-auto object-contain"
               />
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 leading-none">
                 <div className="flex flex-col leading-none">
-                  <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
-                  <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
+                  <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
+                  <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
               </div>
             </button>
 
