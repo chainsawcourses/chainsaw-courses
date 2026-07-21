@@ -652,6 +652,42 @@ export default function TrainingList() {
               </div>
             </div>
             <Progress value={summary?.percentComplete || 0} className="h-1.5 bg-secondary" />
+
+            {/* Final Exam + View Certificate — inside progress card */}
+            <div className="flex items-center justify-between pt-1 border-t border-border">
+              <div className="flex items-center gap-2">
+                {examPassed ? (
+                  <Link
+                    href="/exam"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600/70 hover:text-green-600 transition-colors flex items-center gap-1.5"
+                  >
+                    <Award className="w-3 h-3 shrink-0" />
+                    Final Exam
+                  </Link>
+                ) : courseUnlocked ? (
+                  <Link
+                    href="/exam"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Final Exam
+                  </Link>
+                ) : (
+                  <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
+                    Final Exam
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={examPassed ? handleViewCertificate : undefined}
+                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none ${
+                  examPassed
+                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px"
+                    : "invisible pointer-events-none"
+                }`}
+              >
+                View Certificate
+              </button>
+            </div>
           </CardContent>
         </Card>
 
@@ -686,41 +722,6 @@ export default function TrainingList() {
               </div>
             )}
 
-            {/* Final Exam — sub-heading row; View Certificate pinned to right (invisible until passed so layout never shifts) */}
-            <div className="ml-4 py-2 flex items-center gap-2">
-              <div className="w-3 h-px bg-border shrink-0" />
-              {examPassed ? (
-                <Link
-                  href="/exam"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600/70 hover:text-green-600 transition-colors flex items-center gap-1.5"
-                >
-                  <Award className="w-3 h-3 shrink-0" />
-                  Final Exam
-                </Link>
-              ) : courseUnlocked ? (
-                <Link
-                  href="/exam"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Final Exam
-                </Link>
-              ) : (
-                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
-                  Final Exam
-                </span>
-              )}
-              {/* View Certificate — always rendered for static layout; hidden until exam is passed */}
-              <button
-                onClick={examPassed ? handleViewCertificate : undefined}
-                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none ${
-                  examPassed
-                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px"
-                    : "invisible pointer-events-none"
-                }`}
-              >
-                View Certificate
-              </button>
-            </div>
 
             {/* How to Use This E-Learning Course — collapsible from Firebase Storage */}
             {!howToUseLoading && howToUseText && (
