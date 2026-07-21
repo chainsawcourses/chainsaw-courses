@@ -682,6 +682,42 @@ export default function TrainingList() {
               </div>
             )}
 
+            {/* Final Exam — sub-heading row; View Certificate pinned to right (invisible until passed so layout never shifts) */}
+            <div className="ml-4 py-2 flex items-center gap-2">
+              <div className="w-3 h-px bg-border shrink-0" />
+              {examPassed ? (
+                <Link
+                  href="/exam"
+                  className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600/70 hover:text-green-600 transition-colors flex items-center gap-1.5"
+                >
+                  <Award className="w-3 h-3 shrink-0" />
+                  Final Exam
+                </Link>
+              ) : courseUnlocked ? (
+                <Link
+                  href="/exam"
+                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Final Exam
+                </Link>
+              ) : (
+                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
+                  Final Exam
+                </span>
+              )}
+              {/* View Certificate — always rendered for static layout; hidden until exam is passed */}
+              <button
+                onClick={examPassed ? handleViewCertificate : undefined}
+                className={`ml-auto font-mono text-[10px] uppercase tracking-widest underline underline-offset-2 transition-colors ${
+                  examPassed
+                    ? "text-muted-foreground/60 hover:text-primary cursor-pointer"
+                    : "invisible pointer-events-none"
+                }`}
+              >
+                View Certificate
+              </button>
+            </div>
+
             {/* Mock Assessment — sub-heading link, grayed out until all modules complete */}
             <div className="ml-4 py-2 flex items-center gap-2 group">
               <div className="w-3 h-px bg-border shrink-0" />
@@ -1155,34 +1191,6 @@ export default function TrainingList() {
         </div>
       </main>
 
-      {/* ── Bottom controls — outside <main> so space-y-8 cannot interfere ── */}
-      <div className="max-w-5xl mx-auto px-4">
-        {/* Final Exam — border-t acts as separator; py-5 gives identical gap above and below */}
-        <div className="border-t border-border/40 py-5 flex justify-center">
-          {examPassed ? (
-            <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
-              <Link href="/exam">
-                <Award className="w-4 h-4 text-green-600/70" />
-                EXAM PASSED
-              </Link>
-            </Button>
-          ) : courseUnlocked ? (
-            <Button asChild variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary">
-              <Link href="/exam">FINAL EXAM</Link>
-            </Button>
-          ) : (
-            <Button disabled variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary opacity-40 cursor-not-allowed gap-2">
-              <LockKeyhole className="w-3.5 h-3.5" />
-              FINAL EXAM
-            </Button>
-          )}
-        </div>
-        {!courseUnlocked && (
-          <div className="text-center text-[10px] font-mono text-muted-foreground/70 tracking-widest pb-1">
-            Complete all videos &amp; quizzes to unlock
-          </div>
-        )}
-      </div>
       <div className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest pointer-events-none">
         COURSE CONTENT v{COURSE_CONTENT_VERSION}
       </div>
