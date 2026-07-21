@@ -1174,7 +1174,7 @@ export default function TrainingList() {
           )}
         </div>
         {/* NPTC Resources — collapsible, below Mock Assessment */}
-        <div className="pb-4">
+        <div className="pt-6 pb-2">
           <button
             onClick={() => setNptcBarOpen((o) => !o)}
             className="flex items-center gap-2 pt-2 text-left group"
@@ -1218,7 +1218,7 @@ export default function TrainingList() {
             Complete all videos &amp; quizzes to unlock
           </div>
         )}
-        <div className="text-center pb-1 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
+        <div className="text-center mt-8 pb-4 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
           COURSE CONTENT v{COURSE_CONTENT_VERSION}
         </div>
       </div>
