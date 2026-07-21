@@ -58,6 +58,7 @@ export default function TrainingList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [certPressed, setCertPressed] = useState(false);
+  const [nptcBarOpen, setNptcBarOpen] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
@@ -1157,19 +1158,59 @@ export default function TrainingList() {
             </Button>
           )}
         </div>
-        {/* Mock Assessment — link style, left aligned */}
-        <div className="max-w-5xl mx-auto px-4 pb-2 flex justify-start">
+        {/* Mock Assessment — link style, left aligned, equal gap below exam button */}
+        <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-start">
           {courseUnlocked ? (
             <Link
               href="/mock-test"
-              className="flex items-center gap-2 py-1 font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 tracking-widest uppercase transition-colors"
+              className="flex items-center gap-2 font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 tracking-widest uppercase transition-colors"
             >
               Mock Assessment
             </Link>
           ) : (
-            <span className="flex items-center gap-1.5 py-1 font-mono text-sm text-muted-foreground/40 tracking-widest uppercase cursor-not-allowed">
+            <span className="flex items-center gap-1.5 font-mono text-sm text-muted-foreground/40 tracking-widest uppercase cursor-not-allowed">
               <LockKeyhole className="w-3 h-3" /> Mock Assessment
             </span>
+          )}
+        </div>
+        {/* NPTC Resources — collapsible, below Mock Assessment */}
+        <div className="max-w-5xl mx-auto px-4 pb-2">
+          <button
+            onClick={() => setNptcBarOpen((o) => !o)}
+            className="flex items-center gap-2 pt-2 text-left group"
+          >
+            <h3 className="font-mono text-xs text-muted-foreground/60 group-hover:text-primary uppercase tracking-widest transition-colors">
+              NPTC Resources
+            </h3>
+            <ChevronDown className={`w-3 h-3 shrink-0 transition-all text-muted-foreground/50 group-hover:text-primary ${nptcBarOpen ? "rotate-180 text-primary" : ""}`} />
+          </button>
+          {nptcBarOpen && (
+            <div className="mt-1 flex flex-col gap-2">
+              <a
+                href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors"
+              >
+                <ExternalLink className="w-3 h-3 shrink-0" /> NPTC Course Overview
+              </a>
+              <a
+                href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors"
+              >
+                <ExternalLink className="w-3 h-3 shrink-0" /> Qualification Handbook
+              </a>
+              <a
+                href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors"
+              >
+                <ExternalLink className="w-3 h-3 shrink-0" /> Assessment Schedule
+              </a>
+            </div>
           )}
         </div>
         {!courseUnlocked && (
