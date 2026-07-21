@@ -89,7 +89,7 @@ router.get("/certificate", async (req, res) => {
       const dw = BG_W * scale, dh = BG_H * scale;
       page.drawImage(bgImg, { x: (W - dw) / 2, y: (H - dh) / 2, width: dw, height: dh });
     } catch { /* white page */ }
-    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: white });
+    page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: white, opacity: 0.92 });
 
     // ── Helper ────────────────────────────────────────────────────────────────
     function rule(y: number, opacity = 0.38) {
@@ -168,7 +168,6 @@ router.get("/certificate", async (req, res) => {
     // ──────────────────────────────────────────────────────────────────────────
 
     //  DATE
-    rule(210);   // rule sits above date text
     const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     const dateLine = `Date of Award:  ${dateStr}`;
     page.drawText(dateLine, {
@@ -177,7 +176,6 @@ router.get("/certificate", async (req, res) => {
     });
 
     //  CPD BLOCK  (generous gap above date)
-    rule(308);
     page.drawText("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", {
       x: cx("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", 10, fBold, W),
       y: 284, size: 10, font: fBold, color: black,
@@ -197,7 +195,6 @@ router.get("/certificate", async (req, res) => {
     });
 
     //  COURSE BLOCK
-    rule(416);
     page.drawText("has successfully completed the following IIRSM approved course:", {
       x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
       y: 390, size: 9.5, font: fItalic, color: mid,
@@ -212,7 +209,6 @@ router.get("/certificate", async (req, res) => {
     });
 
     //  STUDENT NAME BLOCK
-    rule(520);
     page.drawText("This is to certify that", {
       x: cx("This is to certify that", 10, fItalic, W),
       y: 492, size: 10, font: fItalic, color: mid,
@@ -227,12 +223,10 @@ router.get("/certificate", async (req, res) => {
     });
 
     //  TITLE BAND
-    rule(630);
     page.drawText("CERTIFICATE OF COMPLETION", {
       x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
       y: 602, size: 20, font: fBold, color: black,
     });
-    rule(588);
 
     //  LOGOS + PROVIDER STRAP
     const LOGO_H    = 68;

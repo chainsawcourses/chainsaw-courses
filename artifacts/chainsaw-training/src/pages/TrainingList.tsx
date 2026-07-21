@@ -642,17 +642,14 @@ export default function TrainingList() {
           <button
             onClick={handleViewCertificate}
             className={[
-              "w-full flex items-center justify-center gap-3 py-4 px-6 rounded-lg",
-              "font-mono font-black text-sm uppercase tracking-widest text-white",
+              "flex items-center justify-center gap-2 mx-auto px-6 py-2",
+              "font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 tracking-widest uppercase",
               "transition-all duration-150 select-none",
-              certPressed
-                ? "bg-orange-700 scale-95 shadow-inner"
-                : "bg-orange-500 shadow-lg hover:bg-orange-600 active:scale-95 active:bg-orange-700",
+              certPressed ? "scale-95 opacity-60" : "",
             ].join(" ")}
           >
-            <Award className="w-5 h-5 shrink-0" />
-            View Your Certificate
-            <FileDown className="w-5 h-5 shrink-0" />
+            <FileDown className="w-4 h-4 shrink-0" />
+            View Certificate
           </button>
         )}
 
