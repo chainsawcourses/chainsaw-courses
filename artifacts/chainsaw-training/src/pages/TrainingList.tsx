@@ -1218,9 +1218,9 @@ export default function TrainingList() {
             Complete all videos &amp; quizzes to unlock
           </div>
         )}
-        <div className="text-center mt-8 pb-4 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
-          COURSE CONTENT v{COURSE_CONTENT_VERSION}
-        </div>
+      </div>
+      <div className="text-center mt-12 pb-6 text-[10px] font-mono text-muted-foreground/60 tracking-widest">
+        COURSE CONTENT v{COURSE_CONTENT_VERSION}
       </div>
       </main>
     </div>
