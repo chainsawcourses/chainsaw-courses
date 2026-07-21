@@ -182,11 +182,14 @@ router.get("/progress/summary", async (req, res) => {
   }
 
   try {
-    const modules = await db
+    const allModules = await db
       .select()
       .from(modulesTable)
       .where(eq(modulesTable.isActive, true))
       .orderBy(asc(modulesTable.order));
+
+    // PDF modules are reference documents, not graded course steps — exclude from progress counts
+    const modules = allModules.filter((m) => m.contentType !== "pdf");
 
     const progressRecords = await db
       .select()

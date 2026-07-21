@@ -10,7 +10,7 @@ import {
   appConfigTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
-import { eq, isNull, gte, count } from "drizzle-orm";
+import { eq, isNull, gte, count, and, ne } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
 
@@ -79,7 +79,7 @@ router.get("/admin/stats", async (req, res) => {
     const [totalModulesResult] = await db
       .select({ count: count() })
       .from(modulesTable)
-      .where(eq(modulesTable.isActive, true));
+      .where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf")));
 
     const completedProgressRecords = await db
       .select()
@@ -130,7 +130,7 @@ router.get("/admin/students", async (req, res) => {
     const [totalModulesResult] = await db
       .select({ count: count() })
       .from(modulesTable)
-      .where(eq(modulesTable.isActive, true));
+      .where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf")));
 
     const totalModules = Number(totalModulesResult.count);
 
