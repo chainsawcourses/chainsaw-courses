@@ -53,7 +53,7 @@ export default function StudentFeedback() {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course?</h2>
+                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course overall?</h2>
                   <p className="font-mono text-xs text-muted-foreground">
                     Your feedback helps us improve the learning experience for future students.
                   </p>

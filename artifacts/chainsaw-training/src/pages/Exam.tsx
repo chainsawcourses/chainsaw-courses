@@ -243,7 +243,7 @@ function ExamResultScreen({
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🎓</div>
-                    <h3 className="font-mono font-black uppercase tracking-widest text-sm">How was the course?</h3>
+                    <h3 className="font-mono font-black uppercase tracking-widest text-sm">How was the course overall?</h3>
                     <p className="font-mono text-xs text-muted-foreground mt-1">
                       Share your experience to help us improve
                     </p>
