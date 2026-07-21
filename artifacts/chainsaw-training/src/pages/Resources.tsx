@@ -89,8 +89,8 @@ const SECTIONS: Section[] = [
       },
       {
         title: "FISA — Forestry Industry Safety Accord",
-        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). Visit fisa.org.uk for the current chainsaw, felling, and work-at-height guidance sheets.",
-        url: "https://www.fisa.org.uk/",
+        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). Visit fisa.uk for the current chainsaw, felling, and work-at-height guidance sheets.",
+        url: "https://fisa.uk/",
         type: "FISA Guidance",
       },
       {
