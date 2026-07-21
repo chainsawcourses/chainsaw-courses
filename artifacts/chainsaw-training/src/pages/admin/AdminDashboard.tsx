@@ -190,48 +190,54 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Row 1 — brand + primary actions */}
+        <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <Biohazard className="w-5 h-5 mr-2 inline" /> OVERSEER
           </div>
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/videos"><Video className="w-4 h-4 mr-2" /> VIDEO SETTINGS</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/pdfs"><FileText className="w-4 h-4 mr-2" /> PDF SETTINGS</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/feedback"><Star className="w-4 h-4 mr-2" /> FEEDBACK</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/inspections"><ClipboardCheck className="w-4 h-4 mr-2" /> INSPECTIONS</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/risk-assessments"><MapPin className="w-4 h-4 mr-2" /> RISK ASSESSMENTS</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/news"><Newspaper className="w-4 h-4 mr-2" /> NEWS</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/qr-codes"><QrCode className="w-4 h-4 mr-2" /> QR CODES</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <Link href="/admin/welcome-note"><MessageSquare className="w-4 h-4 mr-2" /> WELCOME NOTE</Link>
-            </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-              <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
-                <FileText className="w-4 h-4 mr-2" /> IIRSM BRIEF
-              </a>
-            </Button>
+          <div className="flex items-center gap-2">
             <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
-              <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-2" /> FULL APP PREVIEW</a>
+              <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW</a>
             </Button>
             <Button size="sm" variant="outline" className="font-mono text-xs" asChild>
-              <a href={`${import.meta.env.BASE_URL}exam-preview`} target="_blank"><Star className="w-4 h-4 mr-2" /> EXAM FANFARE</a>
+              <a href={`${import.meta.env.BASE_URL}exam-preview`} target="_blank"><Star className="w-4 h-4 mr-1" /> EXAM FANFARE</a>
             </Button>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
-              <LogOut className="w-4 h-4 mr-2" /> LOGOUT
+              <LogOut className="w-4 h-4 mr-1" /> LOGOUT
+            </Button>
+          </div>
+        </div>
+        {/* Row 2 — navigation links */}
+        <div className="border-t border-border bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/videos"><Video className="w-3.5 h-3.5 mr-1" /> VIDEO SETTINGS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/pdfs"><FileText className="w-3.5 h-3.5 mr-1" /> PDF SETTINGS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/feedback"><Star className="w-3.5 h-3.5 mr-1" /> FEEDBACK</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/inspections"><ClipboardCheck className="w-3.5 h-3.5 mr-1" /> INSPECTIONS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/risk-assessments"><MapPin className="w-3.5 h-3.5 mr-1" /> RISK ASSESSMENTS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/news"><Newspaper className="w-3.5 h-3.5 mr-1" /> NEWS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/qr-codes"><QrCode className="w-3.5 h-3.5 mr-1" /> QR CODES</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/welcome-note"><MessageSquare className="w-3.5 h-3.5 mr-1" /> WELCOME NOTE</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
+                <FileText className="w-3.5 h-3.5 mr-1" /> IIRSM BRIEF
+              </a>
             </Button>
           </div>
         </div>
