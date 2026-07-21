@@ -200,11 +200,7 @@ export default function PrivacyPolicy() {
                     <td className="border border-border px-3 py-2">Video hosting &amp; streaming</td>
                     <td className="border border-border px-3 py-2">IP address (standard CDN delivery); no personal data sent by us</td>
                   </tr>
-                  <tr>
-                    <td className="border border-border px-3 py-2">OpenStreetMap Nominatim</td>
-                    <td className="border border-border px-3 py-2">Reverse geocoding for risk assessment location lookup</td>
-                    <td className="border border-border px-3 py-2">GPS coordinates (latitude/longitude) only; no name or email</td>
-                  </tr>
+
                   <tr>
                     <td className="border border-border px-3 py-2">OpenAI (via Replit AI proxy)</td>
                     <td className="border border-border px-3 py-2">AI mock-test &amp; tutor responses</td>
