@@ -1008,7 +1008,7 @@ export default function TrainingList() {
         <div className="space-y-10">
           {grouped.map(({ category, subGroups }) => (
             <div key={category}>
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-1.5">
                 <div className="w-1 h-6 bg-primary" />
                 <h2 className="font-mono font-black uppercase tracking-widest text-base text-foreground">
                   {category === "ASSESSMENT MODULES" ? "Standards & Regulations" : category}
