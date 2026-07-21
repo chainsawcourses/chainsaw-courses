@@ -742,7 +742,7 @@ export default function TrainingList() {
                       <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {(() => {
                           const injected = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
-                          const marker = "Mock Assessment Practice:";
+                          const marker = "Practical Mock Assessment Practice:";
                           const idx = howToUseText!.indexOf(marker);
                           if (idx === -1) return howToUseText;
                           return howToUseText!.slice(0, idx) + injected + howToUseText!.slice(idx);
@@ -867,10 +867,10 @@ export default function TrainingList() {
                       <span className="text-foreground font-semibold">Know the syllabus.</span> The NPTC/Lantra assessment tests your knowledge across chainsaw safety, legislation, personal protective equipment, chainsaw components and maintenance, hazard identification, cross-cutting techniques, and safe working practices. Every training module on this platform maps directly to a syllabus area — complete them all before attempting the real assessment.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Use the mock assessment.</span> Once you have completed all seven training modules, a Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
+                      <span className="text-foreground font-semibold">Use the practical mock assessment.</span> Once you have completed all seven training modules, a Practical Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
+                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or practical mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
@@ -929,7 +929,7 @@ export default function TrainingList() {
               )}
             </div>
 
-            {/* Mock Assessment — sub-heading link, grayed out until all modules complete */}
+            {/* Practical Mock Assessment — sub-heading link, grayed out until all modules complete */}
             <div className="ml-4 py-2 flex items-center gap-2 group">
               <div className="w-3 h-px bg-border shrink-0" />
               {courseUnlocked ? (
@@ -937,11 +937,11 @@ export default function TrainingList() {
                   href="/mock-test"
                   className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Mock Assessment
+                  Practical Mock Assessment
                 </Link>
               ) : (
                 <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
-                  Mock Assessment
+                  Practical Mock Assessment
                 </span>
               )}
             </div>
