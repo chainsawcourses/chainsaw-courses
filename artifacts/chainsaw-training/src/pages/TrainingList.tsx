@@ -1137,9 +1137,9 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
-      <div className="border-t border-border/40 mt-6">
+      <div className="border-t border-border/40 mt-4">
         {/* Final Exam — centred */}
-        <div className="pt-6 flex justify-center">
+        <div className="pt-4 flex justify-center">
           {examPassed ? (
             <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
               <Link href="/exam">
