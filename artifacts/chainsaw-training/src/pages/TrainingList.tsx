@@ -49,6 +49,7 @@ export default function TrainingList() {
   const [howToUseOpen, setHowToUseOpen] = useState(false);
   const [preparingOpen, setPreparingOpen] = useState(false);
   const [nptcOpen, setNptcOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
   const [helpDeviceLockOpen, setHelpDeviceLockOpen] = useState(false);
@@ -171,7 +172,7 @@ export default function TrainingList() {
     );
   }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
-  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || preparingOpen || nptcOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
+  const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || preparingOpen || nptcOpen || docsOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
 
   const closeAllDropdowns = useCallback(() => {
     setEquipmentOpen(false);
@@ -947,6 +948,55 @@ export default function TrainingList() {
                     >
                       <ExternalLink className="w-4 h-4 shrink-0" /> Assessment Schedule
                     </a>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Documents Library — collapsible */}
+            <div>
+              <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
+                onClick={(e) => { e.stopPropagation(); setDocsOpen((o) => !o); }}
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  Documents Library
+                </h3>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${docsOpen ? "rotate-180 text-primary" : ""}`} />
+              </button>
+              {docsOpen && (
+                <Card className="border-border bg-card/60 mt-1">
+                  <CardContent className="p-4 space-y-1 font-mono text-xs">
+                    {[
+                      { label: "Terms & Conditions", file: "Terms_and_Conditions_Liability_Waiver.pdf" },
+                      { label: "Refund & Cancellation Policy", file: "Refund_and_Cancellation_Policy.pdf" },
+                      { label: "Data Protection Policy", file: "Data_Protection_Policy.pdf" },
+                      { label: "Complaints Procedure", file: "Complaints_Procedure.pdf" },
+                      { label: "Reasonable Adjustments Policy", file: "Reasonable_Adjustments_Policy.pdf" },
+                      { label: "Appeals Policy", file: "Appeals_Policy.pdf" },
+                      { label: "Health & Safety Policy", file: "Health_and_Safety_Policy.pdf" },
+                      { label: "Quality Management Policy", file: "Quality_Management_Policy.pdf" },
+                      { label: "Assessment Policy", file: "Assessment_Policy.pdf" },
+                      { label: "Internal Verification Policy", file: "Internal_Verification_Policy.pdf" },
+                      { label: "Malpractice & Maladministration Policy", file: "Malpractice_and_Maladministration_Policy.pdf" },
+                      { label: "Equality, Diversity & Inclusion Policy", file: "Equality_Diversity_Inclusion_Policy.pdf" },
+                      { label: "Safeguarding Policy", file: "Safeguarding_Policy.pdf" },
+                      { label: "Environmental & Sustainability Policy", file: "Environmental_and_Sustainability_Policy.pdf" },
+                    ].map(({ label, file }) => (
+                      <a
+                        key={file}
+                        href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/pdfs/${file}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="flex items-center gap-2 py-1.5 px-1 text-muted-foreground hover:text-primary transition-colors rounded group/doc"
+                      >
+                        <FileDown className="w-3.5 h-3.5 shrink-0" />
+                        <span className="uppercase tracking-widest font-semibold">{label}</span>
+                      </a>
+                    ))}
                   </CardContent>
                 </Card>
               )}
