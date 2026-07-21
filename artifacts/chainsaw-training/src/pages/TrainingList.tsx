@@ -1137,17 +1137,8 @@ export default function TrainingList() {
           ))}
         </div>
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex justify-center gap-3">
-          {courseUnlocked ? (
-            <Button asChild className="font-mono text-sm uppercase tracking-widest px-8">
-              <Link href="/mock-test">MOCK ASSESSMENT</Link>
-            </Button>
-          ) : (
-            <Button disabled className="font-mono text-sm uppercase tracking-widest px-8 opacity-40 cursor-not-allowed gap-2">
-              <LockKeyhole className="w-3.5 h-3.5" />
-              MOCK ASSESSMENT
-            </Button>
-          )}
+        {/* Final Exam — centred */}
+        <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-center">
           {examPassed ? (
             <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
               <Link href="/exam">
@@ -1166,10 +1157,20 @@ export default function TrainingList() {
             </Button>
           )}
         </div>
-        <div className="flex justify-center gap-3 pb-1">
-          <Button asChild variant="outline" className="font-mono text-xs uppercase tracking-widest px-4 border-primary/40 text-primary/70">
-            <Link href="/exam-preview">PREVIEW END SCREEN</Link>
-          </Button>
+        {/* Mock Assessment — link style, left aligned */}
+        <div className="max-w-5xl mx-auto px-4 pb-2 flex justify-start">
+          {courseUnlocked ? (
+            <Link
+              href="/mock-test"
+              className="flex items-center gap-2 py-1 font-mono text-sm text-primary hover:text-primary/80 underline underline-offset-2 tracking-widest uppercase transition-colors"
+            >
+              Mock Assessment
+            </Link>
+          ) : (
+            <span className="flex items-center gap-1.5 py-1 font-mono text-sm text-muted-foreground/40 tracking-widest uppercase cursor-not-allowed">
+              <LockKeyhole className="w-3 h-3" /> Mock Assessment
+            </span>
+          )}
         </div>
         {!courseUnlocked && (
           <div className="text-center text-[10px] font-mono text-muted-foreground/70 tracking-widest pb-1">
