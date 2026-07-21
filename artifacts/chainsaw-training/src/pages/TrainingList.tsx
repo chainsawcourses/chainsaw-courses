@@ -595,7 +595,7 @@ export default function TrainingList() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8 pb-52 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 pt-8 pb-36 space-y-8">
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
@@ -1137,7 +1137,7 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
-      <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-border/40">
         {/* Final Exam — centred */}
         <div className="max-w-5xl mx-auto px-4 pt-3 flex justify-center">
           {examPassed ? (
