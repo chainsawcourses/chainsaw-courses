@@ -101,6 +101,7 @@ export default function TrainingList() {
   });
 
   const courseUnlocked = examStatus?.unlocked ?? false;
+  const examPassed = examStatus?.passed ?? false;
 
   const equipmentListModule = useMemo(
     () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
@@ -1095,7 +1096,14 @@ export default function TrainingList() {
               MOCK ASSESSMENT
             </Button>
           )}
-          {courseUnlocked ? (
+          {examPassed ? (
+            <Button asChild variant="outline" className="font-mono text-sm uppercase tracking-widest px-8 border-green-600/50 text-green-600/70 bg-green-50/30 cursor-default pointer-events-none gap-2">
+              <Link href="/exam">
+                <Award className="w-4 h-4 text-green-600/70" />
+                EXAM PASSED
+              </Link>
+            </Button>
+          ) : courseUnlocked ? (
             <Button asChild variant="default" className="font-mono text-sm uppercase tracking-widest px-8 bg-primary">
               <Link href="/exam">FINAL EXAM</Link>
             </Button>
