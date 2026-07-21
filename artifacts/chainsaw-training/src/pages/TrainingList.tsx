@@ -326,20 +326,13 @@ export default function TrainingList() {
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
-              className="flex flex-col items-center gap-0.5 group"
+              className="flex items-center gap-1 group"
             >
-              <img
-                src={`${import.meta.env.BASE_URL}logo.png?v=20`}
-                alt="Chainsaw Courses"
-                className="h-5 w-auto object-contain"
-              />
-              <div className="flex items-center gap-0.5 leading-none">
-                <div className="flex flex-col leading-none">
-                  <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
-                  <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
-                </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <div className="flex flex-col leading-none">
+                <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
+                <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
@@ -643,6 +636,11 @@ export default function TrainingList() {
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
+          <img
+            src={`${import.meta.env.BASE_URL}logo.png?v=20`}
+            alt="Chainsaw Courses"
+            className="h-16 w-auto object-contain mx-auto mb-2"
+          />
           <p className="font-black tracking-tighter text-xs uppercase text-foreground mb-0.5">Chainsaw Courses</p>
           <h1 className="font-black tracking-tighter text-xl uppercase leading-tight text-primary">
             Maintenance &amp; Cross Cutting
