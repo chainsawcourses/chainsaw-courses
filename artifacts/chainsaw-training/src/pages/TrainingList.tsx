@@ -722,23 +722,6 @@ export default function TrainingList() {
               </button>
             </div>
 
-            {/* Mock Assessment — sub-heading link, grayed out until all modules complete */}
-            <div className="ml-4 py-2 flex items-center gap-2 group">
-              <div className="w-3 h-px bg-border shrink-0" />
-              {courseUnlocked ? (
-                <Link
-                  href="/mock-test"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Mock Assessment
-                </Link>
-              ) : (
-                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
-                  Mock Assessment
-                </span>
-              )}
-            </div>
-
             {/* How to Use This E-Learning Course — collapsible from Firebase Storage */}
             {!howToUseLoading && howToUseText && (
               <div>
@@ -770,88 +753,6 @@ export default function TrainingList() {
                 )}
               </div>
             )}
-
-            {/* Preparing for Your Assessment — collapsible */}
-            <div>
-              <button
-                ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setPreparingOpen((o) => !o); }}
-                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
-              >
-                <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                  Preparing for Your Assessment
-                </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${preparingOpen ? "rotate-180 text-primary" : ""}`} />
-              </button>
-              {preparingOpen && (
-                <Card className="border-border bg-card/60 mt-1">
-                  <CardContent className="p-4 space-y-3">
-                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Know the syllabus.</span> The NPTC/Lantra assessment tests your knowledge across chainsaw safety, legislation, personal protective equipment, chainsaw components and maintenance, hazard identification, cross-cutting techniques, and safe working practices. Every training module on this platform maps directly to a syllabus area — complete them all before attempting the real assessment.
-                    </p>
-                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Use the mock assessment.</span> Once you have completed all seven training modules, a Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
-                    </p>
-                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
-                    </p>
-                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
-                    </p>
-                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Your certificate.</span> Upon passing the online final exam here (80% or above), your Certificate of Theoretical Competency is issued automatically to your registered email. Present this alongside your practical assessment results to your employer or awarding body as evidence of your theoretical training hours.
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* NPTC Resources — collapsible, all 3 links */}
-            <div>
-              <button
-                ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
-                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
-              >
-                <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
-                  NPTC Resources
-                </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
-              </button>
-              {nptcOpen && (
-                <Card className="border-border bg-card/60 mt-1">
-                  <CardContent className="p-4 space-y-5 font-mono text-sm text-muted-foreground">
-                    <p className="font-bold uppercase tracking-widest text-xs text-primary">External Links:</p>
-                    <a
-                      href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 shrink-0" /> NPTC Course Overview
-                    </a>
-                    <a
-                      href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 shrink-0" /> Qualification Handbook
-                    </a>
-                    <a
-                      href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 shrink-0" /> Assessment Schedule
-                    </a>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
 
             {/* Tools & Equipment Needed — collapsible sub-heading under Course Overview */}
             <div>
@@ -943,6 +844,105 @@ export default function TrainingList() {
                   </div>
 
                 </Card>
+              )}
+            </div>
+
+            {/* Preparing for Your Assessment — collapsible */}
+            <div>
+              <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
+                onClick={(e) => { e.stopPropagation(); setPreparingOpen((o) => !o); }}
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  Preparing for Your Assessment
+                </h3>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${preparingOpen ? "rotate-180 text-primary" : ""}`} />
+              </button>
+              {preparingOpen && (
+                <Card className="border-border bg-card/60 mt-1">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Know the syllabus.</span> The NPTC/Lantra assessment tests your knowledge across chainsaw safety, legislation, personal protective equipment, chainsaw components and maintenance, hazard identification, cross-cutting techniques, and safe working practices. Every training module on this platform maps directly to a syllabus area — complete them all before attempting the real assessment.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Use the mock assessment.</span> Once you have completed all seven training modules, a Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Your certificate.</span> Upon passing the online final exam here (80% or above), your Certificate of Theoretical Competency is issued automatically to your registered email. Present this alongside your practical assessment results to your employer or awarding body as evidence of your theoretical training hours.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* NPTC Resources — collapsible, all 3 links */}
+            <div>
+              <button
+                ref={(el) => { if (el) activeTriggerRef.current = el; }}
+                onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  NPTC Resources
+                </h3>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
+              </button>
+              {nptcOpen && (
+                <Card className="border-border bg-card/60 mt-1">
+                  <CardContent className="p-4 space-y-5 font-mono text-sm text-muted-foreground">
+                    <p className="font-bold uppercase tracking-widest text-xs text-primary">External Links:</p>
+                    <a
+                      href="https://www.nptc.org.uk/qualificationschemedetail.aspx?id=4800580073006D005700590052005900470066003800250033004400&back=home"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 shrink-0" /> NPTC Course Overview
+                    </a>
+                    <a
+                      href="https://www.nptc.org.uk/assets/documents/0e9ded0b44804bb081bd85685c90fba2.PDF"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 shrink-0" /> Qualification Handbook
+                    </a>
+                    <a
+                      href="https://www.nptc.org.uk/assets/documents/0aefd40527ec4e9b9410db2a9301ad5e.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 uppercase tracking-widest font-bold hover:text-primary transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 shrink-0" /> Assessment Schedule
+                    </a>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Mock Assessment — sub-heading link, grayed out until all modules complete */}
+            <div className="ml-4 py-2 flex items-center gap-2 group">
+              <div className="w-3 h-px bg-border shrink-0" />
+              {courseUnlocked ? (
+                <Link
+                  href="/mock-test"
+                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Mock Assessment
+                </Link>
+              ) : (
+                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
+                  Mock Assessment
+                </span>
               )}
             </div>
 
