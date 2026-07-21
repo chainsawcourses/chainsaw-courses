@@ -13,5 +13,6 @@ export interface ProgressSummary {
   percentComplete: number;
   /** @nullable */
   currentModuleId: number | null;
+  examPassed?: boolean;
   certificateEarned?: boolean;
 }

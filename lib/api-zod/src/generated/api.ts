@@ -175,6 +175,7 @@ export const GetProgressSummaryResponse = zod.object({
   "quizzesPassed": zod.number(),
   "percentComplete": zod.number(),
   "currentModuleId": zod.number().nullable(),
+  "examPassed": zod.boolean().optional(),
   "certificateEarned": zod.boolean().optional()
 })
 

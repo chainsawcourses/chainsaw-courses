@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable, usersTable, quizQuestionsTable } from "@workspace/db";
+import { modulesTable, userProgressTable, usersTable, quizQuestionsTable, examAttemptsTable } from "@workspace/db";
 import { SaveHeartbeatBody, CompleteVideoBody } from "@workspace/api-zod";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { resolveUser } from "./auth";
@@ -213,7 +213,14 @@ router.get("/progress/summary", async (req, res) => {
     }
 
     const percentComplete = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
-    const certificateEarned = completedModules === totalModules && totalModules > 0;
+
+    const examAttempts = await db
+      .select()
+      .from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.passed, true)));
+    const examPassed = examAttempts.length > 0;
+
+    const certificateEarned = completedModules === totalModules && totalModules > 0 && examPassed;
 
     res.json({
       totalModules,
@@ -221,6 +228,7 @@ router.get("/progress/summary", async (req, res) => {
       quizzesPassed,
       percentComplete,
       currentModuleId,
+      examPassed,
       certificateEarned,
     });
   } catch (err) {
