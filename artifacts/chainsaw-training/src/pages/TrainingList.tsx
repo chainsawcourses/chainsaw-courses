@@ -329,10 +329,10 @@ export default function TrainingList() {
               className="flex items-center gap-1 group"
             >
               <div className="flex flex-col leading-none">
-                <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
-                <span className="font-black tracking-tighter text-[11px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
+                <span className="font-black tracking-tighter text-[13px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
+                <span className="font-black tracking-tighter text-[13px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-4 h-4 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
@@ -621,12 +621,6 @@ export default function TrainingList() {
             </Link>
             <Link href="/manual" className="text-muted-foreground hover:text-primary" title="Training Manual">
               <BookMarked className="w-5 h-5" />
-            </Link>
-            <Link href="/glossary" className="text-muted-foreground hover:text-primary" title="Glossary of Terms">
-              <BookOpen className="w-5 h-5" />
-            </Link>
-            <Link href="/resources" className="text-muted-foreground hover:text-primary" title="Further Reading & Resources">
-              <Library className="w-5 h-5" />
             </Link>
           </div>
         </div>
