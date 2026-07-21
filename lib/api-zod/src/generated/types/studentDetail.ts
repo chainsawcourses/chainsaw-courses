@@ -5,6 +5,7 @@
  * Chainsaw Manual Training App API
  * OpenAPI spec version: 0.1.0
  */
+import type { StudentExamAttempt } from './studentExamAttempt';
 import type { StudentQuizResult } from './studentQuizResult';
 
 export interface StudentDetail {
@@ -22,6 +23,7 @@ export interface StudentDetail {
   waiverPdfUrl?: string | null;
   completedModules: number;
   quizResults: StudentQuizResult[];
+  examAttempts: StudentExamAttempt[];
   /** @nullable */
   lastActivity?: string | null;
 }

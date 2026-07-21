@@ -3,8 +3,8 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown } from "lucide-react";
-import { useGetExam, useSubmitExam, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star } from "lucide-react";
+import { useGetExam, useSubmitExam, useSubmitAppFeedback, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
 
@@ -158,6 +158,181 @@ function CertificateButton() {
   );
 }
 
+// ─── Exam Result Screen (with post-pass feedback popup) ───────────────────────
+
+function StarRating({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-2 justify-center">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(0)}
+          className="focus:outline-none transition-transform hover:scale-110"
+        >
+          <Star
+            className={`w-8 h-8 transition-colors ${
+              n <= (hovered || value) ? "text-primary fill-primary" : "text-muted-foreground/30"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ExamResultScreen({
+  result,
+  onReset,
+  deviceId,
+  activationCode,
+}: {
+  result: ExamResult;
+  onReset: () => void;
+  deviceId: string;
+  activationCode: string;
+}) {
+  const [showConfetti, setShowConfetti] = useState(result.passed);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [feedbackDone, setFeedbackDone] = useState(false);
+  const submitFeedback = useSubmitAppFeedback();
+
+  useEffect(() => {
+    if (!result.passed) return;
+    const t = setTimeout(() => setShowFeedback(true), 1800);
+    return () => clearTimeout(t);
+  }, [result.passed]);
+
+  const handleFeedbackSubmit = () => {
+    if (!rating) return;
+    submitFeedback.mutate(
+      { data: { deviceId, activationCode, rating, comment: comment || undefined } },
+      { onSuccess: () => setFeedbackDone(true) }
+    );
+  };
+
+  return (
+    <>
+      {showConfetti && <ConfettiCanvas />}
+
+      {/* Feedback popup */}
+      {result.passed && showFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <Card className="w-full max-w-sm border-border bg-card shadow-2xl">
+            <CardContent className="p-6">
+              {feedbackDone ? (
+                <div className="text-center space-y-3">
+                  <div className="text-3xl">🎉</div>
+                  <h3 className="font-mono font-black uppercase tracking-widest text-sm">Thank You!</h3>
+                  <p className="font-mono text-xs text-muted-foreground">Your feedback has been recorded.</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="font-mono text-xs uppercase tracking-widest w-full mt-2"
+                    onClick={() => setShowFeedback(false)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🎓</div>
+                    <h3 className="font-mono font-black uppercase tracking-widest text-sm">How was the course?</h3>
+                    <p className="font-mono text-xs text-muted-foreground mt-1">
+                      Share your experience to help us improve
+                    </p>
+                  </div>
+                  <StarRating value={rating} onChange={setRating} />
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Any comments? (optional)"
+                    rows={3}
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="font-mono text-xs uppercase tracking-widest flex-1"
+                      onClick={() => setShowFeedback(false)}
+                    >
+                      Skip
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="font-mono text-xs uppercase tracking-widest flex-1"
+                      disabled={!rating || submitFeedback.isPending}
+                      onClick={handleFeedbackSubmit}
+                    >
+                      {submitFeedback.isPending ? "Saving..." : "Submit"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-2xl border-border bg-card/80 backdrop-blur-sm">
+          <CardContent className="p-8 text-center flex flex-col items-center">
+            {result.passed ? (
+              <Award className="w-20 h-20 text-primary mb-6" />
+            ) : (
+              <XCircle className="w-20 h-20 text-destructive mb-6" />
+            )}
+
+            <h1 className="text-3xl font-black font-mono uppercase tracking-wide mb-2">
+              {result.passed ? "Certification Exam Passed" : "Exam Not Passed"}
+            </h1>
+
+            <p className="text-muted-foreground font-mono mb-2">
+              You scored {result.correct} out of {result.total} ({result.score}%)
+            </p>
+
+            {!result.passed && (
+              <p className="text-sm text-muted-foreground font-mono mb-8">
+                You need {result.passingScore}% to pass. You may retake the exam at any time.
+              </p>
+            )}
+            {result.passed && (
+              <p className="text-sm text-primary font-mono mb-8">
+                Congratulations — you have met the {result.passingScore}% pass mark for the final summative exam.
+              </p>
+            )}
+
+            <div className="flex flex-col gap-3 w-full">
+              {!result.passed ? (
+                <Button
+                  onClick={onReset}
+                  className="w-full h-14 font-mono font-bold tracking-widest"
+                >
+                  <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
+                </Button>
+              ) : (
+                <>
+                  <CertificateButton />
+                  <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
+                    <Link href="/training">BACK TO TRAINING</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
+}
+
 // ─── Exam ─────────────────────────────────────────────────────────────────────
 
 export default function Exam() {
@@ -173,12 +348,11 @@ export default function Exam() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<ExamResult | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
 
   const applausePlayedRef = useRef(false);
   const disappointmentPlayedRef = useRef(false);
 
-  // Play sounds and trigger confetti when result arrives
+  // Play sounds when result arrives
   useEffect(() => {
     if (!result) return;
 
@@ -191,8 +365,6 @@ export default function Exam() {
       } catch (e) {
         console.warn("Applause audio error:", e);
       }
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 7000);
     }
 
     if (!result.passed && !disappointmentPlayedRef.current) {
@@ -277,57 +449,12 @@ export default function Exam() {
 
   if (result) {
     return (
-      <>
-        {showConfetti && <ConfettiCanvas />}
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-          <Card className="w-full max-w-2xl border-border bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-8 text-center flex flex-col items-center">
-              {result.passed ? (
-                <Award className="w-20 h-20 text-primary mb-6" />
-              ) : (
-                <XCircle className="w-20 h-20 text-destructive mb-6" />
-              )}
-
-              <h1 className="text-3xl font-black font-mono uppercase tracking-wide mb-2">
-                {result.passed ? "Certification Exam Passed" : "Exam Not Passed"}
-              </h1>
-
-              <p className="text-muted-foreground font-mono mb-2">
-                You scored {result.correct} out of {result.total} ({result.score}%)
-              </p>
-
-              {!result.passed && (
-                <p className="text-sm text-muted-foreground font-mono mb-8">
-                  You need {result.passingScore}% to pass. You may retake the exam at any time.
-                </p>
-              )}
-              {result.passed && (
-                <p className="text-sm text-primary font-mono mb-8">
-                  Congratulations — you have met the {result.passingScore}% pass mark for the final summative exam.
-                </p>
-              )}
-
-              <div className="flex flex-col gap-3 w-full">
-                {!result.passed ? (
-                  <Button
-                    onClick={handleReset}
-                    className="w-full h-14 font-mono font-bold tracking-widest"
-                  >
-                    <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
-                  </Button>
-                ) : (
-                  <>
-                    <CertificateButton />
-                    <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
-                      <Link href="/training">BACK TO TRAINING</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </>
+      <ExamResultScreen
+        result={result}
+        onReset={handleReset}
+        deviceId={deviceId}
+        activationCode={activationCode}
+      />
     );
   }
 

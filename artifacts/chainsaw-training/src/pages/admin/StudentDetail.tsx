@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle, FileSignature, MonitorSmartphone, User, XCircle } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MonitorSmartphone, User, XCircle } from "lucide-react";
 import { useGetStudent, useResetDeviceBond, getGetStudentQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
@@ -138,10 +138,50 @@ export default function StudentDetail() {
           </Card>
         </div>
 
+        {/* Final Exam History */}
         <Card className="border-border bg-card/30">
           <CardHeader>
             <CardTitle className="font-mono uppercase tracking-widest flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" /> Assessment History
+              <ClipboardList className="w-4 h-4 mr-2" /> Final Exam History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {student.examAttempts.length > 0 ? (
+              <div className="space-y-3">
+                {student.examAttempts.map((attempt, i) => (
+                  <div key={attempt.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-secondary/20 border border-border rounded-md gap-4">
+                    <div>
+                      <div className="font-bold font-mono uppercase text-sm">Attempt {i + 1}</div>
+                      <div className="text-xs text-muted-foreground font-mono">{new Date(attempt.attemptedAt).toLocaleString()}</div>
+                      <div className="text-xs text-muted-foreground font-mono">{attempt.totalQuestions} questions</div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground font-mono uppercase">Score</div>
+                        <div className={`font-mono font-bold text-lg ${attempt.passed ? "text-primary" : "text-destructive"}`}>{attempt.score}%</div>
+                      </div>
+                      {attempt.passed ? (
+                        <CheckCircle className="w-6 h-6 text-primary shrink-0" />
+                      ) : (
+                        <XCircle className="w-6 h-6 text-destructive shrink-0" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 font-mono text-sm text-muted-foreground opacity-70">
+                NO EXAM ATTEMPTS YET
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Module Assessment History */}
+        <Card className="border-border bg-card/30">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2" /> Module Assessment History
             </CardTitle>
           </CardHeader>
           <CardContent>

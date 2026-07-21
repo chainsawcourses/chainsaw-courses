@@ -7,6 +7,7 @@ import {
   userProgressTable,
   modulesTable,
   quizAttemptsTable,
+  examAttemptsTable,
   appConfigTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
@@ -190,6 +191,12 @@ router.get("/admin/students/:studentId", async (req, res) => {
       .from(quizAttemptsTable)
       .where(eq(quizAttemptsTable.userId, studentId));
 
+    const examAttempts = await db
+      .select()
+      .from(examAttemptsTable)
+      .where(eq(examAttemptsTable.userId, studentId))
+      .orderBy(examAttemptsTable.attemptedAt);
+
     const modules = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true));
     const moduleMap = new Map(modules.map((m) => [m.id, m]));
 
@@ -224,6 +231,13 @@ router.get("/admin/students/:studentId", async (req, res) => {
         moduleTitle: moduleMap.get(a.moduleId)?.title ?? "Module",
         passed: a.passed,
         score: a.score,
+        attemptedAt: a.attemptedAt.toISOString(),
+      })),
+      examAttempts: examAttempts.map((a) => ({
+        id: a.id,
+        score: a.score,
+        passed: a.passed,
+        totalQuestions: a.totalQuestions,
         attemptedAt: a.attemptedAt.toISOString(),
       })),
       lastActivity: user.lastActivityAt?.toISOString() ?? null,

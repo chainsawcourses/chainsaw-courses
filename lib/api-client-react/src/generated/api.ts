@@ -29,6 +29,8 @@ import type {
   AdminStats,
   AiChatInput,
   AiChatResponse,
+  AppFeedbackInput,
+  AppFeedbackItem,
   ChatMessage,
   CompleteVideoInput,
   CreateNewsItemInput,
@@ -1106,6 +1108,154 @@ export function useGetExamStatus<TData = Awaited<ReturnType<typeof getExamStatus
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetExamStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSubmitAppFeedbackUrl = () => {
+
+
+
+
+  return `/api/app-feedback`
+}
+
+/**
+ * @summary Submit overall app feedback after passing the final exam
+ */
+export const submitAppFeedback = async (appFeedbackInput: AppFeedbackInput, options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getSubmitAppFeedbackUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      appFeedbackInput,)
+  }
+);}
+
+
+
+
+export const getSubmitAppFeedbackMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitAppFeedback>>, TError,{data: BodyType<AppFeedbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof submitAppFeedback>>, TError,{data: BodyType<AppFeedbackInput>}, TContext> => {
+
+const mutationKey = ['submitAppFeedback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof submitAppFeedback>>, {data: BodyType<AppFeedbackInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  submitAppFeedback(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SubmitAppFeedbackMutationResult = NonNullable<Awaited<ReturnType<typeof submitAppFeedback>>>
+    export type SubmitAppFeedbackMutationBody = BodyType<AppFeedbackInput>
+    export type SubmitAppFeedbackMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Submit overall app feedback after passing the final exam
+ */
+export const useSubmitAppFeedback = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitAppFeedback>>, TError,{data: BodyType<AppFeedbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof submitAppFeedback>>,
+        TError,
+        {data: BodyType<AppFeedbackInput>},
+        TContext
+      > => {
+      return useMutation(getSubmitAppFeedbackMutationOptions(options));
+    }
+
+export const getListAppFeedbackUrl = () => {
+
+
+
+
+  return `/api/admin/app-feedback`
+}
+
+/**
+ * @summary List all app-level feedback submissions
+ */
+export const listAppFeedback = async ( options?: RequestInit): Promise<AppFeedbackItem[]> => {
+
+  return customFetch<AppFeedbackItem[]>(getListAppFeedbackUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAppFeedbackQueryKey = () => {
+    return [
+    `/api/admin/app-feedback`
+    ] as const;
+    }
+
+
+export const getListAppFeedbackQueryOptions = <TData = Awaited<ReturnType<typeof listAppFeedback>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAppFeedback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAppFeedbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAppFeedback>>> = ({ signal }) => listAppFeedback({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAppFeedback>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAppFeedbackQueryResult = NonNullable<Awaited<ReturnType<typeof listAppFeedback>>>
+export type ListAppFeedbackQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all app-level feedback submissions
+ */
+
+export function useListAppFeedback<TData = Awaited<ReturnType<typeof listAppFeedback>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAppFeedback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAppFeedbackQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

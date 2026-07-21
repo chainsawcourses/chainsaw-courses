@@ -423,6 +423,14 @@ export interface StudentQuizResult {
   attemptedAt: string;
 }
 
+export interface StudentExamAttempt {
+  id: number;
+  score: number;
+  passed: boolean;
+  totalQuestions: number;
+  attemptedAt: string;
+}
+
 export interface StudentDetail {
   id: number;
   fullName: string;
@@ -438,6 +446,7 @@ export interface StudentDetail {
   waiverPdfUrl?: string | null;
   completedModules: number;
   quizResults: StudentQuizResult[];
+  examAttempts: StudentExamAttempt[];
   /** @nullable */
   lastActivity?: string | null;
 }
@@ -501,5 +510,25 @@ export interface UpdateNewsItemInput {
   /** @nullable */
   imageUrl?: string | null;
   publishedAt?: string;
+}
+
+export interface AppFeedbackInput {
+  deviceId: string;
+  activationCode: string;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  rating: number;
+  comment?: string;
+}
+
+export interface AppFeedbackItem {
+  id: number;
+  rating: number;
+  /** @nullable */
+  comment?: string | null;
+  studentName: string;
+  createdAt: string;
 }
 

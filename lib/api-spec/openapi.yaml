@@ -382,6 +382,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/ExamStatus"
 
+  /app-feedback:
+    post:
+      operationId: submitAppFeedback
+      tags: [feedback]
+      summary: Submit overall app feedback after passing the final exam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppFeedbackInput"
+      responses:
+        "200":
+          description: Feedback recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/app-feedback:
+    get:
+      operationId: listAppFeedback
+      tags: [admin]
+      summary: List all app-level feedback submissions
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: App feedback list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppFeedbackItem"
+
   /feedback/{moduleId}:
     post:
       operationId: submitModuleFeedback
@@ -1706,7 +1746,7 @@ components:
 
     StudentDetail:
       type: object
-      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, waiverSigned]
+      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned]
       properties:
         id:
           type: integer
@@ -1734,8 +1774,27 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StudentQuizResult"
+        examAttempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentExamAttempt"
         lastActivity:
           type: ["string", "null"]
+
+    StudentExamAttempt:
+      type: object
+      required: [id, score, passed, totalQuestions, attemptedAt]
+      properties:
+        id:
+          type: integer
+        score:
+          type: integer
+        passed:
+          type: boolean
+        totalQuestions:
+          type: integer
+        attemptedAt:
+          type: string
 
     StudentQuizResult:
       type: object
@@ -1858,4 +1917,34 @@ components:
         imageUrl:
           type: ["string", "null"]
         publishedAt:
+          type: string
+
+    AppFeedbackInput:
+      type: object
+      required: [deviceId, activationCode, rating]
+      properties:
+        deviceId:
+          type: string
+        activationCode:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    AppFeedbackItem:
+      type: object
+      required: [id, rating, studentName, createdAt]
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+        comment:
+          type: ["string", "null"]
+        studentName:
+          type: string
+        createdAt:
           type: string

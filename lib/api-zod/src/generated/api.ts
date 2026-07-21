@@ -299,6 +299,43 @@ export const GetExamStatusResponse = zod.object({
 
 
 /**
+ * @summary Submit overall app feedback after passing the final exam
+ */
+export const submitAppFeedbackBodyRatingMax = 5;
+
+
+
+export const SubmitAppFeedbackBody = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string(),
+  "rating": zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
+  "comment": zod.string().optional()
+})
+
+export const SubmitAppFeedbackResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
+ * @summary List all app-level feedback submissions
+ */
+export const ListAppFeedbackHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const ListAppFeedbackResponseItem = zod.object({
+  "id": zod.number(),
+  "rating": zod.number(),
+  "comment": zod.string().nullish(),
+  "studentName": zod.string(),
+  "createdAt": zod.string()
+})
+export const ListAppFeedbackResponse = zod.array(ListAppFeedbackResponseItem)
+
+
+/**
  * @summary Submit a rating/comment for a module
  */
 export const SubmitModuleFeedbackParams = zod.object({
@@ -796,6 +833,13 @@ export const GetStudentResponse = zod.object({
   "moduleTitle": zod.string(),
   "passed": zod.boolean(),
   "score": zod.number(),
+  "attemptedAt": zod.string()
+})),
+  "examAttempts": zod.array(zod.object({
+  "id": zod.number(),
+  "score": zod.number(),
+  "passed": zod.boolean(),
+  "totalQuestions": zod.number(),
   "attemptedAt": zod.string()
 })),
   "lastActivity": zod.string().nullish()

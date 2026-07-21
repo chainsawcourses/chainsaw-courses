@@ -183,6 +183,16 @@ export const insertExamQuestionSchema = createInsertSchema(examQuestionsTable).o
 export const insertInspectionRecordSchema = createInsertSchema(inspectionRecordsTable).omit({ id: true, createdAt: true, amendedAt: true });
 export const insertRiskAssessmentSchema = createInsertSchema(riskAssessmentsTable).omit({ id: true, createdAt: true, amendedAt: true });
 
+export const appFeedbackTable = pgTable("app_feedback", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type AppFeedback = typeof appFeedbackTable.$inferSelect;
+
 export const appConfigTable = pgTable("app_config", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),

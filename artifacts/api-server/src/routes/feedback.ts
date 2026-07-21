@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { moduleFeedbackTable, modulesTable, usersTable } from "@workspace/db";
+import { moduleFeedbackTable, modulesTable, usersTable, appFeedbackTable } from "@workspace/db";
 import { SubmitModuleFeedbackBody } from "@workspace/api-zod";
 import { eq, desc } from "drizzle-orm";
+import { z } from "zod/v4";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
@@ -73,6 +74,64 @@ router.get("/admin/feedback", async (req, res) => {
     );
   } catch (err) {
     logger.error({ err }, "Error fetching feedback");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+const SubmitAppFeedbackBody = z.object({
+  deviceId: z.string(),
+  activationCode: z.string(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().optional(),
+});
+
+router.post("/app-feedback", async (req, res) => {
+  const parse = SubmitAppFeedbackBody.safeParse(req.body);
+  if (!parse.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+  const { deviceId, activationCode, rating, comment } = parse.data;
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    await db.insert(appFeedbackTable).values({ userId: user.id, rating, comment: comment ?? null });
+    res.json({ success: true, message: "Feedback recorded" });
+  } catch (err) {
+    logger.error({ err }, "Error saving app feedback");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/admin/app-feedback", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const rows = await db
+      .select({
+        id: appFeedbackTable.id,
+        rating: appFeedbackTable.rating,
+        comment: appFeedbackTable.comment,
+        createdAt: appFeedbackTable.createdAt,
+        studentName: usersTable.fullName,
+      })
+      .from(appFeedbackTable)
+      .leftJoin(usersTable, eq(appFeedbackTable.userId, usersTable.id))
+      .orderBy(desc(appFeedbackTable.createdAt));
+    res.json(rows.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      comment: r.comment ?? null,
+      studentName: r.studentName ?? "Unknown",
+      createdAt: r.createdAt?.toISOString?.() ?? String(r.createdAt),
+    })));
+  } catch (err) {
+    logger.error({ err }, "Error fetching app feedback");
     res.status(500).json({ error: "Internal server error" });
   }
 });
