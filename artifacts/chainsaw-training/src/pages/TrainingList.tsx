@@ -712,9 +712,9 @@ export default function TrainingList() {
               {/* View Certificate — always rendered for static layout; hidden until exam is passed */}
               <button
                 onClick={examPassed ? handleViewCertificate : undefined}
-                className={`ml-auto font-mono text-[10px] uppercase tracking-widest underline underline-offset-2 transition-colors ${
+                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none ${
                   examPassed
-                    ? "text-muted-foreground/60 hover:text-primary cursor-pointer"
+                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px"
                     : "invisible pointer-events-none"
                 }`}
               >
