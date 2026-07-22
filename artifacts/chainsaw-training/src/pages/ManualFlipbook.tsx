@@ -26,7 +26,7 @@ function pageUrl(n: number) {
 function playPageSound() {
   try {
     const audio = new Audio(`${import.meta.env.BASE_URL}page-turn.mp3`);
-    audio.volume = 0.7;
+    audio.volume = 0.35;
     audio.play().catch(() => {});
   } catch { /* ignore */ }
 }
@@ -213,7 +213,7 @@ export default function ManualFlipbook() {
     if (!ctx) return;
     ctx.scale(dpr, dpr);
     const [fx, fy] = WM_POS[wmPos.current % WM_POS.length];
-    const fs = Math.max(13, Math.floor(rect.width * 0.036));
+    const fs = Math.max(16, Math.floor(rect.width * 0.052));
     ctx.save();
     ctx.translate(rect.width * fx, rect.height * fy);
     ctx.rotate(-Math.PI / 9);
@@ -262,7 +262,7 @@ export default function ManualFlipbook() {
       : Math.min(currentPage + 1, numPages);
     if (page < 1 || page > numPages) return;
     setZoomedPage(page);
-    setZoomScale(1);
+    setZoomScale(2);
     setZoomPan({ x: 0, y: 0 });
   }, [isAnimating, isMobile, currentPage, numPages]);
 
