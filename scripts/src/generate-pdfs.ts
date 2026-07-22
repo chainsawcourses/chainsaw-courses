@@ -40,7 +40,7 @@ function drawPageHeader(doc: PDFKit.PDFDocument): void {
   }
   const tX = fs.existsSync(LOGO_PATH) ? 60 + logoSize + 12 : 60;
   doc
-    .fontSize(20)
+    .fontSize(13)
     .fillColor(ORANGE)
     .font("Helvetica-Bold")
     .text("Chainsaw Courses", tX, hY + 4, { lineBreak: false });
