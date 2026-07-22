@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,10 +22,10 @@ export default function Activation() {
   const { toast } = useToast();
   const { deviceId, activationCode, setSession } = useUserSession();
 
-  // Redirect to training immediately if a session already exists.
-  // activationCode is read synchronously from localStorage/cookies by UserContext,
-  // so this fires before the form ever renders — no flicker of the sign-in screen.
-  useEffect(() => {
+  // Redirect synchronously before the first paint so returning users never see
+  // the activation form, even for a single frame. useLayoutEffect fires after
+  // DOM mutation but before the browser paints — zero visible gap.
+  useLayoutEffect(() => {
     if (activationCode) {
       setLocation("/training");
     }
