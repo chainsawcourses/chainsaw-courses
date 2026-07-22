@@ -8,11 +8,14 @@
     "seed-quiz": "tsx ./src/seed-quiz-questions.ts",
     "add-battery-module": "tsx ./src/add-battery-chainsaw-module.ts",
     "seed-hazards": "tsx ./src/seed-hazard-reference.ts",
+    "generate-pdfs": "tsx ./src/generate-pdfs.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@types/pdfkit": "^0.17.6",
     "@workspace/db": "workspace:*",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.19.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
