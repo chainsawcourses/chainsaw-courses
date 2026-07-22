@@ -500,7 +500,7 @@ export default function TrainingList() {
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <LogEndIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
-                    <span>Species Guide</span>
+                    <span>Timber Characteristics</span>
                   </Link>
                   <Link
                     href="/glossary"
@@ -616,7 +616,7 @@ export default function TrainingList() {
             <Link href="/news" className="text-muted-foreground hover:text-primary" title="Industry News">
               <Newspaper className="w-5 h-5" />
             </Link>
-            <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Species Guide">
+            <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Timber Characteristics">
               <LogEndIcon className="w-5 h-5" />
             </Link>
             <Link href="/manual" className="text-muted-foreground hover:text-primary" title="Training Manual">

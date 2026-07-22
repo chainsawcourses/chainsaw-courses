@@ -370,7 +370,7 @@ export default function SpeciesGuide() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <Leaf className="w-5 h-5 text-primary shrink-0" />
-          <h1 className="font-black tracking-tighter text-base uppercase leading-none">Species Characteristics</h1>
+          <h1 className="font-black tracking-tighter text-base uppercase leading-none">Timber Characteristics</h1>
         </div>
       </header>
 

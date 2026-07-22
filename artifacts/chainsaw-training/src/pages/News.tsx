@@ -64,7 +64,7 @@ export default function News() {
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-4">
         <div className="space-y-1 pb-2">
           <h1 className="font-black tracking-tighter text-xl uppercase text-foreground leading-tight">
-            Stay Sharp in the Field
+            Stay Safe, Stay Sharp
           </h1>
           <p className="text-muted-foreground text-sm font-mono leading-relaxed">
             The industry moves fast — new legislation, equipment recalls, biosecurity alerts, and best-practice updates can directly affect how you work safely. These articles are hand-picked especially for you as a paying member and subscriber of chainsaw courses. Tap any headline to read the full story.
