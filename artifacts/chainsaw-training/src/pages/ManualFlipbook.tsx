@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 import * as pdfjsLib from "pdfjs-dist";
 
-// Vite-served worker asset
-import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+// Worker served as a static public asset (most reliable across Vite base-path configs)
+pdfjsLib.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
 
 const MANUAL_URL = `${import.meta.env.BASE_URL}pdfs/manual.pdf`;
 const RENDER_SCALE = 2.0;
