@@ -25,7 +25,7 @@ export default function StudentFeedback() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border bg-card/50 sticky top-0 z-10">
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild className="font-mono text-xs">
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Link>

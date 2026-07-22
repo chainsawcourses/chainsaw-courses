@@ -454,7 +454,7 @@ export default function CrossCutSim() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/training" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-black uppercase tracking-widest">
             <ArrowLeft className="w-4 h-4" /> Back

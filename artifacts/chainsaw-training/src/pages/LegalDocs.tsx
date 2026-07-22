@@ -157,17 +157,22 @@ export default function LegalDocs() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-primary text-primary-foreground px-6 py-5">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-sm opacity-80 hover:opacity-100 mb-3 transition-opacity"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
-        <h1 className="text-xl font-black uppercase tracking-widest">Documents Library</h1>
-        <p className="text-sm opacity-75 mt-1">Overleaf Publishers Ltd — Chainsaw Courses · {totalDocs} documents</p>
-      </div>
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+          <button
+            onClick={() => navigate("/training")}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-xs font-mono uppercase tracking-widest font-bold"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-orange-500" />
+            <span className="font-mono font-bold uppercase tracking-widest text-sm">Documents Library</span>
+          </div>
+          <div className="w-14" />
+        </div>
+      </header>
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-10">
         {SECTIONS.map((section) => (

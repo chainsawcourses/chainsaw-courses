@@ -251,14 +251,14 @@ export default function Glossary() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <Link href="/training">
             <button className="text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
-          <BookOpen className="w-4 h-4 text-primary" />
+          <BookOpen className="w-4 h-4 text-orange-500" />
           <span className="font-mono font-black uppercase tracking-widest text-sm">Glossary of Terms</span>
         </div>
       </header>

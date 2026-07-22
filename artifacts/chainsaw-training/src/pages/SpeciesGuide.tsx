@@ -364,12 +364,12 @@ export default function SpeciesGuide() {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-border">
+      <header className="sticky top-0 z-20 bg-card/80 backdrop-blur border-b border-border">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link href="/training" className="text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+          <Link href="/training" className="text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          <Leaf className="w-5 h-5 text-primary shrink-0" />
+          <Leaf className="w-4 h-4 text-orange-500 shrink-0" />
           <h1 className="font-black tracking-tighter text-base uppercase leading-none">Timber Characteristics</h1>
         </div>
       </header>

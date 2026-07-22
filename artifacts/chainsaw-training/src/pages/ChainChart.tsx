@@ -79,7 +79,7 @@ export default function ChainChart() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Cog className="w-4 h-4 text-primary" />
+            <Cog className="w-4 h-4 text-orange-500" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Chain Identification</span>
           </div>
           <div className="w-14" />

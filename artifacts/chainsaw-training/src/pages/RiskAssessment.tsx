@@ -340,7 +340,7 @@ export default function RiskAssessment() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-4 h-4 text-orange-500" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
           <Button

@@ -20,13 +20,13 @@ export default function News() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
-          <Link href="/training" className="text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
+          <Link href="/training" className="text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
-          <Newspaper className="w-5 h-5 text-primary" />
-          <span className="font-mono font-bold uppercase tracking-widest text-sm text-primary">
+          <Newspaper className="w-4 h-4 text-orange-500" />
+          <span className="font-mono font-bold uppercase tracking-widest text-sm">
             Industry News
           </span>
           <div className="ml-auto">

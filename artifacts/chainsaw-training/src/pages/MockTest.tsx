@@ -519,8 +519,8 @@ export default function MockTest() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur sticky top-0 z-10 shrink-0">
-        <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10 shrink-0">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Button variant="ghost" size="sm" className="font-mono text-xs" asChild>
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-2" />EXIT
