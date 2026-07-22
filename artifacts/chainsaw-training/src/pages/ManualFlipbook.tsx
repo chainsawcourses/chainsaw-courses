@@ -5,17 +5,17 @@ import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 
 const PAGES_BASE = `${import.meta.env.BASE_URL}manual-pages`;
-const FLIP_MS = 550;
+const EXIT_MS = 180;
+const ENTER_MS = 280;
 
 type LoadState = "idle" | "loading" | "loaded" | "missing" | "error";
-type FlipDir = "none" | "forward" | "backward";
+type BookAnim = "idle" | "exit-fwd" | "exit-bwd" | "enter-fwd" | "enter-bwd";
 
 const WM_POS: [number, number][] = [
   [0.50, 0.35], [0.28, 0.60], [0.72, 0.60],
   [0.50, 0.55], [0.35, 0.40], [0.65, 0.40],
 ];
 
-// Zero-pad page number to 3 digits matching pdftoppm output (001..138)
 function pageUrl(n: number) {
   return `${PAGES_BASE}/page-${String(n).padStart(3, "0")}.jpg`;
 }
@@ -51,7 +51,6 @@ function playPageSound() {
 function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement): Promise<void> {
   return new Promise((resolve) => {
     if (pageNum < 1 || pageNum > total) {
-      // Blank cream page for out-of-range (e.g. right page on last odd spread)
       el.width = 595; el.height = 842;
       const ctx = el.getContext("2d");
       if (ctx) { ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
@@ -67,7 +66,6 @@ function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement
       resolve();
     };
     img.onerror = () => {
-      // Fallback: blank page so UI doesn't break
       el.width = 595; el.height = 842;
       const ctx = el.getContext("2d");
       if (ctx) { ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
@@ -77,7 +75,6 @@ function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement
   });
 }
 
-// Silently prefetch images into the browser cache
 function prefetchImages(pageNums: number[]) {
   for (const n of pageNums) {
     const img = new Image();
@@ -123,21 +120,16 @@ export default function ManualFlipbook() {
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [flipDir, setFlipDir] = useState<FlipDir>("none");
+  const [bookAnim, setBookAnim] = useState<BookAnim>("idle");
   const [jumpInput, setJumpInput] = useState("");
   const [pageRendering, setPageRendering] = useState(false);
 
-  // Permanent canvases
   const leftRef = useRef<HTMLCanvasElement>(null);
   const rightRef = useRef<HTMLCanvasElement>(null);
-  // Flip canvases (front = old right, back = new left, newR = new right)
-  const flipFrontRef = useRef<HTMLCanvasElement>(null);
-  const flipBackRef = useRef<HTMLCanvasElement>(null);
-  const newRightRef = useRef<HTMLCanvasElement>(null);
   const wmRef = useRef<HTMLCanvasElement>(null);
   const wmPos = useRef(0);
 
-  const isAnimating = flipDir !== "none";
+  const isAnimating = bookAnim !== "idle";
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 700);
   useEffect(() => {
     const fn = () => setIsMobile(window.innerWidth < 700);
@@ -194,9 +186,12 @@ export default function ManualFlipbook() {
     const t = setInterval(() => { wmPos.current = (wmPos.current + 1) % WM_POS.length; drawWatermark(); }, 30_000);
     return () => clearInterval(t);
   }, [drawWatermark]);
-  useEffect(() => { window.addEventListener("resize", drawWatermark); return () => window.removeEventListener("resize", drawWatermark); }, [drawWatermark]);
+  useEffect(() => {
+    window.addEventListener("resize", drawWatermark);
+    return () => window.removeEventListener("resize", drawWatermark);
+  }, [drawWatermark]);
 
-  // ── Render single page to canvas (image-based, no pdfjs) ─────────────────
+  // ── Render single page to canvas ─────────────────────────────────────────
   const renderPage = useCallback((pageNum: number, el: HTMLCanvasElement | null) => {
     if (!el) return Promise.resolve();
     return loadImageToCanvas(pageNum, numPages, el);
@@ -220,26 +215,24 @@ export default function ManualFlipbook() {
     }
   }, [isMobile, numPages, renderPage]);
 
-  // Initial render + re-render on page change (idle, no animation)
+  // Re-render when page changes (only during enter phase, not exit)
   useEffect(() => {
-    if (loadState !== "loaded" || isAnimating) return;
+    if (loadState !== "loaded" || bookAnim === "exit-fwd" || bookAnim === "exit-bwd") return;
     renderSpread(currentPage).then(() => {
       setTimeout(drawWatermark, 60);
-      // Silently prefetch next spread — images go into the browser cache
       const step = isMobile ? 1 : 2;
       const next = currentPage + step;
-      const toFetch = isMobile ? [next] : [next, next + 1];
-      prefetchImages(toFetch.filter(n => n >= 1 && n <= numPages));
+      prefetchImages([next, next + 1].filter(n => n >= 1 && n <= numPages));
     });
-  }, [currentPage, loadState, isAnimating, renderSpread, drawWatermark, isMobile, numPages]);
+  }, [currentPage, loadState, bookAnim, renderSpread, drawWatermark, isMobile, numPages]);
 
-  // ── Navigation with flip animation ───────────────────────────────────────
+  // ── Navigation ────────────────────────────────────────────────────────────
   const step = isMobile ? 1 : 2;
   const maxPage = numPages > 0 ? numPages : 1;
   const canGoBack = currentPage > 1;
   const canGoForward = isMobile ? currentPage < maxPage : currentPage + 1 < maxPage;
 
-  const doFlip = useCallback(async (dir: "forward" | "backward") => {
+  const doFlip = useCallback((dir: "forward" | "backward") => {
     if (isAnimating || !numPages) return;
     if (dir === "forward" && !canGoForward) return;
     if (dir === "backward" && !canGoBack) return;
@@ -250,28 +243,18 @@ export default function ManualFlipbook() {
 
     playPageSound();
 
-    if (!isMobile) {
-      // Copy current right into flipFront before animating
-      const flipF = flipFrontRef.current;
-      const src = dir === "forward" ? rightRef.current : leftRef.current;
-      if (flipF && src) {
-        flipF.width = src.width; flipF.height = src.height;
-        flipF.getContext("2d")?.drawImage(src, 0, 0);
-      }
-      // Pre-render new pages into the hidden flip canvases
-      await Promise.all([
-        renderPage(dir === "forward" ? nextPage : nextPage + 1, flipBackRef.current),
-        renderPage(dir === "forward" ? nextPage + 1 : nextPage - 1, newRightRef.current),
-      ]);
-    }
-
-    setFlipDir(dir);
+    // Phase 1: slide out
+    setBookAnim(dir === "forward" ? "exit-fwd" : "exit-bwd");
 
     setTimeout(() => {
+      // Phase 2: update page (triggers re-render) + slide in
       setCurrentPage(nextPage);
-      setFlipDir("none");
-    }, FLIP_MS);
-  }, [isAnimating, numPages, canGoForward, canGoBack, currentPage, step, maxPage, isMobile, renderPage]);
+      setBookAnim(dir === "forward" ? "enter-fwd" : "enter-bwd");
+
+      // Phase 3: idle
+      setTimeout(() => setBookAnim("idle"), ENTER_MS);
+    }, EXIT_MS);
+  }, [isAnimating, numPages, canGoForward, canGoBack, currentPage, step, maxPage]);
 
   // ── Touch / mouse swipe ───────────────────────────────────────────────────
   const touchStartX = useRef<number | null>(null);
@@ -312,39 +295,44 @@ export default function ManualFlipbook() {
 
   if (!activationCode) return null;
 
-  const flipClass = flipDir === "forward"
-    ? "animate-flip-forward"
-    : flipDir === "backward"
-    ? "animate-flip-backward"
-    : "";
+  // Derive inline animation style for the book
+  const bookStyle: React.CSSProperties = (() => {
+    switch (bookAnim) {
+      case "exit-fwd":
+        return { animation: `pageExitLeft ${EXIT_MS}ms cubic-bezier(0.4,0,1,1) forwards` };
+      case "exit-bwd":
+        return { animation: `pageExitRight ${EXIT_MS}ms cubic-bezier(0.4,0,1,1) forwards` };
+      case "enter-fwd":
+        return { animation: `pageEnterRight ${ENTER_MS}ms cubic-bezier(0,0,0.2,1) forwards` };
+      case "enter-bwd":
+        return { animation: `pageEnterLeft ${ENTER_MS}ms cubic-bezier(0,0,0.2,1) forwards` };
+      default:
+        return {};
+    }
+  })();
 
   return (
     <>
       <style>{`
         @media print { body { display: none !important; } }
 
-        @keyframes flipForward {
-          0%   { transform: perspective(1800px) rotateY(0deg); }
-          40%  { transform: perspective(1800px) rotateY(-50deg); box-shadow: -8px 0 18px rgba(0,0,0,0.22); }
-          100% { transform: perspective(1800px) rotateY(-180deg); }
+        @keyframes pageExitLeft {
+          from { opacity: 1; transform: translateX(0)    scale(1); }
+          to   { opacity: 0; transform: translateX(-32px) scale(0.97); }
         }
-        @keyframes flipBackward {
-          0%   { transform: perspective(1800px) rotateY(-180deg); }
-          60%  { transform: perspective(1800px) rotateY(-130deg); box-shadow: -8px 0 18px rgba(0,0,0,0.22); }
-          100% { transform: perspective(1800px) rotateY(0deg); }
+        @keyframes pageExitRight {
+          from { opacity: 1; transform: translateX(0)   scale(1); }
+          to   { opacity: 0; transform: translateX(32px) scale(0.97); }
         }
-        .animate-flip-forward {
-          animation: flipForward ${FLIP_MS}ms cubic-bezier(0.4,0,0.2,1) forwards;
+        @keyframes pageEnterRight {
+          from { opacity: 0; transform: translateX(28px) scale(0.97); }
+          to   { opacity: 1; transform: translateX(0)    scale(1); }
         }
-        .animate-flip-backward {
-          animation: flipBackward ${FLIP_MS}ms cubic-bezier(0.4,0,0.2,1) forwards;
+        @keyframes pageEnterLeft {
+          from { opacity: 0; transform: translateX(-28px) scale(0.97); }
+          to   { opacity: 1; transform: translateX(0)     scale(1); }
         }
-        .flip-front { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-        .flip-back  {
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-          transform: rotateY(180deg);
-        }
+
         .book-page canvas { display: block; width: 100%; height: 100%; object-fit: contain; }
       `}</style>
 
@@ -434,17 +422,18 @@ export default function ManualFlipbook() {
                   </>
                 )}
 
-                {/* Book body */}
+                {/* Book body — animated wrapper */}
                 <div
                   className="relative rounded-sm overflow-hidden"
                   style={{
                     aspectRatio: isMobile ? "1/1.414" : "2/1.414",
                     boxShadow: "0 8px 40px rgba(0,0,0,0.28), 0 2px 8px rgba(0,0,0,0.18)",
                     background: "#faf8f5",
+                    ...bookStyle,
                   }}
                 >
                   {/* Pages row */}
-                  <div className="absolute inset-0 flex" style={{ perspective: "2000px" }}>
+                  <div className="absolute inset-0 flex">
 
                     {/* Left page */}
                     <div
@@ -452,49 +441,15 @@ export default function ManualFlipbook() {
                       style={{ width: isMobile ? "100%" : "50%", borderRight: isMobile ? "none" : "1px solid #e2ddd8" }}
                     >
                       <canvas ref={leftRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-                      {/* During backward flip, newRightRef overlays the left panel */}
-                      <canvas
-                        ref={newRightRef}
-                        style={{
-                          position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain",
-                          opacity: (isAnimating && flipDir === "backward") ? 1 : 0,
-                          pointerEvents: "none",
-                        }}
-                      />
                     </div>
 
                     {/* Right page — desktop only */}
                     {!isMobile && (
                       <div
                         className="book-page relative bg-white overflow-hidden"
-                        style={{ width: "50%", position: "relative" }}
+                        style={{ width: "50%" }}
                       >
                         <canvas ref={rightRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-
-                        {/* Animated flip element */}
-                        <div
-                          className={isAnimating ? flipClass : ""}
-                          style={{
-                            position: "absolute", inset: 0,
-                            transformOrigin: "left center",
-                            transformStyle: "preserve-3d",
-                            zIndex: isAnimating ? 10 : -1,
-                            opacity: isAnimating ? 1 : 0,
-                          }}
-                        >
-                          <div
-                            className="flip-front"
-                            style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", background: "#fff", overflow: "hidden" }}
-                          >
-                            <canvas ref={flipFrontRef} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
-                          </div>
-                          <div
-                            className="flip-back"
-                            style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "#fff", overflow: "hidden" }}
-                          >
-                            <canvas ref={flipBackRef} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
-                          </div>
-                        </div>
                       </div>
                     )}
                   </div>
@@ -520,7 +475,7 @@ export default function ManualFlipbook() {
                   <canvas ref={wmRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden style={{ zIndex: 20 }} />
 
                   {/* Per-page loading spinner */}
-                  {pageRendering && !isAnimating && (
+                  {pageRendering && bookAnim === "idle" && (
                     <div
                       className="absolute inset-0 flex items-center justify-center pointer-events-none"
                       style={{ zIndex: 25, background: "rgba(250,248,245,0.55)" }}
