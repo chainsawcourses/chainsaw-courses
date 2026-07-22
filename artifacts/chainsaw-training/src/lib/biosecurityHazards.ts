@@ -107,9 +107,9 @@ export const HAZARDS: Hazard[] = [
     scientificName: "Hymenoscyphus fraxineus",
     category: "statutory",
     color: "#06b6d4",
-    regionLabel: "Nationwide — confirmed in most counties across England, Wales, Scotland & N. Ireland",
+    regionLabel: "Nationwide — Wales most severely affected; heavy infection across England & Scotland; present in N. Ireland",
     operationalImpact:
-      "Confirmed in virtually every county in Great Britain. Extensively brittle timber profiles — advanced decay causes ash crowns to unpredictably shatter or drop heavy limbs. Assume any ash stem may be affected regardless of apparent crown condition.",
+      "Confirmed in virtually every county of Great Britain. Wales is the most severely affected region (highest infection density); the Midlands, Yorkshire, East Anglia, SE England and parts of Scotland show extensive spread. Treat ALL ash as potentially infected regardless of location or crown appearance — advanced decay causes unpredictable crown shatter and heavy-limb drop.",
     controls: [
       "Treat all ash as potentially diseased and apply double-distance safety zones before cross-cutting",
       "Inspect crown for dead/hanging branches and stem for cankers or basal decay before committing to a cutting plan",
@@ -117,19 +117,37 @@ export const HAZARDS: Hazard[] = [
       "Bag and remove sawdust from confirmed infected sites; tool wash-down before leaving",
       "Report any previously unrecorded site via TreeAlert (treealert.forestresearch.gov.uk)",
     ],
+    // Zones reflect Forest Research distribution data — Wales is most intensely affected
     zones: [
-      { type: "circle", coords: [52.6,  1.2], radius: 60000 },
-      { type: "circle", coords: [51.2,  0.8], radius: 50000 },
-      { type: "circle", coords: [53.9, -1.4], radius: 65000 },
-      { type: "circle", coords: [52.8, -0.8], radius: 55000 },
-      { type: "circle", coords: [52.4, -2.0], radius: 50000 },
-      { type: "circle", coords: [51.0, -3.2], radius: 55000 },
-      { type: "circle", coords: [52.2, -3.7], radius: 65000 },
-      { type: "circle", coords: [53.6, -2.6], radius: 48000 },
-      { type: "circle", coords: [54.6, -1.6], radius: 48000 },
-      { type: "circle", coords: [56.3, -3.8], radius: 60000 },
-      { type: "circle", coords: [57.5, -4.1], radius: 50000 },
-      { type: "circle", coords: [54.8, -6.2], radius: 42000 },
+      // Wales — most severely infected
+      { type: "circle", coords: [52.45, -3.75], radius: 100000 }, // Central & North Wales
+      { type: "circle", coords: [51.65, -3.40], radius: 70000 },  // South Wales / Valleys
+      // England — Midlands & West
+      { type: "circle", coords: [52.40, -2.10], radius: 72000 },  // West Midlands / Shropshire / Worcestershire
+      { type: "circle", coords: [52.85, -1.00], radius: 68000 },  // East Midlands / Nottinghamshire
+      { type: "circle", coords: [51.90, -1.80], radius: 58000 },  // Gloucestershire / Oxfordshire
+      // England — Yorkshire & North
+      { type: "circle", coords: [53.85, -1.55], radius: 72000 },  // Yorkshire / Humber
+      { type: "circle", coords: [54.65, -1.65], radius: 58000 },  // Durham / NE England
+      { type: "circle", coords: [53.60, -2.70], radius: 58000 },  // Lancashire / NW England
+      { type: "circle", coords: [54.95, -2.90], radius: 52000 },  // Cumbria / Lake District
+      // England — East Anglia
+      { type: "circle", coords: [52.55,  1.15], radius: 72000 },  // Norfolk / North Suffolk
+      { type: "circle", coords: [52.05,  1.20], radius: 62000 },  // South Suffolk / Essex
+      // England — SE & South
+      { type: "circle", coords: [51.20,  0.55], radius: 68000 },  // Kent / East Sussex / Surrey
+      { type: "circle", coords: [51.48, -0.10], radius: 48000 },  // Greater London / Home Counties
+      { type: "circle", coords: [51.05, -1.40], radius: 52000 },  // Hampshire / Isle of Wight area
+      { type: "circle", coords: [50.90, -3.55], radius: 55000 },  // Devon / Somerset
+      // Scotland — Central Belt & Borders
+      { type: "circle", coords: [55.50, -2.55], radius: 62000 },  // Scottish Borders / Northumberland
+      { type: "circle", coords: [56.05, -3.70], radius: 62000 },  // Central Scotland / Stirling
+      { type: "circle", coords: [56.50, -2.85], radius: 58000 },  // Tayside / Angus / Perthshire
+      { type: "circle", coords: [57.25, -2.50], radius: 58000 },  // Aberdeenshire
+      { type: "circle", coords: [57.50, -4.20], radius: 52000 },  // Ross-shire / Highland
+      { type: "circle", coords: [55.85, -4.35], radius: 50000 },  // Argyll / West Scotland
+      // Northern Ireland
+      { type: "circle", coords: [54.75, -6.20], radius: 52000 },  // Northern Ireland
     ],
   },
   {
