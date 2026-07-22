@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ExternalLink, BookOpen, Shield, FileText, Building2, Wrench, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ExternalLink, BookOpen, Shield, FileText, Building2, Wrench, AlertTriangle, Library } from "lucide-react";
 
 type Resource = {
   title: string;
@@ -296,7 +296,7 @@ export default function Resources() {
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
-          <ExternalLink className="w-4 h-4 text-orange-500" />
+          <Library className="w-4 h-4 text-orange-500" />
           <span className="font-mono font-black uppercase tracking-widest text-sm">Further Reading & Resources</span>
         </div>
       </header>
