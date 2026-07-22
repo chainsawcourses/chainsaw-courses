@@ -240,10 +240,15 @@ export default function ManualFlipbook() {
   // ── Escape to close fullscreen ─────────────────────────────────────────────
   useEffect(() => {
     if (zoomedPage === null) return;
-    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") { setZoomedPage(null); setZoomScale(2); setZoomPan({ x: 0, y: 0 }); } };
+    const fn = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
+        else { setZoomedPage(null); setZoomScale(2); setZoomPan({ x: 0, y: 0 }); }
+      }
+    };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
-  }, [zoomedPage]);
+  }, [zoomedPage, zoomScale]);
 
   // Non-passive touchmove on overlay so pinch can preventDefault page zoom
   useEffect(() => {
@@ -753,11 +758,11 @@ export default function ManualFlipbook() {
                 Math.abs(t.clientY - pan.sy) > 10
               );
               pinchRef.current = null; panRef.current = null;
-              // Only act on tap (not pinch, not pan) — one tap always closes
+              // Only act on tap (not pinch, not pan)
+              // First tap: zoom out to 1×; second tap: close
               if (!wasPinch && !moved) {
-                setZoomedPage(null);
-                setZoomScale(2);
-                setZoomPan({ x: 0, y: 0 });
+                if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
+                else { setZoomedPage(null); setZoomScale(2); setZoomPan({ x: 0, y: 0 }); }
               }
             } else {
               pinchRef.current = null;
@@ -765,9 +770,8 @@ export default function ManualFlipbook() {
           }}
           onClick={() => {
             if (suppressClickRef.current) return;
-            setZoomedPage(null);
-            setZoomScale(2);
-            setZoomPan({ x: 0, y: 0 });
+            if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
+            else { setZoomedPage(null); setZoomScale(2); setZoomPan({ x: 0, y: 0 }); }
           }}
         >
           {/* Page image with zoom + pan transform */}
