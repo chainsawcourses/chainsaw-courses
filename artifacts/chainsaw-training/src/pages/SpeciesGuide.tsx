@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Search, Leaf, X, AlertTriangle, Flame, Axe } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function LogEndIcon({ className }: { className?: string }) {
   return (
@@ -380,9 +381,12 @@ export default function SpeciesGuide() {
       {/* Header */}
       <header className="sticky top-0 z-20 bg-card/80 backdrop-blur border-b border-border">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link href="/training" className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
+            <Link href="/training">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Link>
+          </Button>
           <LogEndIcon className="w-4 h-4 text-orange-500 shrink-0" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm">Timber Characteristics</span>
         </div>

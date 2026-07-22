@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import {
   ChevronLeft, ChevronRight, Loader2, AlertTriangle, BookOpen, ArrowLeft,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 import * as pdfjsLib from "pdfjs-dist";
 
@@ -249,12 +250,12 @@ export default function ManualFlipbook() {
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
           <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-            <Link href="/training">
-              <button className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-semibold">
-                <ArrowLeft className="w-4 h-4" />
-                Training
-              </button>
-            </Link>
+            <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
+              <Link href="/training">
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Link>
+            </Button>
             <div className="flex-1" />
             <div className="flex items-center gap-2 text-muted-foreground">
               <BookOpen className="w-4 h-4 text-orange-500" />

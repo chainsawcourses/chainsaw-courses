@@ -22,9 +22,12 @@ export default function News() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link href="/training" className="text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+          <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
+            <Link href="/training">
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
+            </Link>
+          </Button>
           <Newspaper className="w-4 h-4 text-orange-500" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm">
             Industry News
