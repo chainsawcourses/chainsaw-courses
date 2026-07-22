@@ -2,6 +2,20 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, Search, Leaf, X, AlertTriangle, Flame, Axe } from "lucide-react";
 
+function LogEndIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="7.2" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.75" />
+      <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.6" />
+      <circle cx="12" cy="12" r="2.2" stroke="currentColor" strokeWidth="0.9" strokeOpacity="0.5" />
+      <circle cx="12" cy="12" r="0.7" fill="currentColor" />
+      <line x1="12" y1="2" x2="12" y2="22" stroke="currentColor" strokeWidth="0.4" strokeOpacity="0.2" />
+      <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" strokeWidth="0.4" strokeOpacity="0.2" />
+    </svg>
+  );
+}
+
 interface Species {
   common: string;
   scientific: string;
@@ -369,7 +383,7 @@ export default function SpeciesGuide() {
           <Link href="/training" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <Leaf className="w-4 h-4 text-orange-500 shrink-0" />
+          <LogEndIcon className="w-4 h-4 text-orange-500 shrink-0" />
           <h1 className="font-black tracking-tighter text-base uppercase leading-none">Timber Characteristics</h1>
         </div>
       </header>
