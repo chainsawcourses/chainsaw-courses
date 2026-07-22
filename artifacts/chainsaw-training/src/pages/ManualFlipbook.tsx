@@ -117,6 +117,7 @@ export default function ManualFlipbook() {
   const [searchIndex, setSearchIndex] = useState<PageEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchCollapsed, setSearchCollapsed] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const leftRef = useRef<HTMLCanvasElement>(null);
@@ -195,6 +196,7 @@ export default function ManualFlipbook() {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false);
+        setSearchCollapsed(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -509,30 +511,44 @@ export default function ManualFlipbook() {
           {loadState === "loaded" && (
             <div className="w-full max-w-5xl flex flex-col sm:flex-row gap-2" ref={searchRef}>
               <div className="relative flex-1">
-                <div className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm">
-                  <Search className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
-                    onFocus={() => setSearchOpen(true)}
-                    onKeyDown={e => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (searchResults.length > 0) jumpToPage(searchResults[0].page);
-                        setSearchOpen(false);
-                        (e.target as HTMLInputElement).blur();
-                      }
-                    }}
-                    placeholder={searchIndex.length ? "Search manual content…" : "Loading search index…"}
-                    disabled={searchIndex.length === 0}
-                    className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground/60"
-                  />
-                  {searchQuery && (
-                    <button onClick={() => { setSearchQuery(""); setSearchOpen(false); }} className="text-muted-foreground hover:text-foreground transition-colors text-xs font-mono">✕</button>
-                  )}
-                </div>
-                {searchOpen && searchQuery.trim() && (
+                {searchCollapsed ? (
+                  /* ── Collapsed pill — input hidden, results stay visible ── */
+                  <div className="flex items-center gap-2 border border-orange-300 bg-orange-50 rounded-md px-3 py-2 shadow-sm">
+                    <Search className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                    <span className="flex-1 text-sm font-mono text-orange-700 truncate">{searchQuery}</span>
+                    <button
+                      onClick={() => { setSearchQuery(""); setSearchOpen(false); setSearchCollapsed(false); }}
+                      className="text-orange-400 hover:text-orange-600 transition-colors text-xs font-mono leading-none"
+                      aria-label="Clear search"
+                    >✕</button>
+                  </div>
+                ) : (
+                  /* ── Expanded input ─────────────────────────────────────── */
+                  <div className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm">
+                    <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                      onFocus={() => setSearchOpen(true)}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (searchResults.length > 0) jumpToPage(searchResults[0].page);
+                          setSearchCollapsed(true);
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      placeholder={searchIndex.length ? "Search manual content…" : "Loading search index…"}
+                      disabled={searchIndex.length === 0}
+                      className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground/60"
+                    />
+                    {searchQuery && (
+                      <button onClick={() => { setSearchQuery(""); setSearchOpen(false); }} className="text-muted-foreground hover:text-foreground transition-colors text-xs font-mono">✕</button>
+                    )}
+                  </div>
+                )}
+                {(searchOpen || searchCollapsed) && searchQuery.trim() && (
                   <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-card border border-border rounded-md shadow-lg overflow-hidden">
                     {searchResults.length === 0
                       ? <p className="px-4 py-3 text-sm text-muted-foreground">No pages match "{searchQuery}"</p>
@@ -540,7 +556,7 @@ export default function ManualFlipbook() {
                           <li key={hit.page}>
                             <button
                               className="w-full text-left px-4 py-2.5 hover:bg-accent transition-colors flex items-start gap-3 border-b border-border/50 last:border-0"
-                              onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchQuery(""); }}
+                              onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
                             >
                               <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-orange-100 text-orange-700 rounded px-1.5 py-0.5 leading-none">p.{hit.page}</span>
                               <span className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{hit.snippet}</span>
@@ -767,7 +783,7 @@ export default function ManualFlipbook() {
         <div
           ref={overlayRef}
           className="fixed inset-0 z-50 flex items-center justify-center select-none"
-          style={{ background: "rgba(0,0,0,0.93)", touchAction: "none" }}
+          style={{ background: "#ffffff", touchAction: "none" }}
           onWheel={e => {
             e.preventDefault();
             setZoomScale(s => Math.min(5, Math.max(1, s - e.deltaY * 0.0035)));
@@ -846,7 +862,7 @@ export default function ManualFlipbook() {
                 maxWidth: "100vw",
                 maxHeight: "100vh",
                 objectFit: "contain",
-                boxShadow: "0 8px 60px rgba(0,0,0,0.6)",
+                boxShadow: "0 4px 30px rgba(0,0,0,0.12)",
                 borderRadius: 2,
                 userSelect: "none",
                 WebkitUserDrag: "none" as React.CSSProperties["userSelect"],
@@ -879,22 +895,22 @@ export default function ManualFlipbook() {
           {/* ── Controls ──────────────────────────────────────────────────────── */}
           {/* Close button */}
           <button
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors border border-stone-200"
             onClick={() => setZoomedPage(null)}
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-white" />
+            <X className="w-5 h-5 text-stone-600" />
           </button>
 
           {/* Page indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
-            <span className="text-white/60 text-xs font-mono tracking-widest">
+            <span className="text-stone-400 text-xs font-mono tracking-widest">
               PAGE {zoomedPage} · {Math.round(zoomScale * 100)}% · TAP TO CLOSE
             </span>
           </div>
 
           {/* Zoom hint icon when at 1× */}
-          <div className="absolute top-4 left-4 text-white/30 pointer-events-none">
+          <div className="absolute top-4 left-4 text-stone-300 pointer-events-none">
             <ZoomIn className="w-5 h-5" />
           </div>
         </div>
