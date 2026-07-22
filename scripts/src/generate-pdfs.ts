@@ -1058,7 +1058,7 @@ async function genEnvironmental(): Promise<void> {
   bullet(doc, [
     "The Manual is printed by UK-based printers using FSC-certified or recycled paper stock wherever possible.",
     "Print runs are managed to minimise waste — digital-only access is offered to learners who do not require a physical copy.",
-    "Packaging for posted manuals uses recyclable and minimal materials.",
+    "Packaging for posted manuals is kept to a minimum. We endeavour to use recycled and recyclable packaging materials wherever possible, including recycled cardboard mailers and paper-based void fill in place of single-use plastics.",
   ]);
 
   sectionHeading(doc, "4. Chainsaw Operations and the Environment");
