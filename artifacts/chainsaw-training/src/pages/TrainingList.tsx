@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -507,7 +507,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
+                    <ScrollText className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Glossary of Terms</span>
                   </Link>
                   <Link
@@ -523,7 +523,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <BookMarked className="w-4 h-4 shrink-0 text-orange-500" />
+                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Digital Manual</span>
                   </Link>
                   <Link
