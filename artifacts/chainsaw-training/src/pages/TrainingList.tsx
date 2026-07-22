@@ -330,8 +330,8 @@ export default function TrainingList() {
               className="flex items-center gap-1 group"
             >
               <div className="flex flex-col leading-none">
-                <span className="font-black tracking-tighter text-[13px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
-                <span className="font-black tracking-tighter text-[13px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
+                <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
+                <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
               <ChevronDown className={`w-4 h-4 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
