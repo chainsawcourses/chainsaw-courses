@@ -44,12 +44,12 @@ export default function PrivacyPolicy() {
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
           >
             {downloading
-              ? <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
-              : <FileDown className="w-4 h-4 text-orange-500" />}
-            {downloading ? "Downloading…" : "Download PDF"}
+              ? <Loader2 className="w-3 h-3 text-orange-500 animate-spin" />
+              : <FileDown className="w-3 h-3 text-orange-500" />}
+            {downloading ? "Downloading…" : "Download"}
           </button>
         </div>
       </header>
