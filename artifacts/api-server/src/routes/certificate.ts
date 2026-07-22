@@ -124,9 +124,9 @@ router.get("/certificate", async (req, res) => {
       size: 7, font: fReg, color: lgrey,
     });
 
-    // Signature zone — sig lines at y=104, image (max 36 pt tall) from y=114 to y=150
+    // Signature zone — sig lines at y=104, image sits just above the line
     const SIG_LINE_Y  = 104;
-    const SIG_IMAGE_Y = SIG_LINE_Y + 10;   // 114
+    const SIG_IMAGE_Y = SIG_LINE_Y + 2;    // 106 — bottom of image 2pt above line
     const SIG_MAX_H   = 36;                 // image never taller than 36 pt
     const SIG_LABEL_Y = SIG_LINE_Y - 16;   // 88
 
@@ -193,7 +193,7 @@ router.get("/certificate", async (req, res) => {
     });
 
     //  Row 2: Unit reference + assessment method + pass mark
-    const unitLine = "Unit Ref: CS30 / CS31  \u00B7  Assessment: Online Theory & Knowledge  \u00B7  Pass Mark: 80%";
+    const unitLine = "Unit Ref: 0039-20  \u00B7  Assessment: Online Theory & Knowledge  \u00B7  Pass Mark: 80%";
     page.drawText(unitLine, {
       x: cx(unitLine, 8.5, fReg, W),
       y: 300, size: 8.5, font: fReg, color: mid,
@@ -221,10 +221,10 @@ router.get("/certificate", async (req, res) => {
       y: 264, size: 8.5, font: fItalic, color: lgrey,
     });
 
-    //  COURSE BLOCK — sits above CPD, below the certify/name block
+    //  COURSE BLOCK — equidistant between "has successfully" (y=476) and subtitle (y=377)
     page.drawText("Chainsaw Maintenance & Cross Cutting", {
       x: cx("Chainsaw Maintenance & Cross Cutting", 22, fBold, W),
-      y: 398, size: 22, font: fBold, color: black,
+      y: 416, size: 22, font: fBold, color: black,
     });
     page.drawText("Professional Training Course  \u00B7  Theory & Knowledge Assessment", {
       x: cx("Professional Training Course  \u00B7  Theory & Knowledge Assessment", 9, fReg, W),
