@@ -44,7 +44,7 @@ export default function BiosecurityMap() {
           </Button>
           <div className="flex items-center gap-2">
             <Leaf className="w-4 h-4 text-orange-500" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Biosecurity &amp; Hazard Map</span>
+            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Biosecurity &amp; Hazard Map</span>
           </div>
           <div className="w-14" />
         </div>
