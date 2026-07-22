@@ -88,9 +88,9 @@ const SECTIONS: Section[] = [
         type: "HSE Leaflet",
       },
       {
-        title: "FISA — Publications & Guidance Sheets",
-        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). This page lists the current chainsaw, felling, and work-at-height guidance sheets available to download.",
-        url: "https://fisa.uk/publications/",
+        title: "FISA — Guidance Sheets",
+        description: "FISA is the joint industry–regulator body that now publishes the key forestry and arboriculture safety guidance (previously produced under the AFAG brand). Current chainsaw, felling, and work-at-height guidance sheets are available to download from the FISA website.",
+        url: "https://www.fisa.uk/guidance/",
         type: "FISA Guidance",
       },
       {
