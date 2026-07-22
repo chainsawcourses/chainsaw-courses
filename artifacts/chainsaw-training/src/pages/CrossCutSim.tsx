@@ -459,7 +459,7 @@ export default function CrossCutSim() {
           <Link href="/training" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-black uppercase tracking-widest">
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
-          <span className="font-black tracking-tighter text-xs uppercase text-muted-foreground">Cross-Cut Simulator</span>
+          <span className="font-mono font-bold uppercase tracking-widest text-sm">Cross-Cut Simulator</span>
           <span className="font-mono text-xs text-muted-foreground">
             {score.total > 0 ? `${score.correct}/${score.total}` : ""}
           </span>

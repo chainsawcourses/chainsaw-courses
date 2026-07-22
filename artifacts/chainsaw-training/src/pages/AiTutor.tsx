@@ -107,7 +107,7 @@ export default function AiTutor() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-primary" />
+            <Sparkles className="w-4 h-4 text-orange-500" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">AI Tutor</span>
           </div>
           <Button

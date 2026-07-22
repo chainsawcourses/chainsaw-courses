@@ -107,7 +107,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Environmental & Sustainability Policy",
-        description: "Our environmental commitments, digital-first delivery approach, and commitment to reducing our operational footprint.",
+        description: "Our environmental commitments and sustainability approach. Course materials are available as printed or digital-only — students choose their preferred format at the point of purchase.",
         file: "Environmental_and_Sustainability_Policy.pdf",
         pages: "3 pages",
       },

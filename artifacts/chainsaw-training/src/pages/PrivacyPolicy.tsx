@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
             <ArrowLeft className="w-4 h-4" />
             Back
           </Link>
-          <span className="font-black tracking-tighter text-sm uppercase text-muted-foreground">Privacy Policy</span>
+          <span className="font-mono font-bold uppercase tracking-widest text-sm">Privacy Policy</span>
           <button
             onClick={() => window.print()}
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest"
