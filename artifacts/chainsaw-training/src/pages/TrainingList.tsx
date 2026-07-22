@@ -467,7 +467,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <MapPin className="w-4 h-4 shrink-0" />
+                    <MapPin className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Dynamic Risk Assessment</span>
                   </Link>
                   <Link
@@ -475,7 +475,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Leaf className="w-4 h-4 shrink-0" />
+                    <Leaf className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Biosecurity &amp; Hazard Map</span>
                   </Link>
                   <Link
