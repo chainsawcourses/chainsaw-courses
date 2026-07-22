@@ -1,0 +1,48 @@
+Build a web application for an online chainsaw course that connects graduates to regional NPTC assessment centres using an interactive map and an automated candidate-pooling engine. 
+
+### 1. Stack & Design System
+- Frontend: Clean, responsive HTML/CSS/JS (Tailwind CSS preferred) with Leaflet.js for mapping.
+- Backend: Python (Flask/FastAPI) or Node.js (Express) with a lightweight SQLite/PostgreSQL database.
+- Primary UI Aesthetic: Professional, modern, arborist/forestry theme (slate dark, deep pine green accents, crisp white cards).
+
+### 2. Pre-Map "Assessment Passport" Wizard (Mandatory Gate)
+Before a candidate accesses the map or pooling system, force a 3-step modal wizard:
+- Step 1: Physical Competence Declaration (Checkbox: "I confirm I have physical experience starting, holding, and operating a chainsaw safely prior to attending a practical assessment.")
+- Step 2: PPE & Equipment Verification Checkboxes (Must tick all: CE/UKCA Helmet, Visor, Ear Protection, Chainsaw Boots, Cut-Resistant Gloves, Cut-Resistant Trousers, and PUWER-compliant Chainsaw with functional chain brake, catcher, and lockout).
+- Step 3: GDPR Consent (Checkbox: "I consent to sharing my contact details with matched peer candidates and local assessment venues for booking purposes.")
+
+### 3. Interactive Map & Venue Architecture
+- Render a Leaflet.js map of the United Kingdom centered on candidate's location/postcode.
+- Venue Database Pin Types:
+  * "Gold Pins" (Verified Partner Venues): Receive 4-candidate group emails and solo candidate routing.
+  * "Silver Pins" (Directory Venues): General directory; solo candidate inquiries only.
+- Include a Postcode Search Bar that filters map pins within a 60-mile (1.5 to 2-hour drive) radius.
+
+### 4. Dual Booking Tracks
+A. Option A: 1-Click Solo Email (For urgent or individual candidates)
+   - When clicking a map pin, display venue info and a "Contact Venue Solo" button.
+   - Clicking triggers a native `mailto:` link opening the candidate's local mail client pre-filled with:
+     * Candidate Name, Postcode, Phone Number.
+     * Statement requesting single seat availability or cancellation opening for NPTC 201/202 (Maintenance & Cross-Cutting).
+     * Mandatory Disclaimer: "NPTC regulations require up to 10 working days advance notice for candidate registration."
+
+B. Option B: Automated 4-Candidate Geo-Pooling Queue
+   - Candidates enter their postcode and select a nearby Gold Pin venue.
+   - System adds them to a venue-specific queue (Target: 4 candidates within 60 miles).
+   - Display a live "Domino's Tracker" style progress bar on the user dashboard:
+     [Theory Passed] ➔ [PPE Verified] ➔ [Pool Status: X/4 Candidates] ➔ [Venue Notified]
+   - Queue Rules & Safeguards:
+     1. Strict Scope Tagging: Hardcoded to NPTC Unit 201/202 (Chainsaw Maintenance & Cross-Cutting).
+     2. 7-Day "Silent Flex": If a queue sits at 3/4 candidates for 7 days, trigger an automated email to the venue offering them the 3-pack to fill early.
+     3. 14-Day Concierge Nudge: If stuck in a queue for 14 days, send an automated email to the candidate offering a 1-click conversion to Option A (Direct Solo Email).
+     4. 21-Day Expiry Timer: Auto-expire pool seats after 21 days with an alert prompting the user to refresh their queue status or contact solo venues.
+
+### 5. Automated Group Webhook / Email Engine
+When Candidate #4 joins an active queue:
+- Lock the pool and fire an automated HTML email via SMTP/SendGrid to the venue, CC'ing all 4 candidates.
+- Email Template Content:
+  * Subject: "Full 4-Candidate NPTC Group Ready for Assessment ([Region Name])"
+  * List all 4 candidates (Names, Postcodes, Phone Numbers, Emails).
+  * Request venue to reply with upcoming assessment dates and individual deposit payment links.
+  * Include NPTC 10-day lead-time notice.
+  * Payment Disclaimer: "Each candidate is individually responsible for paying [Venue Name] directly. No funds are handled by our platform."
