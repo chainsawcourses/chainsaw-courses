@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, Loader2, AlertTriangle, BookOpen, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, AlertTriangle, BookOpen, ArrowLeft, Search, CornerDownLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -10,6 +10,8 @@ const ENTER_MS = 280;
 
 type LoadState = "idle" | "loading" | "loaded" | "missing" | "error";
 type BookAnim = "idle" | "exit-fwd" | "exit-bwd" | "enter-fwd" | "enter-bwd";
+
+interface PageEntry { page: number; text: string; }
 
 const WM_POS: [number, number][] = [
   [0.50, 0.35], [0.28, 0.60], [0.72, 0.60],
@@ -124,6 +126,12 @@ export default function ManualFlipbook() {
   const [jumpInput, setJumpInput] = useState("");
   const [pageRendering, setPageRendering] = useState(false);
 
+  // ── Search ────────────────────────────────────────────────────────────────
+  const [searchIndex, setSearchIndex] = useState<PageEntry[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const leftRef = useRef<HTMLCanvasElement>(null);
   const rightRef = useRef<HTMLCanvasElement>(null);
   const wmRef = useRef<HTMLCanvasElement>(null);
@@ -137,7 +145,7 @@ export default function ManualFlipbook() {
     return () => window.removeEventListener("resize", fn);
   }, []);
 
-  // ── Load manifest (tiny JSON — resolves in milliseconds) ─────────────────
+  // ── Load manifest then search index ──────────────────────────────────────
   useEffect(() => {
     setLoadState("loading");
     fetch(`${PAGES_BASE}/manifest.json`)
@@ -148,11 +156,51 @@ export default function ManualFlipbook() {
       .then(data => {
         setNumPages(data.pages);
         setLoadState("loaded");
+        // Fetch search index in the background (non-blocking)
+        fetch(`${PAGES_BASE}/search-index.json`)
+          .then(r => r.ok ? r.json() as Promise<PageEntry[]> : Promise.resolve([]))
+          .then(idx => setSearchIndex(idx))
+          .catch(() => {});
       })
       .catch((err: unknown) => {
         const msg = err instanceof Error ? err.message : String(err);
         setLoadState(msg === "missing" ? "missing" : "error");
       });
+  }, []);
+
+  // ── Search results ────────────────────────────────────────────────────────
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q || searchIndex.length === 0) return [];
+    const words = q.split(/\s+/).filter(Boolean);
+    type Hit = { page: number; snippet: string; score: number };
+    const hits: Hit[] = [];
+    for (const entry of searchIndex) {
+      const text = entry.text.toLowerCase();
+      const matchCount = words.filter(w => text.includes(w)).length;
+      if (matchCount === 0) continue;
+      // Build snippet: find first word hit, extract ±50 chars around it
+      const firstWordIdx = Math.max(0, ...words.map(w => entry.text.toLowerCase().indexOf(w)).filter(i => i >= 0));
+      const start = Math.max(0, firstWordIdx - 45);
+      const end = Math.min(entry.text.length, firstWordIdx + 90);
+      let snippet = entry.text.slice(start, end).replace(/\s+/g, " ").trim();
+      if (start > 0) snippet = "…" + snippet;
+      if (end < entry.text.length) snippet += "…";
+      hits.push({ page: entry.page, snippet, score: matchCount });
+    }
+    hits.sort((a, b) => b.score - a.score);
+    return hits.slice(0, 8);
+  }, [searchQuery, searchIndex]);
+
+  // Close search dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   // ── Watermark ─────────────────────────────────────────────────────────────
@@ -277,13 +325,15 @@ export default function ManualFlipbook() {
     doFlip(dx < 0 ? "forward" : "backward");
   };
 
+  const jumpToPage = useCallback((n: number) => {
+    if (isNaN(n) || n < 1 || n > numPages) return;
+    const snapped = isMobile ? n : (n % 2 === 0 ? n - 1 : n);
+    setCurrentPage(Math.max(1, Math.min(snapped, maxPage)));
+  }, [numPages, isMobile, maxPage]);
+
   const handleJump = (ev: React.FormEvent) => {
     ev.preventDefault();
-    const n = parseInt(jumpInput, 10);
-    if (!isNaN(n) && n >= 1 && n <= numPages) {
-      const snapped = isMobile ? n : (n % 2 === 0 ? n - 1 : n);
-      setCurrentPage(Math.max(1, Math.min(snapped, maxPage)));
-    }
+    jumpToPage(parseInt(jumpInput, 10));
     setJumpInput("");
   };
 
@@ -346,18 +396,6 @@ export default function ManualFlipbook() {
             </Button>
             <BookOpen className="w-4 h-4 text-orange-500" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Digital Chainsaw Manual</span>
-            <div className="flex-1" />
-            {loadState === "loaded" && (
-              <form onSubmit={handleJump} className="flex items-center gap-1">
-                <input
-                  value={jumpInput}
-                  onChange={e => setJumpInput(e.target.value)}
-                  placeholder="Go to…"
-                  className="w-16 text-xs text-center border border-border rounded px-1.5 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-orange-500"
-                  type="number" min={1} max={numPages}
-                />
-              </form>
-            )}
           </div>
         </header>
 
@@ -389,6 +427,77 @@ export default function ManualFlipbook() {
               <AlertTriangle className="w-8 h-8 text-destructive mx-auto" />
               <p className="text-sm font-semibold">Failed to load the manual.</p>
               <button onClick={() => window.location.reload()} className="text-xs underline text-muted-foreground">Reload</button>
+            </div>
+          )}
+
+          {loadState === "loaded" && (
+            <div className="w-full max-w-5xl flex flex-col sm:flex-row gap-2" ref={searchRef}>
+
+              {/* ── Search ─────────────────────────────────────────────── */}
+              <div className="relative flex-1">
+                <div className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm">
+                  <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                    onFocus={() => setSearchOpen(true)}
+                    placeholder={searchIndex.length ? "Search manual content…" : "Loading search index…"}
+                    disabled={searchIndex.length === 0}
+                    className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground/60"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => { setSearchQuery(""); setSearchOpen(false); }}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-xs font-mono"
+                    >✕</button>
+                  )}
+                </div>
+
+                {/* Results dropdown */}
+                {searchOpen && searchQuery.trim() && (
+                  <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-card border border-border rounded-md shadow-lg overflow-hidden">
+                    {searchResults.length === 0 ? (
+                      <p className="px-4 py-3 text-sm text-muted-foreground">No pages match "{searchQuery}"</p>
+                    ) : (
+                      <ul>
+                        {searchResults.map(hit => (
+                          <li key={hit.page}>
+                            <button
+                              className="w-full text-left px-4 py-2.5 hover:bg-accent transition-colors flex items-start gap-3 border-b border-border/50 last:border-0"
+                              onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchQuery(""); }}
+                            >
+                              <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-orange-100 text-orange-700 rounded px-1.5 py-0.5 leading-none">
+                                p.{hit.page}
+                              </span>
+                              <span className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{hit.snippet}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Go to page ─────────────────────────────────────────── */}
+              <form onSubmit={handleJump} className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm shrink-0">
+                <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">Go to</span>
+                <input
+                  value={jumpInput}
+                  onChange={e => setJumpInput(e.target.value)}
+                  placeholder={`1–${numPages}`}
+                  className="w-14 text-sm text-center bg-transparent outline-none placeholder:text-muted-foreground/40"
+                  type="number" min={1} max={numPages}
+                />
+                <button
+                  type="submit"
+                  className="text-muted-foreground hover:text-orange-500 transition-colors"
+                  aria-label="Jump to page"
+                >
+                  <CornerDownLeft className="w-4 h-4" />
+                </button>
+              </form>
             </div>
           )}
 
