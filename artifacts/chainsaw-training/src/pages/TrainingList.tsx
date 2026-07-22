@@ -459,7 +459,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <ClipboardCheck className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <ClipboardCheck className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Inspection Checklist</span>
                   </Link>
                   <Link
@@ -483,7 +483,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Cog className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <Cog className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Chain Identification</span>
                   </Link>
                   <Link
@@ -491,7 +491,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Newspaper className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <Newspaper className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Industry News</span>
                   </Link>
                   <Link
@@ -499,7 +499,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <LogEndIcon className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <LogEndIcon className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Timber Characteristics</span>
                   </Link>
                   <Link
@@ -507,7 +507,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <BookOpen className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Glossary of Terms</span>
                   </Link>
                   <Link
@@ -515,7 +515,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Library className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <Library className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Further Reading</span>
                   </Link>
                   <Link
@@ -523,7 +523,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <BookMarked className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <BookMarked className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Digital Manual</span>
                   </Link>
                   <Link
@@ -531,7 +531,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Shield className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <Shield className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Privacy Policy</span>
                   </Link>
 
@@ -542,7 +542,7 @@ export default function TrainingList() {
                       className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                       onClick={() => setBrandMenuOpen(false)}
                     >
-                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-muted-foreground" />
+                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-orange-500" />
                       <span>Feedback</span>
                     </Link>
                   ) : (
