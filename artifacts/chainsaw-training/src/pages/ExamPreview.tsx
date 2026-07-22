@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Award, ArrowLeft, FileDown } from "lucide-react";
+import { Award, ArrowLeft, FileDown, Loader2 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 
 function PreviewCertificateButton() {
@@ -39,8 +39,8 @@ function PreviewCertificateButton() {
       disabled={loading}
       className="w-full h-14 font-mono font-bold tracking-widest gap-2"
     >
-      <FileDown className="w-5 h-5" />
-      {loading ? "GENERATING..." : "VIEW CERTIFICATE"}
+      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}
+      {loading ? "GENERATING CERTIFICATE…" : "VIEW CERTIFICATE"}
     </Button>
   );
 }

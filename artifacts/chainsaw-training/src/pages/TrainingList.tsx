@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Loader2, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -59,27 +59,30 @@ export default function TrainingList() {
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [certPressed, setCertPressed] = useState(false);
+  const [certLoading, setCertLoading] = useState(false);
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
 
   const handleViewCertificate = async () => {
-    if (!activationCode || !deviceId) return;
-    setCertPressed(true);
-    setTimeout(() => setCertPressed(false), 220);
-    const res = await fetch("/api/certificate", {
-      headers: { activationcode: activationCode, deviceid: deviceId },
-    });
-    if (!res.ok) return;
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const w = window.open(url, "_blank");
-    if (!w) {
-      const a = document.createElement("a");
-      a.href = url; a.target = "_blank"; a.click();
+    if (!activationCode || !deviceId || certLoading) return;
+    setCertLoading(true);
+    try {
+      const res = await fetch("/api/certificate", {
+        headers: { activationcode: activationCode, deviceid: deviceId },
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const w = window.open(url, "_blank");
+      if (!w) {
+        const a = document.createElement("a");
+        a.href = url; a.target = "_blank"; a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } finally {
+      setCertLoading(false);
     }
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
   };
 
   const handleDeleteAccount = async () => {
@@ -704,13 +707,16 @@ export default function TrainingList() {
               </div>
               <button
                 onClick={examPassed ? handleViewCertificate : undefined}
-                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none ${
+                disabled={certLoading}
+                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none flex items-center gap-1 ${
                   examPassed
-                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px"
+                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline"
                     : "invisible pointer-events-none"
                 }`}
               >
-                View Certificate
+                {certLoading
+                  ? <><Loader2 className="w-3 h-3 animate-spin" /><span>Generating…</span></>
+                  : <span>View Certificate</span>}
               </button>
             </div>
           </CardContent>
