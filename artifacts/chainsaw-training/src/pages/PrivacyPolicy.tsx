@@ -1,17 +1,40 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, FileDown, Loader2 } from "lucide-react";
 
 export default function PrivacyPolicy() {
+  const [downloading, setDownloading] = useState(false);
+
   useEffect(() => {
     document.title = "Privacy Policy — Chainsaw Courses";
     return () => { document.title = "Chainsaw Courses"; };
   }, []);
 
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch("/api/privacy-policy-pdf");
+      if (!res.ok) throw new Error("Failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw-Courses-Privacy-Policy.pdf";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch {
+      alert("Could not download the PDF. Please try again.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <style>{`@media print { body { display: none !important; } }`}</style>
+      <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10 print:hidden">
+      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/training" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest">
             <ArrowLeft className="w-4 h-4" />
@@ -19,11 +42,14 @@ export default function PrivacyPolicy() {
           </Link>
           <span className="font-mono font-bold uppercase tracking-widest text-sm">Privacy Policy</span>
           <button
-            onClick={() => window.print()}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest disabled:opacity-50"
           >
-            <Printer className="w-4 h-4 text-orange-500" />
-            Print / PDF
+            {downloading
+              ? <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+              : <FileDown className="w-4 h-4 text-orange-500" />}
+            {downloading ? "Downloading…" : "Download PDF"}
           </button>
         </div>
       </header>
@@ -247,5 +273,6 @@ export default function PrivacyPolicy() {
         </div>
       </main>
     </div>
+    </>
   );
 }

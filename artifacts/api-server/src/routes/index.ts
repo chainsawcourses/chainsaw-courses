@@ -16,6 +16,7 @@ import newsRouter from "./news";
 import riskAssessmentsRouter from "./risk-assessments";
 import pushRouter from "./push";
 import certificateRouter from "./certificate";
+import privacyPolicyRouter from "./privacyPolicy";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(newsRouter);
 router.use(riskAssessmentsRouter);
 router.use(pushRouter);
 router.use(certificateRouter);
+router.use(privacyPolicyRouter);
 
 export default router;
