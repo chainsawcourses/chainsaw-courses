@@ -333,7 +333,7 @@ export default function TrainingList() {
                 <span className="font-black tracking-tighter text-[17px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
                 <span className="font-black tracking-tighter text-[17px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-5 h-5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
