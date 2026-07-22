@@ -516,6 +516,14 @@ export default function ManualFlipbook() {
                     value={searchQuery}
                     onChange={e => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                     onFocus={() => setSearchOpen(true)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (searchResults.length > 0) jumpToPage(searchResults[0].page);
+                        setSearchOpen(false);
+                        (e.target as HTMLInputElement).blur();
+                      }
+                    }}
                     placeholder={searchIndex.length ? "Search manual content…" : "Loading search index…"}
                     disabled={searchIndex.length === 0}
                     className="flex-1 text-sm bg-transparent outline-none placeholder:text-muted-foreground/60"
