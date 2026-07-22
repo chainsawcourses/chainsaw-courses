@@ -255,11 +255,8 @@ export default function ManualFlipbook() {
                 Back
               </Link>
             </Button>
-            <div className="flex-1" />
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <BookOpen className="w-4 h-4 text-orange-500" />
-              <span className="font-black tracking-tighter text-xs uppercase">Chainsaw Manual</span>
-            </div>
+            <BookOpen className="w-4 h-4 text-orange-500" />
+            <span className="font-mono font-bold uppercase tracking-widest text-sm">Digital Chainsaw Manual</span>
             <div className="flex-1" />
             {/* page jump */}
             {loadState === "loaded" && (
