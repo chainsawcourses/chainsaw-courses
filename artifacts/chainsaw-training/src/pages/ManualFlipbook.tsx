@@ -26,7 +26,7 @@ function pageUrl(n: number) {
 function playPageSound() {
   try {
     const audio = new Audio(`${import.meta.env.BASE_URL}page-turn.mp3`);
-    audio.volume = 0.35;
+    audio.volume = 0.175;
     audio.play().catch(() => {});
   } catch { /* ignore */ }
 }
@@ -240,7 +240,7 @@ export default function ManualFlipbook() {
   // ── Escape to close fullscreen ─────────────────────────────────────────────
   useEffect(() => {
     if (zoomedPage === null) return;
-    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") setZoomedPage(null); };
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") { setZoomedPage(null); setZoomScale(2); setZoomPan({ x: 0, y: 0 }); } };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
   }, [zoomedPage]);
@@ -753,10 +753,11 @@ export default function ManualFlipbook() {
                 Math.abs(t.clientY - pan.sy) > 10
               );
               pinchRef.current = null; panRef.current = null;
-              // Only act on tap (not pinch, not pan)
+              // Only act on tap (not pinch, not pan) — one tap always closes
               if (!wasPinch && !moved) {
-                if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
-                else setZoomedPage(null);
+                setZoomedPage(null);
+                setZoomScale(2);
+                setZoomPan({ x: 0, y: 0 });
               }
             } else {
               pinchRef.current = null;
@@ -764,8 +765,9 @@ export default function ManualFlipbook() {
           }}
           onClick={() => {
             if (suppressClickRef.current) return;
-            if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
-            else setZoomedPage(null);
+            setZoomedPage(null);
+            setZoomScale(2);
+            setZoomPan({ x: 0, y: 0 });
           }}
         >
           {/* Page image with zoom + pan transform */}
@@ -773,10 +775,13 @@ export default function ManualFlipbook() {
             style={{
               transform: `scale(${zoomScale}) translate(${zoomPan.x / zoomScale}px, ${zoomPan.y / zoomScale}px)`,
               transformOrigin: "center center",
-              transition: zoomScale === 1 ? "transform 0.25s ease" : "none",
+              transition: "none",
               position: "relative",
-              maxWidth: "92vw",
-              maxHeight: "92vh",
+              width: "100vw",
+              height: "100vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -785,8 +790,8 @@ export default function ManualFlipbook() {
               alt={`Page ${zoomedPage}`}
               style={{
                 display: "block",
-                maxWidth: "92vw",
-                maxHeight: "92vh",
+                maxWidth: "100vw",
+                maxHeight: "100vh",
                 objectFit: "contain",
                 boxShadow: "0 8px 60px rgba(0,0,0,0.6)",
                 borderRadius: 2,
@@ -831,19 +836,14 @@ export default function ManualFlipbook() {
           {/* Page indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
             <span className="text-white/60 text-xs font-mono tracking-widest">
-              PAGE {zoomedPage} · {zoomScale > 1 ? `${Math.round(zoomScale * 100)}%` : "TAP TO CLOSE"}
+              PAGE {zoomedPage} · {Math.round(zoomScale * 100)}% · TAP TO CLOSE
             </span>
-            {zoomScale === 1 && (
-              <span className="text-white/40 text-xs font-mono">PINCH OR SCROLL TO ZOOM</span>
-            )}
           </div>
 
           {/* Zoom hint icon when at 1× */}
-          {zoomScale === 1 && (
-            <div className="absolute top-4 left-4 text-white/30 pointer-events-none">
-              <ZoomIn className="w-5 h-5" />
-            </div>
-          )}
+          <div className="absolute top-4 left-4 text-white/30 pointer-events-none">
+            <ZoomIn className="w-5 h-5" />
+          </div>
         </div>
       )}
     </>
