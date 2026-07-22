@@ -25,27 +25,9 @@ function pageUrl(n: number) {
 // ── Synthesised paper-rasping sound ──────────────────────────────────────────
 function playPageSound() {
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new AudioCtx();
-    const dur = 0.22;
-    const sr = ctx.sampleRate;
-    const buf = ctx.createBuffer(1, Math.ceil(sr * dur), sr);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) {
-      const t = i / sr;
-      const env = Math.exp(-t * 28) * (1 - Math.exp(-t * 80)) * 0.55;
-      d[i] = ((Math.random() * 2 - 1) * 0.7 + (Math.random() * 2 - 1) * 0.3) * env;
-    }
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const bp = ctx.createBiquadFilter();
-    bp.type = "bandpass"; bp.frequency.value = 2600; bp.Q.value = 0.7;
-    const hs = ctx.createBiquadFilter();
-    hs.type = "highshelf"; hs.frequency.value = 4800; hs.gain.value = 5;
-    const gain = ctx.createGain(); gain.gain.value = 1.1;
-    src.connect(bp); bp.connect(hs); hs.connect(gain); gain.connect(ctx.destination);
-    src.start();
-    setTimeout(() => ctx.close().catch(() => {}), 1500);
+    const audio = new Audio(`${import.meta.env.BASE_URL}page-turn.mp3`);
+    audio.volume = 0.7;
+    audio.play().catch(() => {});
   } catch { /* ignore */ }
 }
 
