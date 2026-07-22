@@ -26,7 +26,7 @@ function pageUrl(n: number) {
 function playPageSound() {
   try {
     const audio = new Audio(`${import.meta.env.BASE_URL}page-turn.mp3`);
-    audio.volume = 0.175;
+    audio.volume = 0.28;
     audio.play().catch(() => {});
   } catch { /* ignore */ }
 }
