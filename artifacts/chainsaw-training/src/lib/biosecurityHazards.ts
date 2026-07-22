@@ -6,6 +6,11 @@ export interface HazardZone {
   radius: number;
 }
 
+export interface HazardLink {
+  label: string;
+  url: string;
+}
+
 export interface Hazard {
   id: string;
   commonName: string;
@@ -16,6 +21,7 @@ export interface Hazard {
   operationalImpact: string;
   controls: string[];
   zones: HazardZone[];
+  links?: HazardLink[];
 }
 
 export const HAZARDS: Hazard[] = [
@@ -65,12 +71,21 @@ export const HAZARDS: Hazard[] = [
     color: "#10b981",
     regionLabel: "East Anglia & East Midlands — Suffolk, Norfolk, Cambridgeshire, Bedfordshire & Lincolnshire",
     operationalImpact:
-      "Regulated wood pest within a statutory containment zone covering parts of Suffolk, Norfolk, Cambridgeshire, Bedfordshire, and Lincolnshire. Strict legal movement bans apply to raw conifer and spruce logs, bark, and timber within and from the demarcated area.",
+      "Serious statutory pest of Picea (spruce). The Forestry Commission has issued Notice 7 (2024) creating a Demarcated Area across parts of East Anglia and the East Midlands. If you are working within or bordering this area, specific legal restrictions on felling, killing, stacking, and moving spruce material apply. Contact the Ips typographus Team before carrying out any operations on spruce: ips.t@forestrycommission.gov.uk · 0300 067 4454.",
     controls: [
-      "Immediate pause on conifer cross-cutting operations within the demarcated area until timber movement licensing is confirmed",
-      "Check Forestry Commission/APHA movement licence compliance before dragging, cross cutting, or stacking spruce/conifer stems",
-      "Do not transport raw conifer material, bark, or brash outside the zone without statutory authorisation",
-      "Report sightings of suspected infestation (fresh bore dust, beetle galleries under bark) via TreeAlert (treealert.forestresearch.gov.uk)",
+      "Felling restriction — provide written notice to the Forestry Commission at least 14 days before felling any spruce within the Demarcated Area. Felling may only commence once written authorisation is received.",
+      "Killing restriction — ring-barking, chemical injection/application, mechanical intervention, or arboricultural killing of any Picea over 3 m in height requires prior written agreement from the Forestry Commission.",
+      "No material left in situ — spruce material must not be left on site after felling unless a plant health inspector has authorised this in writing.",
+      "Movement ban — spruce material with bark (logs with bark, isolated bark, live trees over 3 m) that originated within the Demarcated Area must not be moved out of the area.",
+      "Felling licence — a separate felling licence may also be required (unless trees are completely dead, pose immediate risk, or the volume is within the 5 m³ quarterly exempt limit). Contact a Forestry Commission Woodland Officer if uncertain.",
+      "Report suspected infestation (fresh bore dust, beetle galleries under bark) via TreeAlert before processing further stems.",
+    ],
+    links: [
+      { label: "Ips typographus — GOV.UK pest guidance", url: "https://www.gov.uk/guidance/eight-toothed-european-spruce-bark-beetle-ips-typographus" },
+      { label: "Apply for Ips typographus felling authorisation — GOV.UK", url: "https://www.gov.uk/guidance/apply-for-ips-typographus-authorisation-to-fell-and-process-spruce-trees" },
+      { label: "Tree felling: getting permission — GOV.UK", url: "https://www.gov.uk/guidance/tree-felling-getting-permission" },
+      { label: "TreeAlert — report tree pests & diseases", url: "https://treealert.forestresearch.gov.uk" },
+      { label: "Latest Ips typographus news", url: "https://www.gov.uk/guidance/eight-toothed-european-spruce-bark-beetle-ips-typographus#latest-news" },
     ],
     zones: [
       { type: "circle", coords: [52.15, 1.15], radius: 48000 },

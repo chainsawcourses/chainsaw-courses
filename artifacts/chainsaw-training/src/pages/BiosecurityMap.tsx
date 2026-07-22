@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Biohazard, ChevronDown, Info, Leaf } from "lucide-react";
+import { ArrowLeft, Biohazard, ChevronDown, ExternalLink, Info, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserSession } from "../contexts/UserContext";
@@ -139,6 +139,29 @@ export default function BiosecurityMap() {
                                 ))}
                               </ul>
                             </div>
+                            {h.links && h.links.length > 0 && (
+                              <div>
+                                <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                                  Official Resources
+                                </p>
+                                <ul className="space-y-1">
+                                  {h.links.map((link, i) => (
+                                    <li key={i}>
+                                      <a
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-mono text-[11px] flex items-center gap-1 hover:underline"
+                                        style={{ color: h.color }}
+                                      >
+                                        <ExternalLink className="w-3 h-3 shrink-0" />
+                                        {link.label}
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
