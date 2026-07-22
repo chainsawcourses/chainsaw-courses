@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Loader2, AlertTriangle, BookOpen, ArrowLeft, Search, CornerDownLeft, ZoomIn, X } from "lucide-react";
+import { Loader2, AlertTriangle, BookOpen, ArrowLeft, ChevronLeft, ChevronRight, Search, CornerDownLeft, ZoomIn, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -553,7 +553,27 @@ export default function ManualFlipbook() {
 
           {/* ── Book viewer ─────────────────────────────────────────────────── */}
           {loadState === "loaded" && (
-            <div className="flex items-center w-full max-w-5xl flex-1 min-h-0">
+            <div className="flex items-center w-full max-w-5xl flex-1 min-h-0 gap-1">
+
+              {/* ── Left arrow ─────────────────────────────────────────────── */}
+              <button
+                onClick={() => doFlip("backward")}
+                disabled={!canGoBack || isAnimating}
+                aria-label="Previous page"
+                className="shrink-0 flex items-center justify-center rounded-full transition-all duration-150 select-none"
+                style={{
+                  width: 44, height: 44,
+                  background: canGoBack && !isAnimating ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.35)",
+                  boxShadow: canGoBack && !isAnimating ? "0 2px 12px rgba(0,0,0,0.18)" : "none",
+                  color: canGoBack && !isAnimating ? "#d97706" : "#a8a29e",
+                  cursor: canGoBack && !isAnimating ? "pointer" : "default",
+                  border: "1.5px solid rgba(217,119,6,0.18)",
+                }}
+                onMouseEnter={e => { if (canGoBack && !isAnimating) (e.currentTarget as HTMLButtonElement).style.background = "#d97706"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = canGoBack && !isAnimating ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.35)"; (e.currentTarget as HTMLButtonElement).style.color = canGoBack && !isAnimating ? "#d97706" : "#a8a29e"; }}
+              >
+                <ChevronLeft className="w-6 h-6" strokeWidth={2.5} />
+              </button>
 
               {/* ── Book ───────────────────────────────────────────────────── */}
               <div
@@ -695,9 +715,30 @@ export default function ManualFlipbook() {
                 </div>
 
                 <p className="text-center text-[10px] text-stone-400 mt-2 font-mono tracking-widest">
-                  SWIPE TO TURN PAGES · TAP TO ZOOM
+                  SWIPE OR USE ARROWS · TAP TO ZOOM
                 </p>
               </div>
+
+              {/* ── Right arrow ────────────────────────────────────────────── */}
+              <button
+                onClick={() => doFlip("forward")}
+                disabled={!canGoForward || isAnimating}
+                aria-label="Next page"
+                className="shrink-0 flex items-center justify-center rounded-full transition-all duration-150 select-none"
+                style={{
+                  width: 44, height: 44,
+                  background: canGoForward && !isAnimating ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.35)",
+                  boxShadow: canGoForward && !isAnimating ? "0 2px 12px rgba(0,0,0,0.18)" : "none",
+                  color: canGoForward && !isAnimating ? "#d97706" : "#a8a29e",
+                  cursor: canGoForward && !isAnimating ? "pointer" : "default",
+                  border: "1.5px solid rgba(217,119,6,0.18)",
+                }}
+                onMouseEnter={e => { if (canGoForward && !isAnimating) { (e.currentTarget as HTMLButtonElement).style.background = "#d97706"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = canGoForward && !isAnimating ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.35)"; (e.currentTarget as HTMLButtonElement).style.color = canGoForward && !isAnimating ? "#d97706" : "#a8a29e"; }}
+              >
+                <ChevronRight className="w-6 h-6" strokeWidth={2.5} />
+              </button>
+
             </div>
           )}
 
