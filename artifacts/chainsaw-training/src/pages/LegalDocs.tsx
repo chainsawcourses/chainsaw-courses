@@ -95,7 +95,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Equality, Diversity & Inclusion Policy",
-        description: "Our commitment to equal opportunity in training and assessment. Protected characteristics, responsibilities, and monitoring.",
+        description: "Our commitment to equal opportunity in training and assessment regardless of age, disability, gender, race, religion, or any other protected characteristic. Includes responsibilities and monitoring arrangements.",
         file: "Equality_Diversity_Inclusion_Policy.pdf",
         pages: "3 pages",
       },

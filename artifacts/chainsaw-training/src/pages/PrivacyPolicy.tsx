@@ -22,7 +22,7 @@ export default function PrivacyPolicy() {
             onClick={() => window.print()}
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-4 h-4 text-orange-500" />
             Print / PDF
           </button>
         </div>
