@@ -519,6 +519,14 @@ export default function TrainingList() {
                     <span>Further Reading</span>
                   </Link>
                   <Link
+                    href="/manual"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <BookMarked className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <span>Digital Manual</span>
+                  </Link>
+                  <Link
                     href="/privacy"
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
@@ -545,16 +553,6 @@ export default function TrainingList() {
                     </div>
                   )}
                 </div>
-
-                {/* Admin shortcut */}
-                <a
-                  href="/admin"
-                  className="w-full flex items-center gap-2 px-3 py-2 border-t border-border text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                  onClick={() => setBrandMenuOpen(false)}
-                >
-                  <Cog className="w-3 h-3 shrink-0" />
-                  Admin Panel
-                </a>
 
                 {/* Log Out + Delete Account */}
                 {!deleteConfirmOpen ? (
