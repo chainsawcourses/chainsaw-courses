@@ -384,7 +384,7 @@ export default function SpeciesGuide() {
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <LogEndIcon className="w-4 h-4 text-orange-500 shrink-0" />
-          <h1 className="font-black tracking-tighter text-base uppercase leading-none">Timber Characteristics</h1>
+          <span className="font-mono font-bold uppercase tracking-widest text-sm">Timber Characteristics</span>
         </div>
       </header>
 
