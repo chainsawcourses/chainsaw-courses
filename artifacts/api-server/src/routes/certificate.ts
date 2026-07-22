@@ -167,31 +167,58 @@ router.get("/certificate", async (req, res) => {
     //  Everything else stacks upward from there with generous gaps.
     // ──────────────────────────────────────────────────────────────────────────
 
-    //  DATE
+    //  DATE  (pushed up to make room for validity line below)
     const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     const dateLine = `Date of Award:  ${dateStr}`;
     page.drawText(dateLine, {
       x: cx(dateLine, 10, fReg, W),
-      y: 186, size: 10, font: fReg, color: mid,
+      y: 224, size: 10, font: fReg, color: mid,
     });
 
-    //  CPD BLOCK
-    page.drawText("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", {
-      x: cx("CPD: 5 Verifiable Hours  |  IIRSM Approved Learning", 10, fBold, W),
-      y: 300, size: 10, font: fBold, color: black,
+    //  VALIDITY
+    const validityLine = "This certificate is valid for 3 years from the date of issue";
+    page.drawText(validityLine, {
+      x: cx(validityLine, 8, fItalic, W),
+      y: 206, size: 8, font: fItalic, color: lgrey,
     });
-    let cpdY = 280;
+
+    rule(243, 0.28);
+
+    //  CREDENTIALS BLOCK ─────────────────────────────────────────────────────
+    //  Row 1: GLH + CPD + IIRSM Approved  (bold headline)
+    const glhLine = "Guided Learning Hours: 5  \u00B7  CPD: 5 Verifiable CPD Hours  \u00B7  IIRSM Approved Learning";
+    page.drawText(glhLine, {
+      x: cx(glhLine, 9.5, fBold, W),
+      y: 318, size: 9.5, font: fBold, color: black,
+    });
+
+    //  Row 2: Unit reference + assessment method + pass mark
+    const unitLine = "Unit Ref: CS30 / CS31  \u00B7  Assessment: Online Theory & Knowledge  \u00B7  Pass Mark: 80%";
+    page.drawText(unitLine, {
+      x: cx(unitLine, 8.5, fReg, W),
+      y: 300, size: 8.5, font: fReg, color: mid,
+    });
+
+    //  Row 3: Score (if available) + course version
+    const courseVersion = "Course Version 1.1 \u00B7 July 2026";
+    let credRow3Y = 282;
     if (passedScore !== null) {
-      const scoreLine = `Assessment Score: ${passedScore}%`;
+      const scoreLine = `Assessment Score: ${passedScore}%  \u00B7  ${courseVersion}`;
       page.drawText(scoreLine, {
         x: cx(scoreLine, 9, fReg, W),
-        y: cpdY, size: 9, font: fReg, color: mid,
+        y: credRow3Y, size: 9, font: fReg, color: mid,
       });
-      cpdY -= 18;
+    } else {
+      page.drawText(courseVersion, {
+        x: cx(courseVersion, 9, fReg, W),
+        y: credRow3Y, size: 9, font: fReg, color: mid,
+      });
     }
+
+    //  Row 4: IIRSM full name italic
     page.drawText("International Institute of Risk and Safety Management", {
       x: cx("International Institute of Risk and Safety Management", 8.5, fItalic, W),
-      y: cpdY, size: 8.5, font: fItalic, color: lgrey,
+      y: 264, size: 8.5, font: fItalic, color: lgrey,
     });
 
     //  COURSE BLOCK — sits above CPD, below the certify/name block
