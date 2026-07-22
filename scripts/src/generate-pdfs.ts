@@ -48,7 +48,7 @@ function drawPageHeader(doc: PDFKit.PDFDocument): void {
     .fontSize(9)
     .fillColor(MID)
     .font("Helvetica")
-    .text("CHAINSAW MAINTENANCE & CROSS CUTTING  ·  overleafpublishers.co.uk", tX, hY + 30, { lineBreak: false });
+    .text("CHAINSAW MAINTENANCE & CROSS CUTTING  ·  OVERLEAF PUBLISHERS LTD", tX, hY + 30, { lineBreak: false });
   doc.text("", 60, hY + logoSize + 8);
   doc
     .moveTo(60, doc.y)
