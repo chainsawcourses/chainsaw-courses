@@ -455,6 +455,14 @@ export default function TrainingList() {
                 <div className="border-b border-border">
                   {/* Community link kept for future use — hidden for now */}
                   <Link
+                    href="/manual"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
+                    <span>Digital Manual</span>
+                  </Link>
+                  <Link
                     href="/inspection"
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
@@ -517,14 +525,6 @@ export default function TrainingList() {
                   >
                     <Library className="w-4 h-4 shrink-0 text-orange-500" />
                     <span>Further Reading</span>
-                  </Link>
-                  <Link
-                    href="/manual"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onClick={() => setBrandMenuOpen(false)}
-                  >
-                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
-                    <span>Digital Manual</span>
                   </Link>
                   <Link
                     href="/privacy"
@@ -618,7 +618,7 @@ export default function TrainingList() {
               <LogEndIcon className="w-5 h-5" />
             </Link>
             <Link href="/manual" className="text-muted-foreground hover:text-primary" title="Training Manual">
-              <BookMarked className="w-5 h-5" />
+              <BookOpen className="w-5 h-5" />
             </Link>
           </div>
         </div>
