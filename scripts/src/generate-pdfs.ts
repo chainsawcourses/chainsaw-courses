@@ -1149,18 +1149,18 @@ async function genIIRSMBrief(): Promise<void> {
     doc,
     ["NPTC Unit", "Title"],
     [
-      ["0039-20", "Chainsaw Maintenance and Cross Cutting — the foundational chainsaw certificate covering saw maintenance, safe ground-based operation, and cross-cutting of felled timber"],
-      ["0039-21", "Fell and Process Small Trees with a Chainsaw — controlled felling of small-diameter trees using standard and alternative felling techniques, with processing of brash and timber"],
-      ["0039-22", "Fell Trees with a Chainsaw (standard felling techniques) — medium-diameter tree felling including site assessment, tree survey, conventional notch and back-cut, and retreat routes"],
-      ["0039-23", "Fell Trees with a Chainsaw (large trees) — advanced felling techniques for large-diameter stems including open-face and Humboldt notch, bore-cut, and hinge-wood management"],
-      ["0039-24", "Chainsaw Cross Cutting and Log Making — systematic cross-cutting, log length production, stacking, and safe manual handling of felled timber"],
-      ["0039-31", "Operate a Chainsaw from a Rope and Harness — aerial chainsaw operation using rope-and-harness access and positioning systems; aerial pruning and dismantling"],
-      ["0039-32", "Fell Trees with a Chainsaw (in close proximity to objects of high value) — specialist felling in constrained environments including near buildings, roads, utilities, and structures of value"],
-      ["0039-33", "Convert Felled Trees with a Chainsaw — milling and conversion of felled timber including slabbing, planking, and chainsaw mill use"],
-      ["0039-37", "Operate a Chainsaw from an Aerial Work Platform (MEWP) — chainsaw operation from mobile elevated work platforms including MEWP pre-use checks and safe systems of work at height"],
-      ["0039-38", "Emergency Dismantle Trees with a Chainsaw — emergency response to storm-damaged, hung-up, and structurally compromised trees; safe approach, assessment, and mitigation techniques"],
+      ["0039-20", "Chainsaw Maintenance and Cross Cutting"],
+      ["0039-21", "Fell and Process Small Trees with a Chainsaw"],
+      ["0039-22", "Fell Trees with a Chainsaw"],
+      ["0039-23", "Fell Trees with a Chainsaw (Large Trees)"],
+      ["0039-24", "Chainsaw Cross Cutting and Log Making"],
+      ["0039-31", "Operate a Chainsaw from a Rope and Harness"],
+      ["0039-32", "Fell Trees with a Chainsaw (in Close Proximity to Objects of High Value)"],
+      ["0039-33", "Convert Felled Trees with a Chainsaw"],
+      ["0039-37", "Operate a Chainsaw from an Aerial Work Platform"],
+      ["0039-38", "Emergency Dismantle Trees with a Chainsaw"],
     ],
-    90
+    110
   );
 
   infoRow(doc, "CPD Status", "Author holds current CPD membership with IIRSM and engages in ongoing professional development in chainsaw safety and vocational eLearning design");
