@@ -235,6 +235,9 @@ export default function AdminDashboard() {
               <Link href="/admin/welcome-note"><MessageSquare className="w-3.5 h-3.5 mr-1" /> WELCOME NOTE</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/gateway"><MapPin className="w-3.5 h-3.5 mr-1" /> GATEWAY</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
                 <FileText className="w-3.5 h-3.5 mr-1" /> IIRSM BRIEF
               </a>

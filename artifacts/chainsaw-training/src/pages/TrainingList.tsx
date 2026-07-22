@@ -722,7 +722,25 @@ export default function TrainingList() {
           </CardContent>
         </Card>
 
-
+        {/* Practical Progression Gateway — shown only after exam passed */}
+        {examPassed && (
+          <Link href="/gateway">
+            <Card className="border-orange-500/40 bg-gradient-to-r from-orange-500/8 to-amber-500/5 hover:from-orange-500/15 hover:to-amber-500/10 cursor-pointer transition-colors group">
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <div>
+                    <div className="font-mono font-black text-xs uppercase tracking-widest text-orange-600">Practical Progression Gateway</div>
+                    <div className="font-mono text-[10px] text-muted-foreground mt-0.5">Find an NPTC-approved assessment centre near you</div>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-orange-500 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
 
         {/* Course Requirements — modules from DB category */}
         {courseReqModules.length > 0 && (

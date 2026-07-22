@@ -40,6 +40,8 @@ import RiskAssessments from "@/pages/admin/RiskAssessments";
 import AdminNews from "@/pages/admin/News";
 import AdminQrCodes from "@/pages/admin/QrCodes";
 import WelcomeNoteSettings from "@/pages/admin/WelcomeNote";
+import PracticalGateway from "@/pages/PracticalGateway";
+import AdminGateway from "@/pages/admin/AdminGateway";
 import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
@@ -93,6 +95,7 @@ function Router() {
       <Route path="/feedback" component={StudentFeedback} />
       <Route path="/manual" component={ManualFlipbook} />
       <Route path="/qr/:moduleId" component={QrLanding} />
+      <Route path="/gateway" component={PracticalGateway} />
 
       <Route path="/exam-preview" component={ExamPreview} />
       <Route path="/admin-preview" component={AdminPreviewLogin} />
@@ -109,6 +112,7 @@ function Router() {
       <Route path="/admin/news" component={AdminNews} />
       <Route path="/admin/qr-codes" component={AdminQrCodes} />
       <Route path="/admin/welcome-note" component={WelcomeNoteSettings} />
+      <Route path="/admin/gateway" component={AdminGateway} />
 
       <Route component={NotFound} />
     </Switch>

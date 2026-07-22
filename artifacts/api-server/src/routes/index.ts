@@ -17,6 +17,8 @@ import riskAssessmentsRouter from "./risk-assessments";
 import pushRouter from "./push";
 import certificateRouter from "./certificate";
 import privacyPolicyRouter from "./privacyPolicy";
+import gatewayRouter from "./gateway";
+import adminGatewayRouter from "./adminGateway";
 
 const router: IRouter = Router();
 
@@ -38,5 +40,7 @@ router.use(riskAssessmentsRouter);
 router.use(pushRouter);
 router.use(certificateRouter);
 router.use(privacyPolicyRouter);
+router.use(gatewayRouter);
+router.use(adminGatewayRouter);
 
 export default router;
