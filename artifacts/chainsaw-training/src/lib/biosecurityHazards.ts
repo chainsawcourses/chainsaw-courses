@@ -69,9 +69,9 @@ export const HAZARDS: Hazard[] = [
     scientificName: "Ips typographus",
     category: "statutory",
     color: "#10b981",
-    regionLabel: "East Anglia & East Midlands — Suffolk, Norfolk, Cambridgeshire, Bedfordshire & Lincolnshire",
+    regionLabel: "South Lincolnshire · East Anglia · Greater London · South East England — Demarcated Area (Forestry Commission, June 2024)",
     operationalImpact:
-      "Serious statutory pest of Picea (spruce). The Forestry Commission has issued Notice 7 (2024) creating a Demarcated Area across parts of East Anglia and the East Midlands. If you are working within or bordering this area, specific legal restrictions on felling, killing, stacking, and moving spruce material apply. Contact the Ips typographus Team before carrying out any operations on spruce: ips.t@forestrycommission.gov.uk · 0300 067 4454.",
+      "Serious statutory pest of Picea (spruce). The Forestry Commission's June 2024 Demarcated Area (Notice 7) covers a large swathe of eastern England from south Lincolnshire and Norfolk in the north, through Cambridgeshire, Hertfordshire, Greater London, Essex, Kent and East Sussex in the south. If you are working within or bordering this area, specific legal restrictions on felling, killing, stacking, and moving spruce material apply. Contact the Ips typographus Team before carrying out any operations on spruce: ips.t@forestrycommission.gov.uk · 0300 067 4454.",
     controls: [
       "Felling restriction — provide written notice to the Forestry Commission at least 14 days before felling any spruce within the Demarcated Area. Felling may only commence once written authorisation is received.",
       "Killing restriction — ring-barking, chemical injection/application, mechanical intervention, or arboricultural killing of any Picea over 3 m in height requires prior written agreement from the Forestry Commission.",
@@ -87,12 +87,18 @@ export const HAZARDS: Hazard[] = [
       { label: "TreeAlert — report tree pests & diseases", url: "https://treealert.forestresearch.gov.uk" },
       { label: "Latest Ips typographus news", url: "https://www.gov.uk/guidance/eight-toothed-european-spruce-bark-beetle-ips-typographus#latest-news" },
     ],
+    // Circles approximate the FC June 2024 Demarcated Area boundary (illustrative — verify against official notices)
     zones: [
-      { type: "circle", coords: [52.15, 1.15], radius: 48000 },
-      { type: "circle", coords: [52.75, 1.00], radius: 52000 },
-      { type: "circle", coords: [52.30, 0.10], radius: 42000 },
-      { type: "circle", coords: [52.05, -0.40], radius: 28000 },
-      { type: "circle", coords: [53.10, -0.30], radius: 62000 },
+      { type: "circle", coords: [52.90,  0.15], radius: 90000 },  // South Lincolnshire / North Norfolk / The Wash
+      { type: "circle", coords: [52.55,  1.25], radius: 75000 },  // Central & East Norfolk coast
+      { type: "circle", coords: [52.10,  1.30], radius: 65000 },  // Suffolk coast / Ipswich
+      { type: "circle", coords: [51.85,  1.00], radius: 58000 },  // North Essex / Colchester
+      { type: "circle", coords: [51.55,  0.45], radius: 52000 },  // Essex / East London
+      { type: "circle", coords: [51.48, -0.08], radius: 48000 },  // Greater London
+      { type: "circle", coords: [51.18,  0.65], radius: 55000 },  // Kent
+      { type: "circle", coords: [50.90,  0.30], radius: 38000 },  // East Sussex coast
+      { type: "circle", coords: [52.10, -0.15], radius: 62000 },  // Cambridgeshire / Bedfordshire / Hertfordshire
+      { type: "circle", coords: [51.75, -0.45], radius: 42000 },  // West Hertfordshire / Chilterns fringe
     ],
   },
   {
