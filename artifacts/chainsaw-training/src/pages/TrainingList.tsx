@@ -626,14 +626,14 @@ export default function TrainingList() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 pt-8 pb-0 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 pt-3 pb-0 space-y-6">
 
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
           <img
             src={`${import.meta.env.BASE_URL}logo.png?v=20`}
             alt="Chainsaw Courses"
-            className="h-16 w-auto object-contain mx-auto mb-2"
+            className="h-10 w-auto object-contain mx-auto mb-1"
           />
           <p className="font-black tracking-tighter text-xs uppercase text-foreground mb-0.5">Chainsaw Courses</p>
           <h1 className="font-black tracking-tighter text-xl uppercase leading-tight text-primary">
