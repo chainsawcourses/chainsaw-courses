@@ -133,6 +133,7 @@ export default function ManualFlipbook() {
   const overlayRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ dist: number; scale: number } | null>(null);
   const panRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
+  const suppressClickRef = useRef(false);
 
   const isAnimating = flipDir !== "none";
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 700);
@@ -739,10 +740,21 @@ export default function ManualFlipbook() {
             }
           }}
           onTouchEnd={e => {
+            // Suppress the synthetic onClick that mobile fires after every touchend
+            suppressClickRef.current = true;
+            setTimeout(() => { suppressClickRef.current = false; }, 400);
+
             if (e.touches.length === 0) {
               const wasPinch = pinchRef.current !== null;
+              const pan = panRef.current;
+              const t = e.changedTouches[0];
+              const moved = pan && (
+                Math.abs(t.clientX - pan.sx) > 10 ||
+                Math.abs(t.clientY - pan.sy) > 10
+              );
               pinchRef.current = null; panRef.current = null;
-              if (!wasPinch) {
+              // Only act on tap (not pinch, not pan)
+              if (!wasPinch && !moved) {
                 if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
                 else setZoomedPage(null);
               }
@@ -751,6 +763,7 @@ export default function ManualFlipbook() {
             }
           }}
           onClick={() => {
+            if (suppressClickRef.current) return;
             if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
             else setZoomedPage(null);
           }}
