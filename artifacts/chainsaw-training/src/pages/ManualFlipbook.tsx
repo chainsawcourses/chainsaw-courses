@@ -3,12 +3,8 @@ import { Link, useLocation } from "wouter";
 import { ChevronLeft, ChevronRight, Loader2, AlertTriangle, BookOpen, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
-import * as pdfjsLib from "pdfjs-dist";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
-
-const MANUAL_URL = `${import.meta.env.BASE_URL}pdfs/manual.pdf`;
-const RENDER_SCALE = 1.8;
+const PAGES_BASE = `${import.meta.env.BASE_URL}manual-pages`;
 const FLIP_MS = 550;
 
 type LoadState = "idle" | "loading" | "loaded" | "missing" | "error";
@@ -18,6 +14,11 @@ const WM_POS: [number, number][] = [
   [0.50, 0.35], [0.28, 0.60], [0.72, 0.60],
   [0.50, 0.55], [0.35, 0.40], [0.65, 0.40],
 ];
+
+// Zero-pad page number to 3 digits matching pdftoppm output (001..138)
+function pageUrl(n: number) {
+  return `${PAGES_BASE}/page-${String(n).padStart(3, "0")}.jpg`;
+}
 
 // ── Synthesised paper-rasping sound ──────────────────────────────────────────
 function playPageSound() {
@@ -30,29 +31,58 @@ function playPageSound() {
     const d = buf.getChannelData(0);
     for (let i = 0; i < d.length; i++) {
       const t = i / sr;
-      // Short attack, fast exponential decay with some roughness
       const env = Math.exp(-t * 28) * (1 - Math.exp(-t * 80)) * 0.55;
-      // Two noise layers for texture
       d[i] = ((Math.random() * 2 - 1) * 0.7 + (Math.random() * 2 - 1) * 0.3) * env;
     }
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    // Bandpass ~ 2.5 kHz for paper "swish"
     const bp = ctx.createBiquadFilter();
-    bp.type = "bandpass";
-    bp.frequency.value = 2600;
-    bp.Q.value = 0.7;
-    // Slight high-shelf crispness
+    bp.type = "bandpass"; bp.frequency.value = 2600; bp.Q.value = 0.7;
     const hs = ctx.createBiquadFilter();
-    hs.type = "highshelf";
-    hs.frequency.value = 4800;
-    hs.gain.value = 5;
-    const gain = ctx.createGain();
-    gain.gain.value = 1.1;
+    hs.type = "highshelf"; hs.frequency.value = 4800; hs.gain.value = 5;
+    const gain = ctx.createGain(); gain.gain.value = 1.1;
     src.connect(bp); bp.connect(hs); hs.connect(gain); gain.connect(ctx.destination);
     src.start();
     setTimeout(() => ctx.close().catch(() => {}), 1500);
   } catch { /* ignore */ }
+}
+
+// ── Load a page image onto a canvas element ───────────────────────────────────
+function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (pageNum < 1 || pageNum > total) {
+      // Blank cream page for out-of-range (e.g. right page on last odd spread)
+      el.width = 595; el.height = 842;
+      const ctx = el.getContext("2d");
+      if (ctx) { ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
+      resolve();
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      el.width = img.naturalWidth;
+      el.height = img.naturalHeight;
+      const ctx = el.getContext("2d");
+      if (ctx) ctx.drawImage(img, 0, 0);
+      resolve();
+    };
+    img.onerror = () => {
+      // Fallback: blank page so UI doesn't break
+      el.width = 595; el.height = 842;
+      const ctx = el.getContext("2d");
+      if (ctx) { ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
+      resolve();
+    };
+    img.src = pageUrl(pageNum);
+  });
+}
+
+// Silently prefetch images into the browser cache
+function prefetchImages(pageNums: number[]) {
+  for (const n of pageNums) {
+    const img = new Image();
+    img.src = pageUrl(n);
+  }
 }
 
 // ── Page-edge stack decorations ───────────────────────────────────────────────
@@ -97,7 +127,6 @@ export default function ManualFlipbook() {
   const [jumpInput, setJumpInput] = useState("");
   const [pageRendering, setPageRendering] = useState(false);
 
-  const pdfRef = useRef<pdfjsLib.PDFDocumentProxy | null>(null);
   // Permanent canvases
   const leftRef = useRef<HTMLCanvasElement>(null);
   const rightRef = useRef<HTMLCanvasElement>(null);
@@ -116,29 +145,22 @@ export default function ManualFlipbook() {
     return () => window.removeEventListener("resize", fn);
   }, []);
 
-  // ── Load PDF (range-request mode: only fetches the xref table on open) ──────
+  // ── Load manifest (tiny JSON — resolves in milliseconds) ─────────────────
   useEffect(() => {
     setLoadState("loading");
-    const task = pdfjsLib.getDocument({
-      url: MANUAL_URL,
-      withCredentials: false,
-      // Fetch the PDF in 128 KB chunks on demand instead of downloading
-      // the whole file up front. The promise resolves as soon as the
-      // cross-reference table is available (~200 KB), then each page's
-      // data is fetched only when getPage() is called.
-      rangeChunkSize: 131072,
-      disableAutoFetch: true,
-      disableStream: false,
-    });
-    task.promise.then(doc => {
-      pdfRef.current = doc;
-      setNumPages(doc.numPages);
-      setLoadState("loaded");
-    }).catch((err: unknown) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      setLoadState(msg.includes("404") || msg.includes("Missing") || msg.includes("server response") ? "missing" : "error");
-    });
-    return () => { task.destroy?.(); };
+    fetch(`${PAGES_BASE}/manifest.json`)
+      .then(r => {
+        if (!r.ok) throw new Error("missing");
+        return r.json() as Promise<{ pages: number }>;
+      })
+      .then(data => {
+        setNumPages(data.pages);
+        setLoadState("loaded");
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setLoadState(msg === "missing" ? "missing" : "error");
+      });
   }, []);
 
   // ── Watermark ─────────────────────────────────────────────────────────────
@@ -174,32 +196,21 @@ export default function ManualFlipbook() {
   }, [drawWatermark]);
   useEffect(() => { window.addEventListener("resize", drawWatermark); return () => window.removeEventListener("resize", drawWatermark); }, [drawWatermark]);
 
-  // ── Render single page to canvas ─────────────────────────────────────────
-  const renderPage = useCallback(async (pageNum: number, el: HTMLCanvasElement | null) => {
-    if (!el) return;
-    const pdf = pdfRef.current;
-    if (!pdf || pageNum < 1 || pageNum > pdf.numPages) {
-      const ctx = el.getContext("2d");
-      if (ctx) { el.width = 595; el.height = 842; ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
-      return;
-    }
-    const page = await pdf.getPage(pageNum);
-    const vp = page.getViewport({ scale: RENDER_SCALE });
-    el.width = vp.width; el.height = vp.height;
-    const ctx = el.getContext("2d");
-    if (!ctx) return;
-    await page.render({ canvas: el, canvasContext: ctx, viewport: vp }).promise;
-  }, []);
+  // ── Render single page to canvas (image-based, no pdfjs) ─────────────────
+  const renderPage = useCallback((pageNum: number, el: HTMLCanvasElement | null) => {
+    if (!el) return Promise.resolve();
+    return loadImageToCanvas(pageNum, numPages, el);
+  }, [numPages]);
 
-  // ── Render current spread (with per-page spinner) ─────────────────────────
+  // ── Render current spread ─────────────────────────────────────────────────
   const renderSpread = useCallback(async (p: number) => {
-    if (!pdfRef.current) return;
+    if (!numPages) return;
     setPageRendering(true);
     try {
       if (isMobile) {
         await renderPage(p, leftRef.current);
       } else {
-        await Promise.allSettled([
+        await Promise.all([
           renderPage(p, leftRef.current),
           renderPage(p + 1, rightRef.current),
         ]);
@@ -207,32 +218,20 @@ export default function ManualFlipbook() {
     } finally {
       setPageRendering(false);
     }
-  }, [isMobile, renderPage]);
-
-  // ── Background prefetch — silently render the next spread off-screen ───────
-  const prefetchRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
-  const prefetchRef2 = useRef<HTMLCanvasElement>(document.createElement("canvas"));
-
-  const prefetchNextSpread = useCallback(async (p: number) => {
-    const pdf = pdfRef.current;
-    if (!pdf) return;
-    const step = isMobile ? 1 : 2;
-    const nextP = Math.min(p + step, pdf.numPages);
-    await Promise.allSettled([
-      renderPage(nextP, prefetchRef.current),
-      isMobile ? Promise.resolve() : renderPage(nextP + 1, prefetchRef2.current),
-    ]);
-  }, [isMobile, renderPage]);
+  }, [isMobile, numPages, renderPage]);
 
   // Initial render + re-render on page change (idle, no animation)
   useEffect(() => {
     if (loadState !== "loaded" || isAnimating) return;
     renderSpread(currentPage).then(() => {
       setTimeout(drawWatermark, 60);
-      // Prefetch next spread in the background after a short delay
-      setTimeout(() => prefetchNextSpread(currentPage), 400);
+      // Silently prefetch next spread — images go into the browser cache
+      const step = isMobile ? 1 : 2;
+      const next = currentPage + step;
+      const toFetch = isMobile ? [next] : [next, next + 1];
+      prefetchImages(toFetch.filter(n => n >= 1 && n <= numPages));
     });
-  }, [currentPage, loadState, isAnimating, renderSpread, drawWatermark, prefetchNextSpread]);
+  }, [currentPage, loadState, isAnimating, renderSpread, drawWatermark, isMobile, numPages]);
 
   // ── Navigation with flip animation ───────────────────────────────────────
   const step = isMobile ? 1 : 2;
@@ -241,7 +240,7 @@ export default function ManualFlipbook() {
   const canGoForward = isMobile ? currentPage < maxPage : currentPage + 1 < maxPage;
 
   const doFlip = useCallback(async (dir: "forward" | "backward") => {
-    if (isAnimating || !pdfRef.current) return;
+    if (isAnimating || !numPages) return;
     if (dir === "forward" && !canGoForward) return;
     if (dir === "backward" && !canGoBack) return;
 
@@ -252,17 +251,15 @@ export default function ManualFlipbook() {
     playPageSound();
 
     if (!isMobile) {
-      // Pre-render into flip canvases before animating
-      // flipFront = old right (current right), already rendered in rightRef
-      // Copy rightRef into flipFrontRef
+      // Copy current right into flipFront before animating
       const flipF = flipFrontRef.current;
       const src = dir === "forward" ? rightRef.current : leftRef.current;
       if (flipF && src) {
         flipF.width = src.width; flipF.height = src.height;
         flipF.getContext("2d")?.drawImage(src, 0, 0);
       }
-      // Pre-render new pages
-      await Promise.allSettled([
+      // Pre-render new pages into the hidden flip canvases
+      await Promise.all([
         renderPage(dir === "forward" ? nextPage : nextPage + 1, flipBackRef.current),
         renderPage(dir === "forward" ? nextPage + 1 : nextPage - 1, newRightRef.current),
       ]);
@@ -274,7 +271,7 @@ export default function ManualFlipbook() {
       setCurrentPage(nextPage);
       setFlipDir("none");
     }, FLIP_MS);
-  }, [isAnimating, canGoForward, canGoBack, currentPage, step, maxPage, isMobile, renderPage]);
+  }, [isAnimating, numPages, canGoForward, canGoBack, currentPage, step, maxPage, isMobile, renderPage]);
 
   // ── Touch / mouse swipe ───────────────────────────────────────────────────
   const touchStartX = useRef<number | null>(null);
@@ -315,7 +312,6 @@ export default function ManualFlipbook() {
 
   if (!activationCode) return null;
 
-  // ── Flip animation CSS class ──────────────────────────────────────────────
   const flipClass = flipDir === "forward"
     ? "animate-flip-forward"
     : flipDir === "backward"
@@ -384,7 +380,6 @@ export default function ManualFlipbook() {
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
               <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
               <p className="text-sm font-semibold">Opening manual…</p>
-              <p className="text-xs text-stone-400">Fetching index — pages load on demand</p>
             </div>
           )}
 
@@ -396,7 +391,8 @@ export default function ManualFlipbook() {
                 </div>
               </div>
               <h2 className="font-black tracking-tighter text-lg uppercase">Manual Not Found</h2>
-              <code className="block bg-muted rounded px-3 py-2 text-xs font-mono">public/pdfs/manual.pdf</code>
+              <p className="text-sm text-muted-foreground">Page images have not been generated yet.</p>
+              <code className="block bg-muted rounded px-3 py-2 text-xs font-mono">public/manual-pages/</code>
             </div>
           )}
 
@@ -455,9 +451,8 @@ export default function ManualFlipbook() {
                       className="book-page relative bg-white overflow-hidden"
                       style={{ width: isMobile ? "100%" : "50%", borderRight: isMobile ? "none" : "1px solid #e2ddd8" }}
                     >
-                      {/* leftRef always rendered; newRightRef sits on top during backward flip */}
                       <canvas ref={leftRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-                      {/* During backward flip, newRightRef (pre-rendered new-left) overlays the left panel */}
+                      {/* During backward flip, newRightRef overlays the left panel */}
                       <canvas
                         ref={newRightRef}
                         style={{
@@ -468,16 +463,15 @@ export default function ManualFlipbook() {
                       />
                     </div>
 
-                    {/* Right page — only on desktop */}
+                    {/* Right page — desktop only */}
                     {!isMobile && (
                       <div
                         className="book-page relative bg-white overflow-hidden"
                         style={{ width: "50%", position: "relative" }}
                       >
-                        {/* rightRef: the current (or soon-to-be-old) right page — base layer */}
                         <canvas ref={rightRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
 
-                        {/* Animated flip element — always in DOM, visibility via opacity */}
+                        {/* Animated flip element */}
                         <div
                           className={isAnimating ? flipClass : ""}
                           style={{
@@ -488,14 +482,12 @@ export default function ManualFlipbook() {
                             opacity: isAnimating ? 1 : 0,
                           }}
                         >
-                          {/* Front face: old right page */}
                           <div
                             className="flip-front"
                             style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", background: "#fff", overflow: "hidden" }}
                           >
                             <canvas ref={flipFrontRef} style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} />
                           </div>
-                          {/* Back face: new left page */}
                           <div
                             className="flip-back"
                             style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "#fff", overflow: "hidden" }}
@@ -520,14 +512,14 @@ export default function ManualFlipbook() {
                     />
                   )}
 
-                  {/* Top/bottom page-edge lines for 3D book feel */}
+                  {/* Top/bottom page-edge lines */}
                   <div className="absolute inset-x-0 top-0 h-px bg-stone-300/60 pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 h-px bg-stone-400/40 pointer-events-none" />
 
                   {/* Watermark */}
                   <canvas ref={wmRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden style={{ zIndex: 20 }} />
 
-                  {/* Per-page fetch spinner — shown while range bytes arrive */}
+                  {/* Per-page loading spinner */}
                   {pageRendering && !isAnimating && (
                     <div
                       className="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -538,7 +530,6 @@ export default function ManualFlipbook() {
                   )}
                 </div>
 
-                {/* Swipe hint — shown briefly */}
                 <p className="text-center text-[10px] text-stone-400 mt-2 font-mono tracking-widest">
                   SWIPE OR USE ARROWS TO TURN PAGES
                 </p>
