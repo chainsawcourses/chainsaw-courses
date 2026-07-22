@@ -140,6 +140,7 @@ export default function TrainingList() {
 
   const courseUnlocked = examStatus?.unlocked ?? false;
   const examPassed = examStatus?.passed ?? false;
+  const remainingModules = Math.max(0, (summary?.totalModules ?? 0) - (summary?.completedModules ?? 0));
 
   const equipmentListModule = useMemo(
     () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
@@ -686,8 +687,18 @@ export default function TrainingList() {
                     Final Exam
                   </Link>
                 ) : (
-                  <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 cursor-not-allowed">
-                    Final Exam
+                  <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Complete all modules and quizzes to unlock the final exam">
+                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 flex items-center gap-1">
+                      <LockKeyhole className="w-3 h-3 shrink-0" />
+                      Final Exam
+                    </span>
+                    {!isLoadingSummary && (
+                      <span className="font-mono text-[10px] text-muted-foreground/30 leading-none pl-0.5">
+                        {remainingModules > 0
+                          ? `${remainingModules} module${remainingModules !== 1 ? "s" : ""} remaining`
+                          : "Complete all modules to unlock"}
+                      </span>
+                    )}
                   </span>
                 )}
               </div>
