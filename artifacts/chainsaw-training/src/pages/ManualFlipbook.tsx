@@ -419,7 +419,7 @@ export default function ManualFlipbook() {
         .page-canvas { display:block; width:100%; height:100%; object-fit:contain; }
       `}</style>
 
-      <div className="min-h-screen flex flex-col select-none" onContextMenu={e => e.preventDefault()}>
+      <div className="h-screen flex flex-col select-none overflow-hidden" onContextMenu={e => e.preventDefault()}>
 
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
@@ -433,7 +433,7 @@ export default function ManualFlipbook() {
         </header>
 
         {/* ── Main ──────────────────────────────────────────────────────────── */}
-        <main className="flex-1 flex flex-col items-center justify-center px-2 py-6 gap-5 bg-stone-100 dark:bg-stone-900">
+        <main className="flex-1 flex flex-col items-center justify-center px-2 py-2 gap-2 bg-stone-100 dark:bg-stone-900 min-h-0 overflow-hidden">
 
           {loadState === "loading" && (
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
@@ -511,7 +511,7 @@ export default function ManualFlipbook() {
 
           {/* ── Book viewer ─────────────────────────────────────────────────── */}
           {loadState === "loaded" && (
-            <div className="flex items-center gap-4 w-full max-w-5xl">
+            <div className="flex items-center gap-4 w-full max-w-5xl flex-1 min-h-0">
 
               {/* Prev */}
               <button onClick={() => doFlip("backward")} disabled={!canGoBack || isAnimating}
@@ -522,7 +522,7 @@ export default function ManualFlipbook() {
 
               {/* ── Book ───────────────────────────────────────────────────── */}
               <div
-                className="flex-1 relative"
+                className="flex-1 relative h-full min-h-0 flex flex-col justify-center"
                 onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
                 onMouseDown={onMouseDown} onMouseUp={onMouseUp}
                 style={{ cursor: isAnimating ? "default" : "grab" }}
@@ -537,9 +537,10 @@ export default function ManualFlipbook() {
 
                 {/* Book body */}
                 <div
-                  className="relative rounded-sm overflow-hidden"
+                  className="relative rounded-sm overflow-hidden w-full"
                   style={{
                     aspectRatio: isMobile ? "1/1.414" : "2/1.414",
+                    maxHeight: "100%",
                     boxShadow: "0 12px 50px rgba(0,0,0,0.35), 0 3px 10px rgba(0,0,0,0.20)",
                     background: "#f5f2ee",
                     perspective: "2200px",
