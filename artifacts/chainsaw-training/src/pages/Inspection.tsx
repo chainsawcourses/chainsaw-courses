@@ -308,7 +308,7 @@ export default function Inspection() {
           </Button>
           <div className="flex items-center gap-2">
             <ClipboardCheck className="w-4 h-4 text-orange-500" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Inspection Checklist</span>
+            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Inspection Checklist</span>
           </div>
           <Button
             variant="ghost"

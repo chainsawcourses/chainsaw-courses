@@ -16,7 +16,7 @@ const TERMS: { term: string; definition: string; category: string }[] = [
   { term: "Assessment criteria", definition: "The specific standards against which a learner's knowledge or competence is measured. In this course, assessment criteria are mapped to NPTC 0039-20 unit parameters for theoretical reference.", category: "Training & Assessment" },
 
   // B
-  { term: "Bar (guidebar)", definition: "The elongated metal plate around which the chain rotates. Also called the guide bar or sword. Available in various lengths; bar length is measured from the front of the housing to the tip.", category: "Chain & Bar" },
+  { term: "Bar (guidebar)", definition: "The elongated metal plate around which the chain rotates. Also called the guide bar. Available in various lengths; bar length is measured from the front of the housing to the tip.", category: "Chain & Bar" },
   { term: "Bar dresser", definition: "A tool used to maintain and straighten the groove of a guide bar. Removes burrs and re-profiles the bar rails to ensure the chain runs straight and the groove depth remains correct. Regular use extends bar life.", category: "Maintenance" },
   { term: "Bar nose", definition: "The rounded tip of the guide bar around which the chain travels. The nose is the highest-risk zone for kickback — contact with an object at the nose can cause the bar to kick back violently towards the operator.", category: "Chain & Bar" },
   { term: "Biosecurity", definition: "Measures taken to prevent the introduction and spread of harmful organisms (pests, diseases, or invasive species) into woodlands or other environments. Relevant to chainsaw operators who move between sites and may inadvertently transfer material.", category: "Environment & Site" },
