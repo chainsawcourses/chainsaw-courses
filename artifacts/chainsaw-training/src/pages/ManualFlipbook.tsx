@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { ChevronLeft, ChevronRight, Loader2, AlertTriangle, BookOpen, ArrowLeft, Search, CornerDownLeft } from "lucide-react";
+import { Loader2, AlertTriangle, BookOpen, ArrowLeft, Search, CornerDownLeft, ZoomIn, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
 
@@ -108,6 +108,11 @@ export default function ManualFlipbook() {
   const [jumpInput, setJumpInput] = useState("");
   const [pageRendering, setPageRendering] = useState(false);
 
+  // ── Fullscreen zoom ────────────────────────────────────────────────────────
+  const [zoomedPage, setZoomedPage] = useState<number | null>(null);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomPan, setZoomPan] = useState({ x: 0, y: 0 });
+
   // ── Search ────────────────────────────────────────────────────────────────
   const [searchIndex, setSearchIndex] = useState<PageEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +125,14 @@ export default function ManualFlipbook() {
   const flipBackRef = useRef<HTMLCanvasElement>(null);
   const wmRef = useRef<HTMLCanvasElement>(null);
   const wmPos = useRef(0);
+
+  // ── Interaction refs ───────────────────────────────────────────────────────
+  const bookBodyRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef<number | null>(null);
+  const mouseStartY = useRef<number | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const pinchRef = useRef<{ dist: number; scale: number } | null>(null);
+  const panRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
 
   const isAnimating = flipDir !== "none";
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 700);
@@ -200,17 +213,17 @@ export default function ManualFlipbook() {
     if (!ctx) return;
     ctx.scale(dpr, dpr);
     const [fx, fy] = WM_POS[wmPos.current % WM_POS.length];
-    const fs = Math.max(10, Math.floor(rect.width * 0.021));
+    const fs = Math.max(13, Math.floor(rect.width * 0.036));
     ctx.save();
     ctx.translate(rect.width * fx, rect.height * fy);
     ctx.rotate(-Math.PI / 9);
-    ctx.globalAlpha = 0.11;
+    ctx.globalAlpha = 0.16;
     ctx.fillStyle = "#1a1a1a";
     ctx.textAlign = "center";
     ctx.font = `bold ${fs}px ui-monospace,monospace`;
     ctx.fillText(fullName ?? "Student", 0, 0);
-    ctx.font = `${Math.max(8, fs - 2)}px ui-monospace,monospace`;
-    ctx.fillText(email ?? "", 0, fs * 1.4);
+    ctx.font = `${Math.max(10, fs - 3)}px ui-monospace,monospace`;
+    ctx.fillText(email ?? "", 0, fs * 1.45);
     ctx.restore();
   }, [fullName, email]);
 
@@ -222,6 +235,36 @@ export default function ManualFlipbook() {
     window.addEventListener("resize", drawWatermark);
     return () => window.removeEventListener("resize", drawWatermark);
   }, [drawWatermark]);
+
+  // ── Escape to close fullscreen ─────────────────────────────────────────────
+  useEffect(() => {
+    if (zoomedPage === null) return;
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") setZoomedPage(null); };
+    window.addEventListener("keydown", fn);
+    return () => window.removeEventListener("keydown", fn);
+  }, [zoomedPage]);
+
+  // Non-passive touchmove on overlay so pinch can preventDefault page zoom
+  useEffect(() => {
+    const el = overlayRef.current;
+    if (!el) return;
+    const fn = (e: TouchEvent) => { if (e.touches.length >= 2) e.preventDefault(); };
+    el.addEventListener("touchmove", fn, { passive: false });
+    return () => el.removeEventListener("touchmove", fn);
+  });
+
+  // ── Open fullscreen on tap ─────────────────────────────────────────────────
+  const openZoom = useCallback((clientX: number) => {
+    if (isAnimating || !bookBodyRef.current) return;
+    const rect = bookBodyRef.current.getBoundingClientRect();
+    const page = (isMobile || clientX < rect.left + rect.width / 2)
+      ? currentPage
+      : Math.min(currentPage + 1, numPages);
+    if (page < 1 || page > numPages) return;
+    setZoomedPage(page);
+    setZoomScale(1);
+    setZoomPan({ x: 0, y: 0 });
+  }, [isAnimating, isMobile, currentPage, numPages]);
 
   // ── Render single page to canvas ─────────────────────────────────────────
   const renderPage = useCallback((pageNum: number, el: HTMLCanvasElement | null) => {
@@ -324,23 +367,34 @@ export default function ManualFlipbook() {
     }, FLIP_MS);
   }, [isAnimating, numPages, canGoForward, canGoBack, currentPage, step, maxPage, isMobile, renderPage]);
 
-  // ── Touch / mouse swipe ───────────────────────────────────────────────────
+  // ── Touch / mouse swipe + tap-to-zoom ────────────────────────────────────
   const touchStartX = useRef<number | null>(null);
   const mouseStartX = useRef<number | null>(null);
 
-  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartX.current = null;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX.current;
+    const dy = t.clientY - (touchStartY.current ?? t.clientY);
+    touchStartX.current = null; touchStartY.current = null;
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) { openZoom(t.clientX); return; }
     if (Math.abs(dx) < 40) return;
     doFlip(dx < 0 ? "forward" : "backward");
   };
-  const onMouseDown = (e: React.MouseEvent) => { mouseStartX.current = e.clientX; };
+  const onMouseDown = (e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    mouseStartY.current = e.clientY;
+  };
   const onMouseUp = (e: React.MouseEvent) => {
     if (mouseStartX.current === null) return;
     const dx = e.clientX - mouseStartX.current;
-    mouseStartX.current = null;
+    const dy = e.clientY - (mouseStartY.current ?? e.clientY);
+    mouseStartX.current = null; mouseStartY.current = null;
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) { openZoom(e.clientX); return; }
     if (Math.abs(dx) < 50) return;
     doFlip(dx < 0 ? "forward" : "backward");
   };
@@ -493,21 +547,14 @@ export default function ManualFlipbook() {
 
           {/* ── Book viewer ─────────────────────────────────────────────────── */}
           {loadState === "loaded" && (
-            <div className="flex items-center gap-4 w-full max-w-5xl flex-1 min-h-0">
-
-              {/* Prev */}
-              <button onClick={() => doFlip("backward")} disabled={!canGoBack || isAnimating}
-                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center border border-border bg-card hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow"
-                aria-label="Previous page">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+            <div className="flex items-center w-full max-w-5xl flex-1 min-h-0">
 
               {/* ── Book ───────────────────────────────────────────────────── */}
               <div
                 className="flex-1 relative h-full min-h-0 flex flex-col justify-center"
                 onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
                 onMouseDown={onMouseDown} onMouseUp={onMouseUp}
-                style={{ cursor: isAnimating ? "default" : "grab" }}
+                style={{ cursor: isAnimating ? "default" : "pointer" }}
               >
                 {/* Page edge stacks */}
                 {!isMobile && (
@@ -519,6 +566,7 @@ export default function ManualFlipbook() {
 
                 {/* Book body */}
                 <div
+                  ref={bookBodyRef}
                   className="relative rounded-sm overflow-hidden w-full"
                   style={{
                     aspectRatio: isMobile ? "1/1.414" : "2/1.414",
@@ -641,16 +689,9 @@ export default function ManualFlipbook() {
                 </div>
 
                 <p className="text-center text-[10px] text-stone-400 mt-2 font-mono tracking-widest">
-                  SWIPE OR USE ARROWS TO TURN PAGES
+                  SWIPE TO TURN PAGES · TAP TO ZOOM
                 </p>
               </div>
-
-              {/* Next */}
-              <button onClick={() => doFlip("forward")} disabled={!canGoForward || isAnimating}
-                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center border border-border bg-card hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors shadow"
-                aria-label="Next page">
-                <ChevronRight className="w-5 h-5" />
-              </button>
             </div>
           )}
 
@@ -665,6 +706,133 @@ export default function ManualFlipbook() {
           )}
         </main>
       </div>
+
+      {/* ── Fullscreen zoom overlay ──────────────────────────────────────────── */}
+      {zoomedPage !== null && (
+        <div
+          ref={overlayRef}
+          className="fixed inset-0 z-50 flex items-center justify-center select-none"
+          style={{ background: "rgba(0,0,0,0.93)", touchAction: "none" }}
+          onWheel={e => {
+            e.preventDefault();
+            setZoomScale(s => Math.min(5, Math.max(1, s - e.deltaY * 0.0035)));
+          }}
+          onTouchStart={e => {
+            if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+              pinchRef.current = { dist: Math.sqrt(dx*dx + dy*dy), scale: zoomScale };
+            } else if (e.touches.length === 1) {
+              panRef.current = { sx: e.touches[0].clientX, sy: e.touches[0].clientY, ox: zoomPan.x, oy: zoomPan.y };
+            }
+          }}
+          onTouchMove={e => {
+            if (e.touches.length === 2 && pinchRef.current) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+              const dist = Math.sqrt(dx*dx + dy*dy);
+              setZoomScale(Math.min(5, Math.max(1, pinchRef.current.scale * dist / pinchRef.current.dist)));
+            } else if (e.touches.length === 1 && zoomScale > 1 && panRef.current) {
+              const dx = e.touches[0].clientX - panRef.current.sx;
+              const dy = e.touches[0].clientY - panRef.current.sy;
+              setZoomPan({ x: panRef.current.ox + dx, y: panRef.current.oy + dy });
+            }
+          }}
+          onTouchEnd={e => {
+            if (e.touches.length === 0) {
+              const wasPinch = pinchRef.current !== null;
+              pinchRef.current = null; panRef.current = null;
+              if (!wasPinch) {
+                if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
+                else setZoomedPage(null);
+              }
+            } else {
+              pinchRef.current = null;
+            }
+          }}
+          onClick={() => {
+            if (zoomScale > 1) { setZoomScale(1); setZoomPan({ x: 0, y: 0 }); }
+            else setZoomedPage(null);
+          }}
+        >
+          {/* Page image with zoom + pan transform */}
+          <div
+            style={{
+              transform: `scale(${zoomScale}) translate(${zoomPan.x / zoomScale}px, ${zoomPan.y / zoomScale}px)`,
+              transformOrigin: "center center",
+              transition: zoomScale === 1 ? "transform 0.25s ease" : "none",
+              position: "relative",
+              maxWidth: "92vw",
+              maxHeight: "92vh",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <img
+              src={pageUrl(zoomedPage)}
+              alt={`Page ${zoomedPage}`}
+              style={{
+                display: "block",
+                maxWidth: "92vw",
+                maxHeight: "92vh",
+                objectFit: "contain",
+                boxShadow: "0 8px 60px rgba(0,0,0,0.6)",
+                borderRadius: 2,
+                userSelect: "none",
+                WebkitUserDrag: "none" as React.CSSProperties["userSelect"],
+              } as React.CSSProperties}
+              draggable={false}
+            />
+
+            {/* Watermark tiles */}
+            {[
+              [0.50, 0.35], [0.25, 0.60], [0.75, 0.60],
+              [0.50, 0.68], [0.35, 0.20], [0.65, 0.20],
+            ].map(([fx, fy], i) => (
+              <div key={i} style={{
+                position: "absolute",
+                left: `${fx * 100}%`, top: `${fy * 100}%`,
+                transform: "translate(-50%, -50%) rotate(-20deg)",
+                pointerEvents: "none", userSelect: "none",
+                opacity: 0.17, textAlign: "center",
+                fontFamily: "ui-monospace, monospace", fontWeight: "bold",
+                fontSize: "clamp(12px, 2.2vw, 20px)",
+                color: "#1a1a1a", lineHeight: 1.4,
+                whiteSpace: "nowrap",
+              }}>
+                <div>{fullName}</div>
+                <div style={{ fontSize: "0.82em" }}>{email}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Controls ──────────────────────────────────────────────────────── */}
+          {/* Close button */}
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            onClick={() => setZoomedPage(null)}
+            aria-label="Close"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
+
+          {/* Page indicator */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
+            <span className="text-white/60 text-xs font-mono tracking-widest">
+              PAGE {zoomedPage} · {zoomScale > 1 ? `${Math.round(zoomScale * 100)}%` : "TAP TO CLOSE"}
+            </span>
+            {zoomScale === 1 && (
+              <span className="text-white/40 text-xs font-mono">PINCH OR SCROLL TO ZOOM</span>
+            )}
+          </div>
+
+          {/* Zoom hint icon when at 1× */}
+          {zoomScale === 1 && (
+            <div className="absolute top-4 left-4 text-white/30 pointer-events-none">
+              <ZoomIn className="w-5 h-5" />
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
