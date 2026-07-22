@@ -257,7 +257,7 @@ router.get("/certificate", async (req, res) => {
 
     //  LOGOS + PROVIDER STRAP
     const LOGO_H    = 68;
-    const logoBottom = 688;     // bottom of logo image zone
+    const logoBottom = 718;     // bottom of logo image zone
 
     let ccImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null  = null;
     let iirImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
@@ -292,10 +292,10 @@ router.get("/certificate", async (req, res) => {
     }
 
     // Rule and strap just below logos
-    page.drawRectangle({ x: ML, y: 678, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
+    page.drawRectangle({ x: ML, y: 708, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
     const strap = "CHAINSAW COURSES  |  IIRSM Approved Training Provider";
-    page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 662, size: 7.5, font: fBold, color: mid });
-    page.drawRectangle({ x: ML, y: 652, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.5 });
+    page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 692, size: 7.5, font: fBold, color: mid });
+    page.drawRectangle({ x: ML, y: 682, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.5 });
 
     // ── ORANGE BORDER — painted last so it covers any bleed ───────────────────
     page.drawRectangle({
