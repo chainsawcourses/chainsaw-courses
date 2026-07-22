@@ -2602,6 +2602,76 @@ export const useResetDeviceBond = <TError = ErrorType<unknown>,
       return useMutation(getResetDeviceBondMutationOptions(options));
     }
 
+export const getAdminDeleteStudentUrl = (studentId: number,) => {
+
+
+
+
+  return `/api/admin/students/${studentId}/delete`
+}
+
+/**
+ * @summary Permanently delete a student account and all associated data
+ */
+export const adminDeleteStudent = async (studentId: number, options?: RequestInit): Promise<SuccessResponse> => {
+
+  return customFetch<SuccessResponse>(getAdminDeleteStudentUrl(studentId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getAdminDeleteStudentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteStudent>>, TError,{studentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adminDeleteStudent>>, TError,{studentId: number}, TContext> => {
+
+const mutationKey = ['adminDeleteStudent'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminDeleteStudent>>, {studentId: number}> = (props) => {
+          const {studentId} = props ?? {};
+
+          return  adminDeleteStudent(studentId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminDeleteStudentMutationResult = NonNullable<Awaited<ReturnType<typeof adminDeleteStudent>>>
+
+    export type AdminDeleteStudentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Permanently delete a student account and all associated data
+ */
+export const useAdminDeleteStudent = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminDeleteStudent>>, TError,{studentId: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adminDeleteStudent>>,
+        TError,
+        {studentId: number},
+        TContext
+      > => {
+      return useMutation(getAdminDeleteStudentMutationOptions(options));
+    }
+
 export const getGetAdminStatsUrl = () => {
 
 

@@ -3,8 +3,8 @@ import { Link, useLocation, useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MonitorSmartphone, User, XCircle } from "lucide-react";
-import { useGetStudent, useResetDeviceBond, getGetStudentQueryKey } from "@workspace/api-client-react";
+import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MonitorSmartphone, Trash2, User, XCircle } from "lucide-react";
+import { useGetStudent, useResetDeviceBond, useAdminDeleteStudent, getGetStudentQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,6 +20,7 @@ export default function StudentDetail() {
     query: { queryKey: getGetStudentQueryKey(studentId), enabled: !!adminToken && !!studentId }
   });
   const resetBond = useResetDeviceBond();
+  const deleteStudent = useAdminDeleteStudent();
 
   useEffect(() => {
     if (isReady && !adminToken) {
@@ -36,6 +37,23 @@ export default function StudentDetail() {
         }
       });
     }
+  };
+
+  const handleDeleteStudent = () => {
+    if (!student) return;
+    const confirmed = confirm(
+      `PERMANENTLY DELETE "${student.fullName}"?\n\nThis will erase all progress, quiz attempts, exam history, waiver, and the account itself. This cannot be undone.\n\nType OK to confirm.`
+    );
+    if (!confirmed) return;
+    deleteStudent.mutate({ studentId }, {
+      onSuccess: () => {
+        toast({ title: "Student Deleted", description: `${student.fullName}'s account has been permanently deleted.` });
+        setLocation("/admin/dashboard");
+      },
+      onError: () => {
+        toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete the student account. Please try again." });
+      },
+    });
   };
 
   if (isLoading || !student) {
@@ -212,6 +230,33 @@ export default function StudentDetail() {
                 NO ASSESSMENTS TAKEN
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center text-destructive text-sm">
+              <Trash2 className="w-4 h-4 mr-2" /> Danger Zone
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-mono text-sm font-bold text-destructive">Delete Student Account</p>
+              <p className="font-mono text-xs text-muted-foreground mt-1">
+                Permanently removes all progress, attempts, waiver, and the account itself. Cannot be undone.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="font-mono text-xs h-9 shrink-0"
+              onClick={handleDeleteStudent}
+              disabled={deleteStudent.isPending}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-2" />
+              {deleteStudent.isPending ? "DELETING..." : "DELETE STUDENT"}
+            </Button>
           </CardContent>
         </Card>
 

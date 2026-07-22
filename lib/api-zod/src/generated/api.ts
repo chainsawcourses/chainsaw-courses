@@ -864,6 +864,23 @@ export const ResetDeviceBondResponse = zod.object({
 
 
 /**
+ * @summary Permanently delete a student account and all associated data
+ */
+export const AdminDeleteStudentParams = zod.object({
+  "studentId": zod.coerce.number()
+})
+
+export const AdminDeleteStudentHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const AdminDeleteStudentResponse = zod.object({
+  "success": zod.boolean(),
+  "message": zod.string().optional()
+})
+
+
+/**
  * @summary Get high-level platform statistics
  */
 export const GetAdminStatsHeader = zod.object({

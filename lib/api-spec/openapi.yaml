@@ -827,6 +827,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/SuccessResponse"
 
+  /admin/students/{studentId}/delete:
+    delete:
+      operationId: adminDeleteStudent
+      tags: [admin]
+      summary: Permanently delete a student account and all associated data
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
   /admin/stats:
     get:
       operationId: getAdminStats

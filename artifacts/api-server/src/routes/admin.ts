@@ -9,6 +9,13 @@ import {
   quizAttemptsTable,
   examAttemptsTable,
   appConfigTable,
+  chatMessagesTable,
+  inspectionRecordsTable,
+  riskAssessmentsTable,
+  videoEngagementTable,
+  moduleFeedbackTable,
+  pushSubscriptionsTable,
+  appFeedbackTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
 import { eq, isNull, gte, count, and, ne } from "drizzle-orm";
@@ -408,6 +415,48 @@ router.put("/admin/config/:key", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     logger.error({ err }, "Error updating app config");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/students/:studentId/delete", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const uid = parseInt(req.params.studentId, 10);
+  if (isNaN(uid)) {
+    res.status(400).json({ error: "Invalid student ID" });
+    return;
+  }
+
+  try {
+    const users = await db.select().from(usersTable).where(eq(usersTable.id, uid));
+    if (users.length === 0) {
+      res.status(404).json({ error: "Student not found" });
+      return;
+    }
+
+    await db.transaction(async (tx) => {
+      await tx.delete(waiversTable).where(eq(waiversTable.userId, uid));
+      await tx.delete(userProgressTable).where(eq(userProgressTable.userId, uid));
+      await tx.delete(quizAttemptsTable).where(eq(quizAttemptsTable.userId, uid));
+      await tx.delete(examAttemptsTable).where(eq(examAttemptsTable.userId, uid));
+      await tx.delete(chatMessagesTable).where(eq(chatMessagesTable.userId, uid));
+      await tx.delete(inspectionRecordsTable).where(eq(inspectionRecordsTable.userId, uid));
+      await tx.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.userId, uid));
+      await tx.delete(videoEngagementTable).where(eq(videoEngagementTable.userId, uid));
+      await tx.delete(moduleFeedbackTable).where(eq(moduleFeedbackTable.userId, uid));
+      await tx.delete(pushSubscriptionsTable).where(eq(pushSubscriptionsTable.userId, uid));
+      await tx.delete(appFeedbackTable).where(eq(appFeedbackTable.userId, uid));
+      await tx.delete(usersTable).where(eq(usersTable.id, uid));
+    });
+
+    logger.info({ userId: uid }, "Student account permanently deleted by admin");
+    res.json({ success: true, message: "Student account permanently deleted" });
+  } catch (err) {
+    logger.error({ err }, "Error deleting student account");
     res.status(500).json({ error: "Internal server error" });
   }
 });
