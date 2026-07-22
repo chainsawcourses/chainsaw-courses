@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star } from "lucide-react";
-import { useGetExam, useSubmitExam, useSubmitAppFeedback, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
+import { useGetExam, useSubmitExam, useSubmitAppFeedback, useGetExamStatus, getGetExamStatusQueryKey, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
 
@@ -339,8 +339,12 @@ export default function Exam() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId } = useUserSession();
 
+  const { data: examStatus } = useGetExamStatus({
+    query: { queryKey: getGetExamStatusQueryKey(), enabled: !!activationCode && !!deviceId }
+  });
+
   const { data: exam, isLoading, error } = useGetExam({
-    query: { queryKey: getGetExamQueryKey(), enabled: !!activationCode && !!deviceId }
+    query: { queryKey: getGetExamQueryKey(), enabled: !!activationCode && !!deviceId && !examStatus?.passed }
   });
 
   const submitExam = useSubmitExam();
@@ -390,6 +394,32 @@ export default function Exam() {
   if (!activationCode || !deviceId) {
     setLocation("/");
     return null;
+  }
+
+  // Guard: show completion screen if already passed
+  if (examStatus?.passed) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <CheckCircle2 className="w-20 h-20 text-green-600 mb-6" />
+        <h1 className="text-2xl font-black font-mono uppercase tracking-wide mb-3 text-green-600">
+          Exam Already Passed
+        </h1>
+        <p className="text-muted-foreground font-mono text-sm mb-2 max-w-md">
+          You have successfully completed the final summative exam.
+        </p>
+        {examStatus.bestScore !== null && (
+          <p className="text-primary font-mono text-sm font-bold mb-8">
+            Best score: {examStatus.bestScore}%
+          </p>
+        )}
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <CertificateButton />
+          <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
+            <Link href="/training">BACK TO TRAINING</Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {

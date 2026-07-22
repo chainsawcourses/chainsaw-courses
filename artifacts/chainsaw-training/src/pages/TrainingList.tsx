@@ -674,13 +674,10 @@ export default function TrainingList() {
             <div className="flex items-center justify-between pt-1 border-t border-border">
               <div className="flex items-center gap-2">
                 {examPassed ? (
-                  <Link
-                    href="/exam"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600/70 hover:text-green-600 transition-colors flex items-center gap-1.5"
-                  >
+                  <span className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 flex items-center gap-1.5 cursor-default">
                     <Award className="w-3 h-3 shrink-0" />
-                    Final Exam
-                  </Link>
+                    Final Exam ✓
+                  </span>
                 ) : courseUnlocked ? (
                   <Link
                     href="/exam"

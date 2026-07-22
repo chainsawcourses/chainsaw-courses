@@ -5,6 +5,7 @@ import { SubmitExamBody } from "@workspace/api-zod";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { sendCertificateEmail } from "../lib/sendCertificateEmail";
 
 const router = Router();
 
@@ -33,7 +34,6 @@ async function isCourseComplete(userId: number): Promise<boolean> {
   const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
   const quizCountMap = new Map(quizCounts.map((q) => [q.moduleId, q.count]));
 
-  // Only video modules count toward course completion — PDF/document modules are excluded
   const videoModules = modules.filter((mod) => mod.contentType === "video");
 
   return videoModules.every((mod) => {
@@ -41,6 +41,15 @@ async function isCourseComplete(userId: number): Promise<boolean> {
     const hasQuiz = (quizCountMap.get(mod.id) ?? 0) > 0;
     return !!(p?.videoCompleted && (!hasQuiz || p?.quizPassed));
   });
+}
+
+async function hasAlreadyPassed(userId: number): Promise<boolean> {
+  const passed = await db
+    .select()
+    .from(examAttemptsTable)
+    .where(eq(examAttemptsTable.userId, userId))
+    .then((rows) => rows.some((r) => r.passed));
+  return passed;
 }
 
 router.get("/exam", async (req, res) => {
@@ -59,6 +68,12 @@ router.get("/exam", async (req, res) => {
   }
 
   try {
+    // Block access once already passed
+    if (await hasAlreadyPassed(user.id)) {
+      res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
+      return;
+    }
+
     const complete = await isCourseComplete(user.id);
     if (!complete) {
       res.status(403).json({ error: "Complete all training modules before taking the final exam." });
@@ -100,6 +115,12 @@ router.post("/exam/submit", async (req, res) => {
   }
 
   try {
+    // Block re-submission once already passed
+    if (await hasAlreadyPassed(user.id)) {
+      res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
+      return;
+    }
+
     const complete = await isCourseComplete(user.id);
     if (!complete) {
       res.status(403).json({ error: "Complete all training modules before taking the final exam." });
@@ -130,6 +151,7 @@ router.post("/exam/submit", async (req, res) => {
     const total = answers.length;
     const score = Math.round((correct / total) * 100);
     const passed = score >= EXAM_PASS_SCORE;
+    const attemptedAt = new Date();
 
     await db.insert(examAttemptsTable).values({
       userId: user.id,
@@ -140,6 +162,13 @@ router.post("/exam/submit", async (req, res) => {
     });
 
     logger.info({ userId: user.id, score, passed }, "Summative exam attempt recorded");
+
+    // Fire-and-forget certificate email on first pass
+    if (passed) {
+      sendCertificateEmail(user, attemptedAt, score).catch((err) => {
+        logger.error({ err, userId: user.id }, "Certificate email fire-and-forget failed");
+      });
+    }
 
     res.json({ passed, score, passingScore: EXAM_PASS_SCORE, correct, total, feedback });
   } catch (err) {

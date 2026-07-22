@@ -13,6 +13,7 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - Required env: `DATABASE_URL` — Postgres connection string
 - Optional env: `ADMIN_PASSWORD` — Admin panel password (default: `chainsaw-admin-2024`)
 - Optional env: `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY` — for AI chat (falls back to keyword-based responses)
+- Optional env: `SMTP_HOST`, `SMTP_PORT` (default 587), `SMTP_SECURE` (`"true"` for port 465), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — for certificate email on exam pass (gracefully skipped if `SMTP_HOST` not set)
 
 ## Stack
 
