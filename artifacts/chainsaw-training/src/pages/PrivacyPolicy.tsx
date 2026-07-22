@@ -44,7 +44,7 @@ export default function PrivacyPolicy() {
         <div className="space-y-7 text-sm leading-relaxed text-foreground font-mono">
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">1. Who We Are (Data Controller)</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">1. Who We Are (Data Controller)</h2>
             <p>
               The data controller for this platform is <strong>Chainsaw Courses</strong>, the operator of the vocational chainsaw safety training service available at <a href="https://chainsawcourses.com" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">chainsawcourses.com</a>.
             </p>
@@ -58,7 +58,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">2. What Data We Collect and Why</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">2. What Data We Collect and Why</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse border border-border">
                 <thead>
@@ -125,7 +125,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">3. Professional Standards Context</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">3. Professional Standards Context</h2>
             <p>
               This platform delivers vocational chainsaw safety training aligned with the standards and assessment frameworks recognised by the <strong>International Institute of Risk and Safety Management (IIRSM)</strong>, the <strong>Forestry Commission</strong>, and the <strong>Arboricultural Association</strong>. Chainsaw operation is a notifiable hazardous activity under UK health and safety law; maintaining accurate training records is a statutory requirement for both the individual operator and their employer.
             </p>
@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">4. Data Retention</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">4. Data Retention</h2>
             <p>
               We retain your personal training record for <strong>3 years from the date of your last platform activity</strong>, or such longer period as may be required by applicable health and safety legislation. This retention period reflects the vocational nature of the training and supports ongoing employer and regulatory audit requirements.
             </p>
@@ -152,7 +152,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">5. Your Rights Under UK GDPR</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">5. Your Rights Under UK GDPR</h2>
             <p>You have the following rights in relation to your personal data:</p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li><strong>Right of access</strong> — request a copy of the personal data we hold about you</li>
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">6. Data Security</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">6. Data Security</h2>
             <p>
               All data is transmitted over HTTPS. Your personal data is stored in a securely hosted PostgreSQL database. Access is restricted to authorised personnel only. Passwords and tokens are never stored in plain text. Video streams are delivered via Vimeo&rsquo;s secure CDN with domain-level access restrictions; we do not store video content.
             </p>
@@ -184,7 +184,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">7. Third-Party Services</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">7. Third-Party Services</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs border-collapse border border-border">
                 <thead>
@@ -220,21 +220,21 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">8. Cookies &amp; Local Storage</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">8. Cookies &amp; Local Storage</h2>
             <p>
               This application uses browser <strong>localStorage</strong> and <strong>cookies</strong> solely to persist your session credentials (activation code, device identifier, user ID) between visits. No advertising, analytics, or tracking cookies are set. No third-party tracking scripts are loaded.
             </p>
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">9. Children</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">9. Children</h2>
             <p>
               This platform is intended for adult professionals engaged in or training for chainsaw operation. We do not knowingly collect data from individuals under the age of 18. If you believe a minor has activated an account, please contact us immediately.
             </p>
           </section>
 
           <section>
-            <h2 className="font-black uppercase tracking-widest text-xs text-primary mb-2">10. Changes to This Policy</h2>
+            <h2 className="font-black uppercase tracking-widest text-xs text-orange-500 mb-2">10. Changes to This Policy</h2>
             <p>
               We may update this policy from time to time. The version date at the top of this page indicates when it was last revised. Continued use of the platform after a policy update constitutes acceptance of the revised policy.
             </p>
