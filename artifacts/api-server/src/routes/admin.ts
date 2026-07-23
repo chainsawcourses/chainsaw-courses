@@ -16,9 +16,10 @@ import {
   moduleFeedbackTable,
   pushSubscriptionsTable,
   appFeedbackTable,
+  backupTestLogsTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
-import { eq, isNull, gte, count, and, ne } from "drizzle-orm";
+import { eq, isNull, gte, count, and, ne, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
 
@@ -457,6 +458,132 @@ router.delete("/admin/students/:studentId/delete", async (req, res) => {
     res.json({ success: true, message: "Student account permanently deleted" });
   } catch (err) {
     logger.error({ err }, "Error deleting student account");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Backup: on-demand CSV data export ───────────────────────────────────────
+
+router.get("/admin/backup/export", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const users = await db.select().from(usersTable);
+    const progress = await db.select().from(userProgressTable);
+    const waivers = await db.select().from(waiversTable);
+    const codes = await db.select().from(activationCodesTable);
+    const inspections = await db.select().from(inspectionRecordsTable);
+    const risks = await db.select().from(riskAssessmentsTable);
+
+    const progressByUser: Record<number, { completed: number; total: number }> = {};
+    progress.forEach((p) => {
+      if (!progressByUser[p.userId]) progressByUser[p.userId] = { completed: 0, total: 0 };
+      progressByUser[p.userId].total++;
+      if (p.quizPassed) progressByUser[p.userId].completed++;
+    });
+
+    const waiverByUser: Record<number, string> = {};
+    waivers.forEach((w) => { waiverByUser[w.userId] = w.signedAt.toISOString(); });
+
+    const inspCountByUser: Record<number, number> = {};
+    inspections.forEach((i) => { inspCountByUser[i.userId] = (inspCountByUser[i.userId] ?? 0) + 1; });
+
+    const riskCountByUser: Record<number, number> = {};
+    risks.forEach((r) => { riskCountByUser[r.userId] = (riskCountByUser[r.userId] ?? 0) + 1; });
+
+    const escCsv = (v: string | null | undefined) => `"${(v ?? "").replace(/"/g, '""')}"`;
+
+    const header = [
+      "ID", "Full Name", "Email", "Activation Code", "Device ID",
+      "Activated At", "Last Activity", "Waiver Signed At",
+      "Modules Completed", "Modules Total",
+      "Inspection Records", "Risk Assessments",
+    ].join(",");
+
+    const rows = users.map((u) => {
+      const prog = progressByUser[u.id] ?? { completed: 0, total: 0 };
+      return [
+        u.id,
+        escCsv(u.fullName),
+        escCsv(u.email),
+        escCsv(u.activationCode),
+        escCsv(u.deviceId),
+        u.activatedAt.toISOString(),
+        u.lastActivityAt?.toISOString() ?? "",
+        waiverByUser[u.id] ?? "",
+        prog.completed,
+        prog.total,
+        inspCountByUser[u.id] ?? 0,
+        riskCountByUser[u.id] ?? 0,
+      ].join(",");
+    });
+
+    const unusedCodes = codes.filter((c) => !c.isUsed);
+    const codeSection = [
+      "",
+      "UNUSED ACTIVATION CODES",
+      ["Code", "Notes", "Created At"].join(","),
+      ...unusedCodes.map((c) => [escCsv(c.code), escCsv(c.notes), c.createdAt.toISOString()].join(",")),
+    ].join("\r\n");
+
+    const now = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const csv = [header, ...rows].join("\r\n") + "\r\n" + codeSection;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="chainsaw-courses-export-${now}.csv"`);
+    res.send(csv);
+    logger.info({ rows: users.length }, "Admin exported CSV data backup");
+  } catch (err) {
+    logger.error({ err }, "Error generating CSV export");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Backup: restoration test log ────────────────────────────────────────────
+
+router.get("/admin/backup/logs", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const logs = await db.select().from(backupTestLogsTable).orderBy(desc(backupTestLogsTable.testedAt));
+    res.json(logs);
+  } catch (err) {
+    logger.error({ err }, "Error fetching backup test logs");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/admin/backup/logs", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { testedAt, testedBy, outcome, notes } = req.body as {
+    testedAt: string; testedBy: string; outcome: string; notes?: string;
+  };
+  if (!testedAt || !testedBy || !outcome) {
+    res.status(400).json({ error: "testedAt, testedBy and outcome are required" });
+    return;
+  }
+  if (outcome !== "pass" && outcome !== "fail") {
+    res.status(400).json({ error: "outcome must be 'pass' or 'fail'" });
+    return;
+  }
+  try {
+    const [row] = await db.insert(backupTestLogsTable).values({
+      testedAt: new Date(testedAt),
+      testedBy: testedBy.trim(),
+      outcome,
+      notes: notes?.trim() || null,
+    }).returning();
+    logger.info({ id: row.id, outcome }, "Backup restoration test logged");
+    res.status(201).json(row);
+  } catch (err) {
+    logger.error({ err }, "Error creating backup test log");
     res.status(500).json({ error: "Internal server error" });
   }
 });

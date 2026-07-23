@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Biohazard, ClipboardCheck, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, Star, Users, Video, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Biohazard, CheckCircle2, ClipboardCheck, Download, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, ShieldCheck, Star, Users, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -51,6 +52,74 @@ export default function AdminDashboard() {
   const [createCodeOpen, setCreateCodeOpen] = useState(false);
   const [newCodeNotes, setNewCodeNotes] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+
+  type BackupLog = { id: number; testedAt: string; testedBy: string; outcome: string; notes: string | null; createdAt: string };
+  const [backupLogs, setBackupLogs] = useState<BackupLog[]>([]);
+  const [backupLogsLoading, setBackupLogsLoading] = useState(false);
+  const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [logTestedAt, setLogTestedAt] = useState(new Date().toISOString().slice(0, 10));
+  const [logTestedBy, setLogTestedBy] = useState("");
+  const [logOutcome, setLogOutcome] = useState<"pass" | "fail">("pass");
+  const [logNotes, setLogNotes] = useState("");
+  const [logSaving, setLogSaving] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+
+  const fetchBackupLogs = useCallback(async () => {
+    if (!adminToken) return;
+    setBackupLogsLoading(true);
+    try {
+      const res = await fetch("/api/admin/backup/logs", { headers: { admintoken: adminToken } });
+      if (res.ok) setBackupLogs(await res.json());
+    } finally {
+      setBackupLogsLoading(false);
+    }
+  }, [adminToken]);
+
+  useEffect(() => { if (adminToken) fetchBackupLogs(); }, [adminToken, fetchBackupLogs]);
+
+  const handleExport = async () => {
+    if (!adminToken) return;
+    setExportLoading(true);
+    try {
+      const res = await fetch("/api/admin/backup/export", { headers: { admintoken: adminToken } });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const cd = res.headers.get("Content-Disposition") ?? "";
+      const match = cd.match(/filename="([^"]+)"/);
+      a.href = url;
+      a.download = match?.[1] ?? "chainsaw-export.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleLogSave = async () => {
+    if (!adminToken || !logTestedBy.trim()) return;
+    setLogSaving(true);
+    try {
+      const res = await fetch("/api/admin/backup/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", admintoken: adminToken },
+        body: JSON.stringify({ testedAt: new Date(logTestedAt).toISOString(), testedBy: logTestedBy.trim(), outcome: logOutcome, notes: logNotes.trim() || undefined }),
+      });
+      if (res.ok) {
+        setLogDialogOpen(false);
+        setLogTestedBy("");
+        setLogNotes("");
+        setLogOutcome("pass");
+        setLogTestedAt(new Date().toISOString().slice(0, 10));
+        fetchBackupLogs();
+      }
+    } finally {
+      setLogSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (isReady && !adminToken) setLocation("/admin");
@@ -459,7 +528,160 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Data & Backup */}
+        <Card className="border-border bg-card/30">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1 font-mono">
+                Export learner data · Log quarterly restoration tests
+              </p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 font-mono text-xs"
+                onClick={handleExport}
+                disabled={exportLoading}
+              >
+                <Download className="w-3.5 h-3.5 mr-1" />
+                {exportLoading ? "PREPARING…" : "DOWNLOAD CSV"}
+              </Button>
+              <Button
+                size="sm"
+                className="h-9 font-mono text-xs"
+                onClick={() => { setLogDialogOpen(true); setLogTestedAt(new Date().toISOString().slice(0, 10)); }}
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" /> LOG RESTORE TEST
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {backupLogsLoading ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+            ) : backupLogs.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">
+                No restoration tests logged yet. Click "Log Restore Test" after each quarterly check.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-secondary/30">
+                    <TableRow className="border-border">
+                      <TableHead className="font-mono text-xs">DATE TESTED</TableHead>
+                      <TableHead className="font-mono text-xs">TESTED BY</TableHead>
+                      <TableHead className="font-mono text-xs">OUTCOME</TableHead>
+                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {backupLogs.map((log) => (
+                      <TableRow key={log.id} className="border-border hover:bg-secondary/10">
+                        <TableCell className="font-mono text-xs">
+                          {new Date(log.testedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{log.testedBy}</TableCell>
+                        <TableCell>
+                          {log.outcome === "pass" ? (
+                            <Badge variant="outline" className="text-green-600 border-green-600 font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
+                              <CheckCircle2 className="w-3 h-3" /> PASS
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-destructive border-destructive font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
+                              <XCircle className="w-3 h-3" /> FAIL
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{log.notes ?? "—"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
+
+      {/* Backup restoration test log dialog */}
+      <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
+        <DialogContent className="border-border bg-card sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-mono uppercase tracking-widest">Log Restoration Test</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-muted-foreground uppercase">Date Tested</label>
+              <Input
+                type="date"
+                value={logTestedAt}
+                onChange={(e) => setLogTestedAt(e.target.value)}
+                className="font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-muted-foreground uppercase">Tested By</label>
+              <Input
+                value={logTestedBy}
+                onChange={(e) => setLogTestedBy(e.target.value)}
+                placeholder="Your name"
+                className="font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-muted-foreground uppercase">Outcome</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setLogOutcome("pass")}
+                  className={`flex-1 h-9 font-mono text-xs rounded border flex items-center justify-center gap-1.5 transition-colors ${
+                    logOutcome === "pass"
+                      ? "bg-green-600 text-white border-green-600"
+                      : "border-border text-muted-foreground hover:bg-secondary/30"
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> PASS
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogOutcome("fail")}
+                  className={`flex-1 h-9 font-mono text-xs rounded border flex items-center justify-center gap-1.5 transition-colors ${
+                    logOutcome === "fail"
+                      ? "bg-destructive text-white border-destructive"
+                      : "border-border text-muted-foreground hover:bg-secondary/30"
+                  }`}
+                >
+                  <XCircle className="w-3.5 h-3.5" /> FAIL
+                </button>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-mono text-muted-foreground uppercase">Notes (optional)</label>
+              <Textarea
+                value={logNotes}
+                onChange={(e) => setLogNotes(e.target.value)}
+                placeholder="e.g. Restored from 22 Jul backup. Full data verified. RTO ~35 min."
+                className="font-mono text-sm resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLogDialogOpen(false)} className="font-mono">CANCEL</Button>
+            <Button
+              onClick={handleLogSave}
+              disabled={logSaving || !logTestedBy.trim()}
+              className="font-mono font-bold"
+            >
+              {logSaving ? "SAVING…" : "SAVE ENTRY"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={createCodeOpen} onOpenChange={setCreateCodeOpen}>
         <DialogContent className="border-border bg-card sm:max-w-md">

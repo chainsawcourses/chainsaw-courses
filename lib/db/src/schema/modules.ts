@@ -201,6 +201,20 @@ export const appConfigTable = pgTable("app_config", {
 
 export type AppConfig = typeof appConfigTable.$inferSelect;
 
+export const backupTestLogsTable = pgTable("backup_test_logs", {
+  id: serial("id").primaryKey(),
+  testedAt: timestamp("tested_at").notNull(),
+  testedBy: text("tested_by").notNull(),
+  outcome: text("outcome").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertBackupTestLogSchema = createInsertSchema(backupTestLogsTable).omit({ id: true, createdAt: true });
+
+export type BackupTestLog = typeof backupTestLogsTable.$inferSelect;
+export type InsertBackupTestLog = z.infer<typeof insertBackupTestLogSchema>;
+
 export type NewsItem = typeof newsItemsTable.$inferSelect;
 export type InsertNewsItem = z.infer<typeof insertNewsItemSchema>;
 
