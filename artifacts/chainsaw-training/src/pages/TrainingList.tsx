@@ -800,11 +800,12 @@ export default function TrainingList() {
                     <CardContent className="p-4">
                       <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {(() => {
-                          const injected = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
+                          const examInjection = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
+                          const gatewayInjection = "\n\nPractical Progression Gateway:\n\nOnce you have passed the final exam and received your Certificate of Theoretical Competency, the Practical Progression Gateway unlocks on your dashboard. This tool helps you find an NPTC-approved assessment centre near you and register your interest directly with the venue.\n\nAfter making initial contact with a venue, allow approximately 4–6 weeks to finalise a confirmed assessment date. Venues vary in availability and some operate on a cohort basis — so contact them as early as possible once your certificate is issued. All assessment fees are paid directly to the venue.";
                           const marker = "Practical Mock Assessment Practice:";
                           const idx = howToUseText!.indexOf(marker);
-                          if (idx === -1) return howToUseText;
-                          return howToUseText!.slice(0, idx) + injected + howToUseText!.slice(idx);
+                          const withExam = idx === -1 ? howToUseText! : howToUseText!.slice(0, idx) + examInjection + howToUseText!.slice(idx);
+                          return withExam + gatewayInjection;
                         })()}
                       </p>
                     </CardContent>
@@ -936,6 +937,12 @@ export default function TrainingList() {
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">Your certificate.</span> Upon passing the online final exam here (80% or above), your Certificate of Theoretical Competency is issued automatically to your registered email. Present this alongside your practical assessment results to your employer or awarding body as evidence of your theoretical training hours.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Use the Practical Progression Gateway.</span> Once your certificate is issued, the Practical Progression Gateway unlocks on your dashboard. Complete a short assessment passport — confirming your hands-on experience, PPE, and contact details — then use the interactive map to find an NPTC-approved assessment centre near you and register your interest directly with the venue.
+                    </p>
+                    <p className="font-mono text-sm text-muted-foreground leading-relaxed">
+                      <span className="text-foreground font-semibold">Booking your assessment.</span> After making initial contact with a venue, allow approximately 4–6 weeks to finalise a confirmed assessment date. Venues vary in availability and some run on a cohort basis, so reach out as early as possible once your certificate is in hand. All assessment fees are paid directly to the venue — Chainsaw Courses does not handle payments.
                     </p>
                   </CardContent>
                 </Card>

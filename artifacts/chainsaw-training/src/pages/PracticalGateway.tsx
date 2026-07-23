@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowLeft, MapPin, Star, CheckCircle2, ChevronRight, Loader2, ExternalLink, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -253,7 +253,25 @@ export default function PracticalGateway() {
     }
   };
 
-  const mapCenter: [number, number] = venues.length > 0 ? [53.5, -1.5] : [52.5, -1.5];
+  const [studentLatLng, setStudentLatLng] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    if (!passport?.postcode) return;
+    const pc = passport.postcode.replace(/\s+/g, "").toUpperCase();
+    fetch(`https://api.postcodes.io/postcodes/${pc}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.result) setStudentLatLng([d.result.latitude, d.result.longitude]); })
+      .catch(() => {});
+  }, [passport?.postcode]);
+
+  const mapCenter: [number, number] = studentLatLng ?? (venues.length > 0 ? [53.5, -1.5] : [52.5, -1.5]);
+  const mapZoom = studentLatLng ? 9 : 6;
+
+  function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+    const map = useMap();
+    useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -262,9 +280,9 @@ export default function PracticalGateway() {
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Link>
           </Button>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-orange-500" />
-            <span className="font-mono font-bold uppercase tracking-wide text-xs">Practical Progression Gateway</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <MapPin className="w-4 h-4 text-[#e27226] shrink-0" />
+            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Practical Progression Gateway</span>
           </div>
           <div className="w-20" />
         </div>
@@ -274,6 +292,9 @@ export default function PracticalGateway() {
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary">Assessment Network Map</h1>
           <p className="font-mono text-[11px] text-muted-foreground mt-0.5">Find an NPTC-approved assessment centre near you. Click a venue to register your interest.</p>
+          <p className="font-mono text-[11px] text-muted-foreground mt-1">
+            <span className="text-foreground font-semibold">Booking timeline:</span> Allow approximately 4–6 weeks from your initial contact email to finalise a confirmed assessment date. Reach out to venues as early as possible — some operate on a cohort basis.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
@@ -282,8 +303,20 @@ export default function PracticalGateway() {
             {passportLoading ? (
               <div className="h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
             ) : (
-              <MapContainer center={mapCenter} zoom={6} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+              <MapContainer center={mapCenter} zoom={mapZoom} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap contributors" />
+                <MapController center={mapCenter} zoom={mapZoom} />
+                {studentLatLng && (
+                  <CircleMarker
+                    center={studentLatLng}
+                    radius={10}
+                    pathOptions={{ color: "#1d4ed8", fillColor: "#3b82f6", fillOpacity: 0.9, weight: 2 }}
+                  >
+                    <Popup>
+                      <div className="font-sans text-sm"><div className="font-bold">Your Location</div><div className="text-xs text-gray-500">{passport?.postcode}</div></div>
+                    </Popup>
+                  </CircleMarker>
+                )}
                 {venues.map(venue => (
                   <CircleMarker
                     key={venue.id}
