@@ -726,14 +726,14 @@ export default function TrainingList() {
                 {examPassed ? (
                   <Link
                     href="/gateway"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-orange-600 hover:text-orange-500 transition-colors flex items-center gap-1.5"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-[#e27226] hover:text-[#c9621f] transition-colors flex items-center gap-1.5"
                   >
                     <MapPin className="w-3 h-3 shrink-0" />
                     Practical Progression Gateway
                   </Link>
                 ) : (
                   <span className="cursor-not-allowed select-none" title="Pass the final exam to unlock the Practical Progression Gateway">
-                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-orange-600/30 flex items-center gap-1.5">
+                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-[#e27226]/30 flex items-center gap-1.5">
                       <LockKeyhole className="w-3 h-3 shrink-0" />
                       Practical Progression Gateway
                     </span>
@@ -743,7 +743,7 @@ export default function TrainingList() {
               {examPassed && (
                 <Link
                   href="/gateway"
-                  className="font-mono text-[10px] uppercase tracking-widest text-orange-600 hover:text-orange-500 underline underline-offset-2 transition-colors"
+                  className="font-mono text-[10px] uppercase tracking-widest text-[#e27226] hover:text-[#c9621f] underline underline-offset-2 transition-colors"
                 >
                   Find a Centre
                 </Link>
