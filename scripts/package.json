@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@replit/connectors-sdk": "^0.4.1",
     "@types/pdfkit": "^0.17.6",
     "@workspace/db": "workspace:*",
     "pdf-lib": "^1.17.1",
