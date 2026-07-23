@@ -82,9 +82,12 @@ export default function AdminDashboard() {
     setExportLoading(true);
     try {
       const res = await fetch("/api/admin/backup/export", { headers: { admintoken: adminToken } });
-      if (!res.ok) return;
+      if (res.status === 401) { alert("Admin session expired — please log out and back in."); return; }
+      if (!res.ok) { const body = await res.json().catch(() => ({})) as { error?: string }; alert(`Export failed: ${body.error ?? res.statusText}`); return; }
       const { url } = await res.json() as { url: string };
       window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      alert(`Export error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setExportLoading(false);
     }
