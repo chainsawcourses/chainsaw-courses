@@ -1942,22 +1942,24 @@ async function genBCP(): Promise<void> {
 
   sectionHeading(doc, "4. Threat Scenarios and Response");
   twoColTable(doc, ["Threat", "Response"], [
-    ["Cloud hosting outage (Replit)", "Monitor provider status page. If outage >2 hours, activate learner communication plan. Recovery follows provider restoration; no action needed for infrastructure. If provider SLA breached, evaluate alternative hosting migration."],
-    ["Database corruption or accidental deletion", "Restore from most recent backup (Replit managed or supplementary backup). Verify data integrity post-restoration. Log data loss period and notify affected learners if personal data impacted."],
-    ["Ransomware or malicious compromise", "Isolate affected systems immediately. Activate Data Breach and Incident Response Procedure. Restore from last known clean backup. Engage specialist incident response if required. Notify ICO if personal data involved."],
-    ["Accidental code deployment causing platform failure", "Rollback to last stable deployment via version control (Git). Staging environment testing before production redeployment. Estimated recovery: ≤2 hours."],
+    ["Cloud hosting outage (Replit) — short-duration (<4 hours)", "1. Check status.replit.com to confirm it is a platform-side outage. 2. Do not attempt code changes during the outage. 3. Post a learner-facing status update if access is affected. 4. Platform restores automatically on provider recovery; no infrastructure action required. 5. Log incident in the admin dashboard once resolved."],
+    ["Cloud hosting outage (Replit) — extended (>4 hours or provider SLA breached)", "1. Notify active learners by email within 4 hours with an estimated resolution timeline. 2. Retrieve learner data from the most recent weekly Google Sheet export (stored in Google Drive). 3. Evaluate temporary alternative hosting (e.g. Render, Railway) using the codebase pushed to a third-party Git repository. 4. If Replit resumes, restore to primary hosting. 5. If migration required, update DNS/domain and redeploy from Git. Estimated RTO for migration: ≤8 hours."],
+    ["Replit permanent shutdown or account loss", "Learner data is preserved in weekly Google Sheet exports. Codebase is recoverable from Git history (push repository to GitHub or GitLab as an offline copy — do this now if not yet done). Redeploy to alternative host (Render, Railway, Fly.io) using the same environment variables. Estimated RTO: ≤24 hours. Activate learner communication plan immediately."],
+    ["Database corruption or accidental deletion", "Restore from most recent Replit-managed database backup (accessible via Replit dashboard → Database → Backups). Verify data integrity post-restoration using the Google Sheet export as a reference. Log data loss period and notify affected learners if personal data impacted."],
+    ["Ransomware or malicious compromise", "Isolate affected systems immediately. Activate Data Breach and Incident Response Procedure. Restore from last known clean backup. Engage specialist incident response if required. Notify ICO if personal data involved within 72 hours."],
+    ["Accidental code deployment causing platform failure", "Rollback to last stable checkpoint via Replit's built-in checkpoint history. If Replit is inaccessible, redeploy from Git. Estimated recovery: ≤2 hours."],
     ["Loss of key personnel (sole director incapacity)", "Emergency contact and succession brief held by a nominated trusted person. Access to critical credentials via a secure, pre-arranged process (sealed envelope or password manager emergency access). Escalate to professional advisor if extended incapacity."],
-    ["Third-party video platform (Vimeo) outage", "Notify learners via platform banner. Progress heartbeats continue to work. Video-specific module access suspended; other platform functionality unaffected."],
+    ["Third-party video platform (Vimeo) outage", "Notify learners via platform banner. Progress heartbeats continue to work. Video-specific module access suspended; other platform functionality unaffected. Monitor vimeo.com/status."],
     ["Payment processor outage", "New activations paused. Existing learners unaffected. Monitor provider status; activate alternative payment method if outage exceeds 24 hours."],
   ], 130);
 
   sectionHeading(doc, "5. Backup Strategy");
   bullet(doc, [
-    "Database backups: automated daily backup managed by Replit infrastructure; additional manual export weekly stored in a separate, encrypted cloud location.",
-    "Code and configuration: all code version-controlled in Git; no single point of failure.",
-    "Environment secrets: stored in Replit Secrets and additionally documented in a secure, offline, access-controlled record.",
+    "Database backups: automated daily backup managed by Replit infrastructure (accessible via Replit dashboard → Database → Backups); additional manual Google Sheet export performed weekly and saved to Google Drive.",
+    "Code and configuration: all code version-controlled in Git via Replit's built-in checkpoint history; repository should additionally be pushed to an external Git host (GitHub or GitLab) as an offline copy.",
+    "Environment secrets: stored in Replit Secrets and additionally documented in a secure, offline, access-controlled record (e.g. password manager or sealed physical document).",
     "Static assets (PDFs, course materials): backed up weekly to a separate cloud storage location.",
-    "Backup integrity: restoration test conducted quarterly; results logged.",
+    "Backup integrity: restoration test conducted quarterly; results logged in the admin dashboard (Data & Backup → Log Restore Test).",
   ]);
 
   sectionHeading(doc, "6. Communication Plan");

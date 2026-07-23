@@ -531,7 +531,7 @@ export default function AdminDashboard() {
                 <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-1 font-mono">
-                Export learner data · Log quarterly restoration tests
+                Export learner data · View Replit DB backups · Log quarterly restoration tests
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -542,8 +542,18 @@ export default function AdminDashboard() {
                 onClick={handleExport}
                 disabled={exportLoading}
               >
-                <Download className="w-3.5 h-3.5 mr-1" />
-                {exportLoading ? "PREPARING…" : "DOWNLOAD CSV"}
+                <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                {exportLoading ? "PREPARING…" : "OPEN GOOGLE SHEET"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 font-mono text-xs"
+                asChild
+              >
+                <a href="https://replit.com" target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-3.5 h-3.5 mr-1" /> REPLIT BACKUPS
+                </a>
               </Button>
               <Button
                 size="sm"
