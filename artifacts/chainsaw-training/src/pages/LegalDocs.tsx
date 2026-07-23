@@ -128,8 +128,8 @@ function DocCard({ doc, base }: { doc: Doc; base: string }) {
 
   return (
     <div className="border border-border rounded-lg p-4 flex items-start gap-4 bg-card hover:border-primary/30 transition-colors">
-      <div className="shrink-0 w-9 h-9 rounded-md bg-orange-500/10 flex items-center justify-center">
-        <FileText className="w-4 h-4 text-orange-500" />
+      <div className="shrink-0 w-9 h-9 rounded-md bg-[#e27226]/10 flex items-center justify-center">
+        <FileText className="w-4 h-4 text-[#e27226]" />
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-bold text-sm text-foreground leading-tight">{doc.title}</h3>
@@ -141,7 +141,7 @@ function DocCard({ doc, base }: { doc: Doc; base: string }) {
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="shrink-0 flex items-center gap-1.5 bg-orange-500 text-white text-xs font-semibold px-3 py-2 rounded-md hover:bg-orange-600 transition-colors disabled:opacity-60"
+        className="shrink-0 flex items-center gap-1.5 bg-[#e27226] text-white text-xs font-semibold px-3 py-2 rounded-md hover:bg-[#c9621f] transition-colors disabled:opacity-60"
       >
         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
         {loading ? "…" : "PDF"}
@@ -167,7 +167,7 @@ export default function LegalDocs() {
             Back
           </button>
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-orange-500" />
+            <FileText className="w-4 h-4 text-[#e27226]" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Documents Library</span>
           </div>
           <div className="w-14" />

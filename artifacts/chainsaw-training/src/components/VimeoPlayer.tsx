@@ -303,7 +303,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
         {/* Play / Pause */}
         <button
           onClick={handleTap}
-          className="shrink-0 text-white hover:text-orange-400 transition-colors"
+          className="shrink-0 text-white hover:text-[#e27226] transition-colors"
           aria-label={isPaused ? "Play" : "Pause"}
         >
           {isPaused
@@ -323,7 +323,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           onTouchMove={onSeekTouchMove}
           onTouchEnd={onSeekTouchEnd}
         >
-          <div className="absolute left-0 top-0 h-full bg-orange-500 rounded-full" style={{ width: `${pct}%` }} />
+          <div className="absolute left-0 top-0 h-full bg-[#e27226] rounded-full" style={{ width: `${pct}%` }} />
           <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md" style={{ left: `calc(${pct}% - 8px)` }} />
         </div>
 

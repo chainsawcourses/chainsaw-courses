@@ -387,7 +387,7 @@ export default function SpeciesGuide() {
               Back
             </Link>
           </Button>
-          <LogEndIcon className="w-4 h-4 text-orange-500 shrink-0" />
+          <LogEndIcon className="w-4 h-4 text-[#e27226] shrink-0" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm">Timber Characteristics</span>
         </div>
       </header>
@@ -533,7 +533,7 @@ function SpeciesCard({ species: s }: { species: Species }) {
 
         {/* Badges row */}
         <div className="flex flex-wrap gap-1.5 mt-2.5">
-          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-mono ${s.native ? "bg-green-50 text-green-700 border-green-200" : "bg-orange-50 text-orange-700 border-orange-200"}`}>
+          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-mono ${s.native ? "bg-green-50 text-green-700 border-green-200" : "bg-[#e27226]/10 text-[#c9621f] border-[#e27226]/30"}`}>
             {s.native ? "Native" : "Non-Native"}
           </span>
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-mono ${WILDLIFE_COLOURS[s.wildlifeValue]}`}>

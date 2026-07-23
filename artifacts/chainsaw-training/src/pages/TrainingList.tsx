@@ -336,7 +336,7 @@ export default function TrainingList() {
                 <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
                 <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
-              <ChevronDown className={`w-5 h-5 text-orange-500 transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-5 h-5 text-[#e27226] transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
@@ -463,7 +463,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <BookOpen className="w-4 h-4 shrink-0 text-orange-500" />
+                    <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Digital Manual</span>
                   </Link>
                   <Link
@@ -471,7 +471,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <ClipboardCheck className="w-4 h-4 shrink-0 text-orange-500" />
+                    <ClipboardCheck className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Inspection Checklist</span>
                   </Link>
                   <Link
@@ -479,7 +479,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <MapPin className="w-4 h-4 shrink-0 text-orange-500" />
+                    <MapPin className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Dynamic Risk Assessment</span>
                   </Link>
                   <Link
@@ -487,7 +487,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Leaf className="w-4 h-4 shrink-0 text-orange-500" />
+                    <Leaf className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Biosecurity &amp; Hazard Map</span>
                   </Link>
                   <Link
@@ -495,7 +495,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Cog className="w-4 h-4 shrink-0 text-orange-500" />
+                    <Cog className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Chain Identification</span>
                   </Link>
                   <Link
@@ -503,7 +503,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Newspaper className="w-4 h-4 shrink-0 text-orange-500" />
+                    <Newspaper className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Industry News</span>
                   </Link>
                   <Link
@@ -511,7 +511,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <LogEndIcon className="w-4 h-4 shrink-0 text-orange-500" />
+                    <LogEndIcon className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Timber Characteristics</span>
                   </Link>
                   <Link
@@ -519,7 +519,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <ScrollText className="w-4 h-4 shrink-0 text-orange-500" />
+                    <ScrollText className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Glossary of Terms</span>
                   </Link>
                   <Link
@@ -527,7 +527,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Library className="w-4 h-4 shrink-0 text-orange-500" />
+                    <Library className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Further Reading</span>
                   </Link>
                   <Link
@@ -535,7 +535,7 @@ export default function TrainingList() {
                     className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
-                    <Shield className="w-4 h-4 shrink-0 text-orange-500" />
+                    <Shield className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Privacy Policy</span>
                   </Link>
 
@@ -546,7 +546,7 @@ export default function TrainingList() {
                       className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                       onClick={() => setBrandMenuOpen(false)}
                     >
-                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-orange-500" />
+                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
                       <span>Feedback</span>
                     </Link>
                   ) : (

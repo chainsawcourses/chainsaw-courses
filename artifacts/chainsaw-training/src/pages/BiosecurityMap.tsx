@@ -43,7 +43,7 @@ export default function BiosecurityMap() {
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Leaf className="w-4 h-4 text-orange-500" />
+            <Leaf className="w-4 h-4 text-[#e27226]" />
             <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Biosecurity &amp; Hazard Map</span>
           </div>
           <div className="w-14" />

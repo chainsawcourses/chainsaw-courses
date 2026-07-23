@@ -30,7 +30,7 @@ export default function StudentFeedback() {
           <Button variant="ghost" size="sm" asChild className="font-mono text-xs">
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Link>
           </Button>
-          <Star className="w-4 h-4 text-orange-500" />
+          <Star className="w-4 h-4 text-[#e27226]" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm">Course Feedback</span>
         </div>
       </header>

@@ -28,7 +28,7 @@ export default function News() {
               Back
             </Link>
           </Button>
-          <Newspaper className="w-4 h-4 text-orange-500" />
+          <Newspaper className="w-4 h-4 text-[#e27226]" />
           <span className="font-mono font-bold uppercase tracking-widest text-sm">
             Industry News
           </span>
@@ -116,7 +116,7 @@ export default function News() {
                   )}
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-start justify-between gap-2">
-                      <h2 className="font-mono font-bold text-sm leading-snug text-orange-500 group-hover:text-orange-400 transition-colors line-clamp-2">
+                      <h2 className="font-mono font-bold text-sm leading-snug text-[#e27226] group-hover:text-[#e27226] transition-colors line-clamp-2">
                         {item.title}
                       </h2>
                       <ExternalLink className="w-3.5 h-3.5 shrink-0 mt-0.5 text-muted-foreground group-hover:text-primary transition-colors" />

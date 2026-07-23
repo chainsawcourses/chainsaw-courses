@@ -263,7 +263,7 @@ const SECTIONS: Section[] = [
 
 const TYPE_COLOURS: Record<string, string> = {
   "Primary Legislation": "text-red-500 border-red-500/40",
-  "Statutory Instrument": "text-orange-500 border-orange-500/40",
+  "Statutory Instrument": "text-[#e27226] border-[#e27226]/40",
   "HSE Leaflet": "text-blue-500 border-blue-500/40",
   "FISA Guidance": "text-green-600 border-green-600/40",
   "HSE Guidance": "text-blue-500 border-blue-500/40",
@@ -271,8 +271,8 @@ const TYPE_COLOURS: Record<string, string> = {
   "Awarding Body": "text-green-500 border-green-500/40",
   "Approval Body": "text-primary border-primary/40",
   "Professional Body": "text-purple-500 border-purple-500/40",
-  "Government Body": "text-orange-500 border-orange-500/40",
-  "Government Resource": "text-orange-500 border-orange-500/40",
+  "Government Body": "text-[#e27226] border-[#e27226]/40",
+  "Government Resource": "text-[#e27226] border-[#e27226]/40",
   "Reporting Tool": "text-yellow-600 border-yellow-600/40",
   "PPE Standard": "text-cyan-500 border-cyan-500/40",
   "Disease Guidance": "text-red-500 border-red-500/40",
@@ -290,7 +290,7 @@ export default function Resources() {
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
-          <Library className="w-4 h-4 text-orange-500" />
+          <Library className="w-4 h-4 text-[#e27226]" />
           <span className="font-mono font-black uppercase tracking-widest text-sm">Further Reading & Resources</span>
         </div>
       </header>

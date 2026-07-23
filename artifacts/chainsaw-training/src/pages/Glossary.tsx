@@ -258,7 +258,7 @@ export default function Glossary() {
               <ArrowLeft className="w-4 h-4" />
             </button>
           </Link>
-          <BookOpen className="w-4 h-4 text-orange-500" />
+          <BookOpen className="w-4 h-4 text-[#e27226]" />
           <span className="font-mono font-black uppercase tracking-widest text-sm">Glossary of Terms</span>
         </div>
       </header>

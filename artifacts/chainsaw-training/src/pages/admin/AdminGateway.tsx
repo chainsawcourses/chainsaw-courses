@@ -101,7 +101,7 @@ export default function AdminGateway() {
             <Link href="/admin/dashboard"><ArrowLeft className="w-4 h-4 mr-1" /> Dashboard</Link>
           </Button>
           <span className="font-mono font-bold uppercase tracking-widest text-xs flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-orange-500" /> Assessment Network
+            <MapPin className="w-3.5 h-3.5 text-[#e27226]" /> Assessment Network
           </span>
           <div className="w-24" />
         </div>
@@ -111,7 +111,7 @@ export default function AdminGateway() {
         {/* Tabs */}
         <div className="flex gap-1 border border-border rounded-md p-1 bg-card/40 w-fit">
           {(["venues", "enquiries"] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} className={`font-mono text-xs uppercase tracking-widest px-4 py-1.5 rounded transition-colors ${tab === t ? "bg-orange-500 text-white font-bold" : "text-muted-foreground hover:text-foreground"}`}>
+            <button key={t} onClick={() => setTab(t)} className={`font-mono text-xs uppercase tracking-widest px-4 py-1.5 rounded transition-colors ${tab === t ? "bg-[#e27226] text-white font-bold" : "text-muted-foreground hover:text-foreground"}`}>
               {t === "venues" ? <><MapPin className="w-3 h-3 inline mr-1" />Venues</> : <><Users className="w-3 h-3 inline mr-1" />Enquiries</>}
             </button>
           ))}
@@ -128,7 +128,7 @@ export default function AdminGateway() {
             </div>
 
             {editingVenue && (
-              <Card className="border-orange-500/30 bg-card">
+              <Card className="border-[#e27226]/30 bg-card">
                 <CardContent className="p-4 space-y-3">
                   <h3 className="font-mono font-bold text-xs uppercase tracking-widest">{editingVenue.id ? "Edit Venue" : "New Venue"}</h3>
                   <div className="grid grid-cols-2 gap-3">
@@ -162,7 +162,7 @@ export default function AdminGateway() {
                       </select>
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-orange-500" />
+                      <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
                       <label className="font-mono text-xs">Active (visible on map)</label>
                     </div>
                   </div>

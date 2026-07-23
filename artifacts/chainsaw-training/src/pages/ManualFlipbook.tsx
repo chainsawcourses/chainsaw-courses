@@ -471,7 +471,7 @@ export default function ManualFlipbook() {
             <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
               <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" />Back</Link>
             </Button>
-            <BookOpen className="w-4 h-4 text-orange-500" />
+            <BookOpen className="w-4 h-4 text-[#e27226]" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Digital Chainsaw Manual</span>
           </div>
         </header>
@@ -481,7 +481,7 @@ export default function ManualFlipbook() {
 
           {loadState === "loading" && (
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
-              <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-[#e27226]" />
               <p className="text-sm font-semibold">Opening manual…</p>
             </div>
           )}
@@ -489,8 +489,8 @@ export default function ManualFlipbook() {
           {loadState === "missing" && (
             <div className="max-w-md text-center space-y-4 py-20">
               <div className="flex justify-center">
-                <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center">
-                  <AlertTriangle className="w-7 h-7 text-orange-500" />
+                <div className="w-14 h-14 rounded-full bg-[#e27226]/20 flex items-center justify-center">
+                  <AlertTriangle className="w-7 h-7 text-[#e27226]" />
                 </div>
               </div>
               <h2 className="font-black tracking-tighter text-lg uppercase">Manual Not Found</h2>
@@ -513,12 +513,12 @@ export default function ManualFlipbook() {
               <div className="relative flex-1">
                 {searchCollapsed ? (
                   /* ── Collapsed pill — input hidden, results stay visible ── */
-                  <div className="flex items-center gap-2 border border-orange-300 bg-orange-50 rounded-md px-3 py-2 shadow-sm">
-                    <Search className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                    <span className="flex-1 text-sm font-mono text-orange-700 truncate">{searchQuery}</span>
+                  <div className="flex items-center gap-2 border border-[#e27226]/40 bg-[#e27226]/10 rounded-md px-3 py-2 shadow-sm">
+                    <Search className="w-3.5 h-3.5 text-[#e27226] shrink-0" />
+                    <span className="flex-1 text-sm font-mono text-[#c9621f] truncate">{searchQuery}</span>
                     <button
                       onClick={() => { setSearchQuery(""); setSearchOpen(false); setSearchCollapsed(false); }}
-                      className="text-orange-400 hover:text-orange-600 transition-colors text-xs font-mono leading-none"
+                      className="text-[#e27226] hover:text-[#c9621f] transition-colors text-xs font-mono leading-none"
                       aria-label="Clear search"
                     >✕</button>
                   </div>
@@ -558,7 +558,7 @@ export default function ManualFlipbook() {
                               className="w-full text-left px-4 py-2.5 hover:bg-accent transition-colors flex items-start gap-3 border-b border-border/50 last:border-0"
                               onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
                             >
-                              <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-orange-100 text-orange-700 rounded px-1.5 py-0.5 leading-none">p.{hit.page}</span>
+                              <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-[#e27226]/20 text-[#c9621f] rounded px-1.5 py-0.5 leading-none">p.{hit.page}</span>
                               <span className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{hit.snippet}</span>
                             </button>
                           </li>
@@ -570,7 +570,7 @@ export default function ManualFlipbook() {
               <form onSubmit={handleJump} className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm shrink-0">
                 <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">Go to</span>
                 <input value={jumpInput} onChange={e => setJumpInput(e.target.value)} placeholder={`1–${numPages}`} className="w-14 text-sm text-center bg-transparent outline-none placeholder:text-muted-foreground/40" type="number" min={1} max={numPages} />
-                <button type="submit" className="text-muted-foreground hover:text-orange-500 transition-colors" aria-label="Jump to page"><CornerDownLeft className="w-4 h-4" /></button>
+                <button type="submit" className="text-muted-foreground hover:text-[#e27226] transition-colors" aria-label="Jump to page"><CornerDownLeft className="w-4 h-4" /></button>
               </form>
             </div>
           )}
@@ -733,7 +733,7 @@ export default function ManualFlipbook() {
                   {pageRendering && !isAnimating && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none"
                       style={{ zIndex:35, background:"rgba(250,248,245,0.55)" }}>
-                      <Loader2 className="w-7 h-7 animate-spin text-orange-500 drop-shadow" />
+                      <Loader2 className="w-7 h-7 animate-spin text-[#e27226] drop-shadow" />
                     </div>
                   )}
                 </div>
@@ -770,7 +770,7 @@ export default function ManualFlipbook() {
             <>
               <p className="text-xs text-stone-500 font-mono">{spreadLabel}</p>
               <div className="w-full max-w-5xl h-1 bg-stone-300 dark:bg-stone-700 rounded-full overflow-hidden">
-                <div className="h-full bg-orange-500 rounded-full transition-all duration-500"
+                <div className="h-full bg-[#e27226] rounded-full transition-all duration-500"
                   style={{ width:`${(currentPage / numPages) * 100}%` }} />
               </div>
             </>

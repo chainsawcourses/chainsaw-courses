@@ -151,7 +151,7 @@ export default function PracticalGateway() {
             <p className="text-muted-foreground text-sm mt-1">Complete once to access the Practical Progression Gateway</p>
             <div className="flex justify-center gap-2 mt-4">
               {[1,2,3].map(s => (
-                <div key={s} className={`w-8 h-1.5 rounded-full transition-colors ${wizardStep >= s ? "bg-orange-500" : "bg-border"}`} />
+                <div key={s} className={`w-8 h-1.5 rounded-full transition-colors ${wizardStep >= s ? "bg-[#e27226]" : "bg-border"}`} />
               ))}
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function PracticalGateway() {
                 <h2 className="font-mono font-bold uppercase tracking-widest text-sm">Step 1 — Physical Competence</h2>
                 <p className="text-sm text-muted-foreground">Before booking a practical assessment, you must have real hands-on experience operating a chainsaw safely.</p>
                 <label className="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" checked={competenceChecked} onChange={e => setCompetenceChecked(e.target.checked)} className="mt-0.5 w-4 h-4 accent-orange-500 shrink-0" />
+                  <input type="checkbox" checked={competenceChecked} onChange={e => setCompetenceChecked(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#e27226] shrink-0" />
                   <span className="text-sm leading-relaxed">I confirm I have physical experience <strong>starting, holding, and operating a chainsaw safely</strong> prior to attending a practical assessment.</span>
                 </label>
                 <Button className="w-full font-mono tracking-widest" disabled={!competenceChecked} onClick={() => setWizardStep(2)}>
@@ -180,7 +180,7 @@ export default function PracticalGateway() {
                 <div className="space-y-2.5">
                   {PPE_ITEMS.map((item, i) => (
                     <label key={i} className="flex items-start gap-3 cursor-pointer">
-                      <input type="checkbox" checked={ppeChecked[i]} onChange={e => { const next = [...ppeChecked]; next[i] = e.target.checked; setPpeChecked(next); }} className="mt-0.5 w-4 h-4 accent-orange-500 shrink-0" />
+                      <input type="checkbox" checked={ppeChecked[i]} onChange={e => { const next = [...ppeChecked]; next[i] = e.target.checked; setPpeChecked(next); }} className="mt-0.5 w-4 h-4 accent-[#e27226] shrink-0" />
                       <span className="text-sm leading-relaxed">{item}</span>
                     </label>
                   ))}
@@ -210,7 +210,7 @@ export default function PracticalGateway() {
                     <input value={wpPhone} onChange={e => setWpPhone(e.target.value)} placeholder="e.g. 07700 900000" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                   </div>
                   <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" checked={gdprChecked} onChange={e => setGdprChecked(e.target.checked)} className="mt-0.5 w-4 h-4 accent-orange-500 shrink-0" />
+                    <input type="checkbox" checked={gdprChecked} onChange={e => setGdprChecked(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#e27226] shrink-0" />
                     <span className="text-sm leading-relaxed">I consent to sharing my contact details (name, email, postcode, and phone number) with matched assessment venues for booking purposes only. I understand these details will not be shared with other candidates.</span>
                   </label>
                 </div>
@@ -359,7 +359,7 @@ export default function PracticalGateway() {
                     <div className="truncate">{selectedVenue.email}</div>
                   </div>
                   {selectedVenue.website && (
-                    <a href={selectedVenue.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-orange-500 hover:underline">
+                    <a href={selectedVenue.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-[#e27226] hover:underline">
                       <ExternalLink className="w-3 h-3" /> Visit website
                     </a>
                   )}
