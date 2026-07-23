@@ -83,17 +83,8 @@ export default function AdminDashboard() {
     try {
       const res = await fetch("/api/admin/backup/export", { headers: { admintoken: adminToken } });
       if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const cd = res.headers.get("Content-Disposition") ?? "";
-      const match = cd.match(/filename="([^"]+)"/);
-      a.href = url;
-      a.download = match?.[1] ?? "chainsaw-export.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      const { url } = await res.json() as { url: string };
+      window.open(url, "_blank", "noopener,noreferrer");
     } finally {
       setExportLoading(false);
     }

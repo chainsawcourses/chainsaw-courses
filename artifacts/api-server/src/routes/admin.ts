@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -462,7 +463,7 @@ router.delete("/admin/students/:studentId/delete", async (req, res) => {
   }
 });
 
-// ─── Backup: on-demand CSV data export ───────────────────────────────────────
+// ─── Backup: export learner data as a new Google Sheet ───────────────────────
 
 router.get("/admin/backup/export", async (req, res) => {
   if (!verifyAdmin(req)) {
@@ -493,50 +494,112 @@ router.get("/admin/backup/export", async (req, res) => {
     const riskCountByUser: Record<number, number> = {};
     risks.forEach((r) => { riskCountByUser[r.userId] = (riskCountByUser[r.userId] ?? 0) + 1; });
 
-    const escCsv = (v: string | null | undefined) => `"${(v ?? "").replace(/"/g, '""')}"`;
+    const unusedCodes = codes.filter((c) => !c.isUsed);
 
-    const header = [
+    // ── Build Sheets API cell structures ─────────────────────────────────────
+    type CellValue = string | number | null | undefined;
+    const toCell = (v: CellValue) => ({
+      userEnteredValue: typeof v === "number"
+        ? { numberValue: v }
+        : { stringValue: String(v ?? "") },
+    });
+    const toRow = (vals: CellValue[]) => ({ values: vals.map(toCell) });
+
+    const LEARNER_HEADERS = [
       "ID", "Full Name", "Email", "Activation Code", "Device ID",
       "Activated At", "Last Activity", "Waiver Signed At",
       "Modules Completed", "Modules Total",
       "Inspection Records", "Risk Assessments",
-    ].join(",");
+    ];
+    const CODE_HEADERS = ["Code", "Notes", "Created At"];
 
-    const rows = users.map((u) => {
+    const learnerRows = users.map((u) => {
       const prog = progressByUser[u.id] ?? { completed: 0, total: 0 };
-      return [
-        u.id,
-        escCsv(u.fullName),
-        escCsv(u.email),
-        escCsv(u.activationCode),
-        escCsv(u.deviceId),
-        u.activatedAt.toISOString(),
-        u.lastActivityAt?.toISOString() ?? "",
-        waiverByUser[u.id] ?? "",
-        prog.completed,
-        prog.total,
-        inspCountByUser[u.id] ?? 0,
-        riskCountByUser[u.id] ?? 0,
-      ].join(",");
+      return toRow([
+        u.id, u.fullName, u.email, u.activationCode, u.deviceId,
+        u.activatedAt.toISOString(), u.lastActivityAt?.toISOString() ?? "",
+        waiverByUser[u.id] ?? "", prog.completed, prog.total,
+        inspCountByUser[u.id] ?? 0, riskCountByUser[u.id] ?? 0,
+      ]);
     });
 
-    const unusedCodes = codes.filter((c) => !c.isUsed);
-    const codeSection = [
-      "",
-      "UNUSED ACTIVATION CODES",
-      ["Code", "Notes", "Created At"].join(","),
-      ...unusedCodes.map((c) => [escCsv(c.code), escCsv(c.notes), c.createdAt.toISOString()].join(",")),
-    ].join("\r\n");
+    const codeRows = unusedCodes.map((c) =>
+      toRow([c.code, c.notes ?? "", c.createdAt.toISOString()])
+    );
 
-    const now = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const csv = [header, ...rows].join("\r\n") + "\r\n" + codeSection;
+    // Orange header format matching brand colour #e27226
+    const headerFmt = {
+      userEnteredFormat: {
+        textFormat: { bold: true, foregroundColor: { red: 1, green: 1, blue: 1 } },
+        backgroundColor: { red: 0.886, green: 0.447, blue: 0.149 },
+      },
+    };
 
-    res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", `attachment; filename="chainsaw-courses-export-${now}.csv"`);
-    res.send(csv);
-    logger.info({ rows: users.length }, "Admin exported CSV data backup");
+    const now = new Date();
+    const dateLabel = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+    const title = `Chainsaw Courses Export — ${dateLabel}`;
+
+    // ── Create the spreadsheet with two sheets ────────────────────────────────
+    const connectors = new ReplitConnectors();
+    const createRes = await connectors.proxy("google-sheet", "/v4/spreadsheets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        properties: { title },
+        sheets: [
+          {
+            properties: { title: "Learners", sheetId: 0 },
+            data: [{ rowData: [toRow(LEARNER_HEADERS), ...learnerRows] }],
+          },
+          {
+            properties: { title: "Unused Codes", sheetId: 1 },
+            data: [{ rowData: [toRow(CODE_HEADERS), ...codeRows] }],
+          },
+        ],
+      }),
+    });
+
+    const sheet = await createRes.json() as { spreadsheetId: string };
+
+    // ── Apply header formatting + auto-resize columns ─────────────────────────
+    await connectors.proxy("google-sheet", `/v4/spreadsheets/${sheet.spreadsheetId}:batchUpdate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requests: [
+          {
+            repeatCell: {
+              range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: LEARNER_HEADERS.length },
+              cell: headerFmt,
+              fields: "userEnteredFormat(textFormat,backgroundColor)",
+            },
+          },
+          {
+            repeatCell: {
+              range: { sheetId: 1, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: CODE_HEADERS.length },
+              cell: headerFmt,
+              fields: "userEnteredFormat(textFormat,backgroundColor)",
+            },
+          },
+          {
+            autoResizeDimensions: {
+              dimensions: { sheetId: 0, dimension: "COLUMNS", startIndex: 0, endIndex: LEARNER_HEADERS.length },
+            },
+          },
+          {
+            autoResizeDimensions: {
+              dimensions: { sheetId: 1, dimension: "COLUMNS", startIndex: 0, endIndex: CODE_HEADERS.length },
+            },
+          },
+        ],
+      }),
+    });
+
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
+    res.json({ url: sheetUrl });
+    logger.info({ rows: users.length, sheetId: sheet.spreadsheetId }, "Admin exported data to Google Sheet");
   } catch (err) {
-    logger.error({ err }, "Error generating CSV export");
+    logger.error({ err }, "Error generating Google Sheet export");
     res.status(500).json({ error: "Internal server error" });
   }
 });
