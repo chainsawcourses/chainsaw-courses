@@ -721,32 +721,34 @@ export default function TrainingList() {
             </div>
 
             {/* Practical Progression Gateway — locked until exam passed */}
-            <div className="flex items-center justify-between pt-1 border-t border-border">
+            <div className={`flex items-center justify-between mt-1 -mx-3 -mb-3 px-3 py-2.5 rounded-b-lg border-t transition-colors ${examPassed ? "border-orange-500/40 bg-orange-500/10" : "border-orange-500/20 bg-orange-500/5"}`}>
               <div className="flex items-center gap-2">
                 {examPassed ? (
                   <Link
                     href="/gateway"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-orange-600 hover:text-orange-500 transition-colors flex items-center gap-1.5"
+                    className="font-mono font-black uppercase tracking-widest text-xs text-orange-600 hover:text-orange-500 transition-colors flex items-center gap-1.5"
                   >
                     <MapPin className="w-3 h-3 shrink-0" />
                     Practical Progression Gateway
                   </Link>
                 ) : (
-                  <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Pass the final exam to unlock the Practical Progression Gateway">
-                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 flex items-center gap-1">
+                  <span className="cursor-not-allowed select-none" title="Pass the final exam to unlock the Practical Progression Gateway">
+                    <span className="font-mono font-black uppercase tracking-widest text-xs text-orange-700/30 flex items-center gap-1.5">
                       <LockKeyhole className="w-3 h-3 shrink-0" />
                       Practical Progression Gateway
                     </span>
                   </span>
                 )}
               </div>
-              {examPassed && (
+              {examPassed ? (
                 <Link
                   href="/gateway"
                   className="font-mono text-[10px] uppercase tracking-widest text-orange-600 hover:text-orange-500 underline underline-offset-2 transition-colors"
                 >
                   Find a Centre
                 </Link>
+              ) : (
+                <span className="font-mono text-[10px] uppercase tracking-widest text-orange-700/30">Locked</span>
               )}
             </div>
           </CardContent>
