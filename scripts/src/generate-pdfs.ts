@@ -1264,23 +1264,20 @@ async function genIIRSMBrief(): Promise<void> {
   );
   doc.moveDown(0.4);
 
-  twoColTable(
-    doc,
-    ["NPTC Unit", "Title"],
-    [
-      ["0039-20", "Chainsaw Maintenance and Cross Cutting"],
-      ["0039-21", "Fell and Process Small Trees with a Chainsaw"],
-      ["0039-22", "Fell Trees with a Chainsaw"],
-      ["0039-23", "Fell Trees with a Chainsaw (Large Trees)"],
-      ["0039-24", "Chainsaw Cross Cutting and Log Making"],
-      ["0039-31", "Operate a Chainsaw from a Rope and Harness"],
-      ["0039-32", "Fell Trees with a Chainsaw (in Close Proximity to Objects of High Value)"],
-      ["0039-33", "Convert Felled Trees with a Chainsaw"],
-      ["0039-37", "Operate a Chainsaw from an Aerial Work Platform"],
-      ["0039-38", "Emergency Dismantle Trees with a Chainsaw"],
-    ],
-    110
-  );
+  // Compact unit number list — discreet box, no descriptions
+  doc
+    .rect(60, doc.y, 475, 28)
+    .fillAndStroke("#f9f9f9", "#e0e0e0");
+  doc
+    .fillColor(MID)
+    .font("Helvetica")
+    .fontSize(8.5)
+    .text(
+      "NPTC City & Guilds Units held:  0039-20  ·  0039-21  ·  0039-22  ·  0039-23  ·  0039-24  ·  0039-31  ·  0039-32  ·  0039-33  ·  0039-37  ·  0039-38",
+      68, doc.y - 19,
+      { width: 459, lineBreak: false }
+    );
+  doc.moveDown(1.2);
 
   infoRow(doc, "CPD Status", "Author holds current CPD membership with IIRSM and engages in ongoing professional development in chainsaw safety and vocational eLearning design");
   infoRow(doc, "Platform Development", "Full-stack eLearning platform designed, developed, and operated by the author — Progressive Web Application with device-locked access, Vimeo video streaming, and automated assessment");
@@ -1347,7 +1344,7 @@ async function genIIRSMBrief(): Promise<void> {
     ["Topic Area", "Content Covered"],
     [
       ["Chainsaw anatomy & classification", "Bar length, CC rating, chain pitch and gauge, drive sprocket, guide bar lubrication system, oil pump, chain tensioner, safety features (chain brake, hand guard, chain catcher, anti-vibration, throttle interlock)"],
-      ["Personal Protective Equipment", "EN 381 chainsaw trousers (Classes 1–3), chainsaw boots (EN ISO 20345 / EN 381-3), gloves (EN 381-7), forestry helmet (EN 397 + EN 352), eye protection (EN 166), hearing protection (EN 352)"],
+      ["Personal Protective Equipment", "Chainsaw trousers (ISO 11393-2, Classes 1–3); chainsaw boots (ISO 17249); gloves (EN 381-7); forestry helmet (EN 397 or EN 12492); eye protection (ISO 16321); hearing protection (EN 352-3)"],
       ["First Aid — chainsaw specific", "Wound classification; application of tourniquets and haemostatic dressings; shock management; calling emergency services; communicating site location (OS National Grid reference, What3Words)"],
       ["Risk Assessment (5 steps)", "Hazard identification; who might be harmed and how; risk evaluation (likelihood × severity); control measures (hierarchy of controls); review and monitoring"],
       ["Dynamic Risk Assessment", "Site-specific hazard assessment; site description; emergency planning; exclusion zones; lone-working protocols; likelihood and severity rating (1–5 matrix) for chainsaw-specific hazards"],
@@ -1379,7 +1376,7 @@ async function genIIRSMBrief(): Promise<void> {
       ["Randomisation", "Questions and answer option order randomised on each attempt to prevent memorisation of answer sequences"],
       ["Pass threshold", "80% correct answers required for each module quiz and for the mock examination"],
       ["Sequential gating", "Each module quiz must be passed (≥80%) before the subsequent module video unlocks. Module video must be watched in full before the quiz is accessible"],
-      ["Retries", "Unlimited retries permitted for module quizzes. Mock examination may be retaken after a 24-hour cooling-off period"],
+      ["Retries", "Unlimited retries permitted for all module quizzes and the mock examination. No cooling-off period between attempts"],
       ["Results recording", "All quiz and examination results are recorded automatically to the learner's progress record with timestamp; accessible at any time from the Training Dashboard"],
       ["Anti-malpractice", "Device-locking (one device per Activation Code); dynamic video watermarking (learner name + email, repositioning every 60 seconds); behavioural review for anomalous completion patterns"],
       ["Feedback", "Immediate right/wrong feedback provided on each question after module quiz submission; mock examination feedback provided on completion"],
