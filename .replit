@@ -30,7 +30,7 @@ ADMIN_PASSWORD = "pigplums"
 VAPID_PUBLIC_KEY = "BDR2Y5H4WerxIjaMvMdnBm58GItDh38sSkKQgnjLua-CXFqr_yOfcX-dT_f1MM1nTGRtorMq20klzTujCLSlJHw"
 VAPID_PRIVATE_KEY = "u0PqDiMxZ4TaY-ek_f4tOCPHY4cBk8d-dhYSwyRojGs"
 VAPID_EMAIL = "mailto:admin@chainsawcourses.co.uk"
-VIMEO_ACCESS_TOKEN = "C2Gm8H/RsRrtj5fOEo+rlshfGO0eCRFnX9x/oY6SKFYCaCkJtziGgQsG7xljMG8PU3HqhJv6bpMegByGkVAT1p24lunjveC+7wA+/iwgjmVO4hiEp3nM2EQyiWqrTz2M"
+VIMEO_ACCESS_TOKEN = "C2Gm8H/RsRrtj5fOEo+rlshfGO0eCRFnX9x/oY6SKFYCaCkJtziGgQsG7xljMG8PU3HqhJv6bpMegByGkVAT1p24lunjveC+7wA+/iwgjmVO4hiEp3nM2EQyiWqrTz2M08149bed7b339eaa98fb29812f94bd6f"
 
 [[ports]]
 localPort = 8082
