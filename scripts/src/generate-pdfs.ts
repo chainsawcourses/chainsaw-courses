@@ -1264,20 +1264,7 @@ async function genIIRSMBrief(): Promise<void> {
   );
   doc.moveDown(0.4);
 
-  // Compact unit number list — discreet box, no descriptions
-  doc
-    .rect(60, doc.y, 475, 28)
-    .fillAndStroke("#f9f9f9", "#e0e0e0");
-  doc
-    .fillColor(MID)
-    .font("Helvetica")
-    .fontSize(8.5)
-    .text(
-      "NPTC City & Guilds Units held:  0039-20  ·  0039-21  ·  0039-22  ·  0039-23  ·  0039-24  ·  0039-31  ·  0039-32  ·  0039-33  ·  0039-37  ·  0039-38",
-      68, doc.y - 19,
-      { width: 459, lineBreak: false }
-    );
-  doc.moveDown(1.2);
+  infoRow(doc, "NPTC Qualifications", "City & Guilds certificates of competence held: 0039-20 · 0039-21 · 0039-22 · 0039-23 · 0039-24 · 0039-31 · 0039-32 · 0039-33 · 0039-37 · 0039-38");
 
   infoRow(doc, "CPD Status", "Author holds current CPD membership with IIRSM and engages in ongoing professional development in chainsaw safety and vocational eLearning design");
   infoRow(doc, "Platform Development", "Full-stack eLearning platform designed, developed, and operated by the author — Progressive Web Application with device-locked access, Vimeo video streaming, and automated assessment");
@@ -1352,7 +1339,7 @@ async function genIIRSMBrief(): Promise<void> {
       ["UK Legislation", "HSW Act 1974; PUWER 1998 (Reg. 9 — training requirement); MHSWR 1999 (risk assessment); PPE Regulations 2022; Control of Noise at Work Regulations 2005 (EAV/ELV); Control of Vibration at Work Regulations 2005 (HAV); RIDDOR 2013; LOLER 1998"],
       ["Biosecurity", "Oak Processionary Moth (OPM); ash dieback (Hymenoscyphus fraxineus); spruce bark beetle; sudden oak death; equipment decontamination between sites; reporting obligations under Plant Health (Forestry) Order 2005"],
       ["Chain maintenance", "Chain sharpening angles (top-plate, side-plate, raker depth); file sizes by pitch; chain types (full-chisel, semi-chisel, low-profile); chain identification by pitch, gauge, and drive-link count"],
-      ["Safe systems of work", "Pre-start inspection checklist; TILE (Task, Individual, Load, Environment) assessment; exclusion zones (2× tree height); working alone policy; fatigue management; refuelling procedure"],
+      ["Safe systems of work", "Pre-start inspection checklist; manual handling task assessment; exclusion zones (twice the length of the product or 5 m, whichever is greater); working alone policy; fatigue management; refuelling procedure"],
     ],
     130
   );
