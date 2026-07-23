@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 const OUT_DIR = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/pdfs");
 const LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/logo.png");
 
-const ORANGE = "#D97706";
+const ORANGE = "#e27226";
 const DARK = "#1C1C1C";
 const MID = "#555555";
 const LIGHT = "#888888";
@@ -187,6 +187,11 @@ function twoColTable(
   rows: [string, string][],
   col1W = 175
 ): void {
+  // Ensure there's room for the header + at least one data row before starting
+  if (doc.y > doc.page.height - 160) {
+    doc.addPage();
+    drawPageHeader(doc);
+  }
   let y = doc.y;
   tableRow(doc, headers[0], headers[1], true, y, col1W);
   y += 26;
