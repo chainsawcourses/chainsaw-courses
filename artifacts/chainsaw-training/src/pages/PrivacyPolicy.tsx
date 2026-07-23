@@ -7,6 +7,7 @@ export default function PrivacyPolicy() {
 
   useEffect(() => {
     document.title = "Privacy Policy — Chainsaw Courses";
+    window.scrollTo(0, 0);
     return () => { document.title = "Chainsaw Courses"; };
   }, []);
 
