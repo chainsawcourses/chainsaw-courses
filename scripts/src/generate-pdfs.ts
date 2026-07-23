@@ -1248,7 +1248,8 @@ async function genIIRSMBrief(): Promise<void> {
   infoRow(doc, "Qualification Alignment", "NPTC/City & Guilds Unit 0039-20 (Chainsaw Maintenance & Cross Cutting) — theoretical underpinning and gateway to NPTC practical assessment");
   infoRow(doc, "Level", "Level 2 (equivalent) — vocational knowledge and understanding");
   infoRow(doc, "Delivery Mode", "Online eLearning — Progressive Web Application (PWA), device-locked, video-streamed");
-  infoRow(doc, "Duration", "Approximately 6–8 hours of guided learning across 7 sequential modules");
+  infoRow(doc, "Guided Learning Hours (GLH)", "16 hours — comprising approximately 6–8 hours of structured eLearning (7 video modules, module quizzes, and mock examination) plus directed study of the Overleaf Chainsaw Manual companion text");
+  infoRow(doc, "Total Qualification Time (TQT)", "19 hours — GLH (16 hrs) plus approximately 3 hours of learner-directed independent study and revision");
   infoRow(doc, "Assessment", "7 module quizzes (80% pass threshold each) + 45-question mock examination");
   infoRow(doc, "Entry Requirements", "No formal prerequisites. Learners must be aged 18 or over. Basic literacy and numeracy required. No prior chainsaw experience necessary — course is suitable for both complete beginners and those refreshing existing knowledge before practical assessment");
   infoRow(doc, "Target Learner", "Arboricultural and forestry professionals seeking NPTC theoretical preparation; landowners; groundworkers; anyone required to demonstrate theoretical chainsaw competence before booking NPTC practical assessment");
