@@ -1414,9 +1414,9 @@ async function genIIRSMBrief(): Promise<void> {
 // ─── 16. Document Control and Records Management ─────────────────────────────
 
 async function genDocumentControl(): Promise<void> {
-  const doc = newDoc("Document Control and Records Management Procedure");
+  const doc = newDoc("QMS-001 — Document Control and Records Management Procedure");
   drawPageHeader(doc);
-  docTitle(doc, "Document Control and Records Management Procedure");
+  docTitle(doc, "QMS-001 — Document Control and Records Management Procedure");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This procedure establishes the controls required to ensure that all documents and records produced, received, or maintained by Overleaf Publishers Ltd are: created and approved by authorised personnel; clearly identified and version-controlled; available at the point of use; protected from unintended alteration or unauthorised access; and retained and disposed of in accordance with applicable legal and regulatory requirements.\n\nScope: all controlled documents including policies, procedures, work instructions, forms, templates, and externally generated regulatory documents referenced in the QMS; and all records generated as evidence of conformance or operational performance. Document reference: QMS-001.");
@@ -1491,15 +1491,15 @@ async function genDocumentControl(): Promise<void> {
   body(doc, "At the end of the retention period, records are reviewed for any ongoing legal or regulatory hold requirement. In the absence of a hold: digital records are securely deleted (cryptographically erased or overwritten); physical records are cross-shredded. A destruction certificate is filed in the Document Register. Records containing personal data are disposed of in accordance with UK GDPR requirements.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Document_Control_and_Records_Management.pdf", "Document Control and Records Management Procedure");
+  await save(doc, "QMS-001_Document_Control_and_Records_Management.pdf", "QMS-001 — Document Control and Records Management Procedure");
 }
 
 // ─── 17. Management Review Procedure ─────────────────────────────────────────
 
 async function genManagementReview(): Promise<void> {
-  const doc = newDoc("Management Review Procedure");
+  const doc = newDoc("QMS-002 — Management Review Procedure");
   drawPageHeader(doc);
-  docTitle(doc, "Management Review Procedure");
+  docTitle(doc, "QMS-002 — Management Review Procedure");
 
   sectionHeading(doc, "1. Purpose");
   body(doc, "This procedure ensures that Overleaf Publishers Ltd conducts regular, systematic reviews of the management system to confirm its continuing suitability, adequacy, and effectiveness. Management reviews provide the forum for top management to evaluate performance, make strategic decisions, and set direction for continual improvement across quality, health and safety, and information security. Document reference: QMS-002.");
@@ -1553,15 +1553,15 @@ async function genManagementReview(): Promise<void> {
   body(doc, "This procedure is reviewed annually as part of the management review process. Controlled under reference QMS-002.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Management_Review_Procedure.pdf", "Management Review Procedure");
+  await save(doc, "QMS-002_Management_Review_Procedure.pdf", "QMS-002 — Management Review Procedure");
 }
 
 // ─── 18. Nonconformance and Corrective Action Procedure ──────────────────────
 
 async function genNonconformance(): Promise<void> {
-  const doc = newDoc("Nonconformance and Corrective Action Procedure");
+  const doc = newDoc("QMS-003 — Nonconformance and Corrective Action Procedure");
   drawPageHeader(doc);
-  docTitle(doc, "Nonconformance and Corrective Action Procedure");
+  docTitle(doc, "QMS-003 — Nonconformance and Corrective Action Procedure");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This procedure establishes how Overleaf Publishers Ltd identifies, controls, investigates, and permanently resolves nonconformances — instances where a product, service, or process fails to meet a specified requirement. It applies to nonconformances identified through internal audits, learner feedback, complaints, appeals, incident investigations, management reviews, or day-to-day operation. Document reference: QMS-003.");
@@ -1603,15 +1603,15 @@ async function genNonconformance(): Promise<void> {
   body(doc, "The Nonconformance Register is a controlled record maintained by the Director. It includes: NC reference, date raised, description, category, severity, root cause, corrective actions, implementation date, verification date, and closure status. The Register is reviewed at each management review and retained for a minimum of 7 years.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Nonconformance_and_Corrective_Action.pdf", "Nonconformance and Corrective Action Procedure");
+  await save(doc, "QMS-003_Nonconformance_and_Corrective_Action.pdf", "QMS-003 — Nonconformance and Corrective Action Procedure");
 }
 
 // ─── 19. Internal Audit Procedure ────────────────────────────────────────────
 
 async function genInternalAuditProc(): Promise<void> {
-  const doc = newDoc("Internal Audit Procedure");
+  const doc = newDoc("QMS-004 — Internal Audit Procedure");
   drawPageHeader(doc);
-  docTitle(doc, "Internal Audit Procedure");
+  docTitle(doc, "QMS-004 — Internal Audit Procedure");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This procedure establishes how Overleaf Publishers Ltd plans, conducts, reports, and follows up internal audits of the management system. Internal audits provide objective evidence of whether the management system: conforms to the organisation's own requirements and applicable standards; has been effectively implemented and maintained; and is achieving its objectives. Document reference: QMS-004.\n\nNote: this procedure governs management system audits. It is separate from the Internal Verification procedure, which governs assessment quality assurance activities.");
@@ -1655,15 +1655,15 @@ async function genInternalAuditProc(): Promise<void> {
   body(doc, "Audit programme, individual audit reports, checklists, and corrective action records are retained for a minimum of 7 years. The audit programme is a standing agenda item at the management review.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Internal_Audit_Procedure.pdf", "Internal Audit Procedure");
+  await save(doc, "QMS-004_Internal_Audit_Procedure.pdf", "QMS-004 — Internal Audit Procedure");
 }
 
 // ─── 20. Supplier and Contractor Evaluation Policy ───────────────────────────
 
 async function genSupplierEvaluation(): Promise<void> {
-  const doc = newDoc("Supplier and Contractor Evaluation Policy");
+  const doc = newDoc("QMS-005 — Supplier and Contractor Evaluation Policy");
   drawPageHeader(doc);
-  docTitle(doc, "Supplier and Contractor Evaluation Policy");
+  docTitle(doc, "QMS-005 — Supplier and Contractor Evaluation Policy");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This policy sets out how Overleaf Publishers Ltd selects, approves, monitors, and reviews suppliers and contractors to ensure that externally provided services and products consistently meet quality, safety, and security requirements. It applies to all third-party providers of goods and services that could affect the quality of the Chainsaw Courses platform, learner safety, or data security. Document reference: QMS-005.");
@@ -1709,15 +1709,15 @@ async function genSupplierEvaluation(): Promise<void> {
   body(doc, "The Approved Supplier Register is maintained by the Director and contains: supplier name; services provided; risk category; approval date; insurance expiry; review date; and performance notes. The Register is reviewed at least annually and at each management review. Suppliers not reviewed within their required review cycle are suspended pending re-evaluation.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Supplier_and_Contractor_Evaluation.pdf", "Supplier and Contractor Evaluation Policy");
+  await save(doc, "QMS-005_Supplier_and_Contractor_Evaluation.pdf", "QMS-005 — Supplier and Contractor Evaluation Policy");
 }
 
 // ─── 21. Information Security Policy ─────────────────────────────────────────
 
 async function genInfoSecurity(): Promise<void> {
-  const doc = newDoc("Information Security Policy");
+  const doc = newDoc("ISP-001 — Information Security Policy");
   drawPageHeader(doc);
-  docTitle(doc, "Information Security Policy");
+  docTitle(doc, "ISP-001 — Information Security Policy");
 
   sectionHeading(doc, "1. Purpose and Policy Statement");
   body(doc, "Overleaf Publishers Ltd is committed to protecting the confidentiality, integrity, and availability of all information assets — whether relating to learners, business operations, course content, or third-party providers. This policy establishes the framework for managing information security risks across the organisation, and applies to all personnel, contractors, systems, and processes. Document reference: ISP-001.\n\nThe organisation recognises that information security is a business-critical function: learner personal data is processed at scale; device-bonded activation codes represent direct commercial value; and the integrity of safety-critical course content has a direct impact on learner welfare.");
@@ -1786,15 +1786,15 @@ async function genInfoSecurity(): Promise<void> {
   body(doc, "This policy is reviewed annually and following any significant security incident, regulatory change, or material change in the technical environment. Controlled under reference ISP-001.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Information_Security_Policy.pdf", "Information Security Policy");
+  await save(doc, "ISP-001_Information_Security_Policy.pdf", "ISP-001 — Information Security Policy");
 }
 
 // ─── 22. Access Control Policy ───────────────────────────────────────────────
 
 async function genAccessControl(): Promise<void> {
-  const doc = newDoc("Access Control and Identity Management Policy");
+  const doc = newDoc("ISP-002 — Access Control and Identity Management Policy");
   drawPageHeader(doc);
-  docTitle(doc, "Access Control and Identity Management Policy");
+  docTitle(doc, "ISP-002 — Access Control and Identity Management Policy");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This policy defines the principles, requirements, and controls governing access to Overleaf Publishers Ltd's information systems, data, and physical assets. It applies to all personnel, contractors, and third-party providers who have access to any organisational system or data, whether on-site or remote. Document reference: ISP-002.\n\nThe objective is to ensure that access to information assets is granted on a least-privilege, need-to-know basis; is formally authorised before it is granted; is monitored during use; and is promptly revoked when no longer required.");
@@ -1857,15 +1857,15 @@ async function genAccessControl(): Promise<void> {
   body(doc, "This policy is reviewed annually and following any security incident, significant personnel change, or material change to the system architecture. Controlled under reference ISP-002.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Access_Control_Policy.pdf", "Access Control and Identity Management Policy");
+  await save(doc, "ISP-002_Access_Control_Policy.pdf", "ISP-002 — Access Control and Identity Management Policy");
 }
 
 // ─── 23. Data Breach and Incident Response Procedure ─────────────────────────
 
 async function genDataBreachResponse(): Promise<void> {
-  const doc = newDoc("Data Breach and Information Security Incident Response Procedure");
+  const doc = newDoc("ISP-003 — Data Breach and Incident Response Procedure");
   drawPageHeader(doc);
-  docTitle(doc, "Data Breach and Incident Response Procedure");
+  docTitle(doc, "ISP-003 — Data Breach and Incident Response Procedure");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This procedure establishes how Overleaf Publishers Ltd detects, contains, investigates, notifies, and recovers from information security incidents and personal data breaches. It applies to all personnel, contractors, and systems. Document reference: ISP-003.\n\nA personal data breach is any security incident that leads to the accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to personal data. Under UK GDPR, certain breaches must be reported to the Information Commissioner's Office (ICO) within 72 hours of becoming aware, and affected individuals notified without undue delay where the breach is likely to result in high risk to their rights and freedoms.");
@@ -1908,15 +1908,15 @@ async function genDataBreachResponse(): Promise<void> {
   body(doc, "The incident response procedure is reviewed annually and tested at least every 2 years via a tabletop exercise. Test outcomes are documented and any gaps in the procedure are raised as improvement actions.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Data_Breach_and_Incident_Response.pdf", "Data Breach and Incident Response Procedure");
+  await save(doc, "ISP-003_Data_Breach_and_Incident_Response.pdf", "ISP-003 — Data Breach and Incident Response Procedure");
 }
 
 // ─── 24. Business Continuity and Disaster Recovery Plan ──────────────────────
 
 async function genBCP(): Promise<void> {
-  const doc = newDoc("Business Continuity and Disaster Recovery Plan");
+  const doc = newDoc("QMS-006 — Business Continuity and Disaster Recovery Plan");
   drawPageHeader(doc);
-  docTitle(doc, "Business Continuity and Disaster Recovery Plan");
+  docTitle(doc, "QMS-006 — Business Continuity and Disaster Recovery Plan");
 
   sectionHeading(doc, "1. Purpose and Objectives");
   body(doc, "This plan ensures that Overleaf Publishers Ltd can maintain, restore, and recover critical business functions and the Chainsaw Courses platform following a disruptive event. Document reference: QMS-006.\n\nObjectives: maintain learner access to course content with minimum disruption; protect learner and business data from permanent loss; restore full platform functionality within defined recovery timescales; and ensure regulatory and contractual obligations continue to be met during and after a disruption.");
@@ -1975,7 +1975,7 @@ async function genBCP(): Promise<void> {
   body(doc, "This plan is reviewed annually and tested at least every 2 years via tabletop exercise. Key test scenarios include: database restoration from backup; platform rollback following a failed deployment; and simulated loss-of-access scenario for sole director. Test outcomes are documented and any gaps are raised as improvement actions. This plan is controlled under reference QMS-006.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Business_Continuity_and_Disaster_Recovery.pdf", "Business Continuity and Disaster Recovery Plan");
+  await save(doc, "QMS-006_Business_Continuity_and_Disaster_Recovery.pdf", "QMS-006 — Business Continuity and Disaster Recovery Plan");
 }
 
 // ─── 25. Incident and Near-Miss Reporting Procedure ──────────────────────────
@@ -2176,9 +2176,9 @@ async function genCompetenceFramework(): Promise<void> {
 // ─── 28. Risk Register and Management Framework ───────────────────────────────
 
 async function genRiskRegister(): Promise<void> {
-  const doc = newDoc("Risk Register and Management Framework");
+  const doc = newDoc("QMS-007 — Risk Register and Management Framework");
   drawPageHeader(doc);
-  docTitle(doc, "Risk Register and Management Framework");
+  docTitle(doc, "QMS-007 — Risk Register and Management Framework");
 
   sectionHeading(doc, "1. Purpose and Scope");
   body(doc, "This framework establishes how Overleaf Publishers Ltd identifies, assesses, treats, monitors, and reviews risks across all areas of the business — encompassing quality, health and safety, information security, and business continuity. It ensures that the organisation proactively manages uncertainty and protects its ability to achieve its objectives. Document reference: QMS-007.");
@@ -2239,7 +2239,7 @@ async function genRiskRegister(): Promise<void> {
   body(doc, "This framework is reviewed annually as part of the management review. The Risk Register is a controlled document held under reference QMS-007.");
 
   body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd  ·  Reg. No. 15735226  ·  VAT 479581629");
-  await save(doc, "Risk_Register_and_Management_Framework.pdf", "Risk Register and Management Framework");
+  await save(doc, "QMS-007_Risk_Register_and_Management_Framework.pdf", "QMS-007 — Risk Register and Management Framework");
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
