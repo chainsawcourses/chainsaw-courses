@@ -719,32 +719,41 @@ export default function TrainingList() {
                   : <span>View Certificate</span>}
               </button>
             </div>
+
+            {/* Practical Progression Gateway — locked until exam passed */}
+            <div className="flex items-center justify-between pt-1 border-t border-border">
+              <div className="flex items-center gap-2">
+                {examPassed ? (
+                  <Link
+                    href="/gateway"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-orange-600 hover:text-orange-500 transition-colors flex items-center gap-1.5"
+                  >
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    Practical Progression Gateway
+                  </Link>
+                ) : (
+                  <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Pass the final exam to unlock the Practical Progression Gateway">
+                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 flex items-center gap-1">
+                      <LockKeyhole className="w-3 h-3 shrink-0" />
+                      Practical Progression Gateway
+                    </span>
+                  </span>
+                )}
+              </div>
+              {examPassed && (
+                <Link
+                  href="/gateway"
+                  className="font-mono text-[10px] uppercase tracking-widest text-orange-600 hover:text-orange-500 underline underline-offset-2 transition-colors"
+                >
+                  Find a Centre
+                </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Practical Progression Gateway — shown only after exam passed */}
-        {examPassed && (
-          <Link href="/gateway">
-            <Card className="border-orange-500/40 bg-gradient-to-r from-orange-500/8 to-amber-500/5 hover:from-orange-500/15 hover:to-amber-500/10 cursor-pointer transition-colors group">
-              <CardContent className="p-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-orange-500" />
-                  </div>
-                  <div>
-                    <div className="font-mono font-black text-xs uppercase tracking-widest text-orange-600">Practical Progression Gateway</div>
-                    <div className="font-mono text-[10px] text-muted-foreground mt-0.5">Find an NPTC-approved assessment centre near you</div>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-orange-500 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-              </CardContent>
-            </Card>
-          </Link>
-        )}
-
-        {/* Course Requirements — modules from DB category */}
-        {courseReqModules.length > 0 && (
-          <div className="space-y-2">
+        {/* Course Requirements — dropdowns always visible; module cards only when courseReqModules has items */}
+        <div className="space-y-2">
             {/* Disclaimer & Copyright — collapsible, text from Firebase Remote Config */}
             {disclaimerText && (
               <div>
@@ -1099,8 +1108,7 @@ export default function TrainingList() {
                 </Card>
               );
             })}
-          </div>
-        )}
+        </div>
 
         {/* Grouped Module List */}
         <div className="space-y-10">
