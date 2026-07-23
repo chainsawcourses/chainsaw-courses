@@ -1245,13 +1245,15 @@ async function genIIRSMBrief(): Promise<void> {
   infoRow(doc, "Course Title", "Chainsaw Maintenance & Cross Cutting — Vocational Safety Theory");
   infoRow(doc, "Awarding / Approval Body", "IIRSM (International Institute of Risk and Safety Management)");
   infoRow(doc, "Provider", "Overleaf Publishers Ltd  ·  chainsawcourses.com");
-  infoRow(doc, "Qualification Alignment", "NPTC/City & Guilds Unit 0039-20 (Chainsaw Maintenance & Cross Cutting) — theoretical underpinning");
+  infoRow(doc, "Qualification Alignment", "NPTC/City & Guilds Unit 0039-20 (Chainsaw Maintenance & Cross Cutting) — theoretical underpinning and gateway to NPTC practical assessment");
   infoRow(doc, "Level", "Level 2 (equivalent) — vocational knowledge and understanding");
   infoRow(doc, "Delivery Mode", "Online eLearning — Progressive Web Application (PWA), device-locked, video-streamed");
   infoRow(doc, "Duration", "Approximately 6–8 hours of guided learning across 7 sequential modules");
   infoRow(doc, "Assessment", "7 module quizzes (80% pass threshold each) + 45-question mock examination");
-  infoRow(doc, "Target Learner", "Arboricultural and forestry professionals seeking NPTC theoretical preparation; landowners; groundworkers");
-  infoRow(doc, "Cost", "£198 (includes digital platform access and optional Overleaf Chainsaw Manual)");
+  infoRow(doc, "Entry Requirements", "No formal prerequisites. Learners must be aged 18 or over. Basic literacy and numeracy required. No prior chainsaw experience necessary — course is suitable for both complete beginners and those refreshing existing knowledge before practical assessment");
+  infoRow(doc, "Target Learner", "Arboricultural and forestry professionals seeking NPTC theoretical preparation; landowners; groundworkers; anyone required to demonstrate theoretical chainsaw competence before booking NPTC practical assessment");
+  infoRow(doc, "Certification", "IIRSM-approved digital certificate of completion issued automatically on passing all module quizzes and the 45-question mock examination. Certificate confirms theoretical competence to support NPTC assessment centre booking. No expiry — certificate reflects knowledge at date of completion; learners are advised to repeat the course if more than 3 years have elapsed");
+  infoRow(doc, "Cost", "£165 + VAT (£198.00 inc. VAT) — includes lifetime platform access, AI mock examiner, built-in inspection and risk assessment tools, Overleaf Chainsaw Manual reference, and gateway to NPTC practical assessment booking");
   infoRow(doc, "Version", "1.4  ·  July 2026");
   doc.moveDown(0.5);
 
@@ -1285,10 +1287,36 @@ async function genIIRSMBrief(): Promise<void> {
   infoRow(doc, "Reference Text", "Course content cross-referenced against the Overleaf Chainsaw Manual (published reference text), current HSE/FISA guidance series, and applicable UK legislation");
   doc.moveDown(0.5);
 
-  // Section 3 — Learning Outcomes
+  // Section 3 — Learner Pathway
+  sectionHeading(doc, "Section 3 | Learner Pathway — Gateway to NPTC Practical Assessment");
+  body(doc,
+    "The Chainsaw Courses eLearning platform is designed as the theoretical preparation stage in the learner's journey toward full NPTC chainsaw competence. Completion of this course demonstrates to NPTC-approved assessment centres that the learner has achieved the underpinning knowledge required to attempt the practical assessment."
+  );
+  doc.moveDown(0.3);
+
+  twoColTable(doc, ["Stage", "Description"], [
+    ["1 — Purchase & Activate", "Learner purchases via chainsawcourses.com; receives a unique Activation Code bonded to their device on first use. Digital liability waiver signed on activation."],
+    ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (6–8 hours total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
+    ["3 — Pass Module Quizzes", "80% pass threshold on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
+    ["4 — Pass Mock Examination", "45-question randomised mock examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
+    ["5 — Receive IIRSM Certificate", "IIRSM-approved certificate of theoretical competence issued automatically on platform completion. Certificate includes learner name, date, and course reference."],
+    ["6 — Book NPTC Practical Assessment", "Learner presents their IIRSM certificate to a NPTC/City & Guilds approved assessment centre to book Unit 0039-20 practical assessment. The eLearning certificate demonstrates theoretical readiness."],
+  ], 175);
+
+  doc.moveDown(0.3);
+  body(doc, "Built-in tools supporting practical readiness — available throughout the learner's platform access:");
+  bullet(doc, [
+    "Pre-start and pre-use Inspection Checklist — mirrors the daily inspection required before practical assessment",
+    "Dynamic Risk Assessment tool — GPS-located, records site hazards using the same framework assessed at NPTC level",
+    "AI Chainsaw Manual Examiner — interactive mock assessment restricted to chainsaw safety topics; provides immediate explanatory feedback",
+    "Biosecurity & Hazard Map — illustrative reference for statutory containment zones (OPM, ash dieback, etc.)",
+    "Chain Identification Chart — reference tool for the appendix content examined in the written element of NPTC assessment",
+  ]);
+
+  // Section 4 — Learning Outcomes
   doc.addPage();
   drawPageHeader(doc);
-  sectionHeading(doc, "Section 3 | Learning Outcomes & Assessment Criteria");
+  sectionHeading(doc, "Section 4 | Learning Outcomes & Assessment Criteria");
   body(doc,
     "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification."
   );
@@ -1312,7 +1340,7 @@ async function genIIRSMBrief(): Promise<void> {
   doc.moveDown(0.5);
 
   // Section 4 — Course Content Overview
-  sectionHeading(doc, "Section 4 | Course Content — Detailed Syllabus");
+  sectionHeading(doc, "Section 5 | Course Content — Detailed Syllabus");
 
   twoColTable(
     doc,
@@ -1335,7 +1363,7 @@ async function genIIRSMBrief(): Promise<void> {
   // Section 5 — Assessment Methodology
   doc.addPage();
   drawPageHeader(doc);
-  sectionHeading(doc, "Section 5 | Assessment Methodology");
+  sectionHeading(doc, "Section 6 | Assessment Methodology");
 
   body(doc,
     "Assessment on the Chainsaw Courses platform is designed to be valid, reliable, fair, and sufficient to confirm theoretical competence at the level required to support NPTC 0039-20 practical assessment preparation."
@@ -1359,7 +1387,7 @@ async function genIIRSMBrief(): Promise<void> {
     175
   );
 
-  sectionHeading(doc, "Section 6 | Quality Assurance and Compliance");
+  sectionHeading(doc, "Section 7 | Quality Assurance and Compliance");
 
   twoColTable(
     doc,
@@ -1377,7 +1405,7 @@ async function genIIRSMBrief(): Promise<void> {
     175
   );
 
-  sectionHeading(doc, "Section 7 | Technical Platform Specification");
+  sectionHeading(doc, "Section 8 | Technical Platform Specification");
 
   twoColTable(
     doc,
@@ -1397,7 +1425,7 @@ async function genIIRSMBrief(): Promise<void> {
     175
   );
 
-  sectionHeading(doc, "Section 8 | Declaration");
+  sectionHeading(doc, "Section 9 | Declaration");
   body(doc,
     "I confirm that the information contained in this submission is accurate and complete to the best of my knowledge. The course content has been developed with reference to current HSE and FISA guidance, applicable UK legislation, and the practical experience gained through the NPTC qualifications listed in Section 2. I understand that IIRSM may request further information or a demonstration of the platform as part of the approval process."
   );
