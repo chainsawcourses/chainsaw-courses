@@ -44,7 +44,7 @@ const PPE_ITEMS = [
   "Chainsaw-Resistant Trousers (EN 11393)",
   "Chainsaw Boots (EN ISO 17249)",
   "Cut-Resistant Gloves",
-  "PUWER-compliant Chainsaw with functional chain brake, catcher, and lockout",
+  "PUWER-compliant chainsaw with all safety features present and working",
 ];
 
 export default function PracticalGateway() {
@@ -253,8 +253,6 @@ export default function PracticalGateway() {
     }
   };
 
-  const goldVenues = venues.filter(v => v.tier === "gold");
-  const silverVenues = venues.filter(v => v.tier === "silver");
   const mapCenter: [number, number] = venues.length > 0 ? [53.5, -1.5] : [52.5, -1.5];
 
   return (
@@ -278,14 +276,6 @@ export default function PracticalGateway() {
           <p className="font-mono text-[11px] text-muted-foreground mt-0.5">Find an NPTC-approved assessment centre near you. Click a venue to register your interest.</p>
         </div>
 
-        {/* Disclaimer */}
-        <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/8 px-3 py-2.5">
-          <Star className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-          <p className="font-mono text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
-            <strong>Gold venues</strong> are verified partners who respond to group bookings. <strong>Silver venues</strong> are directory listings for individual enquiries. All assessment fees are paid directly to the venue — no money is handled by Chainsaw Courses.
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
           {/* Map */}
           <div className="rounded-lg overflow-hidden border border-border" style={{ height: 420 }}>
@@ -298,10 +288,10 @@ export default function PracticalGateway() {
                   <CircleMarker
                     key={venue.id}
                     center={[venue.lat, venue.lng]}
-                    radius={venue.tier === "gold" ? 10 : 7}
+                    radius={8}
                     pathOptions={{
-                      color: venue.tier === "gold" ? "#d97706" : "#6b7280",
-                      fillColor: venue.tier === "gold" ? "#f59e0b" : "#9ca3af",
+                      color: "#c9621f",
+                      fillColor: "#e27226",
                       fillOpacity: selectedVenue?.id === venue.id ? 1 : 0.7,
                       weight: selectedVenue?.id === venue.id ? 3 : 1.5,
                     }}
@@ -325,14 +315,9 @@ export default function PracticalGateway() {
             {selectedVenue ? (
               <Card className="border-border bg-card/80">
                 <CardContent className="p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-mono font-bold text-sm uppercase tracking-widest leading-tight">{selectedVenue.name}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{selectedVenue.town}, {selectedVenue.county}</p>
-                    </div>
-                    <Badge className={`font-mono text-[10px] shrink-0 ${selectedVenue.tier === "gold" ? "bg-amber-500/20 text-amber-700 border-amber-500/40" : "bg-secondary text-muted-foreground border-border"}`} variant="outline">
-                      {selectedVenue.tier === "gold" ? "⭐ Gold" : "Silver"}
-                    </Badge>
+                  <div>
+                    <h3 className="font-mono font-bold text-sm uppercase tracking-widest leading-tight">{selectedVenue.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{selectedVenue.town}, {selectedVenue.county}</p>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-0.5">
                     <div>{selectedVenue.address}</div>
@@ -371,17 +356,11 @@ export default function PracticalGateway() {
                 <CardContent className="p-6 text-center text-muted-foreground">
                   <MapPin className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   <p className="font-mono text-xs">Click a pin on the map to view venue details</p>
-                  <p className="font-mono text-[10px] mt-1 opacity-70">{goldVenues.length} Gold · {silverVenues.length} Silver venues</p>
+                  <p className="font-mono text-[10px] mt-1 opacity-70">{venues.length} {venues.length === 1 ? "venue" : "venues"} available</p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Legend */}
-            <div className="rounded-md border border-border bg-card/40 p-3 space-y-1.5">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Legend</p>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-400 border-2 border-amber-500 shrink-0" /><span className="font-mono text-[11px]">Gold — Verified partner venue</span></div>
-              <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-gray-400 border border-gray-500 shrink-0" /><span className="font-mono text-[11px]">Silver — Directory listing</span></div>
-            </div>
           </div>
         </div>
 
