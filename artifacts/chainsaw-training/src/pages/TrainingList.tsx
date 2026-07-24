@@ -18,6 +18,36 @@ import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
 import { COURSE_CONTENT_VERSION } from "../data/version";
 
+function AccessCountdownBanner() {
+  const { accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
+  const [, navigate] = useLocation();
+
+  if (!accessExpiresAt || accessStatus === "expired") return null;
+
+  const now = Date.now();
+  const expiresMs = new Date(accessExpiresAt).getTime();
+  const daysLeft = Math.max(0, Math.ceil((expiresMs - now) / (24 * 60 * 60 * 1000)));
+
+  if (daysLeft > 30) return null;
+
+  const isCertWindow = !!courseCompletedAt;
+  const urgentColor = daysLeft <= 7 ? "#dc2626" : "#e27226";
+  const label = isCertWindow
+    ? `Certificate access window: ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`
+    : `Trial window: ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`;
+
+  return (
+    <div
+      className="flex items-center justify-between gap-3 px-4 py-2 text-white text-xs font-medium cursor-pointer"
+      style={{ background: urgentColor }}
+      onClick={() => navigate("/expired")}
+    >
+      <span>⏰ {label}</span>
+      <span className="underline flex-shrink-0">Subscribe →</span>
+    </div>
+  );
+}
+
 function LogEndIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -34,7 +64,8 @@ function LogEndIcon({ className }: { className?: string }) {
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName, clearSession, userId } = useUserSession();
+  const { activationCode, deviceId, fullName, clearSession, userId, accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
+  void accessExpiresAt; void courseCompletedAt; void accessStatus;
   const [equipmentOpen, setEquipmentOpen] = useState(false);
   const [equipmentScrolled, setEquipmentScrolled] = useState(false);
   const [equipmentAcknowledged, setEquipmentAcknowledged] = useState(() =>
@@ -627,6 +658,8 @@ export default function TrainingList() {
           </div>
         </div>
       </header>
+
+      <AccessCountdownBanner />
 
       <main className="max-w-5xl mx-auto px-4 pt-3 pb-0 space-y-6">
 

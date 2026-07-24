@@ -68,6 +68,7 @@ router.post("/auth/activate", async (req, res) => {
         }
 
         // Different person (or new device) — create a fresh user record
+        // Unlimited codes have no access expiry (null = unlimited)
         const [newUser] = await tx
           .insert(usersTable)
           .values({ activationCode: code, fullName, email, deviceId })
@@ -123,9 +124,10 @@ router.post("/auth/activate", async (req, res) => {
         .set({ isUsed: true })
         .where(eq(activationCodesTable.id, activation.id));
 
+      const accessExpiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
       const [newUser] = await tx
         .insert(usersTable)
-        .values({ activationCode: code, fullName, email, deviceId })
+        .values({ activationCode: code, fullName, email, deviceId, accessExpiresAt })
         .returning();
 
       return {
@@ -191,6 +193,14 @@ router.get("/auth/me", async (req, res) => {
     .from(waiversTable)
     .where(eq(waiversTable.userId, user.id));
 
+  const now = new Date();
+  const hasSubscription = !!(user.subscriptionExpiresAt && user.subscriptionExpiresAt > now);
+  const inFreeWindow = user.accessExpiresAt === null || user.accessExpiresAt > now;
+  const accessStatus: "active" | "expired" = (hasSubscription || inFreeWindow) ? "active" : "expired";
+  const daysRemaining = user.accessExpiresAt
+    ? Math.max(0, Math.ceil((user.accessExpiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
+    : null;
+
   res.json({
     id: user.id,
     fullName: user.fullName,
@@ -198,6 +208,10 @@ router.get("/auth/me", async (req, res) => {
     activatedAt: user.activatedAt.toISOString(),
     waiverSigned: !!waiver,
     deviceId: user.deviceId,
+    accessStatus,
+    accessExpiresAt: user.accessExpiresAt?.toISOString() ?? null,
+    courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
+    daysRemaining,
   });
 });
 

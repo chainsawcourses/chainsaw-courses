@@ -45,10 +45,51 @@ import AdminGateway from "@/pages/admin/AdminGateway";
 import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
+import AccessExpired from "@/pages/AccessExpired";
+import InstallPrompt from "@/components/InstallPrompt";
+import { useEffect } from "react";
+import { useUserSession } from "./contexts/UserContext";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
   document.documentElement.classList.remove("dark");
+}
+
+// Checks access status on load and redirects if expired.
+// Only active when the user is logged in.
+function GlobalAccessCheck() {
+  const { activationCode, deviceId, userId, setAccessInfo } = useUserSession();
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    if (!activationCode || !deviceId) return;
+    const headers: Record<string, string> = {
+      "activationCode": activationCode,
+      "deviceId": deviceId,
+      "Content-Type": "application/json",
+    };
+    if (userId) headers["userid"] = String(userId);
+
+    fetch("/api/auth/me", { headers })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return;
+        const status: "active" | "expired" | "unknown" =
+          data.accessStatus === "expired" ? "expired" : "active";
+        setAccessInfo({
+          accessExpiresAt: data.accessExpiresAt ?? null,
+          courseCompletedAt: data.courseCompletedAt ?? null,
+          accessStatus: status,
+        });
+        if (status === "expired") {
+          navigate("/expired");
+        }
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activationCode]);
+
+  return null;
 }
 
 const queryClient = new QueryClient({
@@ -96,6 +137,7 @@ function Router() {
       <Route path="/manual" component={ManualFlipbook} />
       <Route path="/qr/:moduleId" component={QrLanding} />
       <Route path="/gateway" component={PracticalGateway} />
+      <Route path="/expired" component={AccessExpired} />
 
       <Route path="/exam-preview" component={ExamPreview} />
       <Route path="/admin-preview" component={AdminPreviewLogin} />
@@ -136,8 +178,10 @@ function App() {
               <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.88)" }} />
             </div>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <GlobalAccessCheck />
               <Router />
             </WouterRouter>
+            <InstallPrompt />
             <Toaster />
           </TooltipProvider>
         </AdminProvider>

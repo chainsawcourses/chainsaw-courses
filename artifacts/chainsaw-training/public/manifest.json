@@ -1,0 +1,27 @@
+{
+  "name": "Chainsaw Courses",
+  "short_name": "Chainsaw Courses",
+  "description": "IIRSM-approved chainsaw safety theory training — gateway to NPTC practical assessment.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#e27226",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "health", "productivity"]
+}

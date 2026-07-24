@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable } from "@workspace/db";
+import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable, usersTable } from "@workspace/db";
 import { SubmitExamBody } from "@workspace/api-zod";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
@@ -163,8 +163,15 @@ router.post("/exam/submit", async (req, res) => {
 
     logger.info({ userId: user.id, score, passed }, "Summative exam attempt recorded");
 
-    // Fire-and-forget certificate email on first pass
     if (passed) {
+      // Open a 3-month certificate window and record course completion
+      const certWindowEnds = new Date(attemptedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+      await db
+        .update(usersTable)
+        .set({ courseCompletedAt: attemptedAt, certificateIssuedAt: attemptedAt, accessExpiresAt: certWindowEnds })
+        .where(eq(usersTable.id, user.id));
+
+      // Fire-and-forget certificate email
       sendCertificateEmail(user, attemptedAt, score).catch((err) => {
         logger.error({ err, userId: user.id }, "Certificate email fire-and-forget failed");
       });

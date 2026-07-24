@@ -58,7 +58,12 @@ interface UserContextType {
   fullName: string | null;
   email: string | null;
   userId: number | null;
+  // Access window
+  accessExpiresAt: string | null;
+  courseCompletedAt: string | null;
+  accessStatus: "active" | "expired" | "unknown";
   setSession: (data: { activationCode: string; fullName: string; email: string; userId: number }) => void;
+  setAccessInfo: (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown" }) => void;
   clearSession: () => void;
 }
 
@@ -73,7 +78,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (!id) {
       id = uuidv4();
     }
-    // Always ensure both localStorage and cookie are in sync for deviceId
     writePersisted("deviceId", id);
     return id;
   });
@@ -87,6 +91,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const stored = readPersisted("userId");
     return stored ? Number(stored) : null;
   });
+  const [accessExpiresAt, setAccessExpiresAt] = useState<string | null>(null);
+  const [courseCompletedAt, setCourseCompletedAt] = useState<string | null>(null);
+  const [accessStatus, setAccessStatus] = useState<"active" | "expired" | "unknown">("unknown");
 
   const setSession = (data: { activationCode: string; fullName: string; email: string; userId: number }) => {
     writePersisted("activationCode", data.activationCode);
@@ -99,21 +106,28 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUserId(data.userId);
   };
 
+  const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown" }) => {
+    setAccessExpiresAt(data.accessExpiresAt);
+    setCourseCompletedAt(data.courseCompletedAt);
+    setAccessStatus(data.accessStatus);
+  };
+
   const clearSession = () => {
     removePersisted("activationCode");
     removePersisted("fullName");
     removePersisted("email");
     removePersisted("userId");
-    // Keep deviceId — the device bond must survive logout so the same
-    // activation code can be reused on this device without a bond conflict.
     setActivationCode(null);
     setFullName(null);
     setEmail(null);
     setUserId(null);
+    setAccessExpiresAt(null);
+    setCourseCompletedAt(null);
+    setAccessStatus("unknown");
   };
 
   return (
-    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, setSession, clearSession }}>
+    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, accessExpiresAt, courseCompletedAt, accessStatus, setSession, setAccessInfo, clearSession }}>
       {children}
     </UserContext.Provider>
   );

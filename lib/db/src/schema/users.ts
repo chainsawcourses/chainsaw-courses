@@ -20,6 +20,11 @@ export const usersTable = pgTable("users", {
   activatedAt: timestamp("activated_at").notNull().defaultNow(),
   lastActivityAt: timestamp("last_activity_at"),
   deletedAt: timestamp("deleted_at"),
+  // Access window management
+  accessExpiresAt: timestamp("access_expires_at"),        // null = unlimited (demo/admin codes)
+  courseCompletedAt: timestamp("course_completed_at"),    // set when exam is first passed
+  certificateIssuedAt: timestamp("certificate_issued_at"),// set with courseCompletedAt
+  subscriptionExpiresAt: timestamp("subscription_expires_at"), // set when £2.99/mo sub paid
 });
 
 export const waiversTable = pgTable("waivers", {
