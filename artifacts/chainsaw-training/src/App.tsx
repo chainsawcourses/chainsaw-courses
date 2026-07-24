@@ -54,6 +54,7 @@ import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 import AccessExpired from "@/pages/AccessExpired";
+import Install from "@/pages/Install";
 import InstallPrompt from "@/components/InstallPrompt";
 import { useEffect } from "react";
 import { useUserSession } from "./contexts/UserContext";
@@ -123,6 +124,7 @@ function Router() {
     <PageFade>
     <Switch>
       {/* Student Routes */}
+      <Route path="/install" component={Install} />
       <Route path="/" component={Activation} />
       <Route path="/waiver" component={Waiver} />
       <Route path="/training" component={TrainingList} />
