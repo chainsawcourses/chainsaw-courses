@@ -36,3 +36,9 @@ id = "6PJEOHR8AZsbXadTDiMwU"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Complaints_Procedure.pdf"
 type = "pdf"
 title = "Complaints Procedure"
+
+[[outputs]]
+id = "DdJZbOyBPk3hEi63MBQ1J"
+uri = "file://scripts/shopify-copy.md"
+type = "text"
+title = "Shopify Store Copy — Updated for Timed Access Model"
