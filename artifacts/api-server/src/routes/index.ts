@@ -19,6 +19,7 @@ import certificateRouter from "./certificate";
 import privacyPolicyRouter from "./privacyPolicy";
 import gatewayRouter from "./gateway";
 import adminGatewayRouter from "./adminGateway";
+import adminQualityRouter from "./adminQuality";
 
 const router: IRouter = Router();
 
@@ -42,5 +43,6 @@ router.use(certificateRouter);
 router.use(privacyPolicyRouter);
 router.use(gatewayRouter);
 router.use(adminGatewayRouter);
+router.use(adminQualityRouter);
 
 export default router;

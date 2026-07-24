@@ -224,3 +224,27 @@ export type QuizQuestion = typeof quizQuestionsTable.$inferSelect;
 export type QuizAttempt = typeof quizAttemptsTable.$inferSelect;
 export type ChatMessage = typeof chatMessagesTable.$inferSelect;
 export type InsertModule = z.infer<typeof insertModuleSchema>;
+
+export const iqaRecordsTable = pgTable("iqa_records", {
+  id: serial("id").primaryKey(),
+  sampleDate: timestamp("sample_date").notNull().defaultNow(),
+  reviewerName: text("reviewer_name").notNull(),
+  studentIds: text("student_ids").notNull().default("[]"), // JSON array of user IDs
+  findingsSummary: text("findings_summary").notNull(),
+  actionRequired: text("action_required"),
+  actionTaken: text("action_taken"),
+  signedOffAt: timestamp("signed_off_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const reasonableAdjustmentsTable = pgTable("reasonable_adjustments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  adjustmentType: text("adjustment_type").notNull(), // 'extra_time' | 'large_print' | 'screen_reader' | 'other'
+  details: text("details").notNull(),
+  evidenceProvided: text("evidence_provided"),
+  approvedBy: text("approved_by").notNull(),
+  approvedAt: timestamp("approved_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

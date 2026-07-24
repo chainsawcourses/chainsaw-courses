@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Biohazard, CheckCircle2, ClipboardCheck, Download, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, ShieldCheck, Star, Users, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, Download, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -307,6 +307,33 @@ export default function AdminDashboard() {
               <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
                 <FileText className="w-3.5 h-3.5 mr-1" /> IIRSM BRIEF
               </a>
+            </Button>
+          </div>
+        </div>
+        {/* Row 3 — EQA / quality features */}
+        <div className="border-t border-border bg-orange-50/40">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+            <span className="font-mono text-xs text-muted-foreground mr-1">EQA:</span>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/stats"><BarChart2 className="w-3.5 h-3.5 mr-1" /> STATISTICS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/certificates"><Award className="w-3.5 h-3.5 mr-1" /> CERT REGISTER</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/exam-log"><BookOpen className="w-3.5 h-3.5 mr-1" /> EXAM LOG</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/assessment-bank"><ClipboardList className="w-3.5 h-3.5 mr-1" /> ASSESSMENT BANK</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/iqa"><ShieldCheck className="w-3.5 h-3.5 mr-1" /> IQA LOG</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/reasonable-adjustments"><Users2 className="w-3.5 h-3.5 mr-1" /> ADJUSTMENTS</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/malpractice"><AlertTriangle className="w-3.5 h-3.5 mr-1" /> MALPRACTICE</Link>
             </Button>
           </div>
         </div>
