@@ -42,6 +42,7 @@ import AdminQrCodes from "@/pages/admin/QrCodes";
 import WelcomeNoteSettings from "@/pages/admin/WelcomeNote";
 import PracticalGateway from "@/pages/PracticalGateway";
 import AdminGateway from "@/pages/admin/AdminGateway";
+import PolicyDocs from "@/pages/admin/PolicyDocs";
 import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
@@ -155,6 +156,7 @@ function Router() {
       <Route path="/admin/qr-codes" component={AdminQrCodes} />
       <Route path="/admin/welcome-note" component={WelcomeNoteSettings} />
       <Route path="/admin/gateway" component={AdminGateway} />
+      <Route path="/admin/policy-docs" component={PolicyDocs} />
 
       <Route component={NotFound} />
     </Switch>
