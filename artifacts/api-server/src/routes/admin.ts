@@ -63,62 +63,94 @@ router.get("/admin/stats", async (req, res) => {
   }
 
   try {
-    const [totalStudentsResult] = await db
-      .select({ count: count() })
-      .from(usersTable)
-      .where(isNull(usersTable.deletedAt));
-
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const [activeThisWeekResult] = await db
-      .select({ count: count() })
-      .from(usersTable)
-      .where(gte(usersTable.lastActivityAt, oneWeekAgo));
 
-    const [waiversSignedResult] = await db
-      .select({ count: count() })
-      .from(waiversTable);
+    const [
+      allUsers,
+      activeUsers,
+      allProgress,
+      allExamAttempts,
+      allModules,
+    ] = await Promise.all([
+      db.select().from(usersTable).where(isNull(usersTable.deletedAt)),
+      db.select({ count: count() }).from(usersTable).where(gte(usersTable.lastActivityAt, oneWeekAgo)),
+      db.select().from(userProgressTable),
+      db.select({
+        id: examAttemptsTable.id,
+        userId: examAttemptsTable.userId,
+        passed: examAttemptsTable.passed,
+        score: examAttemptsTable.score,
+        attemptedAt: examAttemptsTable.attemptedAt,
+      }).from(examAttemptsTable).orderBy(desc(examAttemptsTable.attemptedAt)),
+      db.select().from(modulesTable).where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf"))),
+    ]);
 
-    const [codesUsedResult] = await db
-      .select({ count: count() })
-      .from(activationCodesTable)
-      .where(eq(activationCodesTable.isUsed, true));
+    const totalLearners = allUsers.length;
+    const activeLearners = Number(activeUsers[0].count);
 
-    const [codesTotalResult] = await db
-      .select({ count: count() })
-      .from(activationCodesTable);
-
-    const [totalModulesResult] = await db
-      .select({ count: count() })
-      .from(modulesTable)
-      .where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf")));
-
-    const completedProgressRecords = await db
-      .select()
-      .from(userProgressTable)
-      .where(eq(userProgressTable.quizPassed, true));
-
-    const totalStudents = Number(totalStudentsResult.count);
-    const totalModules = Number(totalModulesResult.count);
-
-    let completionRate = 0;
-    if (totalStudents > 0 && totalModules > 0) {
-      const userCompletions = new Map<number, number>();
-      for (const p of completedProgressRecords) {
-        userCompletions.set(p.userId, (userCompletions.get(p.userId) ?? 0) + 1);
+    // Completed = passed every quiz module
+    const quizModuleIds = allModules.filter(m => m.contentType !== "pdf").map(m => m.id);
+    const passedByUser = new Map<number, Set<number>>();
+    for (const p of allProgress) {
+      if (p.quizPassed) {
+        if (!passedByUser.has(p.userId)) passedByUser.set(p.userId, new Set());
+        passedByUser.get(p.userId)!.add(p.moduleId);
       }
-      const fullyCompleted = Array.from(userCompletions.values()).filter(
-        (c) => c >= totalModules
-      ).length;
-      completionRate = Math.round((fullyCompleted / totalStudents) * 100);
     }
+    const completedLearners = allUsers.filter(u =>
+      quizModuleIds.length > 0 && (passedByUser.get(u.id)?.size ?? 0) >= quizModuleIds.length
+    ).length;
+
+    // Certificates = users who passed the final exam
+    const certificatesIssued = allExamAttempts.filter(a => a.passed)
+      .reduce((acc, a) => { acc.add(a.userId); return acc; }, new Set<number>()).size;
+
+    // Exam stats
+    const totalExamAttempts = allExamAttempts.length;
+    const passedAttempts = allExamAttempts.filter(a => a.passed);
+    const passRate = totalExamAttempts > 0 ? Math.round((passedAttempts.length / totalExamAttempts) * 100) : 0;
+    const averagePassScore = passedAttempts.length > 0
+      ? Math.round(passedAttempts.reduce((s, a) => s + (a.score ?? 0), 0) / passedAttempts.length)
+      : 0;
+
+    // Module funnel
+    const videoCompletedByModule = new Map<number, number>();
+    const quizPassedByModule = new Map<number, number>();
+    for (const p of allProgress) {
+      if (p.videoCompleted) videoCompletedByModule.set(p.moduleId, (videoCompletedByModule.get(p.moduleId) ?? 0) + 1);
+      if (p.quizPassed) quizPassedByModule.set(p.moduleId, (quizPassedByModule.get(p.moduleId) ?? 0) + 1);
+    }
+    const moduleStats = allModules
+      .sort((a, b) => a.order - b.order)
+      .map(m => ({
+        moduleId: m.id,
+        title: m.title,
+        order: m.order,
+        videoCompleted: videoCompletedByModule.get(m.id) ?? 0,
+        quizPassed: m.contentType !== "pdf" ? (quizPassedByModule.get(m.id) ?? 0) : null,
+      }));
+
+    // Recent exam activity (last 10)
+    const userMap = new Map(allUsers.map(u => [u.id, u.fullName]));
+    const recentActivity = allExamAttempts.slice(0, 10).map(a => ({
+      type: "exam",
+      userId: a.userId,
+      fullName: userMap.get(a.userId) ?? "Unknown",
+      passed: a.passed ?? false,
+      score: a.score ?? 0,
+      at: a.attemptedAt.toISOString(),
+    }));
 
     res.json({
-      totalStudents,
-      activeThisWeek: Number(activeThisWeekResult.count),
-      completionRate,
-      waiversSigned: Number(waiversSignedResult.count),
-      codesUsed: Number(codesUsedResult.count),
-      codesTotal: Number(codesTotalResult.count),
+      totalLearners,
+      activeLearners,
+      completedLearners,
+      certificatesIssued,
+      totalExamAttempts,
+      passRate,
+      averagePassScore,
+      moduleStats,
+      recentActivity,
     });
   } catch (err) {
     logger.error({ err }, "Error getting admin stats");

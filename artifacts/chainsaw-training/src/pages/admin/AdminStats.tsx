@@ -73,7 +73,7 @@ export default function AdminStats() {
             <section>
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 pb-2 border-b border-border">Module Completion Funnel</h2>
               <div className="space-y-2">
-                {stats.moduleStats.map(m => {
+                {(stats.moduleStats ?? []).map(m => {
                   const maxVal = stats.totalLearners || 1;
                   const vidPct = Math.round((m.videoCompleted / maxVal) * 100);
                   const qzPct = m.quizPassed !== null ? Math.round((m.quizPassed / maxVal) * 100) : null;
@@ -110,7 +110,7 @@ export default function AdminStats() {
             <section>
               <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 pb-2 border-b border-border">Recent Exam Activity</h2>
               <div className="space-y-1">
-                {stats.recentActivity.map((a, i) => (
+                {(stats.recentActivity ?? []).map((a, i) => (
                   <div key={i} className="flex items-center justify-between gap-3 px-3 py-2 bg-white rounded-lg border border-border">
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{a.fullName}</p>
