@@ -62,24 +62,25 @@ export async function sendCandidateConfirmation(
   nextBatchDate: string,
 ) {
   const subject = `Assessment Enquiry Registered — ${venue.name}`;
-  const text = `Your enquiry to ${venue.name} has been logged. It will be included in the next assessment broadcast on ${nextBatchDate}. If 4 candidates register interest in this venue before then, we'll notify the venue immediately.`;
+  const text = `An enquiry email from you has been sent to ${venue.name} to register your interest in booking an assessment. Your enquiry will also be included in the next assessment broadcast on ${nextBatchDate}. If 4 candidates register interest before then, we'll notify the venue immediately. If you do not get a response within 7 days we will contact you asking for your permission to pursue a follow-up email on your behalf. If still no reply after 12 days we recommend calling the venue or try alternative venues.`;
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
       ${brandHeader()}
       <div style="padding:24px;">
         <p style="font-size:15px;margin-top:0;">Hi ${candidate.fullName},</p>
-        <p>Your enquiry to <strong>${venue.name}</strong> (${venue.town}, ${venue.county}) has been registered.</p>
+        <p>An enquiry email from you has been sent to <strong>${venue.name}</strong> to register your interest in booking an assessment.</p>
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:14px 16px;margin:16px 0;">
           <p style="margin:0;font-size:14px;color:#166534;">
-            📅 Your enquiry will be included in the next <strong>assessment broadcast on ${nextBatchDate}</strong>.<br/>
+            📅 Your enquiry will also be included in the next <strong>assessment broadcast on ${nextBatchDate}</strong>.<br/>
             Batched broadcasts have a higher response rate than individual cold emails — venues receive a consolidated list of qualified candidates, making it easier for them to schedule a date.
           </p>
         </div>
         <p style="font-size:13px;color:#6b7280;">
-          If 4 candidates register interest in ${venue.name} before ${nextBatchDate}, we'll notify the venue immediately — no need to wait.<br/><br/>
-          A separate enquiry email from you will also open in your email app. Please send it — this goes directly to the venue so they can recognise your name when our broadcast arrives.
+          If 4 candidates register interest in <strong>${venue.name}</strong> before ${nextBatchDate}, we'll notify the venue immediately — no need to wait.
         </p>
-        <p style="font-size:13px;color:#6b7280;">We'll keep you updated by email. You can cancel your enquiry at any time from the app.</p>
+        <p style="font-size:13px;color:#6b7280;">
+          If you do not get a response within 7 days we will contact you asking for your permission to pursue a follow-up email on your behalf. If still no reply after 12 days we recommend calling the venue or try alternative venues.
+        </p>
         ${brandFooter()}
       </div>
     </div>
