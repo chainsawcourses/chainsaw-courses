@@ -18,6 +18,7 @@ import {
   pushSubscriptionsTable,
   appFeedbackTable,
   backupTestLogsTable,
+  assessmentPassportsTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
 import { eq, isNull, gte, count, and, ne, desc } from "drizzle-orm";
@@ -481,6 +482,7 @@ router.get("/admin/backup/export", async (req, res) => {
     const codes = await db.select().from(activationCodesTable);
     const inspections = await db.select().from(inspectionRecordsTable);
     const risks = await db.select().from(riskAssessmentsTable);
+    const passports = await db.select().from(assessmentPassportsTable);
 
     const progressByUser: Record<number, { completed: number; total: number }> = {};
     progress.forEach((p) => {
@@ -498,6 +500,9 @@ router.get("/admin/backup/export", async (req, res) => {
     const riskCountByUser: Record<number, number> = {};
     risks.forEach((r) => { riskCountByUser[r.userId] = (riskCountByUser[r.userId] ?? 0) + 1; });
 
+    const phoneByUser: Record<number, string> = {};
+    passports.forEach((p) => { phoneByUser[p.userId] = p.phone; });
+
     const unusedCodes = codes.filter((c) => !c.isUsed);
 
     // ── Build Sheets API cell structures ─────────────────────────────────────
@@ -507,6 +512,12 @@ router.get("/admin/backup/export", async (req, res) => {
         ? { numberValue: v }
         : { stringValue: String(v ?? "") },
     });
+    // Phone numbers must be forced to TEXT format so Google Sheets / Excel
+    // never strips the leading zero (e.g. 07700… → 7700…).
+    const toPhoneCell = (v: string) => ({
+      userEnteredValue: { stringValue: v },
+      userEnteredFormat: { numberFormat: { type: "TEXT" } },
+    });
     const toRow = (vals: CellValue[]) => ({ values: vals.map(toCell) });
 
     const LEARNER_HEADERS = [
@@ -514,17 +525,20 @@ router.get("/admin/backup/export", async (req, res) => {
       "Activated At", "Last Activity", "Waiver Signed At",
       "Modules Completed", "Modules Total",
       "Inspection Records", "Risk Assessments",
+      "Phone (Gateway Passport)",
     ];
     const CODE_HEADERS = ["Code", "Notes", "Created At"];
 
     const learnerRows = users.map((u) => {
       const prog = progressByUser[u.id] ?? { completed: 0, total: 0 };
-      return toRow([
+      const phone = phoneByUser[u.id] ?? "";
+      const baseCells = [
         u.id, u.fullName, u.email, u.activationCode, u.deviceId,
         u.activatedAt.toISOString(), u.lastActivityAt?.toISOString() ?? "",
         waiverByUser[u.id] ?? "", prog.completed, prog.total,
         inspCountByUser[u.id] ?? 0, riskCountByUser[u.id] ?? 0,
-      ]);
+      ].map(toCell);
+      return { values: [...baseCells, toPhoneCell(phone)] };
     });
 
     const codeRows = unusedCodes.map((c) =>

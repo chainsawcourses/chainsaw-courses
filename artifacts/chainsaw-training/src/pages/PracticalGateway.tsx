@@ -237,7 +237,7 @@ export default function PracticalGateway() {
       // Open mailto first (non-blocking)
       const subject = encodeURIComponent(`NPTC 201/202 Assessment Enquiry — ${fullName ?? "Candidate"}`);
       const body = encodeURIComponent(
-        `Dear ${venue.name} Assessment Team,\n\nI am writing to enquire about availability for an NPTC Unit 201/202 (Chainsaw Maintenance & Cross Cutting) practical assessment.\n\nMy details:\n  Name: ${fullName ?? ""}\n  Email: ${email ?? ""}\n  Postcode: ${passport?.postcode ?? ""}\n  Phone: ${passport?.phone ?? ""}\n\nI have recently completed the Chainsaw Courses theoretical training programme and hold a Certificate of Completion.\n\nPlease could you advise on upcoming assessment dates and your deposit/payment process?\n\nKind regards,\n${fullName ?? ""}`,
+        `Dear ${venue.name} Assessment Team,\n\nI am writing to enquire about availability for an NPTC Unit 201/202 (Chainsaw Maintenance & Cross Cutting) practical assessment.\n\nMy details:\n  Name: ${fullName ?? ""}\n  Email: ${email ?? ""}\n  Postcode: ${passport?.postcode ?? ""}\n  Phone: ${passport?.phone ?? ""}\n\nI have recently completed the Chainsaw Courses theoretical training programme, hold the Certificate of Completion and have practical experience of using a chainsaw.\n\nPlease could you advise on upcoming assessment dates and your deposit/payment process?\n\nKind regards,\n${fullName ?? ""}`,
       );
       window.open(`mailto:${venue.email}?subject=${subject}&body=${body}`, "_blank");
 
