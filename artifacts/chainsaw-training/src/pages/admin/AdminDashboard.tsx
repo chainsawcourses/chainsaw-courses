@@ -297,9 +297,7 @@ export default function AdminDashboard() {
             <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
               <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW</a>
             </Button>
-            <Button size="sm" variant="outline" className="font-mono text-xs" asChild>
-              <a href={`${import.meta.env.BASE_URL}exam-preview`} target="_blank"><Star className="w-4 h-4 mr-1" /> EXAM FANFARE</a>
-            </Button>
+
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
               <LogOut className="w-4 h-4 mr-1" /> LOGOUT
             </Button>
