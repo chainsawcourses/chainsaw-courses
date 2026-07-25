@@ -27,7 +27,13 @@ app.use(
   }),
 );
 app.use(cors());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req: express.Request & { rawBody?: Buffer }, _res, buf) => {
+      req.rawBody = buf;
+    },
+  }),
+);
 app.use(express.urlencoded({ extended: true }));
 
 // Prevent browser caching of API responses — module lock state changes dynamically
