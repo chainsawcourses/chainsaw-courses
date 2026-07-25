@@ -215,6 +215,84 @@ router.get("/admin/assessment-bank", async (req, res) => {
   }
 });
 
+// ─── Question CRUD ───────────────────────────────────────────────────────────
+
+router.get("/admin/questions", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const questions = await db.select().from(examQuestionsTable).orderBy(asc(examQuestionsTable.learningOutcome), asc(examQuestionsTable.order));
+    res.json(questions.map(q => ({ ...q, options: JSON.parse(q.options) as string[] })));
+  } catch (err) {
+    logger.error({ err }, "Error fetching questions");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/admin/questions", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const { question, options, correctOption, learningOutcome, assessmentCriteria, order, isActive } = req.body as {
+      question: string; options: string[]; correctOption: number;
+      learningOutcome?: string; assessmentCriteria?: string;
+      order?: number; isActive?: boolean;
+    };
+    if (!question || !options || options.length < 2 || correctOption == null) {
+      res.status(400).json({ error: "question, options (≥2) and correctOption are required" }); return;
+    }
+    const [created] = await db.insert(examQuestionsTable).values({
+      question,
+      options: JSON.stringify(options),
+      correctOption,
+      learningOutcome: learningOutcome ?? null,
+      assessmentCriteria: assessmentCriteria ?? null,
+      order: order ?? 0,
+      isActive: isActive ?? true,
+    }).returning();
+    res.json({ ...created, options: JSON.parse(created.options) as string[] });
+  } catch (err) {
+    logger.error({ err }, "Error creating question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/admin/questions/:id", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const id = parseInt(req.params.id);
+    const { question, options, correctOption, learningOutcome, assessmentCriteria, order, isActive } = req.body as {
+      question: string; options: string[]; correctOption: number;
+      learningOutcome?: string; assessmentCriteria?: string;
+      order?: number; isActive?: boolean;
+    };
+    const [updated] = await db.update(examQuestionsTable).set({
+      question,
+      options: JSON.stringify(options),
+      correctOption,
+      learningOutcome: learningOutcome ?? null,
+      assessmentCriteria: assessmentCriteria ?? null,
+      order: order ?? 0,
+      isActive: isActive ?? true,
+    }).where(eq(examQuestionsTable.id, id)).returning();
+    if (!updated) { res.status(404).json({ error: "Not found" }); return; }
+    res.json({ ...updated, options: JSON.parse(updated.options) as string[] });
+  } catch (err) {
+    logger.error({ err }, "Error updating question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/questions/:id", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const id = parseInt(req.params.id);
+    await db.delete(examQuestionsTable).where(eq(examQuestionsTable.id, id));
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ─── IQA Records ─────────────────────────────────────────────────────────────
 
 router.get("/admin/iqa-records", async (req, res) => {
