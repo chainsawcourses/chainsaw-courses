@@ -733,37 +733,43 @@ export default function TrainingList() {
             </div>
             <Progress value={summary?.percentComplete || 0} className="h-1.5 bg-secondary" />
 
-            {/* Final Exam + View Certificate — inside progress card */}
-            <div className="flex items-center justify-between pt-1 border-t border-border">
-              <div className="flex items-center gap-2">
-                {examPassed ? (
-                  <span className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 flex items-center gap-1.5 cursor-default">
-                    <Award className="w-3 h-3 shrink-0" />
-                    Final Exam ✓
-                  </span>
-                ) : courseUnlocked ? (
-                  <Link
-                    href="/exam"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
+            {/* Final Exam row */}
+            <div className="flex items-center pt-1 border-t border-border">
+              {examPassed ? (
+                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 flex items-center gap-1.5 cursor-default">
+                  <Award className="w-3 h-3 shrink-0" />
+                  Final Exam ✓
+                </span>
+              ) : courseUnlocked ? (
+                <Link
+                  href="/exam"
+                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Final Exam
+                </Link>
+              ) : (
+                <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Complete all modules and quizzes to unlock the final exam">
+                  <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 flex items-center gap-1">
+                    <LockKeyhole className="w-3 h-3 shrink-0" />
                     Final Exam
-                  </Link>
-                ) : (
-                  <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Complete all modules and quizzes to unlock the final exam">
-                    <span className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground/40 flex items-center gap-1">
-                      <LockKeyhole className="w-3 h-3 shrink-0" />
-                      Final Exam
-                    </span>
-                    {!isLoadingSummary && (
-                      <span className="font-mono text-[10px] text-muted-foreground/30 leading-none pl-0.5">
-                        {remainingModules > 0
-                          ? `${remainingModules} module${remainingModules !== 1 ? "s" : ""} remaining`
-                          : "Complete all modules to unlock"}
-                      </span>
-                    )}
                   </span>
-                )}
-              </div>
+                  {!isLoadingSummary && (
+                    <span className="font-mono text-[10px] text-muted-foreground/30 leading-none pl-0.5">
+                      {remainingModules > 0
+                        ? `${remainingModules} module${remainingModules !== 1 ? "s" : ""} remaining`
+                        : "Complete all modules to unlock"}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+
+            {/* Certificate row */}
+            <div className="flex items-center justify-between pt-1 border-t border-border">
+              <span className={`font-mono font-semibold uppercase tracking-widest text-xs flex items-center gap-1.5 ${examPassed ? "text-green-600" : "text-muted-foreground/40"}`}>
+                {examPassed ? <Award className="w-3 h-3 shrink-0" /> : <LockKeyhole className="w-3 h-3 shrink-0" />}
+                Certificate
+              </span>
               {examPassed ? (
                 <div className="flex items-center gap-2">
                   <button
@@ -797,7 +803,7 @@ export default function TrainingList() {
                   </button>
                 </div>
               ) : (
-                <span className="invisible pointer-events-none font-mono text-[10px]">View</span>
+                <span className="font-mono text-[10px] text-muted-foreground/30 uppercase tracking-widest">Locked</span>
               )}
             </div>
 
