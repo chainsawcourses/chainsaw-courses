@@ -63,6 +63,10 @@ export default function AdminDashboard() {
   const [logNotes, setLogNotes] = useState("");
   const [logSaving, setLogSaving] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [hideTestUsers, setHideTestUsers] = useState(false);
+
+  const TEST_DOMAINS = ["@bob.com", "@test.com", "@amy.com", "@lemon.com", "@bb.com", "@aa.com", "@chainsawcourses.com"];
+  const isTestUser = (email: string) => TEST_DOMAINS.some((d) => email.toLowerCase().endsWith(d));
 
   const fetchBackupLogs = useCallback(async () => {
     if (!adminToken) return;
@@ -136,11 +140,16 @@ export default function AdminDashboard() {
     );
   };
 
-  const filteredRoster = students?.filter((s) =>
-    s.fullName.toLowerCase().includes(rosterSearch.toLowerCase()) ||
-    s.email.toLowerCase().includes(rosterSearch.toLowerCase()) ||
-    s.activationCode?.toLowerCase().includes(rosterSearch.toLowerCase())
-  );
+  const filteredRoster = students?.filter((s) => {
+    if (hideTestUsers && isTestUser(s.email)) return false;
+    return (
+      s.fullName.toLowerCase().includes(rosterSearch.toLowerCase()) ||
+      s.email.toLowerCase().includes(rosterSearch.toLowerCase()) ||
+      s.activationCode?.toLowerCase().includes(rosterSearch.toLowerCase())
+    );
+  });
+
+  const testUserCount = students?.filter((s) => isTestUser(s.email)).length ?? 0;
 
   // Global search across all categories
   const q = globalSearch.trim().toLowerCase();
@@ -458,6 +467,16 @@ export default function AdminDashboard() {
                   className="pl-9 h-9 font-mono text-xs bg-background"
                 />
               </div>
+              {testUserCount > 0 && (
+                <Button
+                  size="sm"
+                  variant={hideTestUsers ? "default" : "outline"}
+                  onClick={() => setHideTestUsers((v) => !v)}
+                  className="h-9 font-mono text-xs"
+                >
+                  {hideTestUsers ? `TEST HIDDEN (${testUserCount})` : `HIDE TEST (${testUserCount})`}
+                </Button>
+              )}
               <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
                 <Plus className="w-4 h-4 mr-1" /> NEW CODE
               </Button>
@@ -472,7 +491,12 @@ export default function AdminDashboard() {
               {filteredRoster?.map((student) => (
                 <div key={student.id} className="p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold text-sm truncate">{student.fullName}</div>
+                    <div className="font-bold text-sm truncate flex items-center gap-2">
+                      {student.fullName}
+                      {isTestUser(student.email) && (
+                        <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0 shrink-0">TEST</Badge>
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground truncate">{student.email}</div>
                     <div className="flex items-center gap-2 mt-1.5">
                       <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
@@ -507,9 +531,14 @@ export default function AdminDashboard() {
                 </TableHeader>
                 <TableBody>
                   {filteredRoster?.map((student) => (
-                    <TableRow key={student.id} className="border-border hover:bg-secondary/10">
+                    <TableRow key={student.id} className={`border-border hover:bg-secondary/10 ${isTestUser(student.email) ? "opacity-70" : ""}`}>
                       <TableCell>
-                        <div className="font-bold text-sm">{student.fullName}</div>
+                        <div className="font-bold text-sm flex items-center gap-2">
+                          {student.fullName}
+                          {isTestUser(student.email) && (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0">TEST</Badge>
+                          )}
+                        </div>
                         <div className="text-xs text-muted-foreground">{student.email}</div>
                       </TableCell>
                       <TableCell className="font-mono text-xs opacity-70">{student.activationCode || "—"}</TableCell>
