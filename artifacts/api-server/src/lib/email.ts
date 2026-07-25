@@ -25,7 +25,7 @@ export async function sendEmail(opts: MailOptions): Promise<boolean> {
         pass: process.env.SMTP_PASS?.trim(),
       },
     });
-    const from = process.env.SMTP_FROM?.trim() ?? "Chainsaw Courses <noreply@chainsawcourses.co.uk>";
+    const from = process.env.SMTP_FROM?.trim() ?? "Chainsaw Courses <noreply@chainsawcourses.com>";
     await transporter.sendMail({ from, ...opts });
     return true;
   } catch (err) {

@@ -26,7 +26,7 @@ export async function sendCertificateEmail(
       },
     });
 
-    const from = process.env.SMTP_FROM?.trim() ?? "Chainsaw Courses <noreply@chainsawcourses.co.uk>";
+    const from = process.env.SMTP_FROM?.trim() ?? "Chainsaw Courses <noreply@chainsawcourses.com>";
     const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
 
     await transporter.sendMail({
