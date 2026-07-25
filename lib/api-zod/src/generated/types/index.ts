@@ -13,6 +13,8 @@ export * from './activationResult';
 export * from './adminLoginInput';
 export * from './adminLoginResult';
 export * from './adminStats';
+export * from './adminStatsModuleStatsItem';
+export * from './adminStatsRecentActivityItem';
 export * from './aiChatInput';
 export * from './aiChatInputMode';
 export * from './aiChatResponse';

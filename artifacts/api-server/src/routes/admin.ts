@@ -71,6 +71,7 @@ router.get("/admin/stats", async (req, res) => {
       allProgress,
       allExamAttempts,
       allModules,
+      allWaivers,
     ] = await Promise.all([
       db.select().from(usersTable).where(isNull(usersTable.deletedAt)),
       db.select({ count: count() }).from(usersTable).where(gte(usersTable.lastActivityAt, oneWeekAgo)),
@@ -83,6 +84,7 @@ router.get("/admin/stats", async (req, res) => {
         attemptedAt: examAttemptsTable.attemptedAt,
       }).from(examAttemptsTable).orderBy(desc(examAttemptsTable.attemptedAt)),
       db.select().from(modulesTable).where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf"))),
+      db.select({ count: count() }).from(waiversTable),
     ]);
 
     const totalLearners = allUsers.length;
@@ -141,11 +143,14 @@ router.get("/admin/stats", async (req, res) => {
       at: a.attemptedAt.toISOString(),
     }));
 
+    const waiversSigned = Number(allWaivers[0].count);
+
     res.json({
       totalLearners,
       activeLearners,
       completedLearners,
       certificatesIssued,
+      waiversSigned,
       totalExamAttempts,
       passRate,
       averagePassScore,

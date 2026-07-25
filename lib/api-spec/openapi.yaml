@@ -1837,20 +1837,58 @@ components:
 
     AdminStats:
       type: object
-      required: [totalStudents, activeThisWeek, completionRate, waiversSigned, codesUsed, codesTotal]
+      required: [totalLearners, activeLearners, completedLearners, certificatesIssued, waiversSigned, totalExamAttempts, passRate, averagePassScore, moduleStats, recentActivity]
       properties:
-        totalStudents:
+        totalLearners:
           type: integer
-        activeThisWeek:
+        activeLearners:
           type: integer
-        completionRate:
+        completedLearners:
+          type: integer
+        certificatesIssued:
           type: integer
         waiversSigned:
           type: integer
-        codesUsed:
+        totalExamAttempts:
           type: integer
-        codesTotal:
+        passRate:
           type: integer
+        averagePassScore:
+          type: integer
+        moduleStats:
+          type: array
+          items:
+            type: object
+            required: [moduleId, title, order, videoCompleted]
+            properties:
+              moduleId:
+                type: integer
+              title:
+                type: string
+              order:
+                type: integer
+              videoCompleted:
+                type: integer
+              quizPassed:
+                type: ["integer", "null"]
+        recentActivity:
+          type: array
+          items:
+            type: object
+            required: [type, userId, fullName, passed, score, at]
+            properties:
+              type:
+                type: string
+              userId:
+                type: integer
+              fullName:
+                type: string
+              passed:
+                type: boolean
+              score:
+                type: integer
+              at:
+                type: string
 
     ActivationCodeInput:
       type: object

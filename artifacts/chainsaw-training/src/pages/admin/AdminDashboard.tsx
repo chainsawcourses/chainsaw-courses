@@ -100,7 +100,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!adminToken) return;
-    fetch("/api/admin/gateway/venues", { headers: { "x-admin-token": adminToken } })
+    fetch("/api/admin/gateway/venues", { headers: { admintoken: adminToken } })
       .then((r) => r.ok ? r.json() : [])
       .then((data: Venue[]) => setVenues(data))
       .catch(() => {})
@@ -338,11 +338,6 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/policy-docs"><FileText className="w-3.5 h-3.5 mr-1" /> POLICY DOCS</Link>
             </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <a href={`${import.meta.env.BASE_URL}pdfs/IIRSM_Submission_Brief.pdf`} download="IIRSM_Submission_Brief.pdf">
-                <FileText className="w-3.5 h-3.5 mr-1" /> IIRSM BRIEF
-              </a>
-            </Button>
           </div>
         </div>
         {/* Row 3 — EQA / quality features */}
@@ -450,7 +445,7 @@ export default function AdminDashboard() {
               <CardTitle className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Total Students</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black font-mono">{stats?.totalStudents || 0}</div>
+              <div className="text-3xl font-black font-mono">{stats?.totalLearners || 0}</div>
             </CardContent>
           </Card>
           <Card className="bg-secondary/20">
@@ -458,7 +453,7 @@ export default function AdminDashboard() {
               <CardTitle className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Active This Week</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black font-mono">{stats?.activeThisWeek || 0}</div>
+              <div className="text-3xl font-black font-mono">{stats?.activeLearners || 0}</div>
             </CardContent>
           </Card>
           <Card className="bg-secondary/20">
@@ -466,7 +461,7 @@ export default function AdminDashboard() {
               <CardTitle className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Completion Rate</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black font-mono">{stats?.completionRate || 0}%</div>
+              <div className="text-3xl font-black font-mono">{stats?.totalLearners ? Math.round(((stats.completedLearners ?? 0) / stats.totalLearners) * 100) : 0}%</div>
             </CardContent>
           </Card>
           <Card className="bg-secondary/20">
@@ -474,7 +469,7 @@ export default function AdminDashboard() {
               <CardTitle className="text-xs font-mono text-muted-foreground uppercase tracking-widest">Waivers Signed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black font-mono">{stats?.waiversSigned || 0}</div>
+              <div className="text-3xl font-black font-mono">{stats?.waiversSigned ?? 0}</div>
             </CardContent>
           </Card>
         </div>

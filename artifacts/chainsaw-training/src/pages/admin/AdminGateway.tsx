@@ -51,7 +51,7 @@ export default function AdminGateway() {
   const [editingVenue, setEditingVenue] = useState<Partial<Venue> | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const headers = { "x-admin-token": adminToken ?? "", "Content-Type": "application/json" };
+  const headers = { admintoken: adminToken ?? "", "Content-Type": "application/json" };
 
   const loadVenues = async () => {
     const r = await fetch("/api/admin/gateway/venues", { headers });

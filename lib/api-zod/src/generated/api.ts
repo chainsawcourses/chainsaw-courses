@@ -888,12 +888,29 @@ export const GetAdminStatsHeader = zod.object({
 })
 
 export const GetAdminStatsResponse = zod.object({
-  "totalStudents": zod.number(),
-  "activeThisWeek": zod.number(),
-  "completionRate": zod.number(),
+  "totalLearners": zod.number(),
+  "activeLearners": zod.number(),
+  "completedLearners": zod.number(),
+  "certificatesIssued": zod.number(),
   "waiversSigned": zod.number(),
-  "codesUsed": zod.number(),
-  "codesTotal": zod.number()
+  "totalExamAttempts": zod.number(),
+  "passRate": zod.number(),
+  "averagePassScore": zod.number(),
+  "moduleStats": zod.array(zod.object({
+  "moduleId": zod.number(),
+  "title": zod.string(),
+  "order": zod.number(),
+  "videoCompleted": zod.number(),
+  "quizPassed": zod.number().nullish()
+})),
+  "recentActivity": zod.array(zod.object({
+  "type": zod.string(),
+  "userId": zod.number(),
+  "fullName": zod.string(),
+  "passed": zod.boolean(),
+  "score": zod.number(),
+  "at": zod.string()
+}))
 })
 
 

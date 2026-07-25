@@ -5,12 +5,18 @@
  * Chainsaw Manual Training App API
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminStatsModuleStatsItem } from './adminStatsModuleStatsItem';
+import type { AdminStatsRecentActivityItem } from './adminStatsRecentActivityItem';
 
 export interface AdminStats {
-  totalStudents: number;
-  activeThisWeek: number;
-  completionRate: number;
+  totalLearners: number;
+  activeLearners: number;
+  completedLearners: number;
+  certificatesIssued: number;
   waiversSigned: number;
-  codesUsed: number;
-  codesTotal: number;
+  totalExamAttempts: number;
+  passRate: number;
+  averagePassScore: number;
+  moduleStats: AdminStatsModuleStatsItem[];
+  recentActivity: AdminStatsRecentActivityItem[];
 }

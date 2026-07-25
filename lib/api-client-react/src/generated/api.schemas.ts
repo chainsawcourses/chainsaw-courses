@@ -451,13 +451,35 @@ export interface StudentDetail {
   lastActivity?: string | null;
 }
 
+export type AdminStatsModuleStatsItem = {
+  moduleId: number;
+  title: string;
+  order: number;
+  videoCompleted: number;
+  /** @nullable */
+  quizPassed?: number | null;
+};
+
+export type AdminStatsRecentActivityItem = {
+  type: string;
+  userId: number;
+  fullName: string;
+  passed: boolean;
+  score: number;
+  at: string;
+};
+
 export interface AdminStats {
-  totalStudents: number;
-  activeThisWeek: number;
-  completionRate: number;
+  totalLearners: number;
+  activeLearners: number;
+  completedLearners: number;
+  certificatesIssued: number;
   waiversSigned: number;
-  codesUsed: number;
-  codesTotal: number;
+  totalExamAttempts: number;
+  passRate: number;
+  averagePassScore: number;
+  moduleStats: AdminStatsModuleStatsItem[];
+  recentActivity: AdminStatsRecentActivityItem[];
 }
 
 export interface ActivationCodeInput {
