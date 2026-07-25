@@ -7,7 +7,7 @@ export async function sendCertificateEmail(
   passedAt: Date,
   score: number | null,
 ): Promise<void> {
-  const host = process.env.SMTP_HOST;
+  const host = process.env.SMTP_HOST?.trim();
   if (!host) {
     logger.warn({ userId: user.id }, "SMTP not configured — certificate email skipped");
     return;
@@ -18,15 +18,15 @@ export async function sendCertificateEmail(
 
     const transporter = nodemailer.createTransport({
       host,
-      port: Number(process.env.SMTP_PORT ?? 587),
-      secure: process.env.SMTP_SECURE === "true",
+      port: Number(process.env.SMTP_PORT?.trim() ?? 587),
+      secure: process.env.SMTP_SECURE?.trim() === "true",
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_USER?.trim(),
+        pass: process.env.SMTP_PASS?.trim(),
       },
     });
 
-    const from = process.env.SMTP_FROM ?? "Chainsaw Courses <noreply@chainsawcourses.co.uk>";
+    const from = process.env.SMTP_FROM?.trim() ?? "Chainsaw Courses <noreply@chainsawcourses.co.uk>";
     const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
 
     await transporter.sendMail({
