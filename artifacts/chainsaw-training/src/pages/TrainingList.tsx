@@ -7,10 +7,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Loader2, Lock, LogOut, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
@@ -91,29 +92,54 @@ export default function TrainingList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [certLoading, setCertLoading] = useState(false);
+  const [certDownloading, setCertDownloading] = useState(false);
+  const [certResending, setCertResending] = useState(false);
+  const { toast } = useToast();
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
+
+  const certHeaders = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
 
   const handleViewCertificate = async () => {
     if (!activationCode || !deviceId || certLoading) return;
     setCertLoading(true);
     try {
-      const res = await fetch("/api/certificate", {
-        headers: { activationcode: activationCode, deviceid: deviceId },
-      });
+      const res = await fetch("/api/certificate", { headers: certHeaders });
       if (!res.ok) return;
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const w = window.open(url, "_blank");
-      if (!w) {
-        const a = document.createElement("a");
-        a.href = url; a.target = "_blank"; a.click();
-      }
+      if (!w) { const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.click(); }
       setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } finally {
-      setCertLoading(false);
-    }
+    } finally { setCertLoading(false); }
+  };
+
+  const handleDownloadCertificate = async () => {
+    if (!activationCode || !deviceId || certDownloading) return;
+    setCertDownloading(true);
+    try {
+      const res = await fetch("/api/certificate?download=1", { headers: certHeaders });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "Chainsaw_Certificate.pdf"; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } finally { setCertDownloading(false); }
+  };
+
+  const handleResendCertificate = async () => {
+    if (!activationCode || !deviceId || certResending) return;
+    setCertResending(true);
+    try {
+      const res = await fetch("/api/certificate/resend", { method: "POST", headers: certHeaders });
+      if (res.ok) {
+        toast({ title: "Certificate sent", description: "Check your registered email — it may take a minute to arrive." });
+      } else {
+        toast({ variant: "destructive", title: "Could not send", description: "Please try again or contact support." });
+      }
+    } finally { setCertResending(false); }
   };
 
   const handleDeleteAccount = async () => {
@@ -738,19 +764,41 @@ export default function TrainingList() {
                   </span>
                 )}
               </div>
-              <button
-                onClick={examPassed ? handleViewCertificate : undefined}
-                disabled={certLoading}
-                className={`font-mono text-[10px] uppercase tracking-widest transition-all select-none flex items-center gap-1 ${
-                  examPassed
-                    ? "text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline"
-                    : "invisible pointer-events-none"
-                }`}
-              >
-                {certLoading
-                  ? <><Loader2 className="w-3 h-3 animate-spin" /><span>Generating…</span></>
-                  : <span>View Certificate</span>}
-              </button>
+              {examPassed ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleViewCertificate}
+                    disabled={certLoading}
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
+                    title="Open certificate in browser"
+                  >
+                    {certLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                    <span>View</span>
+                  </button>
+                  <span className="text-muted-foreground/30 text-[10px]">·</span>
+                  <button
+                    onClick={handleDownloadCertificate}
+                    disabled={certDownloading}
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
+                    title="Download certificate as PDF"
+                  >
+                    {certDownloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileDown className="w-3 h-3" />}
+                    <span>Download</span>
+                  </button>
+                  <span className="text-muted-foreground/30 text-[10px]">·</span>
+                  <button
+                    onClick={handleResendCertificate}
+                    disabled={certResending}
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
+                    title="Re-send certificate to your registered email"
+                  >
+                    {certResending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                    <span>Resend</span>
+                  </button>
+                </div>
+              ) : (
+                <span className="invisible pointer-events-none font-mono text-[10px]">View</span>
+              )}
             </div>
 
             {/* Practical Progression Gateway — locked until exam passed */}

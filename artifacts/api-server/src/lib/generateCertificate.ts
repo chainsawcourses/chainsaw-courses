@@ -72,7 +72,7 @@ export async function generateCertificatePdf(
 
   // ── BOTTOM ZONE ───────────────────────────────────────────────────────────
   page.drawRectangle({ x: ML, y: 44, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.6 });
-  const footerTxt = "chainsawcourses.co.uk  |  IIRSM Approved Training Provider";
+  const footerTxt = "chainsawcourses.com  |  IIRSM Approved Training Provider";
   page.drawText(footerTxt, { x: cx(footerTxt, 7.5, fReg, W), y: 30, size: 7.5, font: fReg, color: lgrey });
 
   const ref    = certRef(user.id, passedAt);
@@ -107,7 +107,7 @@ export async function generateCertificatePdf(
   const dateLine = `Date of Award:  ${dateStr}`;
   page.drawText(dateLine, { x: cx(dateLine, 10, fReg, W), y: 224, size: 10, font: fReg, color: mid });
 
-  const validityLine = "This certificate is valid for 3 years from the date of issue";
+  const validityLine = "It is recommended to refresh your certificate every 3-5 years";
   page.drawText(validityLine, { x: cx(validityLine, 8, fItalic, W), y: 206, size: 8, font: fItalic, color: lgrey });
 
   rule(243, 0.28);
