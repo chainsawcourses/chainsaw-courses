@@ -83,7 +83,7 @@ export default function AdminGateway() {
   };
 
   const deleteVenue = async (id: number) => {
-    if (!confirm("Deactivate this venue? It will no longer appear on the map.")) return;
+    if (!confirm("Permanently delete this venue? This cannot be undone.")) return;
     await fetch(`/api/admin/gateway/venues/${id}`, { method: "DELETE", headers });
     await loadVenues();
   };

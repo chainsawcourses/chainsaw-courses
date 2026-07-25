@@ -26,7 +26,7 @@ function adminGuard(req: Parameters<typeof verifyAdmin>[0], res: { status: (n: n
 
 // ─── Stats ───────────────────────────────────────────────────────────────────
 
-router.get("/api/admin/stats", async (req, res) => {
+router.get("/admin/stats-quality", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const now = new Date();
@@ -102,7 +102,7 @@ router.get("/api/admin/stats", async (req, res) => {
 
 // ─── Certificate Register ────────────────────────────────────────────────────
 
-router.get("/api/admin/certificates", async (req, res) => {
+router.get("/admin/certificates", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const users = await db.select().from(usersTable)
@@ -138,7 +138,7 @@ router.get("/api/admin/certificates", async (req, res) => {
 
 // ─── Exam Attempt Log ────────────────────────────────────────────────────────
 
-router.get("/api/admin/exam-log", async (req, res) => {
+router.get("/admin/exam-log", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const [attempts, users] = await Promise.all([
@@ -178,7 +178,7 @@ router.get("/api/admin/exam-log", async (req, res) => {
 
 // ─── Assessment Bank ─────────────────────────────────────────────────────────
 
-router.get("/api/admin/assessment-bank", async (req, res) => {
+router.get("/admin/assessment-bank", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const questions = await db.select().from(examQuestionsTable);
@@ -217,7 +217,7 @@ router.get("/api/admin/assessment-bank", async (req, res) => {
 
 // ─── IQA Records ─────────────────────────────────────────────────────────────
 
-router.get("/api/admin/iqa-records", async (req, res) => {
+router.get("/admin/iqa-records", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const records = await db.select().from(iqaRecordsTable).orderBy(desc(iqaRecordsTable.sampleDate));
@@ -234,7 +234,7 @@ router.get("/api/admin/iqa-records", async (req, res) => {
   }
 });
 
-router.post("/api/admin/iqa-records", async (req, res) => {
+router.post("/admin/iqa-records", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const { reviewerName, sampleDate, studentIds, findingsSummary, actionRequired, actionTaken } = req.body as {
@@ -260,7 +260,7 @@ router.post("/api/admin/iqa-records", async (req, res) => {
   }
 });
 
-router.patch("/api/admin/iqa-records/:id", async (req, res) => {
+router.patch("/admin/iqa-records/:id", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const id = parseInt(req.params.id);
@@ -281,7 +281,7 @@ router.patch("/api/admin/iqa-records/:id", async (req, res) => {
 
 // ─── Reasonable Adjustments ───────────────────────────────────────────────────
 
-router.get("/api/admin/reasonable-adjustments", async (req, res) => {
+router.get("/admin/reasonable-adjustments", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const [adjustments, users] = await Promise.all([
@@ -303,7 +303,7 @@ router.get("/api/admin/reasonable-adjustments", async (req, res) => {
   }
 });
 
-router.post("/api/admin/reasonable-adjustments", async (req, res) => {
+router.post("/admin/reasonable-adjustments", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const { userId, adjustmentType, details, evidenceProvided, approvedBy, expiresAt } = req.body as {
@@ -331,7 +331,7 @@ router.post("/api/admin/reasonable-adjustments", async (req, res) => {
 
 // ─── Malpractice / Integrity Flags ───────────────────────────────────────────
 
-router.get("/api/admin/malpractice", async (req, res) => {
+router.get("/admin/malpractice", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
     const [users, examAttempts] = await Promise.all([

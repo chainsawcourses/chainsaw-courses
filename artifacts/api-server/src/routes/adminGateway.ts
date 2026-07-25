@@ -63,15 +63,15 @@ router.put("/admin/gateway/venues/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/admin/gateway/venues/:id — soft delete (deactivate)
+// DELETE /api/admin/gateway/venues/:id — hard delete
 router.delete("/admin/gateway/venues/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorised" }); return; }
   try {
     const id = Number(req.params["id"]);
-    await db.update(assessmentVenuesTable).set({ active: false }).where(eq(assessmentVenuesTable.id, id));
+    await db.delete(assessmentVenuesTable).where(eq(assessmentVenuesTable.id, id));
     res.json({ ok: true });
   } catch (err) {
-    logger.error({ err }, "Failed to deactivate gateway venue");
+    logger.error({ err }, "Failed to delete gateway venue");
     res.status(500).json({ error: "Internal error" });
   }
 });
