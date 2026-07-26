@@ -37,14 +37,42 @@
       "sizes": "390x844",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Chainsaw Courses — Activation Screen"
+      "label": "Secure activation — enter your purchase code to unlock training"
+    },
+    {
+      "src": "/screenshots/screen-mobile-2.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Cross-cut simulator — interactive tension & compression load trainer"
+    },
+    {
+      "src": "/screenshots/screen-mobile-6.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Industry news — hand-picked forestry & chainsaw safety articles"
+    },
+    {
+      "src": "/screenshots/screen-mobile-7.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Timber characteristics — field reference for 30 UK tree species"
+    },
+    {
+      "src": "/screenshots/screen-mobile-8.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Glossary — 175 chainsaw, arboricultural and H&S terms"
     },
     {
       "src": "/screenshots/screen-desktop-1.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Chainsaw Courses — Desktop View"
+      "label": "Chainsaw Courses — desktop view"
     }
   ],
   "categories": ["education", "health", "productivity"]
