@@ -1,4 +1,5 @@
 {
+  "id": "com.chainsawcourses.app",
   "name": "Chainsaw Courses",
   "short_name": "Chainsaw Courses",
   "description": "IIRSM-approved chainsaw safety theory training — gateway to NPTC practical assessment.",
@@ -9,6 +10,7 @@
   "background_color": "#ffffff",
   "theme_color": "#e27226",
   "lang": "en-GB",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -27,6 +29,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screen-mobile-1.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Chainsaw Courses — Activation Screen"
+    },
+    {
+      "src": "/screenshots/screen-desktop-1.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Chainsaw Courses — Desktop View"
     }
   ],
   "categories": ["education", "health", "productivity"]
