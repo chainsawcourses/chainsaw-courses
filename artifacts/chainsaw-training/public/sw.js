@@ -1,29 +1,66 @@
-// Network-first fetch handler — required for PWA installability & Play Store packaging
+const CACHE_NAME = "chainsaw-shell-v2";
+const OFFLINE_URL = "/offline.html";
+
+const PRECACHE_ASSETS = [
+  "/",
+  "/offline.html",
+  "/manifest.json",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-512.png",
+  "/apple-touch-icon.png",
+];
+
+// Install — pre-cache the app shell and offline page
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
+  );
+  self.skipWaiting();
+});
+
+// Activate — clean up old caches
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+// Fetch — network-first with offline fallback
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests; skip cross-origin requests
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
+
+  // Skip non-same-origin and API requests (always need fresh data)
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache a clone of successful navigations for offline fallback
-        if (response.ok && event.request.mode === "navigate") {
-          const cache = caches.open("chainsaw-shell-v1").then((c) =>
-            c.put(event.request, response.clone())
-          );
+        // Cache successful navigation responses
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
       })
       .catch(() =>
-        // Offline fallback — serve cached shell if available
-        caches.match(event.request).then((cached) => cached || caches.match("/"))
+        caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          // For navigation requests, show offline page
+          if (event.request.mode === "navigate") {
+            return caches.match(OFFLINE_URL);
+          }
+        })
       )
   );
 });
 
-// Push notification handler
+// Push notifications
 self.addEventListener("push", (event) => {
   if (!event.data) return;
   let payload;
@@ -32,8 +69,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title ?? "Chainsaw Courses News";
   const options = {
     body: payload.body ?? "A new article has been posted.",
-    icon: self.registration.scope + "favicon.svg",
-    badge: self.registration.scope + "favicon.svg",
+    icon: self.registration.scope + "icon-192.png",
+    badge: self.registration.scope + "icon-192.png",
     data: { url: payload.url ?? self.registration.scope + "news" },
     tag: "news-update",
     renotify: true,
@@ -52,4 +89,9 @@ self.addEventListener("notificationclick", (event) => {
       if (clients.openWindow) return clients.openWindow(target);
     })
   );
+});
+
+// Message handler (for skipWaiting from UI)
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });

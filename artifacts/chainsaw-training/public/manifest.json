@@ -6,11 +6,44 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#e27226",
   "lang": "en-GB",
+  "dir": "ltr",
   "prefer_related_applications": false,
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "shortcuts": [
+    {
+      "name": "Biosecurity Map",
+      "short_name": "Bio Map",
+      "description": "View UK pest and disease hazard zones",
+      "url": "/biosecurity-map",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Industry News",
+      "short_name": "News",
+      "description": "Latest chainsaw safety and forestry news",
+      "url": "/news",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Glossary",
+      "short_name": "Glossary",
+      "description": "175-term chainsaw and H&S reference",
+      "url": "/glossary",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inspection Checklist",
+      "short_name": "Inspection",
+      "description": "Pre-start chainsaw safety checklist",
+      "url": "/inspection",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
