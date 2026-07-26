@@ -33,5 +33,17 @@ VAPID_EMAIL = "mailto:admin@chainsawcourses.co.uk"
 VIMEO_ACCESS_TOKEN = "C2Gm8H/RsRrtj5fOEo+rlshfGO0eCRFnX9x/oY6SKFYCaCkJtziGgQsG7xljMG8PU3HqhJv6bpMegByGkVAT1p24lunjveC+7wA+/iwgjmVO4hiEp3nM2EQyiWqrTz2M08149bed7b339eaa98fb29812f94bd6f"
 
 [[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
 localPort = 8082
 externalPort = 3000
+
+[[ports]]
+localPort = 19478
+externalPort = 3001
