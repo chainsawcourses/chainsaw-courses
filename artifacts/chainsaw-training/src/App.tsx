@@ -56,6 +56,7 @@ import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 import AccessExpired from "@/pages/AccessExpired";
 import Install from "@/pages/Install";
 import InstallPrompt from "@/components/InstallPrompt";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useEffect } from "react";
 import { useUserSession } from "./contexts/UserContext";
 
@@ -104,8 +105,19 @@ function GlobalAccessCheck() {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
+      // Retry up to 2x on network errors but never on auth (401/403) errors
+      retry: (failureCount, error) => {
+        if (failureCount >= 2) return false;
+        const msg = error instanceof Error ? error.message : "";
+        if (msg.includes("401") || msg.includes("403")) return false;
+        return true;
+      },
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
       refetchOnWindowFocus: false,
+      staleTime: 30_000, // 30s — prevents redundant re-fetches on tab switch
+    },
+    mutations: {
+      retry: 0,
     },
   },
 });
@@ -182,6 +194,7 @@ function Router() {
 
 function App() {
   return (
+    <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <UserProvider>
         <AdminProvider>
@@ -205,6 +218,7 @@ function App() {
         </AdminProvider>
       </UserProvider>
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

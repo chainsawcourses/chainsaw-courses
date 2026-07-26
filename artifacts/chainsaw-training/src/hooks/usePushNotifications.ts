@@ -54,7 +54,11 @@ export function usePushNotifications() {
     if (!("serviceWorker" in navigator)) return;
     setState("loading");
     try {
-      const reg = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
+      // Reuse the SW already registered in main.tsx; only register if somehow missing
+      let reg = await navigator.serviceWorker.getRegistration(SW_SCOPE);
+      if (!reg) {
+        reg = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
+      }
       await navigator.serviceWorker.ready;
       const publicKey = await getVapidPublicKey();
       const sub = await reg.pushManager.subscribe({
