@@ -136,6 +136,50 @@ chainsaw course, chainsaw safety, CS30, CS31, NPTC, LANTRA, IIRSM, online traini
 
 <hr>
 
+<h3>How much could you save compared to a traditional classroom course?</h3>
+
+<p>Most traditional chainsaw theory courses run over <strong>two full classroom days</strong> before you can sit your NPTC practical assessment. That means two days off work, travel costs, and a course fee that typically starts at <strong>£500 or more</strong> — before you've even booked your practical.</p>
+
+<p>With Chainsaw Courses, you study entirely online, in your own time, around your existing work schedule. No days off required. No travel. No classroom.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Cost</th>
+      <th>Traditional Route</th>
+      <th>Chainsaw Courses</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Theory course fee</td>
+      <td>~£500+</td>
+      <td><strong>£198</strong></td>
+    </tr>
+    <tr>
+      <td>Days off work (theory)</td>
+      <td>2 days' wages</td>
+      <td><strong>None</strong> — study evenings &amp; weekends</td>
+    </tr>
+    <tr>
+      <td>Travel to classroom</td>
+      <td>Your cost</td>
+      <td><strong>None</strong></td>
+    </tr>
+    <tr>
+      <td>NPTC practical assessment fee</td>
+      <td>£150–£200 (paid separately to your assessment centre)</td>
+      <td>£150–£200 (paid separately to your assessment centre)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The NPTC practical assessment fee (typically <strong>£150–£200</strong>) is the same whichever theory route you take — it is paid directly to your chosen assessment centre and is not included in this enrolment. Once you pass the theory exam and receive your IIRSM certificate, the app's <strong>Practical Gateway</strong> gives you everything you need to find and contact an approved NPTC CS30/CS31 assessment centre near you. <strong>All booking, scheduling, and communication with the assessment centre is arranged directly by you</strong> — Chainsaw Courses does not manage or guarantee assessment bookings on your behalf.</p>
+
+<p><strong>Potential saving versus the traditional classroom route: £300+ in course fees alone — plus two days' wages back in your pocket.</strong></p>
+
+<hr>
+
 <h3>Who this course is for</h3>
 <p>This chainsaw safety course is designed for operators across the UK who need a recognised theory certificate as a pathway to NPTC practical assessment:</p>
 <ul>
