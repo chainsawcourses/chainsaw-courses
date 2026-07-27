@@ -27,7 +27,7 @@ export default function QrLanding() {
   // ── Not activated ─────────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16 text-center">
         <div className="max-w-md w-full space-y-8">
           {/* Logo area */}
           <div className="space-y-3">
