@@ -123,5 +123,20 @@
       "label": "Chainsaw Courses — desktop view"
     }
   ],
-  "categories": ["education", "health", "productivity"]
+  "categories": ["education", "health", "productivity"],
+  "protocol_handlers": [
+    {
+      "protocol": "web+chainsawcourses",
+      "url": "/%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

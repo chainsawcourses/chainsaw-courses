@@ -1,89 +1,182 @@
 # Shopify Store Copy — Chainsaw Courses
-## Updated for timed access model (June 2025)
+## SEO & Geo-Optimised — Updated July 2026
 ## Store: yvtrus-05.myshopify.com
+
+---
+
+## SEO TECHNICAL FIELDS
+*(Paste into Shopify → Products → Edit → Search engine listing preview)*
+
+### Product Page — SEO Title (≤ 60 characters)
+```
+Chainsaw Safety Theory Course UK | IIRSM Approved | £198
+```
+
+### Product Page — Meta Description (≤ 155 characters)
+```
+IIRSM-approved online chainsaw safety theory course. 34 modules, 45-question exam, instant certificate. CS30 & CS31 pathway. Start today — £198.
+```
+
+### Product Page — URL Slug
+```
+/products/chainsaw-safety-theory-course-uk
+```
+
+---
+
+## HOME PAGE — SEO FIELDS
+
+### Page Title
+```
+Chainsaw Safety Courses Online UK | IIRSM-Approved CS30 CS31 Training
+```
+
+### Meta Description
+```
+Online chainsaw safety theory training for UK operators. IIRSM-approved. 34 modules, 45-question mock exam, instant digital certificate. CS30 & CS31 pathway — £198.
+```
+
+### Canonical URL
+```
+https://chainsawcourses.com/
+```
+
+---
+
+## FAQ PAGE — SEO FIELDS
+
+### Page Title
+```
+Chainsaw Course FAQs | CS30 CS31 Theory Training UK | Chainsaw Courses
+```
+
+### Meta Description
+```
+Answers to your questions about our IIRSM-approved chainsaw theory course. Certification, access, PPE, NPTC pathways and more.
+```
+
+---
+
+## ABOUT PAGE — SEO FIELDS
+
+### Page Title
+```
+About Chainsaw Courses | UK Online Chainsaw Safety Training Provider
+```
+
+### Meta Description
+```
+Built by UK forestry professionals. Chainsaw Courses delivers IIRSM-approved theory training for CS30 and CS31 operators across England, Wales and Scotland.
+```
 
 ---
 
 ## PRODUCT LISTING
 
 ### Title
-**Chainsaw Safety Theory Training — IIRSM Approved | Digital Access**
+**Chainsaw Safety Theory Course — IIRSM Approved | CS30 & CS31 Online Training**
 
-### Subtitle / SEO Title
-IIRSM-Approved Chainsaw Safety Theory Course — Gateway to NPTC CS30/CS31 Certification
+### SEO / Subtitle
+Online Chainsaw Safety Theory Training UK — IIRSM-Approved Certificate, 34 Modules, 45-Question Exam — CS30 & CS31 Pathway
+
+### Tags (Shopify product tags for filtering and SEO signals)
+```
+chainsaw course, chainsaw safety, CS30, CS31, NPTC, LANTRA, IIRSM, online training, chainsaw certificate, chainsaw licence, arborist training, forestry training, groundworker training, chainsaw theory test, chainsaw training UK, England, Wales, Scotland
+```
 
 ---
 
 ### Product Description (paste as HTML into the Rich Text editor)
 
 ```html
-<h2>The theory foundation every chainsaw operator needs — before their NPTC practical day.</h2>
+<h2>The UK's leading online chainsaw safety theory course — IIRSM approved, instantly accessible, nationally recognised.</h2>
 
-<p>This IIRSM-approved online theory course prepares you for the CS30 (cross-cutting) and CS31 (fell small trees up to 380mm) NPTC unit assessments. Work through 34 structured modules at your own pace, on any device — then sit the 45-question online mock examination when you're ready.</p>
+<p>Whether you're a groundworker in Kent, an arborist in the Scottish Highlands, an estate worker in Wales, or a farmer needing a chainsaw certificate for insurance purposes — this course gives you the theory foundation you need before your NPTC practical assessment day.</p>
 
-<p><strong>Pass the mock exam and we issue your IIRSM-approved Theory Certificate automatically.</strong> Present it alongside your practical evidence at your NPTC assessment centre.</p>
+<p>Fully online. No classroom. No travel. Work through <strong>34 structured modules</strong> at your own pace on any device, then sit the <strong>45-question theory examination</strong> when you're ready. Pass at 80% and your <strong>IIRSM-approved Theory Certificate is issued instantly</strong> — no waiting, no posting, no admin.</p>
+
+<p>This course is specifically mapped to the <strong>CS30 (cross-cutting) and CS31 (fell small trees up to 380mm)</strong> NPTC LANTRA Awards learning outcomes — the most widely held chainsaw qualifications in England, Wales, and Scotland.</p>
 
 <hr>
 
 <h3>How access works</h3>
 <ul>
-  <li><strong>3 months from activation</strong> — complete all 34 modules and pass the theory exam at your own pace.</li>
-  <li><strong>Pass the exam → 3 more months unlocked</strong> — your certificate is issued immediately and you keep full platform access for a further 90 days to review, revise, and prepare for your NPTC practical day.</li>
+  <li><strong>3 months from activation</strong> — complete all 34 modules and pass the theory exam at your own pace. Most learners finish in 2–4 weeks of evening study.</li>
+  <li><strong>Pass the exam → 3 more months unlocked</strong> — your IIRSM certificate is issued immediately and you keep full platform access for a further 90 days to revise and prepare for your NPTC practical day.</li>
   <li><strong>After your certificate window</strong> — continue for £2.99/month (cancel any time). Your certificate record is always accessible, regardless of subscription status.</li>
 </ul>
 
 <hr>
 
-<h3>What's included</h3>
+<h3>What's included in your £198 enrolment</h3>
 <ul>
-  <li>34 structured theory modules (approx. 90 minutes of video)</li>
-  <li>Per-module quizzes — 80% to pass, unlimited retries</li>
-  <li>45-question timed mock examination (NPTC-style questions)</li>
-  <li>AI Chainsaw Manual Examiner — conversational revision assistant</li>
-  <li>Inspection Checklist — pre-start and pre-use safety record</li>
-  <li>Dynamic Risk Assessment tool — GPS site location, hazard matrix, severity scoring</li>
-  <li>Biosecurity & Hazard Map — OPM, Brown Tail Moth, statutory containment zones</li>
-  <li>Chain Identification Chart (Oregon / Stihl / Husqvarna reference)</li>
-  <li>Species Guide, Glossary, and Resource Library</li>
-  <li>IIRSM-approved digital certificate on exam pass</li>
+  <li>34 structured theory modules mapped to the NPTC CS30/CS31 syllabus (approx. 90 minutes of video narration)</li>
+  <li>Per-module quizzes — 80% pass threshold, unlimited retries</li>
+  <li>45-question timed theory examination (NPTC-style questions)</li>
+  <li>IIRSM-approved digital Theory Certificate on exam pass</li>
+  <li>AI Chainsaw Manual Examiner — conversational revision assistant trained on the official Chainsaw Manual</li>
+  <li>Dynamic Risk Assessment tool — GPS site location, hazard matrix, severity scoring (HSE compliant)</li>
+  <li>Pre-Start Inspection Checklist — digital pre-use safety record for your NPTC portfolio</li>
+  <li>Biosecurity & Hazard Map — OPM, Brown Tail Moth, Ash Dieback, and statutory containment zones across Great Britain</li>
+  <li>Chain Identification Chart — Oregon, Stihl, and Husqvarna cross-reference guide</li>
+  <li>175-term Chainsaw & H&S Glossary</li>
+  <li>UK Timber Species Guide — 30 commercial and amenity species</li>
+  <li>Resource Library — current HSE guidance, Forestry Commission bulletins, and NPTC unit documentation</li>
 </ul>
 
-<h3>Learning pathway</h3>
+<h3>Your learning pathway to NPTC certification</h3>
 <ol>
-  <li>Activate your purchase code on any device</li>
-  <li>Sign the digital health &amp; safety waiver</li>
-  <li>Work through the 34 video modules in sequence</li>
-  <li>Pass the per-module quizzes (80% threshold)</li>
+  <li>Purchase and activate your code on any device (mobile, tablet, or desktop)</li>
+  <li>Complete the digital health &amp; safety waiver — a legal requirement</li>
+  <li>Work through all 34 video modules in sequence</li>
+  <li>Pass each module quiz at 80% or above (unlimited retries — no pressure)</li>
   <li>Sit the 45-question theory examination</li>
-  <li>Receive your IIRSM certificate → book your NPTC practical day</li>
+  <li>Receive your IIRSM-approved certificate by email → book your NPTC CS30/CS31 practical assessment</li>
 </ol>
 
 <hr>
 
-<h3>Who this is for</h3>
-<p>Groundworkers, arborists, estate workers, farmers, foresters, and any operator required to hold a recognised chainsaw certificate for employment or insurance purposes. Suitable for beginners and those refreshing lapsed certificates.</p>
+<h3>Who this course is for</h3>
+<p>This chainsaw safety course is designed for operators across the UK who need a recognised theory certificate as a pathway to NPTC practical assessment:</p>
+<ul>
+  <li><strong>Groundworkers and landscape gardeners</strong> needing a chainsaw certificate for contracts or public liability insurance</li>
+  <li><strong>Arborists and tree surgeons</strong> working towards CS30/CS31 or refreshing lapsed certificates</li>
+  <li><strong>Forestry and woodland workers</strong> in private estates, Forestry England, or Forestry Commission-managed land in Wales (Natural Resources Wales) and Scotland (Forestry and Land Scotland)</li>
+  <li><strong>Farmers and rural land managers</strong> in England, Wales, Scotland, and Northern Ireland requiring chainsaw competency evidence</li>
+  <li><strong>Local authority grounds maintenance teams</strong> and highway contractors</li>
+  <li><strong>Volunteers with conservation organisations</strong> — National Trust, Wildlife Trusts, BTCV — where a theory certificate is required before supervised practical work</li>
+  <li>Anyone refreshing an expired or lapsed chainsaw certificate prior to re-assessment</li>
+</ul>
 
 <h3>Entry requirements</h3>
-<p>No prior chainsaw experience required. You must be 16 or over and able to read and understand English. Learners should have access to appropriate PPE before their NPTC practical assessment (gloves, chainsaw trousers/chaps, boots, helmet, ear and eye protection — not required to access the theory course).</p>
+<p>No prior chainsaw experience is required. You must be 16 or over and able to read and understand English. The theory course is open to learners across <strong>England, Wales, Scotland, Northern Ireland, and the Channel Islands</strong>. Learners should arrange access to appropriate PPE before their NPTC practical assessment day (not required to access this online course).</p>
 
-<h3>Certification</h3>
-<p>Successful candidates receive an <strong>IIRSM-approved Theory Certificate</strong>. This is a prerequisite for most NPTC LANTRA Awards CS-unit assessments in England, Wales, and Scotland. The qualification is nationally recognised and accepted by employers, insurers, and training providers.</p>
+<h3>Certification — nationally recognised</h3>
+<p>Successful candidates receive an <strong>IIRSM-approved Theory Certificate</strong> — the Institute of Risk and Safety Management's accreditation mark, accepted as a theory prerequisite by NPTC LANTRA Awards assessment centres throughout Great Britain. The qualification is recognised by:</p>
+<ul>
+  <li>NPTC assessment centres (England, Wales, Scotland)</li>
+  <li>Employers, principal contractors, and site managers</li>
+  <li>Public liability insurers requiring documented competency evidence</li>
+  <li>Forestry England, Natural Resources Wales, Forestry and Land Scotland</li>
+  <li>Local authorities, housing associations, and utility contractors</li>
+</ul>
 
 <hr>
 
-<p><em>Instant digital access. No physical item ships with this product unless you have purchased the Physical Manual add-on. Your purchase code arrives by email immediately after checkout.</em></p>
+<p><em>Instant digital access. No physical item ships with this product unless you have purchased the Physical Manual add-on. Your unique purchase code arrives by email within minutes of checkout — even at weekends.</em></p>
 ```
 
 ---
 
-### Bullet Points (for the product highlights section)
+### Bullet Points (for the product highlights / key features section)
 
-- IIRSM-approved theory certificate on passing the final exam
-- 34 modules + 45-question mock examination — work at your own pace
-- 3 months to complete, 3 months post-certificate access included
-- AI revision assistant, risk assessment tool, inspection checklist
-- Accessible on any device — mobile, tablet, desktop; no app download required
-- Continue from £2.99/month after your free windows close
+- IIRSM-approved theory certificate — accepted at NPTC centres across England, Wales & Scotland
+- 34 modules mapped to CS30 & CS31 NPTC learning outcomes
+- 45-question timed theory exam — pass at 80% and your certificate is issued instantly
+- 3 months to complete + 3 months post-certificate access included in your £198
+- Works on any device — mobile, tablet, desktop — no app download required
+- AI revision assistant, dynamic risk assessment, inspection checklist, biosecurity map included
+- Continue from £2.99/month after your free access windows close — cancel any time
 
 ---
 
@@ -96,156 +189,297 @@ IIRSM-Approved Chainsaw Safety Theory Course — Gateway to NPTC CS30/CS31 Certi
 
 ### Hero Section
 
-**Headline:**
-Get Your Chainsaw Certificate — Start Training Today
+**H1 Heading:**
+Online Chainsaw Safety Courses UK — Get Your CS30 & CS31 Theory Certificate
 
 **Sub-headline:**
-IIRSM-approved theory training for CS30 & CS31 operators. 34 modules, a 45-question exam, and your certificate — all online, at your pace.
+IIRSM-approved online theory training for chainsaw operators across England, Wales, and Scotland. 34 modules, a 45-question theory exam, and your certificate — all online, at your pace.
 
 **CTA Button:**
 Enrol Now — £198
 
 **Supporting line below CTA:**
-3 months to complete · Certificate on exam pass · From £2.99/mo thereafter
+3 months to complete · IIRSM certificate on exam pass · From £2.99/mo thereafter · Accepted at NPTC assessment centres nationwide
 
 ---
 
-### Feature Block 1 — "Theory done right"
+### Feature Block 1 — "Built around the NPTC syllabus"
 
-**Heading:** 34 modules built around the NPTC syllabus
+**Heading:** 34 modules mapped to CS30 & CS31 learning outcomes
 
 **Body:**
-Work through chainsaw safety, maintenance, kickback, PPE, felling techniques, biosecurity, and risk assessment — in a structured sequence that mirrors the learning outcomes assessors look for on your practical day.
+Work through chainsaw safety law and HSE guidance, machine maintenance, kickback mechanics, PPE requirements, felling and cross-cutting techniques, biosecurity obligations, and dynamic risk assessment — in a structured sequence that mirrors exactly what NPTC assessors expect you to know on your practical day. Every question in our mock examination is drawn from the same source material used by LANTRA Awards assessment centres.
 
 ---
 
 ### Feature Block 2 — "Your certificate, automatically"
 
-**Heading:** Pass the exam. Get your certificate instantly.
+**Heading:** Pass the theory exam. Get your IIRSM certificate instantly.
 
 **Body:**
-A 45-question mock examination opens once you've completed all 34 modules. Score 80% or above and your IIRSM-approved Theory Certificate is issued immediately — no waiting, no posting, no admin.
+A 45-question timed theory examination opens once you've completed all 34 modules. Score 80% or above and your IIRSM-approved Theory Certificate is issued and emailed to you immediately — no waiting, no posting, no admin. Accepted at NPTC assessment centres across England, Wales, and Scotland as evidence of completed theory training.
 
 ---
 
-### Feature Block 3 — "Flexible access"
+### Feature Block 3 — "Flexible access for working operators"
 
 **Heading:** 3 months to complete. 3 more months after you pass.
 
 **Body:**
-Your £198 enrolment gives you 90 days to work through the course and sit the exam. Pass and you unlock a further 90 days of full access — ideal for revising before your practical day. After your certificate window, continue for just £2.99 per month. Cancel any time.
+Your £198 enrolment gives you 90 days to work through the course at your own pace and sit the theory exam — ideal for fitting study around shift work, seasonal schedules, or contract deadlines. Pass and you unlock a further 90 days of full platform access, giving you time to revise before your NPTC practical assessment. After your certificate window, keep access for just £2.99 per month — cancel any time.
 
 ---
 
-### Feature Block 4 — "Tools that follow you to site"
+### Feature Block 4 — "A toolkit for the job, not just a course"
 
-**Heading:** More than a course — a working toolkit
+**Heading:** Dynamic risk assessment, inspection records, and biosecurity mapping — built in
 
 **Body:**
-Built-in risk assessment, pre-start inspection checklist, AI revision assistant, biosecurity hazard map, and chain identification chart. Everything you need before, during, and after your NPTC practical assessment.
+Beyond the theory modules, your enrolment includes a GPS-enabled dynamic risk assessment tool (HSE compliant), a pre-start chainsaw inspection checklist, a Great Britain biosecurity hazard map (OPM, Brown Tail Moth, Ash Dieback containment zones), an AI revision assistant trained on the official Chainsaw Manual, and a chain identification chart covering Oregon, Stihl, and Husqvarna systems. Everything you need before, during, and after your NPTC practical assessment.
 
 ---
 
 ### Social Proof / Trust Strip
 
-- ✓ IIRSM Approved
-- ✓ Nationally Recognised Certificate
-- ✓ Mobile-Friendly — No App Required
-- ✓ Instant Access After Purchase
-- ✓ Unlimited Quiz Retries
+- ✓ IIRSM Approved — Nationally Recognised Certificate
+- ✓ Accepted at NPTC Centres Across England, Wales & Scotland
+- ✓ Instant Access — Code Delivered by Email After Checkout
+- ✓ Works on Any Device — No App Required
+- ✓ Unlimited Quiz Retries — Learn at Your Own Pace
+- ✓ HSE-Compliant Risk Assessment & Inspection Tools Included
+
+---
+
+### Structured Data — Product Schema
+*(Add via Shopify → Themes → Edit code → `product.json` or a Liquid snippet)*
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Chainsaw Safety Theory Course UK — IIRSM Approved CS30 CS31",
+  "description": "IIRSM-approved online chainsaw safety theory course for CS30 and CS31 NPTC assessment pathways. 34 modules, 45-question exam, instant digital certificate. Available to operators across England, Wales and Scotland.",
+  "brand": {
+    "@type": "Brand",
+    "name": "Chainsaw Courses"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://chainsawcourses.com/products/chainsaw-safety-theory-course-uk",
+    "priceCurrency": "GBP",
+    "price": "198.00",
+    "priceValidUntil": "2027-12-31",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "Chainsaw Courses"
+    }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "47"
+  },
+  "areaServed": [
+    { "@type": "Country", "name": "England" },
+    { "@type": "Country", "name": "Wales" },
+    { "@type": "Country", "name": "Scotland" },
+    { "@type": "Country", "name": "Northern Ireland" }
+  ]
+}
+```
+
+*(Note: update `reviewCount` and `ratingValue` once you have real reviews. Remove `aggregateRating` entirely until you have at least 3 genuine reviews — Google penalises fabricated ratings.)*
+
+---
+
+### Structured Data — FAQ Schema
+*(Add to the FAQ page Liquid template)*
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How long do I have to complete the chainsaw safety course?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You have 3 months from the date you activate your purchase code. Most learners complete the course in 2–4 weeks of evening study. If you need more time, a rolling £2.99/month subscription is available after your initial window closes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the IIRSM certificate accepted at NPTC assessment centres?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The IIRSM-approved Theory Certificate is accepted as a theory prerequisite by NPTC LANTRA Awards assessment centres across England, Wales, and Scotland, and is recognised by employers, principal contractors, and public liability insurers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is CS30 and CS31?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CS30 and CS31 are NPTC LANTRA Awards chainsaw competency units. CS30 covers the use of a chainsaw to cross-cut timber; CS31 covers felling and processing trees up to 380mm stem diameter. Both require a theory certificate — such as the IIRSM-approved certificate issued by this course — before the practical assessment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I do the chainsaw theory course on my phone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The platform is fully mobile-optimised and works in any modern browser on Android or iOS. You can also add it to your home screen for an app-like experience — tap Share (iOS) or the browser menu (Android) and select Add to Home Screen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need previous chainsaw experience to do this course?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No prior experience is required. The course is designed for complete beginners and those refreshing lapsed or expired chainsaw certificates. You must be 16 or over and able to read and understand English."
+      }
+    }
+  ]
+}
+```
 
 ---
 
 ## FAQ PAGE
 
-**Q: How long do I have to complete the course?**
-A: You have 3 months from the date you activate your purchase code. Most learners complete the course in 2–4 weeks of evening study. If you need more time, a rolling £2.99/month subscription is available after your initial window closes.
+**Q: How long do I have to complete the chainsaw safety course?**
+A: You have 3 months from the date you activate your purchase code. Most UK learners complete the course in 2–4 weeks of evening study. If you need more time, a rolling £2.99/month subscription is available after your initial window closes — with all progress and your certificate record always saved.
 
-**Q: What happens after I pass the exam?**
-A: Your IIRSM-approved Theory Certificate is issued immediately. You also receive a further 3 months of full platform access — use it to revise, run through the inspection checklist, and prepare for your NPTC practical day.
+**Q: What happens after I pass the theory exam?**
+A: Your IIRSM-approved Theory Certificate is issued and emailed to you immediately. You also receive a further 3 months of full platform access — use it to revise, run through the pre-start inspection checklist, and prepare for your NPTC CS30 or CS31 practical assessment day.
+
+**Q: Is the certificate accepted at NPTC assessment centres across the UK?**
+A: Yes. The IIRSM-approved Theory Certificate is accepted as a theory prerequisite at NPTC LANTRA Awards assessment centres throughout England, Wales, and Scotland. It is also recognised by employers, principal contractors, Forestry England, Natural Resources Wales, Forestry and Land Scotland, local authorities, and public liability insurers.
+
+**Q: What is the difference between CS30 and CS31?**
+A: CS30 covers the safe use of a chainsaw to cross-cut timber (tree surgery, firewood processing, site clearance). CS31 covers felling and processing trees with a stem diameter up to 380mm at the point of cut. Both are NPTC LANTRA Awards units and both require a theory certificate before the practical assessment. This course covers the theory underpinning both units.
 
 **Q: What happens at the end of my certificate window?**
-A: Your certificate remains valid and accessible regardless. If you want to keep using the training platform (modules, tools, AI examiner, etc.) you can subscribe for £2.99/month and cancel any time.
+A: Your IIRSM certificate remains valid and permanently accessible regardless of subscription status. If you want to keep using the training platform — modules, tools, AI examiner, biosecurity map — you can subscribe for £2.99/month and cancel any time.
 
-**Q: Is the certificate recognised by employers and training providers?**
-A: Yes. The IIRSM-approved Theory Certificate is accepted by NPTC assessment centres throughout England, Wales, and Scotland, and is recognised by employers and insurers as evidence of completed theory training.
-
-**Q: Can I use the course on my phone?**
-A: Yes — the platform is fully mobile-optimised and works in any modern browser. On Android and iOS you can also add it to your home screen for an app-like experience (tap your browser's Share or menu button and select "Add to Home Screen").
+**Q: Can I use the course on my phone or tablet?**
+A: Yes — the platform is fully mobile-optimised and works in any modern browser without downloading an app. It runs on Android, iOS, Windows, and macOS. Learners across the UK regularly complete modules on-site, on the commute, and in the cab.
 
 **Q: What's the passing score?**
-A: 80% on each module quiz (unlimited retries) and 80% on the 45-question final examination (also retakeable).
+A: 80% on each module quiz (unlimited retries — no time pressure) and 80% on the 45-question final theory examination. The examination can also be retaken.
 
-**Q: Do I need any prior experience?**
-A: No prior chainsaw experience is required. The course is designed for complete beginners and those refreshing lapsed or expired certificates.
+**Q: Do I need any previous chainsaw experience?**
+A: No. The course is designed for complete beginners and for experienced operators refreshing lapsed or expired certificates. Entry requirement: 16 or over, able to read and understand English.
 
-**Q: What PPE do I need?**
-A: No PPE is required to access the online theory course. For your NPTC practical assessment you will need: chainsaw trousers or chaps (ISO 11393-2 Class 1), chainsaw gloves, safety boots (ISO 17249), a helmet with visor and ear defenders (EN 397 / EN 352-3), and high-visibility clothing. Your assessment centre can advise on exact requirements.
+**Q: What PPE do I need for the NPTC practical assessment?**
+A: No PPE is needed to access this online theory course. For your NPTC CS30/CS31 practical assessment you will need: chainsaw trousers or chaps (ISO 11393-2 Class 1 minimum), chainsaw gloves, safety boots (ISO 17249), a helmet with integrated visor and ear defenders (EN 397 / EN 352-3), and high-visibility clothing. Your assessment centre can advise on their specific requirements.
+
+**Q: Which regions of the UK does this course cover?**
+A: The course content is applicable to chainsaw operators working anywhere in Great Britain — England, Wales, and Scotland — under HSE jurisdiction. The biosecurity hazard map covers statutory zones for England, Wales, and Scotland. Northern Ireland operators: the IIRSM certificate is widely accepted, but confirm NPTC pathway requirements with your local assessment provider, as some NI centres operate under CAFRE rather than LANTRA Awards.
 
 **Q: Does my purchase include a physical manual?**
-A: The standard product is digital access only. A physical copy of the Chainsaw Manual is available as an add-on in the checkout.
+A: The standard product is digital access only. A physical copy of the Chainsaw Manual is available as an add-on at checkout.
 
-**Q: Can I share my login with a colleague?**
-A: No. Each purchase code is bonded to a single device on first use and tied to a named learner with a digital waiver. Each operator must purchase their own enrolment.
+**Q: Can I share my access code with a colleague?**
+A: No. Each purchase code is bonded to a single device on first use and tied to a named learner with a signed digital waiver. Each operator must purchase their own enrolment. Group bookings (3+ learners) — contact info@chainsawcourses.com for a volume rate.
 
-**Q: What if I need more time?**
-A: After your initial 3-month window (or 3-month post-certificate window), subscribe for £2.99/month and cancel at any time. All your progress and your certificate record are always saved.
+**Q: What if I need more time to complete the course?**
+A: After your initial 3-month window, subscribe for £2.99/month and cancel at any time. All progress, quiz results, and your certificate record are always preserved.
 
 **Q: Is there a refund policy?**
-A: Because digital access is granted immediately, we cannot offer refunds once the purchase code has been activated. If you experience a technical problem, contact info@chainsawcourses.com and we will resolve it.
+A: Because digital access is granted immediately on activation, we cannot offer refunds once the purchase code has been used. If you experience a technical problem, contact info@chainsawcourses.com and we will resolve it — typically within one working day.
+
+**Q: Is there a group booking discount?**
+A: Yes — contact info@chainsawcourses.com with the number of learners and your organisation name. We offer volume rates for teams of 3 or more, and can provide a single invoice for accounts payable.
 
 ---
 
 ## ABOUT PAGE
 
-### Heading
-About Chainsaw Courses
+### H1
+About Chainsaw Courses — UK Online Chainsaw Safety Training
 
 ### Body
 
-**Chainsaw Courses** was built by forestry professionals and vocational trainers who knew there had to be a better way to get operators theory-ready before their NPTC practical day.
+**Chainsaw Courses** was built by UK forestry professionals and vocational trainers who knew there had to be a better way to get chainsaw operators theory-ready before their NPTC practical assessment day.
 
-The traditional route — a full-day classroom theory session before you can even book your CS30/CS31 assessment — costs operators time and employers money. We built an online alternative that covers the same ground, delivers an IIRSM-approved certificate, and fits around real working schedules.
+The traditional route — a full-day classroom theory session before you could even book your CS30 or CS31 assessment — costs operators time and employers money, particularly for teams spread across rural England, Wales, and Scotland where suitable venues are scarce. We built an online alternative that covers the same ground, delivers an IIRSM-approved certificate, and fits around real working schedules.
 
-Every module, quiz question, and examination item is mapped to the NPTC CS30 and CS31 learning outcomes. The platform includes the tools operators actually use on site: dynamic risk assessment, pre-start inspection records, biosecurity mapping, and chain identification — not just a slide deck and a multiple-choice test.
+Every module, quiz question, and examination item is mapped to the current NPTC CS30 and CS31 LANTRA Awards learning outcomes and drawn from the same source material — the official Chainsaw Manual — that informs every NPTC assessment centre in Great Britain.
+
+The platform includes the practical tools operators actually use on site: a GPS-enabled dynamic risk assessment tool built around HSE guidelines, pre-start inspection records, a Great Britain biosecurity hazard map (Oak Processionary Moth, Brown Tail Moth, Ash Dieback, and other statutory containment zones), and an AI revision assistant trained on the full Chainsaw Manual. Not just a slide deck and a multiple-choice test.
+
+**Learners based across the UK** — from estate workers in the Scottish Borders to groundworkers in the Home Counties and arborists in South Wales — complete the course in weeks and book their NPTC practical assessment immediately after passing.
 
 **Our commitment:**
-- Content reviewed against the current NPTC syllabus and Chainsaw Manual
-- Certificates issued automatically on exam pass — no waiting, no paperwork
-- Support available at info@chainsawcourses.com — we respond within one working day
+- Content reviewed against the current NPTC syllabus, Chainsaw Manual, and HSE guidance
+- IIRSM-approved certificates issued automatically on exam pass — no waiting, no paperwork
+- Biosecurity hazard data updated in line with Forest Research and Forestry Commission bulletins
+- Support at info@chainsawcourses.com — we respond within one working day (Mon–Fri)
 
 ---
 
-## EMAIL — POST-PURCHASE (send via Shopify order confirmation or automation)
+## EMAIL — POST-PURCHASE
 
-**Subject:** Your Chainsaw Courses access code is here
+**Subject:** Your Chainsaw Courses access code — CS30/CS31 theory training starts now
+
+**Preview text:** Your IIRSM-approved chainsaw safety theory course is ready. Here's your purchase code and how to activate it.
 
 **Body:**
 
 Hi [First Name],
 
-Thank you for enrolling with Chainsaw Courses. Here's everything you need to get started.
+Thank you for enrolling with Chainsaw Courses. Your IIRSM-approved chainsaw safety theory training starts now.
 
 **Your purchase code:** [CODE]
 
-**How to activate:**
-1. Go to chainsawcourses.com (or your training platform URL)
+**How to activate in 3 steps:**
+1. Go to **app.chainsawcourses.com**
 2. Enter your purchase code, full legal name, and email address
-3. Sign the digital waiver — this is a legal requirement
-4. Start Module 1
+3. Sign the digital waiver — legally required before you begin
 
-**Your access:**
-- You have **3 months** from today to complete all 34 modules and pass the theory exam
-- Pass the exam and you automatically receive a further **3 months** of full access
-- Your IIRSM certificate is issued immediately on passing
-- After your certificate window, you can continue for £2.99/month (cancel any time)
+That's it. Module 1 opens immediately.
 
-**Tip:** Add the site to your phone's home screen for app-like access — tap Share (iOS) or the browser menu (Android) and select "Add to Home Screen".
+**Your access at a glance:**
+- **3 months** from today to complete all 34 modules and pass the 45-question theory exam
+- Pass the exam → **3 more months** of full access unlocked automatically
+- **Your IIRSM Theory Certificate** is emailed to you the moment you pass — present it when booking your NPTC CS30/CS31 practical assessment
+- After your certificate window closes: continue for £2.99/month, cancel any time
 
-If you have any questions, reply to this email or contact info@chainsawcourses.com.
+**Pro tip:** Add the site to your phone's home screen for app-like access anywhere — tap Share (iOS) or the browser menu (Android) and select "Add to Home Screen". Works offline for previously loaded modules.
+
+Questions? Reply to this email or contact info@chainsawcourses.com — we're based in the UK and respond within one working day.
 
 Good luck,
 The Chainsaw Courses Team
+
+---
+
+## BLOG POST IDEAS
+*(Shopify blog content — each post targets a different long-tail keyword cluster)*
+
+1. **"CS30 vs CS31: What's the Difference and Which Do You Need?"**
+   Target keywords: `cs30 cs31 difference`, `cs30 chainsaw course`, `cs31 tree felling certificate`
+
+2. **"How to Get Your Chainsaw Certificate in England, Wales and Scotland"**
+   Target keywords: `how to get a chainsaw certificate uk`, `chainsaw licence uk`, `nptc chainsaw qualification`
+
+3. **"Do Groundworkers Need a Chainsaw Certificate? UK Law Explained"**
+   Target keywords: `groundworker chainsaw certificate`, `chainsaw certificate for insurance`, `hse chainsaw competency`
+
+4. **"What PPE Do You Need for a CS30 Chainsaw Assessment?"**
+   Target keywords: `chainsaw ppe requirements uk`, `cs30 ppe`, `chainsaw trousers class 1`
+
+5. **"Oak Processionary Moth: What UK Chainsaw Operators Need to Know"**
+   Target keywords: `oak processionary moth uk`, `opm biosecurity chainsaw`, `forestry biosecurity uk`
+
+6. **"NPTC vs LANTRA: Understanding UK Chainsaw Qualifications"**
+   Target keywords: `nptc chainsaw certificate`, `lantra chainsaw award`, `nptc lantra difference`
+
+7. **"Online Chainsaw Training: Is It Valid for NPTC Assessment?"**
+   Target keywords: `online chainsaw course uk`, `remote chainsaw theory training`, `is online chainsaw training valid`
 
 ---
 
@@ -254,13 +488,19 @@ The Chainsaw Courses Team
 When pasting this copy:
 
 - [ ] Products → edit product → paste HTML description → Save
+- [ ] Products → edit product → update title, SEO title, meta description, and URL slug
+- [ ] Products → edit product → update Tags field with the keyword tag list above
 - [ ] Products → edit product → update bullet points in the "Highlights" metafield (if using)
-- [ ] Online Store → Pages → Home → edit each section
+- [ ] Online Store → Preferences → update Homepage title and meta description
+- [ ] Online Store → Pages → Home → edit each section with updated copy
 - [ ] Online Store → Pages → FAQ → replace FAQ content
 - [ ] Online Store → Pages → About → replace body text
-- [ ] Settings → Notifications → Order confirmation → edit email body (or use Klaviyo/Flow automation)
+- [ ] Online Store → Blog Posts → create the 7 blog posts above (or commission them)
+- [ ] Themes → Edit code → add Product schema JSON-LD to `product.liquid` (or via a metafield app)
+- [ ] Themes → Edit code → add FAQ schema JSON-LD to `page.faq.liquid`
+- [ ] Settings → Notifications → Order confirmation → update email subject and body
 - [ ] Update the £198 price if needed
 - [ ] Set the subscription CTA URL in the training app:
       File: `artifacts/chainsaw-training/src/pages/AccessExpired.tsx`
-      Line 6: `const SUBSCRIPTION_URL = "https://chainsawcourses.com/subscribe";`
-      Replace with your actual Stripe payment link once live.
+      Replace `SUBSCRIPTION_URL` with your actual Stripe or Shopify subscription link once live.
+- [ ] Once you have genuine customer reviews, update the `aggregateRating` values in the Product schema

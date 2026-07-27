@@ -8,6 +8,7 @@ import { AdminProvider } from "./contexts/AdminContext";
 
 
 import NotFound from "@/pages/not-found";
+import ShareTarget from "@/pages/ShareTarget";
 import Activation from "@/pages/Activation";
 import Waiver from "@/pages/Waiver";
 import TrainingList from "@/pages/TrainingList";
@@ -136,6 +137,7 @@ function Router() {
     <PageFade>
     <Switch>
       {/* Student Routes */}
+      <Route path="/share" component={ShareTarget} />
       <Route path="/install" component={Install} />
       <Route path="/" component={Activation} />
       <Route path="/waiver" component={Waiver} />
