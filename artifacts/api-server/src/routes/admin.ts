@@ -505,6 +505,52 @@ router.delete("/admin/students/:studentId/delete", async (req, res) => {
   }
 });
 
+// ─── Delete orphaned waivers (no matching user) ──────────────────────────────
+
+router.delete("/admin/waivers/orphaned", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const allWaivers = await db.select().from(waiversTable);
+    const allUsers = await db.select({ id: usersTable.id }).from(usersTable);
+    const userIds = new Set(allUsers.map(u => u.id));
+    const orphaned = allWaivers.filter(w => !userIds.has(w.userId));
+    for (const w of orphaned) {
+      await db.delete(waiversTable).where(eq(waiversTable.id, w.id));
+    }
+    res.json({ success: true, deleted: orphaned.length, ids: orphaned.map(w => w.id) });
+  } catch (err) {
+    logger.error({ err }, "Error deleting orphaned waivers");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Stamp certificate fields from exam attempt ───────────────────────────────
+
+router.post("/admin/users/:userId/issue-certificate", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const uid = parseInt(req.params.userId, 10);
+    const [attempt] = await db
+      .select()
+      .from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, uid), eq(examAttemptsTable.passed, true)))
+      .orderBy(examAttemptsTable.attemptedAt)
+      .limit(1);
+    if (!attempt) { res.status(404).json({ error: "No passing exam attempt found" }); return; }
+    const completedAt = attempt.attemptedAt;
+    const expiresAt = new Date(completedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+    await db.update(usersTable).set({
+      courseCompletedAt: completedAt,
+      certificateIssuedAt: completedAt,
+      accessExpiresAt: expiresAt,
+    }).where(eq(usersTable.id, uid));
+    res.json({ success: true, userId: uid, certificateIssuedAt: completedAt, accessExpiresAt: expiresAt });
+  } catch (err) {
+    logger.error({ err }, "Error issuing certificate");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ─── Backup: export learner data as a new Google Sheet ───────────────────────
 
 router.get("/admin/backup/export", async (req, res) => {
