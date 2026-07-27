@@ -75,10 +75,30 @@ export default function QrLanding() {
     );
   }
 
+  // ── Shared header for all authenticated states ────────────────────────────
+  const AuthHeader = () => (
+    <div className="flex flex-col items-center text-center mb-8">
+      <div className="flex items-center justify-center gap-2 mb-1">
+        <img
+          src="/logo.png?v=4"
+          alt="Chainsaw Courses"
+          className="h-14 w-auto object-contain"
+        />
+        <h1 className="text-xl font-black tracking-tighter text-primary uppercase leading-none">
+          Chainsaw Courses
+        </h1>
+      </div>
+      <p className="uppercase tracking-widest text-xs mt-1 text-muted-foreground font-bold">
+        Chainsaw Maintenance &amp; Cross Cutting
+      </p>
+    </div>
+  );
+
   // ── Authenticated: loading ─────────────────────────────────────────────────
   if (isLoading || (!module && !isError)) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16">
+        <AuthHeader />
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -87,11 +107,16 @@ export default function QrLanding() {
   // ── Authenticated: module not found ───────────────────────────────────────
   if (isError || !module) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center space-y-4">
-        <p className="font-mono text-muted-foreground text-sm uppercase tracking-widest">Module not found</p>
-        <Button onClick={() => setLocation("/training")} className="font-mono text-xs uppercase tracking-widest">
-          Go to my training
-        </Button>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16 text-center">
+        <AuthHeader />
+        <div className="max-w-md w-full space-y-4">
+          <p className="font-mono text-muted-foreground text-sm uppercase tracking-widest">
+            Module not found
+          </p>
+          <Button onClick={() => setLocation("/training")} className="font-mono text-xs uppercase tracking-widest">
+            Go to my training
+          </Button>
+        </div>
       </div>
     );
   }
@@ -99,7 +124,8 @@ export default function QrLanding() {
   // ── Authenticated: module unlocked (brief redirect flash) ─────────────────
   if (!module.isLocked) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16">
+        <AuthHeader />
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -107,24 +133,22 @@ export default function QrLanding() {
 
   // ── Authenticated: module is locked ───────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16 text-center">
+      <AuthHeader />
       <div className="max-w-md w-full space-y-8">
         <div className="space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/60 border border-border">
             <Lock className="w-7 h-7 text-muted-foreground" />
           </div>
-          <h1 className="text-xl font-black font-mono uppercase tracking-tight">
+          <h2 className="text-xl font-black font-mono uppercase tracking-tight">
             {module.title}
-          </h1>
+          </h2>
           <p className="text-muted-foreground font-mono text-sm leading-relaxed">
-            This module is still locked. You need to complete the earlier modules in sequence before this one becomes available.
+            Module not accessible yet. Please complete the previous modules in order to unlock this video.
           </p>
         </div>
 
         <div className="border border-border rounded-lg bg-card/60 p-6 space-y-3">
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
-            Complete the earlier modules to unlock
-          </p>
           <Button
             onClick={() => setLocation("/training")}
             className="w-full font-mono font-bold uppercase tracking-widest"
