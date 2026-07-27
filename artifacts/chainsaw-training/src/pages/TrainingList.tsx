@@ -1239,7 +1239,7 @@ export default function TrainingList() {
                           </Card>
 
                           {/* Legislation Guide PDF link — appears under Law & Legislation as optional reference */}
-                          {module.title.toLowerCase().includes("law & legislation") && (
+                          {module.title.toLowerCase().includes("law & regulations") && (
                             <a
                               href="/api/documents/legislation"
                               target="_blank"
