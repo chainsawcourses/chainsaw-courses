@@ -78,17 +78,21 @@ export default function DownloadApp() {
         {/* What's included */}
         <div className="w-full mb-8">
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">What's included</h2>
-          <ul className="space-y-3">
+          <ul className="space-y-2.5">
             {[
-              ["🎬", "7 sequential video training modules"],
-              ["✅", "Per-module quizzes with instant feedback"],
-              ["🤖", "AI mock examiner for exam practice"],
-              ["📋", "Inspection checklists & risk assessments"],
-              ["🏆", "Digital certificate on completion"],
-              ["🌿", "Biosecurity & species identification guides"],
-            ].map(([icon, text]) => (
-              <li key={text} className="flex items-center gap-3">
-                <span className="text-lg w-7 text-center flex-shrink-0">{icon}</span>
+              "34 training videos",
+              "Physical chainsaw manual",
+              "Per-module quizzes with instant feedback",
+              "AI mock examiner for exam practice",
+              "Inspection checklists & risk assessments",
+              "Digital certificate on completion",
+              "Bio-security maps",
+              "Species identification guides",
+              "Timber characteristics",
+              "Glossary & reference tools",
+            ].map((text) => (
+              <li key={text} className="flex items-start gap-2.5">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#e27226] flex-shrink-0" />
                 <span className="text-sm text-gray-700">{text}</span>
               </li>
             ))}
@@ -120,9 +124,17 @@ export default function DownloadApp() {
 
         <a
           href="https://chainsawcourses.com"
-          className="text-xs text-gray-400 underline underline-offset-2 pb-6"
+          className="text-xs text-gray-400 underline underline-offset-2 mb-8"
         >
           chainsawcourses.com
+        </a>
+
+        {/* Admin access */}
+        <a
+          href="/admin"
+          className="text-xs text-gray-300 hover:text-gray-400 transition-colors pb-8"
+        >
+          Admin
         </a>
       </div>
     </div>
