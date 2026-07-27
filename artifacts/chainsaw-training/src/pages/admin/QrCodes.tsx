@@ -96,7 +96,10 @@ export default function AdminQrCodes() {
     fetch("/api/admin/modules", { headers: { admintoken: adminToken } })
       .then((r) => r.json())
       .then((data: ModuleItem[]) => {
-        const sorted = [...data].sort((a, b) => a.order - b.order);
+        const EXCLUDE_IDS = [8, 11]; // Equipment List, Hazards & Risks
+        const sorted = [...data]
+          .filter((m) => !EXCLUDE_IDS.includes(m.id))
+          .sort((a, b) => a.order - b.order);
         setModules(sorted);
       })
       .catch(() => {})
