@@ -3,7 +3,7 @@ import { useLocation, useParams } from "wouter";
 import { useGetModule, getGetModuleQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, ExternalLink, ShieldCheck } from "lucide-react";
+import { Lock, Loader2, ExternalLink } from "lucide-react";
 
 export default function QrLanding() {
   const { moduleId } = useParams<{ moduleId: string }>();
@@ -31,14 +31,16 @@ export default function QrLanding() {
         <div className="max-w-md w-full space-y-8">
           {/* Logo area */}
           <div className="space-y-3">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20">
-              <ShieldCheck className="w-8 h-8 text-primary" />
-            </div>
+            <img
+              src="/logo.png?v=4"
+              alt="Chainsaw Courses"
+              className="h-20 w-auto object-contain mx-auto"
+            />
             <h1 className="text-2xl font-black font-mono tracking-tight uppercase">
-              Professional Chainsaw Safety
+              Chainsaw Courses
             </h1>
             <p className="text-muted-foreground font-mono text-sm leading-relaxed">
-              This video is part of the interactive professional chainsaw safety certification course.
+              This video is part of the IIRSM-approved chainsaw safety certification course.
             </p>
           </div>
 

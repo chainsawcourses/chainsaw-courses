@@ -94,25 +94,25 @@ export default function Activation() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-2">
+        <div className="mb-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-1">
             <img
               src={`${import.meta.env.BASE_URL}logo.png?v=4`}
               alt="Chainsaw Courses"
-              className="h-32 w-auto object-contain"
+              className="h-14 w-auto object-contain"
             />
-            <h1 className="text-3xl font-black tracking-tighter text-primary uppercase leading-none">
+            <h1 className="text-xl font-black tracking-tighter text-primary uppercase leading-none">
               Chainsaw Courses
             </h1>
           </div>
-          <p className="uppercase tracking-widest text-sm sm:text-base mt-2 text-muted-foreground font-bold leading-tight text-center">
-            Chainsaw Maintenance<br className="sm:hidden" />{" "}&amp; Cross Cutting
+          <p className="uppercase tracking-widest text-xs mt-1 text-muted-foreground font-bold leading-tight text-center">
+            Chainsaw Maintenance &amp; Cross Cutting
           </p>
         </div>
         
         <Card className="border-border bg-card/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1 text-center border-b border-border mb-6 pb-6">
-            <CardTitle className="text-2xl font-mono uppercase tracking-wide">System Activation</CardTitle>
+          <CardHeader className="space-y-1 text-center border-b border-border mb-4 pb-4">
+            <CardTitle className="text-xl font-mono uppercase tracking-wide">System Activation</CardTitle>
             <CardDescription className="font-mono text-xs">
               Enter your access credentials to unlock the training modules.
             </CardDescription>
