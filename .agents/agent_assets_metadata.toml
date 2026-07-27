@@ -42,3 +42,33 @@ id = "DdJZbOyBPk3hEi63MBQ1J"
 uri = "file://scripts/shopify-copy.md"
 type = "text"
 title = "Shopify Store Copy — Updated for Timed Access Model"
+
+[[outputs]]
+id = "EpJRekkeen_myj8BpsIMi"
+uri = "file://screenshots/screen-01-activation.jpg"
+type = "image"
+title = "Activation Screen (mobile)"
+
+[[outputs]]
+id = "X6OPvg4XURiB7gY0NZ1cT"
+uri = "file://screenshots/screen-02-news.jpg"
+type = "image"
+title = "Industry News Feed (mobile)"
+
+[[outputs]]
+id = "Y0PwoZepf_4lFir7N0Itu"
+uri = "file://screenshots/screen-03-glossary.jpg"
+type = "image"
+title = "Glossary — 175 terms (mobile)"
+
+[[outputs]]
+id = "Na_U9QH-Cd_m654Kia_ZV"
+uri = "file://screenshots/screen-07-species-guide.jpg"
+type = "image"
+title = "Timber Species Guide (mobile)"
+
+[[outputs]]
+id = "BqVbQRKpXjObvsYxWwpjM"
+uri = "file://screenshots/screen-08-desktop.jpg"
+type = "image"
+title = "Activation Screen (desktop 1280×800)"
