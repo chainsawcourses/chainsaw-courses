@@ -56,6 +56,7 @@ import ExamPreview from "@/pages/ExamPreview";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 import AccessExpired from "@/pages/AccessExpired";
 import Install from "@/pages/Install";
+import DownloadApp from "@/pages/DownloadApp";
 import InstallPrompt from "@/components/InstallPrompt";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useEffect } from "react";
@@ -130,6 +131,32 @@ function PageFade({ children }: { children: React.ReactNode }) {
       {children}
     </div>
   );
+}
+
+// Returns true when the app is running as an installed app (no browser chrome)
+function isInstalledApp(): boolean {
+  if (typeof window === "undefined") return false;
+  if ((window.navigator as Navigator & { standalone?: boolean }).standalone === true) return true;
+  if (window.matchMedia("(display-mode: standalone)").matches) return true;
+  if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
+  return false;
+}
+
+// Returns true when we're in the Replit dev environment or localhost
+function isDevEnvironment(): boolean {
+  if (typeof window === "undefined") return false;
+  const h = window.location.hostname;
+  return h === "localhost" || h.includes(".replit.dev") || h.includes(".repl.co");
+}
+
+// Gate: browser visitors see the download page; only installed-app or admin/dev get through
+function AppGate({ children }: { children: React.ReactNode }) {
+  const [path] = useLocation();
+  const isAdmin = path.startsWith("/admin") || path === "/admin-preview";
+  if (!isAdmin && !isDevEnvironment() && !isInstalledApp()) {
+    return <DownloadApp />;
+  }
+  return <>{children}</>;
 }
 
 function Router() {
@@ -211,8 +238,10 @@ function App() {
               <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.88)" }} />
             </div>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <GlobalAccessCheck />
-              <Router />
+              <AppGate>
+                <GlobalAccessCheck />
+                <Router />
+              </AppGate>
             </WouterRouter>
             <InstallPrompt />
             <Toaster />
