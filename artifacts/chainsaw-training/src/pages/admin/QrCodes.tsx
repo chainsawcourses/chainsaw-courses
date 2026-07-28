@@ -106,7 +106,7 @@ export default function AdminQrCodes() {
       .finally(() => setLoading(false));
   }, [adminToken]);
 
-  const [baseUrl, setBaseUrl] = useState("https://app.chainsawcourses.com");
+  const [baseUrl, setBaseUrl] = useState(window.location.origin);
 
   return (
     <div className="min-h-screen bg-background">

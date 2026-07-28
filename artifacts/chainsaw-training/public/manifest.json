@@ -18,8 +18,6 @@
     "client_mode": ["focus-existing", "auto"]
   },
   "scope_extensions": [
-    { "origin": "https://chainsawcourses.com" },
-    { "origin": "https://www.chainsawcourses.com" },
     { "origin": "https://app.chainsawcourses.com" }
   ],
   "related_applications": [

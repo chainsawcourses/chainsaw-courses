@@ -133,11 +133,10 @@ function CertificateButton() {
       if (!res.ok) throw new Error("Failed to generate certificate");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if (!w) {
-        const a = document.createElement("a");
-        a.href = url; a.target = "_blank"; a.click();
-      }
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw_Certificate.pdf";
+      a.click();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch {
       // silent — user can retry
