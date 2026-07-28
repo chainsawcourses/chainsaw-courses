@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.chainsawcourses.uk",
+        "sha256_cert_fingerprints": ["59:DE:AC:6A:61:07:FB:E6:70:44:01:BE:44:71:65:4F:13:DF:F7:C8:4B:FA:20:7B:F7:22:66:E2:15:2C:D9:F5"]
+      }
+    }]
