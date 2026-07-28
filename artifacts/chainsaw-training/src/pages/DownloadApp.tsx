@@ -1,5 +1,5 @@
 export default function DownloadApp() {
-  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.chainsawcourses.app";
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.chainsawcourses.uk";
   const APP_STORE_URL = ""; // Coming soon — requires Apple Developer account
 
   return (
