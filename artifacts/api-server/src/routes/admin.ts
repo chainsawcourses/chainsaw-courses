@@ -699,18 +699,30 @@ router.get("/admin/backup/export", async (req, res) => {
 
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
 
-    // ── Find or create the "Chainsaw Courses Backups" Drive folder ────────────
+    // ── Find or create the "Chainsaw Courses User Backup" Drive folder ──────────
     let folderId: string | null = null;
     try {
+      const safeJson = async (res: Response) => {
+        const text = await res.text();
+        try { return JSON.parse(text); } catch { return { _rawText: text }; }
+      };
+
       // Search for existing folder
       const searchRes = await connectors.proxy(
         "google-sheet",
         `/drive/v3/files?q=${encodeURIComponent("name='Chainsaw Courses User Backup' and mimeType='application/vnd.google-apps.folder' and trashed=false")}&fields=files(id,name)`,
         { method: "GET" }
       );
-      const searchData = await searchRes.json() as { files?: { id: string }[] };
+      const searchData = await safeJson(searchRes) as { files?: { id: string }[]; _rawText?: string };
+      logger.info({ status: searchRes.status, searchData }, "Drive folder search response");
+
+      if (!searchRes.ok) {
+        throw new Error(`Drive search failed ${searchRes.status}: ${JSON.stringify(searchData)}`);
+      }
+
       if (searchData.files && searchData.files.length > 0) {
         folderId = searchData.files[0].id;
+        logger.info({ folderId }, "Found existing backup folder");
       } else {
         // Create the folder
         const folderRes = await connectors.proxy("google-sheet", "/drive/v3/files", {
@@ -721,29 +733,41 @@ router.get("/admin/backup/export", async (req, res) => {
             mimeType: "application/vnd.google-apps.folder",
           }),
         });
-        const folderData = await folderRes.json() as { id: string };
+        const folderData = await safeJson(folderRes) as { id?: string; _rawText?: string };
+        logger.info({ status: folderRes.status, folderData }, "Drive folder create response");
+        if (!folderRes.ok || !folderData.id) {
+          throw new Error(`Drive create folder failed ${folderRes.status}: ${JSON.stringify(folderData)}`);
+        }
         folderId = folderData.id;
       }
 
-      // Move the sheet into the folder
+      // Get current parents then move the sheet into the folder
       if (folderId) {
-        // Get current parents first
         const metaRes = await connectors.proxy(
           "google-sheet",
           `/drive/v3/files/${sheet.spreadsheetId}?fields=parents`,
           { method: "GET" }
         );
-        const meta = await metaRes.json() as { parents?: string[] };
+        const meta = await safeJson(metaRes) as { parents?: string[]; _rawText?: string };
+        logger.info({ status: metaRes.status, meta }, "Drive file meta response");
+        if (!metaRes.ok) {
+          throw new Error(`Drive file meta failed ${metaRes.status}: ${JSON.stringify(meta)}`);
+        }
         const removeParents = meta.parents?.join(",") ?? "";
-        await connectors.proxy(
+        const moveRes = await connectors.proxy(
           "google-sheet",
-          `/drive/v3/files/${sheet.spreadsheetId}?addParents=${folderId}&removeParents=${encodeURIComponent(removeParents)}&fields=id`,
+          `/drive/v3/files/${sheet.spreadsheetId}?addParents=${folderId}&removeParents=${encodeURIComponent(removeParents)}&fields=id,parents`,
           { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }
         );
+        const moveData = await safeJson(moveRes);
+        logger.info({ status: moveRes.status, moveData }, "Drive file move response");
+        if (!moveRes.ok) {
+          throw new Error(`Drive move failed ${moveRes.status}: ${JSON.stringify(moveData)}`);
+        }
       }
     } catch (folderErr) {
       // Non-fatal — sheet was still created, just not moved
-      logger.warn({ folderErr }, "Could not move sheet to backup folder");
+      logger.warn({ err: String(folderErr) }, "Could not move sheet to backup folder");
     }
 
     // ── Save export record to DB ──────────────────────────────────────────────
