@@ -64,7 +64,7 @@ router.get("/modules", async (req, res) => {
       // Exception: if the student has already watched this module before, always allow re-access.
       const prevHasQuiz = prevMod ? (quizCountMap.get(prevMod.id) ?? 0) > 0 : false;
       const prevComplete =
-        idx === 0 ||
+        prevMod === null ||   // no gating module (first video, or all prior are PDF-only)
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
       // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,

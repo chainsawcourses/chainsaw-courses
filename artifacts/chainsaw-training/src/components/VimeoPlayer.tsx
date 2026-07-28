@@ -10,6 +10,9 @@ interface VimeoPlayerProps {
   vimeoId: string;
   onTimeUpdate?: (currentTime: number) => void;
   onEnded?: () => void;
+  /** True when the user has already watched this video to completion at least once.
+   *  If false, seeking forward past the furthest-watched point is blocked. */
+  videoWatched?: boolean;
 }
 
 function buildEmbedUrl(vimeoId: string, nativeControls: boolean): string {
@@ -37,7 +40,7 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
+export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -45,6 +48,9 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const isDraggingRef = useRef(false);
   const durationRef = useRef(0);
   const isReadyRef = useRef(false);
+  // High-water mark: furthest point the user has reached in the current session.
+  // Used to block seeking ahead when videoWatched is false.
+  const maxReachedTimeRef = useRef(0);
 
   const [watermarkPos, setWatermarkPos] = useState({ top: "15%", left: "50%" });
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -92,6 +98,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     setDuration(0);
     durationRef.current = 0;
     isReadyRef.current = false;
+    maxReachedTimeRef.current = 0;
     const t = setTimeout(() => {
       if (!isReadyRef.current) {
         setLoadError(
@@ -138,6 +145,10 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           if (!isDraggingRef.current) {
             setCurrentTime(data.value);
             onTimeUpdate?.(data.value);
+            // Advance the high-water mark as the video plays forward
+            if (data.value > maxReachedTimeRef.current) {
+              maxReachedTimeRef.current = data.value;
+            }
           }
         }
         if (data.event === "pause")  { isPausedRef.current = true;  setIsPaused(true); }
@@ -207,9 +218,14 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const applySeek = useCallback((clientX: number) => {
     const t = clientXToTime(clientX);
     if (t === null) return;
-    setCurrentTime(t);
-    sendCommand("setCurrentTime", t);
-  }, [clientXToTime, sendCommand]);
+    // If the video hasn't been fully watched yet, cap seeking to the furthest
+    // point the user has already reached in this session.
+    const capped = (!videoWatched && t > maxReachedTimeRef.current)
+      ? maxReachedTimeRef.current
+      : t;
+    setCurrentTime(capped);
+    sendCommand("setCurrentTime", capped);
+  }, [clientXToTime, sendCommand, videoWatched]);
 
   const onSeekMouseDown  = useCallback((e: React.MouseEvent<HTMLDivElement>)  => { isDraggingRef.current = true;  applySeek(e.clientX); }, [applySeek]);
   const onSeekMouseMove  = useCallback((e: React.MouseEvent<HTMLDivElement>)  => { if (isDraggingRef.current) applySeek(e.clientX); }, [applySeek]);
@@ -219,6 +235,8 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const onSeekTouchEnd   = useCallback((e: React.TouchEvent<HTMLDivElement>)  => { isDraggingRef.current = false; if (e.changedTouches.length) applySeek(e.changedTouches[0].clientX); }, [applySeek]);
 
   const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
+  // Visual marker showing how far the user has watched (only shown when seek is restricted)
+  const maxPct = duration > 0 ? Math.min(100, (maxReachedTimeRef.current / duration) * 100) : 0;
 
   return (
     <div
@@ -323,6 +341,10 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           onTouchMove={onSeekTouchMove}
           onTouchEnd={onSeekTouchEnd}
         >
+          {/* Furthest-watched marker — only visible when seek is restricted */}
+          {!videoWatched && maxPct > 0 && (
+            <div className="absolute left-0 top-0 h-full bg-white/30 rounded-full" style={{ width: `${maxPct}%` }} />
+          )}
           <div className="absolute left-0 top-0 h-full bg-[#e27226] rounded-full" style={{ width: `${pct}%` }} />
           <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-md" style={{ left: `calc(${pct}% - 8px)` }} />
         </div>

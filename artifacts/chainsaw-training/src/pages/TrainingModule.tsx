@@ -300,6 +300,7 @@ export default function TrainingModule() {
                       vimeoId={module.vimeoId!}
                       onTimeUpdate={handleTimeUpdate}
                       onEnded={handleVideoEnded}
+                      videoWatched={module.isCompleted || videoCompleted}
                     />
                   );
                 }
