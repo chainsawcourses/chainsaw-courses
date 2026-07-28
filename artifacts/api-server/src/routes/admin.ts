@@ -18,6 +18,7 @@ import {
   pushSubscriptionsTable,
   appFeedbackTable,
   backupTestLogsTable,
+  backupExportsTable,
   assessmentPassportsTable,
 } from "@workspace/db";
 import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
@@ -697,10 +698,88 @@ router.get("/admin/backup/export", async (req, res) => {
     });
 
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
-    res.json({ url: sheetUrl });
-    logger.info({ rows: users.length, sheetId: sheet.spreadsheetId }, "Admin exported data to Google Sheet");
+
+    // ── Find or create the "Chainsaw Courses Backups" Drive folder ────────────
+    let folderId: string | null = null;
+    try {
+      // Search for existing folder
+      const searchRes = await connectors.proxy(
+        "google-sheet",
+        `/drive/v3/files?q=${encodeURIComponent("name='Chainsaw Courses Backups' and mimeType='application/vnd.google-apps.folder' and trashed=false")}&fields=files(id,name)`,
+        { method: "GET" }
+      );
+      const searchData = await searchRes.json() as { files?: { id: string }[] };
+      if (searchData.files && searchData.files.length > 0) {
+        folderId = searchData.files[0].id;
+      } else {
+        // Create the folder
+        const folderRes = await connectors.proxy("google-sheet", "/drive/v3/files", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: "Chainsaw Courses Backups",
+            mimeType: "application/vnd.google-apps.folder",
+          }),
+        });
+        const folderData = await folderRes.json() as { id: string };
+        folderId = folderData.id;
+      }
+
+      // Move the sheet into the folder
+      if (folderId) {
+        // Get current parents first
+        const metaRes = await connectors.proxy(
+          "google-sheet",
+          `/drive/v3/files/${sheet.spreadsheetId}?fields=parents`,
+          { method: "GET" }
+        );
+        const meta = await metaRes.json() as { parents?: string[] };
+        const removeParents = meta.parents?.join(",") ?? "";
+        await connectors.proxy(
+          "google-sheet",
+          `/drive/v3/files/${sheet.spreadsheetId}?addParents=${folderId}&removeParents=${encodeURIComponent(removeParents)}&fields=id`,
+          { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) }
+        );
+      }
+    } catch (folderErr) {
+      // Non-fatal — sheet was still created, just not moved
+      logger.warn({ folderErr }, "Could not move sheet to backup folder");
+    }
+
+    // ── Save export record to DB ──────────────────────────────────────────────
+    try {
+      await db.insert(backupExportsTable).values({
+        title,
+        sheetUrl,
+        folderId,
+        rowCount: users.length,
+      });
+    } catch (dbErr) {
+      logger.warn({ dbErr }, "Could not save backup export record");
+    }
+
+    res.json({ url: sheetUrl, title, folderId });
+    logger.info({ rows: users.length, sheetId: sheet.spreadsheetId, folderId }, "Admin exported data to Google Sheet");
   } catch (err) {
     logger.error({ err }, "Error generating Google Sheet export");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Backup: list past exports ────────────────────────────────────────────────
+router.get("/admin/backup/exports", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const exports = await db
+      .select()
+      .from(backupExportsTable)
+      .orderBy(desc(backupExportsTable.exportedAt));
+    res.json(exports);
+  } catch (err) {
+    logger.error({ err }, "Error fetching backup exports");
     res.status(500).json({ error: "Internal server error" });
   }
 });

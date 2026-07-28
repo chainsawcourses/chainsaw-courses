@@ -215,6 +215,17 @@ export const insertBackupTestLogSchema = createInsertSchema(backupTestLogsTable)
 export type BackupTestLog = typeof backupTestLogsTable.$inferSelect;
 export type InsertBackupTestLog = z.infer<typeof insertBackupTestLogSchema>;
 
+export const backupExportsTable = pgTable("backup_exports", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  sheetUrl: text("sheet_url").notNull(),
+  folderId: text("folder_id"),
+  rowCount: integer("row_count").notNull().default(0),
+  exportedAt: timestamp("exported_at").notNull().defaultNow(),
+});
+
+export type BackupExport = typeof backupExportsTable.$inferSelect;
+
 export type NewsItem = typeof newsItemsTable.$inferSelect;
 export type InsertNewsItem = z.infer<typeof insertNewsItemSchema>;
 

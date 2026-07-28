@@ -69,8 +69,11 @@ export default function AdminDashboard() {
   const [generatedCode, setGeneratedCode] = useState("");
 
   type BackupLog = { id: number; testedAt: string; testedBy: string; outcome: string; notes: string | null; createdAt: string };
+  type BackupExport = { id: number; title: string; sheetUrl: string; folderId: string | null; rowCount: number; exportedAt: string };
   const [backupLogs, setBackupLogs] = useState<BackupLog[]>([]);
   const [backupLogsLoading, setBackupLogsLoading] = useState(false);
+  const [exportHistory, setExportHistory] = useState<BackupExport[]>([]);
+  const [exportHistoryLoading, setExportHistoryLoading] = useState(false);
   const [logDialogOpen, setLogDialogOpen] = useState(false);
   const [logTestedAt, setLogTestedAt] = useState(new Date().toISOString().slice(0, 10));
   const [logTestedBy, setLogTestedBy] = useState("");
@@ -96,7 +99,18 @@ export default function AdminDashboard() {
     }
   }, [adminToken]);
 
-  useEffect(() => { if (adminToken) fetchBackupLogs(); }, [adminToken, fetchBackupLogs]);
+  const fetchExportHistory = useCallback(async () => {
+    if (!adminToken) return;
+    setExportHistoryLoading(true);
+    try {
+      const res = await fetch("/api/admin/backup/exports", { headers: { admintoken: adminToken } });
+      if (res.ok) setExportHistory(await res.json());
+    } finally {
+      setExportHistoryLoading(false);
+    }
+  }, [adminToken]);
+
+  useEffect(() => { if (adminToken) { fetchBackupLogs(); fetchExportHistory(); } }, [adminToken, fetchBackupLogs, fetchExportHistory]);
 
   useEffect(() => {
     if (!adminToken) return;
@@ -116,6 +130,7 @@ export default function AdminDashboard() {
       if (!res.ok) { const body = await res.json().catch(() => ({})) as { error?: string }; alert(`Export failed: ${body.error ?? res.statusText}`); return; }
       const { url } = await res.json() as { url: string };
       window.open(url, "_blank", "noopener,noreferrer");
+      fetchExportHistory();
     } catch (err) {
       alert(`Export error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -711,7 +726,75 @@ export default function AdminDashboard() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 space-y-0">
+
+            {/* Export History */}
+            <div className="px-6 pt-4 pb-2">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Export History</p>
+              {exportHistoryLoading ? (
+                <div className="py-4 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+              ) : exportHistory.length === 0 ? (
+                <div className="py-4 text-center text-muted-foreground font-mono text-xs">
+                  No exports yet. Click "OPEN GOOGLE SHEET" to create your first export.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-secondary/30">
+                      <TableRow className="border-border">
+                        <TableHead className="font-mono text-xs">DATE</TableHead>
+                        <TableHead className="font-mono text-xs">TITLE</TableHead>
+                        <TableHead className="font-mono text-xs">LEARNERS</TableHead>
+                        <TableHead className="font-mono text-xs">DRIVE FOLDER</TableHead>
+                        <TableHead className="font-mono text-xs">OPEN</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {exportHistory.map((exp) => (
+                        <TableRow key={exp.id} className="border-border hover:bg-secondary/10">
+                          <TableCell className="font-mono text-xs whitespace-nowrap">
+                            {new Date(exp.exportedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">{exp.title}</TableCell>
+                          <TableCell className="font-mono text-xs">{exp.rowCount}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {exp.folderId ? (
+                              <a
+                                href={`https://drive.google.com/drive/folders/${exp.folderId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" /> FOLDER
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <a
+                              href={exp.sheetUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline font-mono text-xs flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3 h-3" /> SHEET
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-border mx-6" />
+
+            {/* Restoration Test Logs */}
+            <div className="px-6 pt-4 pb-0">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Restoration Tests</p>
+            </div>
             {backupLogsLoading ? (
               <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
             ) : backupLogs.length === 0 ? (
