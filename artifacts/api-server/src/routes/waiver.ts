@@ -236,6 +236,155 @@ router.get("/waiver/pdf", async (req, res) => {
   }
 });
 
+// Admin route: generate waiver PDF by student ID using admin token auth
+router.get("/waiver/pdf/:studentId", async (req, res) => {
+  const { verifyAdmin } = await import("./admin");
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const studentId = Number(req.params.studentId);
+  if (!studentId || isNaN(studentId)) {
+    res.status(400).json({ error: "Invalid student ID" });
+    return;
+  }
+
+  try {
+    const [waiver] = await db
+      .select()
+      .from(waiversTable)
+      .where(eq(waiversTable.userId, studentId));
+
+    if (!waiver) {
+      res.status(404).json({ error: "No waiver found" });
+      return;
+    }
+
+    const [userRecord] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, studentId));
+
+    const doc = new PDFDocument({ margin: 60, size: "A4" });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="chainsaw-courses-waiver-${userRecord?.fullName?.replace(/\s+/g, "-") ?? "signed"}.pdf"`
+    );
+    doc.pipe(res);
+
+    const orange = "#D97706";
+    const dark = "#1C1C1C";
+    const mid = "#555555";
+
+    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
+    const logoSize = 56;
+    const headerY = doc.y;
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 60, headerY, { width: logoSize, height: logoSize });
+    }
+    const textX = fs.existsSync(logoPath) ? 60 + logoSize + 12 : 60;
+    doc.fontSize(22).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 6, { lineBreak: false });
+    doc.fontSize(10).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 34, { lineBreak: false });
+    doc.text("", 60, headerY + logoSize + 8);
+    doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
+    doc.moveDown(1);
+
+    doc.fontSize(16).fillColor(dark).font("Helvetica-Bold").text("SIGNED LIABILITY WAIVER & AGREEMENT", { align: "center" });
+    doc.moveDown(1.5);
+
+    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("STUDENT DETAILS");
+    doc.moveDown(0.3);
+    doc.fontSize(10).fillColor(dark).font("Helvetica").text(`Full Name:   ${userRecord?.fullName ?? "—"}`);
+    doc.text(`Email:         ${userRecord?.email ?? "—"}`);
+    doc.text(`Date Signed: ${new Date(waiver.signedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}`);
+    doc.moveDown(1.5);
+
+    type ClauseSnapshot = { number: string; title: string; text: string };
+    let clauses: [string, string][];
+    if (waiver.clausesSnapshot) {
+      try {
+        const stored: ClauseSnapshot[] = JSON.parse(waiver.clausesSnapshot);
+        clauses = stored.map((c) => [`${c.number}. ${c.title}`, c.text]);
+      } catch {
+        clauses = [];
+      }
+    } else {
+      clauses = [
+        ["1. Educational Intent Only", "The materials provided within this course and manual serve strictly as theoretical references and study guides designed to support continuing professional development (CPD). They provide general guidance on best practices but do not, under any circumstances, qualify the user as a trained, competent, or certified chainsaw operator."],
+        ["2. No Certification Conferred", "Completion of this online course and/or reading the companion manual does not grant any formal industry certification, practical license, or qualification. Safe and lawful chainsaw operation mandates formal practical training, in-person field supervision by qualified instructors, and verified assessment against official industry standards."],
+        ["3. Regulatory Compliance", "It is the sole responsibility of the operator to maintain full compliance with all relevant local and national regulations."],
+        ["4. Personal Protection & Absolute Sobriety", "You are solely responsible for ensuring your own physical safety. This requires the mandatory use of correct, fully certified Personal Protective Equipment (PPE) at all times."],
+        ["5. Exclusion of Liability", "To the maximum extent permitted by law, you agree that Overleaf Publishers Ltd, its owners, authors, affiliates, and distributors entirely disclaim all liability for any direct, indirect, or consequential injuries."],
+        ["6. Disclaimer of Warranties", "All educational materials are provided on an \"as is\" basis, without warranties of any kind regarding their absolute accuracy, completeness, or practical effectiveness in the field."],
+        ["7. Prohibition of Lone Working and Mandatory Emergency Supervision", "The Candidate explicitly acknowledges, warrants, and agrees that no lone operation of a chainsaw is permitted under any circumstances."],
+      ];
+    }
+
+    for (const [title, body] of clauses) {
+      const clauseY = doc.y;
+      const cbSize = 7;
+      const cbX = 60;
+      const cbY = clauseY + 1;
+      doc.save();
+      doc.rect(cbX, cbY, cbSize, cbSize).strokeColor("#16a34a").lineWidth(0.8).stroke();
+      doc.moveTo(cbX + 1.2, cbY + cbSize * 0.55)
+         .lineTo(cbX + cbSize * 0.4, cbY + cbSize - 1.5)
+         .lineTo(cbX + cbSize - 1, cbY + 1.5)
+         .strokeColor("#16a34a").lineWidth(0.8).stroke();
+      doc.restore();
+      doc.fontSize(9).fillColor(dark).font("Helvetica-Bold").text(title, 72, clauseY, { width: 463, lineGap: 2 });
+      doc.fontSize(9).fillColor(dark).font("Helvetica").text(body, { indent: 12, lineGap: 3 });
+      doc.moveDown(0.7);
+    }
+
+    doc.fontSize(9).fillColor(mid).font("Helvetica").text(
+      "By proceeding with this course and its materials, you confirm that you have read this waiver in its entirety, that you assume full and absolute responsibility for your own actions and safety, and that you fully release Overleaf Publishers Ltd from any and all liability, claims, or legal consequences.",
+      { lineGap: 3 }
+    );
+    doc.moveDown(1.5);
+
+    doc.fontSize(10).fillColor(mid).font("Helvetica-Bold").text("SIGNATURE");
+    doc.moveDown(0.4);
+
+    const sigData = waiver.signatureData;
+    const sigBoxY = doc.y;
+    doc.rect(60, sigBoxY, 300, 100).strokeColor("#CCCCCC").lineWidth(1).stroke();
+    const sigMatch = sigData?.match(/^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,(.+)/s);
+    if (sigMatch) {
+      const imgBuffer = Buffer.from(sigMatch[2], "base64");
+      doc.image(imgBuffer, 65, sigBoxY + 5, { width: 290, height: 90 });
+    } else {
+      doc.fontSize(9).fillColor(mid).font("Helvetica").text("[Signature on file]", 70, sigBoxY + 40);
+    }
+    doc.text("", 60, sigBoxY + 110);
+    doc.moveDown(0.5);
+
+    doc.fontSize(9).fillColor(mid).font("Helvetica").text(
+      `Signed electronically on ${new Date(waiver.signedAt).toUTCString()}`,
+    );
+    doc.moveDown(2);
+
+    doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor("#CCCCCC").lineWidth(0.5).stroke();
+    doc.moveDown(0.5);
+    doc.fontSize(7).fillColor(mid).text(
+      "This document was generated automatically by Chainsaw Courses. © Chainsaw Courses. All rights reserved.",
+      { align: "center" }
+    );
+
+    doc.end();
+  } catch (err) {
+    logger.error({ err }, "Error generating admin waiver PDF");
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to generate PDF" });
+    }
+  }
+});
+
 router.post("/waiver", async (req, res) => {
   const parse = SignWaiverBody.safeParse(req.body);
   if (!parse.success) {
