@@ -536,7 +536,7 @@ export default function AdminDashboard() {
                       <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
                       <span className="text-muted-foreground">·</span>
                       {student.waiverSigned ? (
-                        <Badge variant="outline" className="text-primary border-primary text-[10px] font-mono rounded-none py-0">SIGNED</Badge>
+                        <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none py-0">SIGNED</Badge>
                       ) : (
                         <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none py-0">MISSING</Badge>
                       )}
@@ -591,7 +591,7 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         {student.waiverSigned ? (
-                          <Badge variant="outline" className="text-primary border-primary text-[10px] font-mono rounded-none">SIGNED</Badge>
+                          <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none">SIGNED</Badge>
                         ) : (
                           <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none">MISSING</Badge>
                         )}
