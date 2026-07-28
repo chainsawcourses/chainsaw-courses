@@ -96,3 +96,9 @@ id = "-fTzHu3oJNckGxNyuW9rD"
 uri = "file://screenshots/screen-risk-assessment.jpg"
 type = "image"
 title = "8 — Dynamic Risk Assessment (mobile)"
+
+[[outputs]]
+id = "sZy67hRqzllGcfJpt3tIq"
+uri = "file://attached_assets/signing_1785245390413.keystore"
+type = "unspecified"
+title = "signing.keystore (the correct one — password: yuWoWD_gRaB2)"
