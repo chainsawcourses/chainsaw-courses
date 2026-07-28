@@ -713,8 +713,8 @@ export default function AdminDashboard() {
                 className="h-9 font-mono text-xs"
                 asChild
               >
-                <a href="https://replit.com/@chainsawcourses" target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-3.5 h-3.5 mr-1" /> REPLIT BACKUPS
+                <a href="https://drive.google.com/drive/search?q=Chainsaw+Courses+Export" target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-3.5 h-3.5 mr-1" /> BACKUP FOLDER
                 </a>
               </Button>
               <Button
