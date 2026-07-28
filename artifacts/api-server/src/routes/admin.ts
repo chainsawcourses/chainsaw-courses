@@ -705,7 +705,7 @@ router.get("/admin/backup/export", async (req, res) => {
       // Search for existing folder
       const searchRes = await connectors.proxy(
         "google-sheet",
-        `/drive/v3/files?q=${encodeURIComponent("name='Chainsaw Courses Backups' and mimeType='application/vnd.google-apps.folder' and trashed=false")}&fields=files(id,name)`,
+        `/drive/v3/files?q=${encodeURIComponent("name='Chainsaw Courses User Backup' and mimeType='application/vnd.google-apps.folder' and trashed=false")}&fields=files(id,name)`,
         { method: "GET" }
       );
       const searchData = await searchRes.json() as { files?: { id: string }[] };
@@ -717,7 +717,7 @@ router.get("/admin/backup/export", async (req, res) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: "Chainsaw Courses Backups",
+            name: "Chainsaw Courses User Backup",
             mimeType: "application/vnd.google-apps.folder",
           }),
         });
