@@ -3,6 +3,9 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.chainsawcourses.uk",
-    "sha256_cert_fingerprints": ["99:87:D7:78:0B:3A:CB:01:84:F4:2F:3D:21:AC:6F:22:45:11:1F:C7:C9:AA:16:9F:93:81:27:FD:67:66:79:D3"]
+    "sha256_cert_fingerprints": [
+      "F6:99:DE:89:72:25:66:71:A3:50:47:1A:A7:28:FE:EB:0C:C4:1E:9A:59:6C:2D:A9:9E:8C:C0:A6:3C:4A:FF:04",
+      "99:87:D7:78:0B:3A:CB:01:84:F4:2F:3D:21:AC:6F:22:45:11:1F:C7:C9:AA:16:9F:93:81:27:FD:67:66:79:D3"
+    ]
   }
 }]
