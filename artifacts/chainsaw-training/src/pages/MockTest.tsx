@@ -962,7 +962,7 @@ export default function MockTest() {
                 </div>
               ) : !overallPassed ? (
                 <p className="font-mono text-xs text-muted-foreground/60 max-w-xs mx-auto">
-                  All questions must be passed to unlock the next module. Review the missed points below and retake.
+                  This is a good simulation of your actual NPTC assessment day, try again, you got this.
                 </p>
               ) : null}
             </div>
