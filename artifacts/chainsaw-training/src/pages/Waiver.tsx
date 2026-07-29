@@ -94,15 +94,6 @@ export default function Waiver() {
               Registered candidates go through a full checklist liability waiver before accessing the course. You can review it here:
             </p>
           </div>
-          <a
-            href="https://chainsawcourses.com/waiver"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-mono font-semibold text-[#e27226] hover:text-[#c9621f] underline underline-offset-4 transition-colors"
-          >
-            <ClipboardList className="w-4 h-4" />
-            View the candidate waiver
-          </a>
           <div className="pt-2 border-t border-border">
             <Button asChild variant="ghost" size="sm" className="font-mono uppercase tracking-widest text-xs">
               <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back to Training</Link>
