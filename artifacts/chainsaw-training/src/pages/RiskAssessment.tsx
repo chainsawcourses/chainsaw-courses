@@ -13,6 +13,7 @@ import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/ex
 const BASE = import.meta.env.BASE_URL as string;
 
 const bingAudio = new Audio("/audio/ding.wav");
+bingAudio.volume = 0.5;
 bingAudio.load();
 
 function playBing() {

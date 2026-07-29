@@ -10,6 +10,7 @@ import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
 
 const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.volume = 0.5;
 dingAudio.load();
 
 export default function Quiz() {

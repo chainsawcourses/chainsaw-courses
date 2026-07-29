@@ -7,6 +7,7 @@ import { useSubmitAppFeedback } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
 const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.volume = 0.5;
 dingAudio.load();
 
 export default function StudentFeedback() {
