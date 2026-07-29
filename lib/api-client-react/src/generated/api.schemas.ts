@@ -424,6 +424,7 @@ export interface StudentQuizResult {
   passed: boolean;
   score: number;
   attemptedAt: string;
+  totalAttempts?: number;
 }
 
 export interface StudentExamAttempt {

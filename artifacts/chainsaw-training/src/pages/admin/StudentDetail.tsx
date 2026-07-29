@@ -215,6 +215,9 @@ export default function StudentDetail() {
                       <div className="text-right">
                         <div className="text-xs text-muted-foreground font-mono uppercase">Score</div>
                         <div className="font-mono font-bold">{result.score}%</div>
+                        {result.totalAttempts !== undefined && result.totalAttempts > 1 && (
+                          <div className="text-[10px] text-muted-foreground font-mono">{result.totalAttempts} attempts</div>
+                        )}
                       </div>
                       {result.passed ? (
                         <CheckCircle className="w-6 h-6 text-primary" />

@@ -292,13 +292,17 @@ router.get("/admin/students/:studentId", async (req, res) => {
       waiverSignedAt: waiver?.signedAt?.toISOString() ?? null,
       waiverPdfUrl: waiver ? `/api/waiver/pdf/${studentId}` : null,
       completedModules: completedCount,
-      quizResults: Array.from(passedAttempts.values()).map((a) => ({
-        moduleId: a.moduleId,
-        moduleTitle: moduleMap.get(a.moduleId)?.title ?? "Module",
-        passed: a.passed,
-        score: a.score,
-        attemptedAt: a.attemptedAt.toISOString(),
-      })),
+      quizResults: Array.from(passedAttempts.values()).map((a) => {
+        const totalAttempts = quizAttempts.filter((q) => q.moduleId === a.moduleId).length;
+        return {
+          moduleId: a.moduleId,
+          moduleTitle: moduleMap.get(a.moduleId)?.title ?? "Module",
+          passed: a.passed,
+          score: a.score,
+          attemptedAt: a.attemptedAt.toISOString(),
+          totalAttempts,
+        };
+      }),
       examAttempts: examAttempts.map((a) => ({
         id: a.id,
         score: a.score,
