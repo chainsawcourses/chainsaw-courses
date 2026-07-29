@@ -45,7 +45,7 @@ export default function Quiz() {
       applausePlayedRef.current = true;
       try {
         const audio = new Audio(APPLAUSE_URL);
-        audio.volume = 0.7;
+        audio.volume = 0.47;
         audio.play().catch((e) => { console.warn("Applause audio failed to play:", e); });
       } catch (e) {
         console.warn("Applause audio error:", e);
@@ -55,7 +55,7 @@ export default function Quiz() {
       disappointmentPlayedRef.current = true;
       try {
         const audio = new Audio(DISAPPOINTMENT_URL);
-        audio.volume = 0.7;
+        audio.volume = 0.47;
         audio.play().catch((e) => { console.warn("Disappointment audio failed to play:", e); });
       } catch (e) {
         console.warn("Disappointment audio error:", e);

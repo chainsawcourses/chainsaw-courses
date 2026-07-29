@@ -363,7 +363,7 @@ export default function Exam() {
       applausePlayedRef.current = true;
       try {
         const audio = new Audio(CROWD_APPLAUSE_URL);
-        audio.volume = 0.7;
+        audio.volume = 0.47;
         audio.play().catch((e) => console.warn("Applause audio failed:", e));
       } catch (e) {
         console.warn("Applause audio error:", e);
@@ -374,7 +374,7 @@ export default function Exam() {
       disappointmentPlayedRef.current = true;
       try {
         const audio = new Audio(DISAPPOINTMENT_URL);
-        audio.volume = 0.7;
+        audio.volume = 0.47;
         audio.play().catch((e) => console.warn("Disappointment audio failed:", e));
       } catch (e) {
         console.warn("Disappointment audio error:", e);
