@@ -352,7 +352,7 @@ export default function TrainingModule() {
                           <ChevronRight className="w-3.5 h-3.5" /> TAKE MODULE QUIZ
                         </Link>
                       ) : nextVideoModule ? (
-                        <Link href={`/module/${nextVideoModule.id}`}>
+                        <Link href={`/training/${nextVideoModule.id}`}>
                           <ChevronRight className="w-3.5 h-3.5" /> PLAY NEXT VIDEO
                         </Link>
                       ) : (
@@ -380,7 +380,7 @@ export default function TrainingModule() {
                   </Button>
                 ) : nextVideoModule ? (
                   <Button className="w-full font-mono tracking-widest" asChild>
-                    <Link href={`/module/${nextVideoModule.id}`}>
+                    <Link href={`/training/${nextVideoModule.id}`}>
                       <ChevronRight className="w-4 h-4 mr-1.5" /> PLAY NEXT VIDEO
                     </Link>
                   </Button>
