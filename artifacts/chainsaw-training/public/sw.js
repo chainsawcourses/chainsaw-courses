@@ -71,6 +71,9 @@ self.addEventListener("fetch", (event) => {
   // Skip non-same-origin and API requests (always need fresh data)
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith("/api/")) return;
+  // Never cache Vite dev server internals — they must always be fresh
+  if (url.pathname.startsWith("/node_modules/")) return;
+  if (url.pathname.startsWith("/@")) return;
 
   event.respondWith(
     fetch(event.request)
