@@ -199,6 +199,12 @@ router.get("/exam/status", async (req, res) => {
     return;
   }
 
+  // Demo mode: exam is never unlocked for demo users
+  if (user.id === 0) {
+    res.json({ unlocked: false, attempts: 0, bestScore: null, passed: false, passingScore: EXAM_PASS_SCORE });
+    return;
+  }
+
   try {
     const unlocked = await isCourseComplete(user.id);
     const attempts = await db

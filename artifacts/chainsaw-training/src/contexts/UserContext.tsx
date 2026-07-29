@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { IS_DEMO, DEMO_ACTIVATION_CODE, DEMO_DEVICE_ID } from "../lib/demo";
 
 // ---------------------------------------------------------------------------
 // Cookie helpers — used as a fallback when localStorage is cleared (Safari iOS
@@ -71,9 +72,10 @@ const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [activationCode, setActivationCode] = useState<string | null>(
-    () => readPersisted("activationCode")
+    () => IS_DEMO ? DEMO_ACTIVATION_CODE : readPersisted("activationCode")
   );
   const [deviceId] = useState<string | null>(() => {
+    if (IS_DEMO) return DEMO_DEVICE_ID;
     let id = readPersisted("deviceId");
     if (!id) {
       id = uuidv4();
@@ -82,29 +84,32 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return id;
   });
   const [fullName, setFullName] = useState<string | null>(
-    () => readPersisted("fullName")
+    () => IS_DEMO ? "Demo User" : readPersisted("fullName")
   );
   const [email, setEmail] = useState<string | null>(
-    () => readPersisted("email")
+    () => IS_DEMO ? "demo@chainsawcourses.com" : readPersisted("email")
   );
   const [userId, setUserId] = useState<number | null>(() => {
+    if (IS_DEMO) return 0;
     const stored = readPersisted("userId");
     return stored ? Number(stored) : null;
   });
   const [accessExpiresAt, setAccessExpiresAt] = useState<string | null>(null);
   const [courseCompletedAt, setCourseCompletedAt] = useState<string | null>(null);
-  const [accessStatus, setAccessStatus] = useState<"active" | "expired" | "unknown">("unknown");
+  const [accessStatus, setAccessStatus] = useState<"active" | "expired" | "unknown">(IS_DEMO ? "active" : "unknown");
 
-  const setSession = (data: { activationCode: string; fullName: string; email: string; userId: number }) => {
-    writePersisted("activationCode", data.activationCode);
-    writePersisted("fullName", data.fullName);
-    writePersisted("email", data.email);
-    writePersisted("userId", String(data.userId));
-    setActivationCode(data.activationCode);
-    setFullName(data.fullName);
-    setEmail(data.email);
-    setUserId(data.userId);
-  };
+  const setSession = IS_DEMO
+    ? (_data: { activationCode: string; fullName: string; email: string; userId: number }) => {}
+    : (data: { activationCode: string; fullName: string; email: string; userId: number }) => {
+        writePersisted("activationCode", data.activationCode);
+        writePersisted("fullName", data.fullName);
+        writePersisted("email", data.email);
+        writePersisted("userId", String(data.userId));
+        setActivationCode(data.activationCode);
+        setFullName(data.fullName);
+        setEmail(data.email);
+        setUserId(data.userId);
+      };
 
   const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown" }) => {
     setAccessExpiresAt(data.accessExpiresAt);
@@ -112,19 +117,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setAccessStatus(data.accessStatus);
   };
 
-  const clearSession = () => {
-    removePersisted("activationCode");
-    removePersisted("fullName");
-    removePersisted("email");
-    removePersisted("userId");
-    setActivationCode(null);
-    setFullName(null);
-    setEmail(null);
-    setUserId(null);
-    setAccessExpiresAt(null);
-    setCourseCompletedAt(null);
-    setAccessStatus("unknown");
-  };
+  const clearSession = IS_DEMO
+    ? () => {}
+    : () => {
+        removePersisted("activationCode");
+        removePersisted("fullName");
+        removePersisted("email");
+        removePersisted("userId");
+        setActivationCode(null);
+        setFullName(null);
+        setEmail(null);
+        setUserId(null);
+        setAccessExpiresAt(null);
+        setCourseCompletedAt(null);
+        setAccessStatus("unknown");
+      };
 
   return (
     <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, accessExpiresAt, courseCompletedAt, accessStatus, setSession, setAccessInfo, clearSession }}>

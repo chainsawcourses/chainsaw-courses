@@ -23,6 +23,9 @@ router.post("/progress/heartbeat", async (req, res) => {
     return;
   }
 
+  // Demo mode: acknowledge but skip all DB writes
+  if (user.id === 0) { res.json({ success: true, message: "Heartbeat saved" }); return; }
+
   try {
     const existing = await db
       .select()
@@ -67,6 +70,9 @@ router.post("/progress/complete-video", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+
+  // Demo mode: acknowledge but skip all DB writes
+  if (user.id === 0) { res.json({ success: true, message: "Video marked complete" }); return; }
 
   try {
     // Check if the module has quiz questions — if not, auto-mark quiz as passed too
@@ -131,6 +137,9 @@ router.post("/progress/complete-assessment", async (req, res) => {
     return;
   }
 
+  // Demo mode: acknowledge but skip all DB writes
+  if (user.id === 0) { res.json({ success: true, message: "Assessment result recorded" }); return; }
+
   if (!passed) {
     res.json({ success: true, message: "Assessment result recorded (not passed)" });
     return;
@@ -178,6 +187,12 @@ router.get("/progress/summary", async (req, res) => {
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  // Demo mode: return zeroed summary (no real progress)
+  if (user.id === 0) {
+    res.json({ totalModules: 0, completedModules: 0, quizzesPassed: 0, percentComplete: 0, currentModuleId: null, examPassed: false, certificateEarned: false });
     return;
   }
 

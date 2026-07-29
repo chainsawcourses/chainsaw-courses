@@ -151,8 +151,31 @@ router.post("/auth/activate", async (req, res) => {
   }
 });
 
+// Synthetic demo user — returned when DEMO_MODE=true and code is DEMO-PREVIEW.
+// id=0 is used as a sentinel throughout routes to skip DB writes.
+const DEMO_USER_OBJ = {
+  id: 0,
+  fullName: "Demo User",
+  email: "demo@chainsawcourses.com",
+  activationCode: "DEMO-PREVIEW",
+  deviceId: "demo-device-0000",
+  accessExpiresAt: null,
+  subscriptionExpiresAt: null,
+  courseCompletedAt: null,
+  certificateIssuedAt: null,
+  activatedAt: new Date("2024-01-01"),
+  lastActivityAt: null,
+  deletedAt: null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;
+
 async function resolveUser(activationCode: string, deviceId: string, userId?: number) {
   const normalizedCode = activationCode.trim().toUpperCase();
+
+  // Demo mode: return the synthetic user without any DB lookup
+  if (process.env.DEMO_MODE === "true" && normalizedCode === "DEMO-PREVIEW") {
+    return DEMO_USER_OBJ;
+  }
 
   // Fast path: when the client supplies its own userId, verify it directly.
   if (userId) {

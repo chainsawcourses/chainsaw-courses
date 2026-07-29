@@ -413,6 +413,12 @@ router.post("/waiver", async (req, res) => {
     return;
   }
 
+  // Demo mode: signing a waiver is not permitted
+  if (user.id === 0) {
+    res.status(403).json({ error: "Waiver signing is not available in demo mode." });
+    return;
+  }
+
   try {
     const [existing] = await db
       .select()

@@ -96,6 +96,12 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
     const score = Math.round((correct / questions.length) * 100);
     const passed = score >= 80;
 
+    // Demo mode: grade the quiz for real feedback but skip all DB writes
+    if (user.id === 0) {
+      res.json({ passed, score, passingScore: 80, correct, total: questions.length, feedback });
+      return;
+    }
+
     await db.insert(quizAttemptsTable).values({
       userId: user.id,
       moduleId,

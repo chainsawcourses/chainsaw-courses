@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 
 import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { IS_DEMO } from "../lib/demo";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
 import { COURSE_CONTENT_VERSION } from "../data/version";
@@ -23,6 +24,7 @@ function AccessCountdownBanner() {
   const { accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
   const [, navigate] = useLocation();
 
+  if (IS_DEMO) return null;
   if (!accessExpiresAt || accessStatus === "expired") return null;
 
   const now = Date.now();
@@ -280,7 +282,7 @@ export default function TrainingList() {
   }, []);
 
   useEffect(() => {
-    if (!activationCode || !deviceId) setLocation("/");
+    if (!IS_DEMO && (!activationCode || !deviceId)) setLocation("/");
   }, [activationCode, deviceId, setLocation]);
 
   // After returning from a passed quiz, scroll to the newly-unlocked next module.

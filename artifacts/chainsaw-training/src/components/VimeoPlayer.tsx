@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle, type ForwardedRef } from "react";
 import { Maximize2, Minimize2, Play, Pause } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
+import { IS_DEMO } from "../lib/demo";
 
 export interface VimeoPlayerHandle {
   replay: () => void;
@@ -299,7 +300,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
               textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
             }}
           >
-            {fullName} · {email}
+            {IS_DEMO ? "DEMO" : `${fullName} · ${email}`}
           </div>
         )}
 

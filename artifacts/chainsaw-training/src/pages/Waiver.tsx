@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSignWaiver } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { SignatureCanvas, SignaturePadRef } from "@/components/SignaturePad";
+import { IS_DEMO } from "../lib/demo";
 import { CheckCircle2, Circle } from "lucide-react";
 
 const CLAUSES = [
@@ -72,9 +73,13 @@ export default function Waiver() {
   }, []);
 
   useEffect(() => {
-    if (!activationCode || !deviceId) {
+    if (!IS_DEMO && (!activationCode || !deviceId)) {
       setLocation("/");
       return;
+    }
+    // Demo mode: waiver page is not accessible — redirect back to training
+    if (IS_DEMO) {
+      setLocation("/training");
     }
   }, [activationCode, deviceId, setLocation]);
 

@@ -22,6 +22,35 @@ router.get("/modules", async (req, res) => {
     return;
   }
 
+  // Demo mode: return all modules with only the first 3 video modules unlocked
+  if (user.id === 0) {
+    const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
+    let videoUnlocked = 0;
+    return res.json(allMods.map((mod) => {
+      const isCourseReq = mod.category === "COURSE REQUIREMENTS";
+      const isVideo = mod.contentType === "video";
+      const unlocked = isCourseReq || (isVideo && videoUnlocked < 3);
+      if (isVideo && unlocked) videoUnlocked++;
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: !unlocked,
+        isCompleted: false,
+        quizPassed: false,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+      };
+    }));
+  }
+
   try {
     const [modules, progressRecords, quizCounts] = await Promise.all([
       db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
@@ -122,6 +151,29 @@ router.get("/modules/:moduleId", async (req, res) => {
     if (!mod) {
       res.status(404).json({ error: "Module not found" });
       return;
+    }
+
+    // Demo mode: no locking logic needed — just return the module with no progress
+    if (user.id === 0) {
+      return res.json({
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: false,
+        isCompleted: false,
+        quizPassed: false,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        vimeoId: mod.vimeoId ?? null,
+        pdfUrl: mod.pdfUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+      });
     }
 
     const allModules = await db

@@ -61,6 +61,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useEffect } from "react";
 import { useUserSession } from "./contexts/UserContext";
+import { IS_DEMO } from "./lib/demo";
 
 // Light theme — ensure dark class is removed
 if (typeof document !== "undefined") {
@@ -68,12 +69,13 @@ if (typeof document !== "undefined") {
 }
 
 // Checks access status on load and redirects if expired.
-// Only active when the user is logged in.
+// Only active when the user is logged in (skipped entirely in demo mode).
 function GlobalAccessCheck() {
   const { activationCode, deviceId, userId, setAccessInfo } = useUserSession();
   const [, navigate] = useLocation();
 
   useEffect(() => {
+    if (IS_DEMO) return;
     if (!activationCode || !deviceId) return;
     const headers: Record<string, string> = {
       "activationCode": activationCode,
@@ -149,14 +151,21 @@ function isDevEnvironment(): boolean {
   return h === "localhost" || h.includes(".replit.dev") || h.includes(".repl.co");
 }
 
-// Gate: browser visitors see the download page; only installed-app or admin/dev get through
+// Gate: browser visitors see the download page; only installed-app, admin/dev, or demo get through
 function AppGate({ children }: { children: React.ReactNode }) {
   const [path] = useLocation();
   const isAdmin = path.startsWith("/admin") || path === "/admin-preview";
-  if (!isAdmin && !isDevEnvironment() && !isInstalledApp()) {
+  if (!isAdmin && !isDevEnvironment() && !isInstalledApp() && !IS_DEMO) {
     return <DownloadApp />;
   }
   return <>{children}</>;
+}
+
+// In demo mode, redirect the root activation page straight to training
+function DemoRootRedirect() {
+  const [, navigate] = useLocation();
+  useEffect(() => { navigate("/training"); }, [navigate]);
+  return null;
 }
 
 function Router() {
@@ -166,7 +175,10 @@ function Router() {
       {/* Student Routes */}
       <Route path="/share" component={ShareTarget} />
       <Route path="/install" component={Install} />
-      <Route path="/" component={Activation} />
+      {IS_DEMO
+        ? <Route path="/" component={DemoRootRedirect} />
+        : <Route path="/" component={Activation} />
+      }
       <Route path="/waiver" component={Waiver} />
       <Route path="/training" component={TrainingList} />
       <Route path="/training/:moduleId" component={TrainingModule} />

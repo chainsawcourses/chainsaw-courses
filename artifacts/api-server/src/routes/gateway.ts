@@ -58,6 +58,8 @@ router.get("/gateway/passport", async (req, res) => {
   try {
     const user = await requireGatewayUser(req, res);
     if (!user) return;
+    // Demo mode: no passport (frontend skips the wizard when IS_DEMO)
+    if (user.id === 0) { res.json(null); return; }
     const [passport] = await db.select().from(assessmentPassportsTable).where(eq(assessmentPassportsTable.userId, user.id));
     res.json(passport ?? null);
   } catch (err) {
@@ -100,6 +102,8 @@ router.get("/gateway/enquiries", async (req, res) => {
   try {
     const user = await requireGatewayUser(req, res);
     if (!user) return;
+    // Demo mode: no enquiries
+    if (user.id === 0) { res.json([]); return; }
     const enquiries = await db.select().from(assessmentEnquiriesTable).where(eq(assessmentEnquiriesTable.userId, user.id));
     res.json(enquiries);
   } catch (err) {
@@ -113,6 +117,8 @@ router.post("/gateway/enquiries", async (req, res) => {
   try {
     const user = await requireGatewayUser(req, res);
     if (!user) return;
+    // Demo mode: no enquiry recording
+    if (user.id === 0) { res.json({ ok: true }); return; }
 
     const { venueId } = req.body as { venueId: number };
     if (!venueId) { res.status(400).json({ error: "venueId required" }); return; }
