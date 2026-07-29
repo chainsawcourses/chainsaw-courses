@@ -285,25 +285,45 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
           </div>
         </div>
 
-        {/* Roaming watermark */}
+        {/* Watermark */}
         {iframeLoaded && !loadError && (
-          <div
-            className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
-            style={{
-              top: watermarkPos.top,
-              left: watermarkPos.left,
-              transform: "translate(-50%, -50%)",
-              fontFamily: "monospace",
-              fontSize: IS_DEMO ? "clamp(2rem, 8vw, 3.5rem)" : "clamp(0.6rem, 1.5vw, 0.75rem)",
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "rgba(255,255,255,0.65)",
-              textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
-            }}
-          >
-            {IS_DEMO ? "DEMO" : `${fullName} · ${email}`}
-          </div>
+          IS_DEMO ? (
+            <div
+              className="pointer-events-none absolute z-[46] whitespace-nowrap select-none"
+              style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontFamily: "monospace",
+                fontSize: "clamp(2rem, 8vw, 3.5rem)",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.25)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+              }}
+            >
+              DEMO
+            </div>
+          ) : (
+            <div
+              className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
+              style={{
+                top: watermarkPos.top,
+                left: watermarkPos.left,
+                transform: "translate(-50%, -50%)",
+                fontFamily: "monospace",
+                fontSize: "clamp(0.6rem, 1.5vw, 0.75rem)",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.65)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
+              }}
+            >
+              {`${fullName} · ${email}`}
+            </div>
+          )
         )}
 
         {/* Error overlay */}
