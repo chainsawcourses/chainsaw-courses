@@ -18,24 +18,24 @@ export default function StudentFeedback() {
   const playDing = () => {
     try {
       const ctx = new AudioContext();
-      const play = () => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.4, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.6);
-        osc.onended = () => ctx.close();
-      };
+      // Schedule the note immediately (within the user-gesture call stack).
+      // iOS requires oscillator.start() to be called synchronously during
+      // the gesture — not inside a .then() callback which loses that context.
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+      osc.onended = () => ctx.close();
+      // Resume in case the context started suspended (common on iOS).
       if (ctx.state === "suspended") {
-        ctx.resume().then(play).catch(() => {});
-      } else {
-        play();
+        ctx.resume().catch(() => {});
       }
     } catch (e) {
       // silently ignore if AudioContext unavailable
