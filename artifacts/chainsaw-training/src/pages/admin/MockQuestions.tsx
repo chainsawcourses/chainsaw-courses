@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Pencil, Trash2, Save, X, Upload, ToggleLeft, ToggleRight, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Pencil, Trash2, Save, X, Upload, ToggleLeft, ToggleRight, AlertTriangle, ImagePlus, Loader2 } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -118,9 +118,74 @@ function PromptEditor({
   );
 }
 
+function ImageUploader({
+  adminToken, value, onChange,
+}: { adminToken: string; value?: string; onChange: (url: string | undefined) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await fetch("/api/admin/mock-questions/upload-image", {
+        method: "POST",
+        headers: { admintoken: adminToken },
+        body: fd,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      onChange(url);
+    } catch {
+      alert("Image upload failed — please try again.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Image (optional)</label>
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="font-mono text-xs gap-1.5 h-8"
+        >
+          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />}
+          {uploading ? "Uploading…" : "Upload photo"}
+        </Button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange(undefined)}
+            className="text-xs font-mono text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors"
+          >
+            <X className="w-3 h-3" /> Remove
+          </button>
+        )}
+        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFile} />
+      </div>
+      {value && (
+        <img src={value} alt="Question image" className="rounded-md border border-border max-h-40 object-contain bg-secondary/10" />
+      )}
+      {!value && (
+        <p className="font-mono text-[10px] text-muted-foreground">JPG, PNG, WebP or GIF · max 5 MB</p>
+      )}
+    </div>
+  );
+}
+
 function QuestionEditor({
-  initial, onSave, onCancel, saving,
-}: { initial: Omit<MockQuestion, "id"> & { id?: number }; onSave: (data: Omit<MockQuestion, "id">) => void; onCancel: () => void; saving: boolean }) {
+  initial, adminToken, onSave, onCancel, saving,
+}: { initial: Omit<MockQuestion, "id"> & { id?: number }; adminToken: string; onSave: (data: Omit<MockQuestion, "id">) => void; onCancel: () => void; saving: boolean }) {
   const [form, setForm] = useState<Omit<MockQuestion, "id">>({
     question: initial.question,
     prompts: initial.prompts,
@@ -148,15 +213,11 @@ function QuestionEditor({
           className="w-full rounded border border-input bg-background px-3 py-2 text-sm mt-1 resize-none"
         />
       </div>
-      <div>
-        <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Image URL (optional)</label>
-        <input
-          value={form.image ?? ""}
-          onChange={e => setForm(f => ({ ...f, image: e.target.value || undefined }))}
-          placeholder="/images/example.jpg"
-          className="w-full rounded border border-input bg-background px-3 py-1.5 text-sm font-mono mt-1"
-        />
-      </div>
+      <ImageUploader
+        adminToken={adminToken}
+        value={form.image}
+        onChange={url => setForm(f => ({ ...f, image: url }))}
+      />
       <div className="flex items-center gap-3">
         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort order</label>
         <input
@@ -342,6 +403,7 @@ export default function MockQuestions() {
             <h3 className="font-mono font-bold text-sm uppercase tracking-widest mb-3">New Question</h3>
             <QuestionEditor
               initial={{ ...BLANK_Q }}
+              adminToken={adminToken ?? ""}
               onSave={handleCreate}
               onCancel={() => setEditing(null)}
               saving={saving}
@@ -407,6 +469,7 @@ export default function MockQuestions() {
                   {isEditingThis ? (
                     <QuestionEditor
                       initial={q}
+                      adminToken={adminToken ?? ""}
                       onSave={data => handleUpdate(q.id, data)}
                       onCancel={() => setEditing(null)}
                       saving={saving}

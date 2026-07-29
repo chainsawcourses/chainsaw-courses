@@ -1,9 +1,31 @@
 import { Router } from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { db, mockQuestionsTable } from "@workspace/db";
 import { eq, asc, sql } from "drizzle-orm";
 import { verifyAdmin } from "./admin";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+
+const UPLOAD_DIR = path.join(__dirname, "../../uploads/question-images");
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const name = `q-img-${Date.now()}${ext}`;
+      cb(null, name);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (_req, file, cb) => {
+    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true);
+    else cb(new Error("Images only (jpeg/png/webp/gif)"));
+  },
+});
 
 const router = Router();
 
@@ -37,6 +59,16 @@ function parseRow(row: typeof mockQuestionsTable.$inferSelect) {
     isActive: row.isActive,
   };
 }
+
+// ── Admin: upload image ──────────────────────────────────────────────────────
+router.post("/admin/mock-questions/upload-image", (req, res, next) => {
+  if (!verifyAdmin(req as Parameters<typeof verifyAdmin>[0])) { res.status(401).json({ error: "Unauthorized" }); return; }
+  next();
+}, upload.single("image"), (req, res) => {
+  if (!req.file) { res.status(400).json({ error: "No file received" }); return; }
+  const url = `/question-images/uploads/${req.file.filename}`;
+  res.json({ url });
+});
 
 // ── Admin: list all ──────────────────────────────────────────────────────────
 router.get("/admin/mock-questions", async (req, res) => {

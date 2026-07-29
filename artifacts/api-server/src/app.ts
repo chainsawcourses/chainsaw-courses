@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { loadAllAiResources } from "./lib/ai-resource";
@@ -43,6 +44,9 @@ app.use("/api", (_req, res, next) => {
   res.setHeader("Expires", "0");
   next();
 });
+
+// Serve uploaded question images as static files
+app.use("/question-images/uploads", express.static(path.join(__dirname, "../uploads/question-images")));
 
 app.use("/api", router);
 
