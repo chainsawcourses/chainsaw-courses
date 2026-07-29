@@ -48,6 +48,12 @@ const PPE_ITEMS = [
   "PUWER-compliant chainsaw with all safety features present and working",
 ];
 
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
+  return null;
+}
+
 export default function PracticalGateway() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, email } = useUserSession();
@@ -72,8 +78,18 @@ export default function PracticalGateway() {
   const [wpPhone, setWpPhone] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
   const [savingPassport, setSavingPassport] = useState(false);
+  const [studentLatLng, setStudentLatLng] = useState<[number, number] | null>(null);
 
   const headers = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
+
+  useEffect(() => {
+    if (!passport?.postcode) return;
+    const pc = passport.postcode.replace(/\s+/g, "").toUpperCase();
+    fetch(`https://api.postcodes.io/postcodes/${pc}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.result) setStudentLatLng([d.result.latitude, d.result.longitude]); })
+      .catch(() => {});
+  }, [passport?.postcode]);
 
   const fetchAll = useCallback(async () => {
     if (!activationCode || !deviceId) return;
@@ -232,6 +248,7 @@ export default function PracticalGateway() {
   // ─── Main Gateway Map ──────────────────────────────────────────────────────
 
   const handleRegisterInterest = async (venue: Venue) => {
+
     if (!activationCode || !deviceId || registeringId) return;
     setRegisteringId(venue.id);
     try {
@@ -254,25 +271,8 @@ export default function PracticalGateway() {
     }
   };
 
-  const [studentLatLng, setStudentLatLng] = useState<[number, number] | null>(null);
-
-  useEffect(() => {
-    if (!passport?.postcode) return;
-    const pc = passport.postcode.replace(/\s+/g, "").toUpperCase();
-    fetch(`https://api.postcodes.io/postcodes/${pc}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.result) setStudentLatLng([d.result.latitude, d.result.longitude]); })
-      .catch(() => {});
-  }, [passport?.postcode]);
-
   const mapCenter: [number, number] = studentLatLng ?? (venues.length > 0 ? [53.5, -1.5] : [52.5, -1.5]);
   const mapZoom = studentLatLng ? 9 : 6;
-
-  function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
-    const map = useMap();
-    useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
