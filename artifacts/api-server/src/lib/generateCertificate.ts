@@ -3,7 +3,14 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
-const PUBLIC     = path.resolve("../../artifacts/chainsaw-training/public");
+// Resolve public asset dir from either the workspace root (production) or
+// from artifacts/api-server/ (dev via pnpm).  Try both and use whichever exists.
+const _candidates = [
+  path.resolve("artifacts/chainsaw-training/public"),        // production: CWD = workspace root
+  path.resolve("../../artifacts/chainsaw-training/public"),  // dev:        CWD = artifacts/api-server/
+];
+const PUBLIC = _candidates.find(p => { try { return fs.statSync(p).isDirectory(); } catch { return false; } }) ?? _candidates[0];
+
 const LOGO_PATH  = path.join(PUBLIC, "logo.png");
 const IIRSM_PATH = path.join(PUBLIC, "iirsm-logo.png");
 const BG_PATH    = path.join(PUBLIC, "bg.jpg");

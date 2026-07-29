@@ -133,13 +133,16 @@ function CertificateButton() {
       if (!res.ok) throw new Error("Failed to generate certificate");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } catch {
-      // silent — user can retry
+      // window.open works reliably on mobile; a.click() is often blocked by browsers
+      const w = window.open(url, "_blank");
+      if (!w) {
+        // Popup blocked fallback — navigate current tab to the blob
+        window.location.href = url;
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    } catch (err) {
+      console.error("Certificate error:", err);
+      alert("Could not generate your certificate — please try again.");
     } finally {
       setLoading(false);
     }
