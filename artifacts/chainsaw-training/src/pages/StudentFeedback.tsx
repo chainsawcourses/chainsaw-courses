@@ -37,9 +37,10 @@ export default function StudentFeedback() {
 
   const handleSubmit = () => {
     if (!rating || !deviceId || !activationCode) return;
+    playDing();
     submitFeedback.mutate(
       { data: { deviceId, activationCode, rating, comment: comment || undefined } },
-      { onSuccess: () => { playDing(); setSubmitted(true); } }
+      { onSuccess: () => setSubmitted(true) }
     );
   };
 
