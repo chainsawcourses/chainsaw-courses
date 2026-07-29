@@ -93,7 +93,6 @@ export default function TrainingList() {
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [certLoading, setCertLoading] = useState(false);
   const [certDownloading, setCertDownloading] = useState(false);
   const [certResending, setCertResending] = useState(false);
   const { toast } = useToast();
@@ -103,18 +102,8 @@ export default function TrainingList() {
 
   const certHeaders = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
 
-  const handleViewCertificate = async () => {
-    if (!activationCode || !deviceId || certLoading) return;
-    setCertLoading(true);
-    try {
-      const res = await fetch("/api/certificate", { headers: certHeaders });
-      if (!res.ok) { toast({ variant: "destructive", title: "Could not load certificate", description: "Please try again." }); return; }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if (!w) window.location.href = url;
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
-    } finally { setCertLoading(false); }
+  const handleViewCertificate = () => {
+    setLocation("/certificate");
   };
 
   const handleDownloadCertificate = async () => {
@@ -125,8 +114,13 @@ export default function TrainingList() {
       if (!res.ok) { toast({ variant: "destructive", title: "Could not download certificate", description: "Please try again." }); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if (!w) window.location.href = url;
+      // Appended-anchor pattern — triggers real download on desktop, Android, and iOS 13+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw_Certificate.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 30000);
     } finally { setCertDownloading(false); }
   };
@@ -779,12 +773,10 @@ export default function TrainingList() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleViewCertificate}
-                    disabled={certLoading}
-                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
-                    title="Open certificate in browser"
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px transition-all"
+                    title="View certificate"
                   >
-                    {certLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                    <span>View</span>
+                    View
                   </button>
                   <span className="text-muted-foreground/30 text-[10px]">·</span>
                   <button

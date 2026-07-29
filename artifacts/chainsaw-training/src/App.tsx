@@ -53,6 +53,7 @@ import ReasonableAdjustments from "@/pages/admin/ReasonableAdjustments";
 import MalpracticeLog from "@/pages/admin/MalpracticeLog";
 import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
+import CertificatePage from "@/pages/Certificate";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 import AccessExpired from "@/pages/AccessExpired";
 import Install from "@/pages/Install";
@@ -184,6 +185,7 @@ function Router() {
       <Route path="/training/:moduleId" component={TrainingModule} />
       <Route path="/quiz/:moduleId" component={Quiz} />
       <Route path="/exam" component={Exam} />
+      <Route path="/certificate" component={CertificatePage} />
       <Route path="/mock-test" component={MockTest} />
       <Route path="/inspection" component={Inspection} />
       <Route path="/risk-assessment" component={RiskAssessment} />

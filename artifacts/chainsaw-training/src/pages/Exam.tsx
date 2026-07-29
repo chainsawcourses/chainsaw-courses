@@ -120,42 +120,15 @@ function ConfettiCanvas() {
 // ─── Certificate download button ─────────────────────────────────────────────
 
 function CertificateButton() {
-  const { activationCode, deviceId } = useUserSession();
-  const [loading, setLoading] = useState(false);
-
-  const handleDownload = async () => {
-    if (!activationCode || !deviceId) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/certificate", {
-        headers: { activationcode: activationCode, deviceid: deviceId },
-      });
-      if (!res.ok) throw new Error("Failed to generate certificate");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      // window.open works reliably on mobile; a.click() is often blocked by browsers
-      const w = window.open(url, "_blank");
-      if (!w) {
-        // Popup blocked fallback — navigate current tab to the blob
-        window.location.href = url;
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
-    } catch (err) {
-      console.error("Certificate error:", err);
-      alert("Could not generate your certificate — please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [, navigate] = useLocation();
 
   return (
     <Button
-      onClick={handleDownload}
-      disabled={loading}
+      onClick={() => navigate("/certificate")}
       className="w-full h-14 font-mono font-bold tracking-widest gap-2"
     >
       <FileDown className="w-5 h-5" />
-      {loading ? "GENERATING..." : "VIEW CERTIFICATE"}
+      VIEW CERTIFICATE
     </Button>
   );
 }
