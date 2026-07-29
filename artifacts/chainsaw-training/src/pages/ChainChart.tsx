@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Cog, Search, CheckCircle2, Info, Tag } from "lucide-react";
+import { ArrowLeft, Cog, Search, CheckCircle2, Info, Tag, QrCode, Download } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { CHAIN_CHART, PITCH_POWER_GUIDE, CHAIN_LETTER_CODES, type ChainChartRow } from "../data/chainChart";
+import QRCode from "qrcode";
 
 type Brand = "oregon" | "stihl" | "husqvarna";
 
@@ -59,6 +60,31 @@ export default function ChainChart() {
   const [lockedQuery, setLockedQuery] = useState("");
   const [stihlQuery2, setStihlQuery2] = useState("");
 
+  // QR code for the physical manual
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const qrUrl = `${window.location.origin}/chain-chart`;
+  useEffect(() => {
+    if (!qrCanvasRef.current) return;
+    QRCode.toCanvas(qrCanvasRef.current, qrUrl, {
+      width: 180,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+    }).catch(() => {});
+  }, [qrUrl]);
+  const handleQrDownload = async () => {
+    try {
+      const dataUrl = await QRCode.toDataURL(qrUrl, {
+        width: 600,
+        margin: 2,
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "qr-chain-identification.png";
+      a.click();
+    } catch { /* ignore */ }
+  };
+
   const searchQuery = brand === "stihl" ? query : lockedQuery;
 
   const matches = useMemo(
@@ -92,6 +118,32 @@ export default function ChainChart() {
             Chain Identification
           </h1>
         </div>
+
+        {/* QR Code panel */}
+        <Card className="border-border bg-card/60">
+          <CardContent className="p-4 space-y-3">
+            <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary flex items-center gap-1.5">
+              <QrCode className="w-3.5 h-3.5" /> Scan to Open This Page
+            </h2>
+            <p className="font-mono text-[11px] text-muted-foreground">
+              Print this QR code in your physical manual — students scan it to jump straight to the Chain Identification tool.
+            </p>
+            <div className="flex flex-col items-center gap-3">
+              <div className="bg-white rounded-lg p-3 inline-block">
+                <canvas ref={qrCanvasRef} />
+              </div>
+              <p className="font-mono text-[10px] text-muted-foreground break-all text-center">{qrUrl}</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleQrDownload}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <Download className="w-3.5 h-3.5 mr-2" /> Download PNG
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick lookup */}
         <Card className="border-border bg-card/60">
