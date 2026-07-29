@@ -175,15 +175,12 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     return () => clearInterval(id);
   }, [sendCommand]);
 
-  // Roaming watermark
+  // Roaming watermark — 35 s on mobile, 60 s on desktop
   useEffect(() => {
+    const isDesktop = window.innerWidth >= 640;
+    const interval = isDesktop ? 60000 : 35000;
     const move = () => {
-      // On desktop the 16:9 container holds a portrait video that fills the
-      // full width via the 316%-height iframe trick, but slight letterboxing
-      // can still appear if a video isn't exactly 9:16. Keep the watermark in
-      // a horizontal safe zone (20–80%) to avoid any black bars on the sides.
-      // On mobile the container is 9:16 so the full width is live video.
-      const isDesktop = window.innerWidth >= 640;
+      // On desktop keep watermark away from potential black pillarbox edges.
       const leftMin = isDesktop ? 20 : 15;
       const leftMax = isDesktop ? 80 : 85;
       const zones = [
@@ -193,7 +190,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
       setWatermarkPos(zones[Math.floor(Math.random() * zones.length)]);
     };
     move();
-    const id = setInterval(move, 60000);
+    const id = setInterval(move, interval);
     return () => clearInterval(id);
   }, []);
 
@@ -294,13 +291,12 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
         {/* Roaming watermark */}
         {iframeLoaded && !loadError && (
           <div
-            className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
+            className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none flex flex-col items-center gap-0.5"
             style={{
               top: watermarkPos.top,
               left: watermarkPos.left,
               transform: "translate(-50%, -50%)",
               fontFamily: "monospace",
-              fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
@@ -308,7 +304,13 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
               textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
             }}
           >
-            {IS_DEMO ? "DEMO" : `${fullName} · ${email}`}
+            {/* Brand label — much smaller than the user line */}
+            <span style={{ fontSize: "clamp(0.45rem, 1vw, 0.55rem)", letterSpacing: "0.14em", opacity: 0.85 }}>
+              CHAINSAW COURSES
+            </span>
+            <span style={{ fontSize: "clamp(1rem, 2.5vw, 1.35rem)" }}>
+              {IS_DEMO ? "DEMO" : `${fullName} · ${email}`}
+            </span>
           </div>
         )}
 
