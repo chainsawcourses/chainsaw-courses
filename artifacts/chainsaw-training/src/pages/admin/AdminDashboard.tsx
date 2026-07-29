@@ -348,15 +348,15 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/gateway"><MapPin className="w-3.5 h-3.5 mr-1" /> GATEWAY</Link>
             </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <Link href="/admin/policy-docs"><FileText className="w-3.5 h-3.5 mr-1" /> POLICY DOCS</Link>
-            </Button>
           </div>
         </div>
         {/* Row 3 — EQA / quality features */}
         <div className="border-t border-border bg-orange-50/40">
           <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto">
             <span className="font-mono text-xs text-muted-foreground mr-1">EQA:</span>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/policy-docs"><FileText className="w-3.5 h-3.5 mr-1" /> POLICY DOCS</Link>
+            </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/stats"><BarChart2 className="w-3.5 h-3.5 mr-1" /> STATISTICS</Link>
             </Button>

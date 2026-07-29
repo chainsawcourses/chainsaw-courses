@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, MapPin, Search, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, MapPin, Search, X } from "lucide-react";
 import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -18,9 +18,7 @@ export default function RiskAssessments() {
   const { adminToken, isReady } = useAdminSession();
 
   useEffect(() => {
-    if (isReady && !adminToken) {
-      setLocation("/admin");
-    }
+    if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
   const { data: assessments, isLoading } = useListAllRiskAssessments({
@@ -29,6 +27,14 @@ export default function RiskAssessments() {
 
   const [search, setSearch] = useState("");
   const [highRiskOnly, setHighRiskOnly] = useState(false);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  const toggle = (id: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const highRiskCount = assessments?.filter(
     (a) => Math.max(0, ...a.hazards.map((h) => h.riskRating)) >= 15
@@ -108,48 +114,63 @@ export default function RiskAssessments() {
           </p>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {filtered?.map((record) => {
             const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
             const band = riskBand(maxRisk);
+            const isOpen = expanded.has(record.id);
             return (
               <Card key={record.id} className={maxRisk >= 15 ? "border-destructive/50" : undefined}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center justify-between text-sm font-mono">
-                    <span>{record.studentName ?? "Unknown student"}</span>
-                    <span className={`flex items-center gap-1 text-xs uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
-                      {maxRisk >= 15 ? <AlertTriangle className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                      {band.label} risk
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-sm font-mono text-muted-foreground space-y-2">
-                  <div className="text-[10px] uppercase tracking-widest opacity-60">
-                    {new Date(record.createdAt).toLocaleString()}
-                  </div>
-                  <p className="text-xs text-foreground">{record.taskDescription}</p>
-                  {record.siteDescription && <p className="text-xs">{record.siteDescription}</p>}
-                  {record.address && <p className="text-xs">{record.address}</p>}
-                  {record.gridReference && <p className="text-xs">Grid ref: {record.gridReference}</p>}
-                  <div className="grid sm:grid-cols-2 gap-1.5 pt-2">
-                    {record.hazards.map((h) => {
-                      const hBand = riskBand(h.riskRating);
-                      return (
-                        <div key={h.id} className="text-xs border border-border/60 rounded p-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-foreground">{h.label}</span>
-                            <span className={`shrink-0 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded border ${hBand.className}`}>
-                              {hBand.label}
-                            </span>
+                {/* Summary row — always visible, click to expand */}
+                <button
+                  className="w-full text-left px-4 py-3 flex items-center gap-3"
+                  onClick={() => toggle(record.id)}
+                >
+                  {isOpen
+                    ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <span className="font-mono text-sm font-bold flex-1 truncate">
+                    {record.studentName ?? "Unknown student"}
+                  </span>
+                  <span className="font-mono text-[10px] text-muted-foreground hidden sm:block shrink-0">
+                    {new Date(record.createdAt).toLocaleDateString()}
+                  </span>
+                  <span className={`shrink-0 flex items-center gap-1 text-xs uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
+                    {maxRisk >= 15 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                    {band.label}
+                  </span>
+                </button>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <CardContent className="pt-0 pb-4 px-4 text-sm font-mono text-muted-foreground space-y-2 border-t border-border">
+                    <div className="text-[10px] uppercase tracking-widest opacity-60 pt-3">
+                      {new Date(record.createdAt).toLocaleString()}
+                    </div>
+                    <p className="text-xs text-foreground">{record.taskDescription}</p>
+                    {record.siteDescription && <p className="text-xs">{record.siteDescription}</p>}
+                    {record.address && <p className="text-xs">{record.address}</p>}
+                    {record.gridReference && <p className="text-xs">Grid ref: {record.gridReference}</p>}
+                    <div className="grid sm:grid-cols-2 gap-1.5 pt-2">
+                      {record.hazards.map((h) => {
+                        const hBand = riskBand(h.riskRating);
+                        return (
+                          <div key={h.id} className="text-xs border border-border/60 rounded p-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-foreground">{h.label}</span>
+                              <span className={`shrink-0 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded border ${hBand.className}`}>
+                                {hBand.label}
+                              </span>
+                            </div>
+                            {h.controlMeasures && (
+                              <p className="text-muted-foreground italic mt-1">{h.controlMeasures}</p>
+                            )}
                           </div>
-                          {h.controlMeasures && (
-                            <p className="text-muted-foreground italic mt-1">{h.controlMeasures}</p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                )}
               </Card>
             );
           })}

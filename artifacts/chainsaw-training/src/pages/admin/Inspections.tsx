@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ClipboardCheck, MinusCircle, Search, X, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, ClipboardCheck, MinusCircle, Search, X, XCircle } from "lucide-react";
 import { useListAllInspections, getListAllInspectionsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
@@ -12,9 +12,7 @@ export default function Inspections() {
   const { adminToken, isReady } = useAdminSession();
 
   useEffect(() => {
-    if (isReady && !adminToken) {
-      setLocation("/admin");
-    }
+    if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
   const { data: inspections, isLoading } = useListAllInspections({
@@ -23,6 +21,14 @@ export default function Inspections() {
 
   const [search, setSearch] = useState("");
   const [failuresOnly, setFailuresOnly] = useState(false);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  const toggle = (id: number) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const failureCount = inspections?.filter((i) => i.hasFailures).length ?? 0;
 
@@ -98,45 +104,67 @@ export default function Inspections() {
           </p>
         )}
 
-        <div className="space-y-3">
-          {filtered?.map((record) => (
-            <Card key={record.id} className={record.hasFailures ? "border-destructive/50" : undefined}>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between text-sm font-mono">
-                  <span>{record.studentName ?? "Unknown student"}</span>
-                  {record.hasFailures ? (
-                    <span className="flex items-center gap-1 text-destructive text-xs uppercase tracking-widest">
-                      <AlertTriangle className="w-4 h-4" /> Failures noted
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 text-primary text-xs uppercase tracking-widest">
-                      <CheckCircle2 className="w-4 h-4" /> All clear
+        <div className="space-y-2">
+          {filtered?.map((record) => {
+            const isOpen = expanded.has(record.id);
+            return (
+              <Card key={record.id} className={record.hasFailures ? "border-destructive/50" : undefined}>
+                {/* Summary row — always visible, click to expand */}
+                <button
+                  className="w-full text-left px-4 py-3 flex items-center gap-3"
+                  onClick={() => toggle(record.id)}
+                >
+                  {isOpen
+                    ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                  <span className="font-mono text-sm font-bold flex-1 truncate">
+                    {record.studentName ?? "Unknown student"}
+                  </span>
+                  {record.sawIdentifier && (
+                    <span className="font-mono text-xs text-muted-foreground hidden sm:block shrink-0">
+                      {record.sawIdentifier}
                     </span>
                   )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 text-sm font-mono text-muted-foreground space-y-2">
-                <div className="text-[10px] uppercase tracking-widest opacity-60">
-                  {record.sawIdentifier ? `${record.sawIdentifier} — ` : ""}{new Date(record.createdAt).toLocaleString()}
-                </div>
-                <div className="grid sm:grid-cols-2 gap-1.5">
-                  {record.items.map((item) => (
-                    <div key={item.id} className="flex items-start gap-2 text-xs">
-                      {item.status === "pass" && <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />}
-                      {item.status === "fail" && <XCircle className="w-3.5 h-3.5 text-destructive shrink-0 mt-0.5" />}
-                      {item.status === "na" && <MinusCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />}
-                      <div>
-                        <span className={item.status === "fail" ? "text-destructive" : ""}>{item.label}</span>
-                        {item.status === "fail" && item.note && (
-                          <p className="text-destructive/80 italic mt-0.5">"{item.note}"</p>
-                        )}
-                      </div>
+                  <span className="font-mono text-[10px] text-muted-foreground hidden sm:block shrink-0">
+                    {new Date(record.createdAt).toLocaleDateString()}
+                  </span>
+                  {record.hasFailures ? (
+                    <span className="shrink-0 flex items-center gap-1 text-destructive text-xs uppercase tracking-widest">
+                      <AlertTriangle className="w-3.5 h-3.5" /> Failed
+                    </span>
+                  ) : (
+                    <span className="shrink-0 flex items-center gap-1 text-primary text-xs uppercase tracking-widest">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Clear
+                    </span>
+                  )}
+                </button>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <CardContent className="pt-0 pb-4 px-4 text-sm font-mono text-muted-foreground space-y-2 border-t border-border">
+                    <div className="text-[10px] uppercase tracking-widest opacity-60 pt-3">
+                      {record.sawIdentifier ? `${record.sawIdentifier} — ` : ""}{new Date(record.createdAt).toLocaleString()}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    <div className="grid sm:grid-cols-2 gap-1.5">
+                      {record.items.map((item) => (
+                        <div key={item.id} className="flex items-start gap-2 text-xs">
+                          {item.status === "pass" && <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />}
+                          {item.status === "fail" && <XCircle className="w-3.5 h-3.5 text-destructive shrink-0 mt-0.5" />}
+                          {item.status === "na" && <MinusCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />}
+                          <div>
+                            <span className={item.status === "fail" ? "text-destructive" : ""}>{item.label}</span>
+                            {item.status === "fail" && item.note && (
+                              <p className="text-destructive/80 italic mt-0.5">"{item.note}"</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
       </main>
     </div>
