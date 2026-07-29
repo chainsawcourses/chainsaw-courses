@@ -91,7 +91,7 @@ export default function Waiver() {
           <div className="space-y-2">
             <h1 className="font-black tracking-tighter text-xl uppercase">Not Available in App Preview</h1>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Registered candidates go through a full checklist liability waiver before accessing the course. You can review it here:
+              Registered candidates go through a full checklist liability waiver before accessing the course.
             </p>
           </div>
           <div className="pt-2 border-t border-border">
