@@ -310,12 +310,17 @@ function ExamResultScreen({
 
             <div className="flex flex-col gap-3 w-full">
               {!result.passed ? (
-                <Button
-                  onClick={onReset}
-                  className="w-full h-14 font-mono font-bold tracking-widest"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
-                </Button>
+                <>
+                  <Button
+                    onClick={onReset}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
+                  </Button>
+                  <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
+                    <Link href="/training">RETURN TO HOMEPAGE</Link>
+                  </Button>
+                </>
               ) : (
                 <>
                   <CertificateButton />
