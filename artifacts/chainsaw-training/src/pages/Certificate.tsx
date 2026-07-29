@@ -1,66 +1,54 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useUserSession } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Download, Loader2 } from "lucide-react";
 
 export default function CertificatePage() {
   const { activationCode, deviceId } = useUserSession();
-  const [dataUrl, setDataUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const blobUrlRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!activationCode || !deviceId) return;
+  // Direct URL usable as iframe src — credentials in query params so iOS Safari
+  // can load it without needing blob/data URIs (which iOS cannot render in iframes)
+  const viewUrl = activationCode && deviceId
+    ? `/api/certificate/view?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}`
+    : null;
 
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/certificate", {
-          headers: { activationcode: activationCode, deviceid: deviceId },
-        });
-        if (!res.ok) throw new Error("Failed");
-        const blob = await res.blob();
-
-        // Blob URL used for download
-        blobUrlRef.current = URL.createObjectURL(blob);
-
-        // Data URI for iframe (works on iOS Safari where blob: iframes are blocked)
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (!cancelled) {
-            setDataUrl(reader.result as string);
-            setLoading(false);
-          }
-        };
-        reader.readAsDataURL(blob);
-      } catch {
-        if (!cancelled) {
-          setError(true);
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
+  const handleDownload = async () => {
+    if (!activationCode || !deviceId || downloading) return;
+    setDownloading(true);
+    try {
+      // Revoke any previous blob to avoid leaks
       if (blobUrlRef.current) {
         URL.revokeObjectURL(blobUrlRef.current);
         blobUrlRef.current = null;
       }
-    };
-  }, [activationCode, deviceId]);
-
-  const handleDownload = () => {
-    const url = blobUrlRef.current;
-    if (!url) return;
-    // Appended-anchor pattern — works on desktop, Android, and iOS 13+
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Chainsaw_Certificate.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+      const res = await fetch("/api/certificate?download=1", {
+        headers: { activationcode: activationCode, deviceid: deviceId },
+      });
+      if (!res.ok) throw new Error("Failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
+      // Appended-anchor pattern — triggers real download on desktop, Android, iOS 13+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Chainsaw_Certificate.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => {
+        if (blobUrlRef.current) {
+          URL.revokeObjectURL(blobUrlRef.current);
+          blobUrlRef.current = null;
+        }
+      }, 30000);
+    } catch {
+      alert("Could not download certificate — please try again.");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -81,42 +69,33 @@ export default function CertificatePage() {
           size="sm"
           variant="outline"
           onClick={handleDownload}
-          disabled={!blobUrlRef.current && !dataUrl}
+          disabled={downloading}
           className="font-mono text-xs uppercase tracking-widest gap-1.5 h-8"
         >
-          <Download className="w-3.5 h-3.5" />
+          {downloading
+            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            : <Download className="w-3.5 h-3.5" />}
           Download
         </Button>
       </div>
 
-      {/* Content */}
-      {loading && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-3">
+      {/* Loading overlay — shown until iframe fires onLoad */}
+      {!iframeLoaded && (
+        <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
           <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
             Generating certificate…
           </p>
         </div>
       )}
-      {error && (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4">
-          <p className="font-mono text-sm text-destructive uppercase tracking-widest">
-            Could not load certificate
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => window.history.back()}
-            className="font-mono text-xs uppercase tracking-widest"
-          >
-            Go Back
-          </Button>
-        </div>
-      )}
-      {dataUrl && (
+
+      {/* PDF iframe — real HTTP URL works on iOS Safari */}
+      {viewUrl && (
         <iframe
-          src={dataUrl}
+          src={viewUrl}
           className="flex-1 w-full border-none"
           title="Your Certificate"
+          onLoad={() => setIframeLoaded(true)}
         />
       )}
     </div>

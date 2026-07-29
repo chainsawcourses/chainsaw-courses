@@ -23,6 +23,28 @@ async function getCertData(activationCode: string, deviceId: string) {
   return { user, passedAt, passedScore };
 }
 
+// GET /api/certificate/view — iframe-friendly: accepts creds as query params so the URL
+// can be used directly as an <iframe src> (iOS Safari cannot render blob/data URIs in iframes)
+router.get("/certificate/view", async (req, res) => {
+  const activationCode = req.query["code"] as string;
+  const deviceId       = req.query["device"] as string;
+  if (!deviceId || !activationCode) { res.status(401).json({ error: "Missing credentials" }); return; }
+  try {
+    const data = await getCertData(activationCode, deviceId);
+    if (!data) { res.status(401).json({ error: "Unauthorised" }); return; }
+    const { user, passedAt, passedScore } = data;
+    const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+    const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="Certificate_${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    logger.error({ err }, "Error generating certificate (view)");
+    res.status(500).json({ error: "Could not generate certificate" });
+  }
+});
+
 // GET /api/certificate — view inline (default) or download (?download=1)
 router.get("/certificate", async (req, res) => {
   const deviceId       = req.headers["deviceid"] as string;
