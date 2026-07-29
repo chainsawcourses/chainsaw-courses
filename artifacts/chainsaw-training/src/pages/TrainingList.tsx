@@ -745,11 +745,14 @@ export default function TrainingList() {
                   Final Exam ✓
                 </span>
               ) : courseUnlocked ? (
-                <Link
-                  href="/exam"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Final Exam
+                <Link href="/exam" className="relative inline-flex items-center group">
+                  {/* Ping ring */}
+                  <span className="absolute inset-0 rounded-full animate-ping bg-primary/40 group-hover:opacity-0" />
+                  <span className="relative font-mono font-semibold uppercase tracking-widest text-xs
+                    bg-primary text-primary-foreground px-3 py-1 rounded-full shadow-md
+                    animate-pulse hover:animate-none hover:bg-primary/90 transition-colors">
+                    Final Exam
+                  </span>
                 </Link>
               ) : (
                 <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Complete all modules and quizzes to unlock the final exam">
