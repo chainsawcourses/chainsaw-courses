@@ -462,6 +462,161 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
+        {/* Data & Backup */}
+        <Card className="border-border bg-card/30">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1 font-mono">
+                Export learner data · View Replit DB backups · Log quarterly restoration tests
+              </p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 font-mono text-xs"
+                onClick={handleExport}
+                disabled={exportLoading}
+              >
+                <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                {exportLoading ? "PREPARING…" : "OPEN GOOGLE SHEET"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 font-mono text-xs"
+                asChild
+              >
+                <a href="https://drive.google.com/drive/search?q=Chainsaw+Courses+Export" target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-3.5 h-3.5 mr-1" /> BACKUP FOLDER
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                className="h-9 font-mono text-xs"
+                onClick={() => { setLogDialogOpen(true); setLogTestedAt(new Date().toISOString().slice(0, 10)); }}
+              >
+                <Plus className="w-3.5 h-3.5 mr-1" /> LOG RESTORE TEST
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 space-y-0">
+
+            {/* Export History */}
+            <div className="px-6 pt-4 pb-2">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Export History</p>
+              {exportHistoryLoading ? (
+                <div className="py-4 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+              ) : exportHistory.length === 0 ? (
+                <div className="py-4 text-center text-muted-foreground font-mono text-xs">
+                  No exports yet. Click "OPEN GOOGLE SHEET" to create your first export.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-secondary/30">
+                      <TableRow className="border-border">
+                        <TableHead className="font-mono text-xs">DATE</TableHead>
+                        <TableHead className="font-mono text-xs">TITLE</TableHead>
+                        <TableHead className="font-mono text-xs">LEARNERS</TableHead>
+                        <TableHead className="font-mono text-xs">DRIVE FOLDER</TableHead>
+                        <TableHead className="font-mono text-xs">OPEN</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {exportHistory.map((exp) => (
+                        <TableRow key={exp.id} className="border-border hover:bg-secondary/10">
+                          <TableCell className="font-mono text-xs whitespace-nowrap">
+                            {new Date(exp.exportedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">{exp.title}</TableCell>
+                          <TableCell className="font-mono text-xs">{exp.rowCount}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {exp.folderId ? (
+                              <a
+                                href={`https://drive.google.com/drive/folders/${exp.folderId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" /> FOLDER
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <a
+                              href={exp.sheetUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline font-mono text-xs flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-3 h-3" /> SHEET
+                            </a>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-border mx-6" />
+
+            {/* Restoration Test Logs */}
+            <div className="px-6 pt-4 pb-0">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Restoration Tests</p>
+            </div>
+            {backupLogsLoading ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+            ) : backupLogs.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">
+                No restoration tests logged yet. Click "Log Restore Test" after each quarterly check.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-secondary/30">
+                    <TableRow className="border-border">
+                      <TableHead className="font-mono text-xs">DATE TESTED</TableHead>
+                      <TableHead className="font-mono text-xs">TESTED BY</TableHead>
+                      <TableHead className="font-mono text-xs">OUTCOME</TableHead>
+                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {backupLogs.map((log) => (
+                      <TableRow key={log.id} className="border-border hover:bg-secondary/10">
+                        <TableCell className="font-mono text-xs">
+                          {new Date(log.testedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs">{log.testedBy}</TableCell>
+                        <TableCell>
+                          {log.outcome === "pass" ? (
+                            <Badge variant="outline" className="text-green-600 border-green-600 font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
+                              <CheckCircle2 className="w-3 h-3" /> PASS
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-destructive border-destructive font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
+                              <XCircle className="w-3 h-3" /> FAIL
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{log.notes ?? "—"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Students Table */}
         <Card className="border-border bg-card/30">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -619,161 +774,6 @@ export default function AdminDashboard() {
                 </TableBody>
               </Table>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Data & Backup */}
-        <Card className="border-border bg-card/30">
-          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1 font-mono">
-                Export learner data · View Replit DB backups · Log quarterly restoration tests
-              </p>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 font-mono text-xs"
-                onClick={handleExport}
-                disabled={exportLoading}
-              >
-                <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                {exportLoading ? "PREPARING…" : "OPEN GOOGLE SHEET"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 font-mono text-xs"
-                asChild
-              >
-                <a href="https://drive.google.com/drive/search?q=Chainsaw+Courses+Export" target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-3.5 h-3.5 mr-1" /> BACKUP FOLDER
-                </a>
-              </Button>
-              <Button
-                size="sm"
-                className="h-9 font-mono text-xs"
-                onClick={() => { setLogDialogOpen(true); setLogTestedAt(new Date().toISOString().slice(0, 10)); }}
-              >
-                <Plus className="w-3.5 h-3.5 mr-1" /> LOG RESTORE TEST
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 space-y-0">
-
-            {/* Export History */}
-            <div className="px-6 pt-4 pb-2">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Export History</p>
-              {exportHistoryLoading ? (
-                <div className="py-4 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
-              ) : exportHistory.length === 0 ? (
-                <div className="py-4 text-center text-muted-foreground font-mono text-xs">
-                  No exports yet. Click "OPEN GOOGLE SHEET" to create your first export.
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader className="bg-secondary/30">
-                      <TableRow className="border-border">
-                        <TableHead className="font-mono text-xs">DATE</TableHead>
-                        <TableHead className="font-mono text-xs">TITLE</TableHead>
-                        <TableHead className="font-mono text-xs">LEARNERS</TableHead>
-                        <TableHead className="font-mono text-xs">DRIVE FOLDER</TableHead>
-                        <TableHead className="font-mono text-xs">OPEN</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {exportHistory.map((exp) => (
-                        <TableRow key={exp.id} className="border-border hover:bg-secondary/10">
-                          <TableCell className="font-mono text-xs whitespace-nowrap">
-                            {new Date(exp.exportedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs text-muted-foreground">{exp.title}</TableCell>
-                          <TableCell className="font-mono text-xs">{exp.rowCount}</TableCell>
-                          <TableCell className="font-mono text-xs">
-                            {exp.folderId ? (
-                              <a
-                                href={`https://drive.google.com/drive/folders/${exp.folderId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline flex items-center gap-1"
-                              >
-                                <ExternalLink className="w-3 h-3" /> FOLDER
-                              </a>
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <a
-                              href={exp.sheetUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline font-mono text-xs flex items-center gap-1"
-                            >
-                              <ExternalLink className="w-3 h-3" /> SHEET
-                            </a>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-border mx-6" />
-
-            {/* Restoration Test Logs */}
-            <div className="px-6 pt-4 pb-0">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">Restoration Tests</p>
-            </div>
-            {backupLogsLoading ? (
-              <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
-            ) : backupLogs.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground font-mono text-sm">
-                No restoration tests logged yet. Click "Log Restore Test" after each quarterly check.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-secondary/30">
-                    <TableRow className="border-border">
-                      <TableHead className="font-mono text-xs">DATE TESTED</TableHead>
-                      <TableHead className="font-mono text-xs">TESTED BY</TableHead>
-                      <TableHead className="font-mono text-xs">OUTCOME</TableHead>
-                      <TableHead className="font-mono text-xs">NOTES</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {backupLogs.map((log) => (
-                      <TableRow key={log.id} className="border-border hover:bg-secondary/10">
-                        <TableCell className="font-mono text-xs">
-                          {new Date(log.testedAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">{log.testedBy}</TableCell>
-                        <TableCell>
-                          {log.outcome === "pass" ? (
-                            <Badge variant="outline" className="text-green-600 border-green-600 font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
-                              <CheckCircle2 className="w-3 h-3" /> PASS
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-destructive border-destructive font-mono text-[10px] rounded-none flex items-center gap-1 w-fit">
-                              <XCircle className="w-3 h-3" /> FAIL
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{log.notes ?? "—"}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
           </CardContent>
         </Card>
       </main>
