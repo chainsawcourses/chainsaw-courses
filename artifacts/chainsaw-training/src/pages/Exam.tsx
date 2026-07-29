@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star, ChevronLeft } from "lucide-react";
 import { useGetExam, useSubmitExam, useSubmitAppFeedback, useGetExamStatus, getGetExamStatusQueryKey, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
@@ -406,7 +406,14 @@ export default function Exam() {
   // Guard: show completion screen if already passed
   if (examStatus?.passed) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center relative">
+        <button
+          onClick={() => window.history.back()}
+          className="absolute top-4 left-4 flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
         <CheckCircle2 className="w-20 h-20 text-green-600 mb-6" />
         <h1 className="text-2xl font-black font-mono uppercase tracking-wide mb-3 text-green-600">
           Exam Already Passed
