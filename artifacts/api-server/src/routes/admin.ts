@@ -578,13 +578,31 @@ router.get("/admin/backup/export", async (req, res) => {
     return;
   }
   try {
-    const users = await db.select().from(usersTable);
-    const progress = await db.select().from(userProgressTable);
-    const waivers = await db.select().from(waiversTable);
-    const codes = await db.select().from(activationCodesTable);
-    const inspections = await db.select().from(inspectionRecordsTable);
-    const risks = await db.select().from(riskAssessmentsTable);
-    const passports = await db.select().from(assessmentPassportsTable);
+    const [
+      users, progress, waivers, codes,
+      inspections, risks, passports,
+      moduleFeedback, appFeedback, modules,
+      videoEngagement,
+    ] = await Promise.all([
+      db.select().from(usersTable),
+      db.select().from(userProgressTable),
+      db.select().from(waiversTable),
+      db.select().from(activationCodesTable),
+      db.select().from(inspectionRecordsTable),
+      db.select().from(riskAssessmentsTable),
+      db.select().from(assessmentPassportsTable),
+      db.select().from(moduleFeedbackTable),
+      db.select().from(appFeedbackTable),
+      db.select().from(modulesTable),
+      db.select().from(videoEngagementTable),
+    ]);
+
+    // ── Lookup maps ────────────────────────────────────────────────────────────
+    const userById: Record<number, typeof users[0]> = {};
+    users.forEach((u) => { userById[u.id] = u; });
+
+    const moduleById: Record<number, typeof modules[0]> = {};
+    modules.forEach((m) => { moduleById[m.id] = m; });
 
     const progressByUser: Record<number, { completed: number; total: number }> = {};
     progress.forEach((p) => {
@@ -622,6 +640,7 @@ router.get("/admin/backup/export", async (req, res) => {
     });
     const toRow = (vals: CellValue[]) => ({ values: vals.map(toCell) });
 
+    // ── Sheet 0: Learners summary ─────────────────────────────────────────────
     const LEARNER_HEADERS = [
       "ID", "Full Name", "Email", "Activation Code", "Device ID",
       "Activated At", "Last Activity", "Waiver Signed At",
@@ -629,7 +648,6 @@ router.get("/admin/backup/export", async (req, res) => {
       "Inspection Records", "Risk Assessments",
       "Phone (Gateway Passport)",
     ];
-    const CODE_HEADERS = ["Code", "Notes", "Created At"];
 
     const learnerRows = users.map((u) => {
       const prog = progressByUser[u.id] ?? { completed: 0, total: 0 };
@@ -643,9 +661,137 @@ router.get("/admin/backup/export", async (req, res) => {
       return { values: [...baseCells, toPhoneCell(phone)] };
     });
 
+    // ── Sheet 1: Unused Codes ─────────────────────────────────────────────────
+    const CODE_HEADERS = ["Code", "Notes", "Created At"];
     const codeRows = unusedCodes.map((c) =>
       toRow([c.code, c.notes ?? "", c.createdAt.toISOString()])
     );
+
+    // ── Sheet 2: Video Progress ───────────────────────────────────────────────
+    const VIDEO_HEADERS = [
+      "Student Name", "Email", "Module", "Video Watched",
+      "Quiz Passed", "Quiz Score", "Video Launched At", "Video Completed At",
+      "Seek Attempts", "Last Updated",
+    ];
+
+    // Build a map from (userId, moduleId) to engagement record
+    const engagementKey = (uid: number, mid: number) => `${uid}:${mid}`;
+    const engagementMap: Record<string, typeof videoEngagement[0]> = {};
+    videoEngagement.forEach((e) => { engagementMap[engagementKey(e.userId, e.moduleId)] = e; });
+
+    const videoRows = progress.map((p) => {
+      const u = userById[p.userId];
+      const m = moduleById[p.moduleId];
+      const eng = engagementMap[engagementKey(p.userId, p.moduleId)];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        m?.title ?? `Module ${p.moduleId}`,
+        p.videoCompleted ? "Yes" : "No",
+        p.quizPassed ? "Yes" : "No",
+        p.quizScore ?? "",
+        eng?.launchedAt?.toISOString() ?? "",
+        eng?.completedAt?.toISOString() ?? "",
+        eng?.seekAttemptCount ?? 0,
+        p.updatedAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 3: Module Feedback ──────────────────────────────────────────────
+    const MODULE_FEEDBACK_HEADERS = [
+      "Student Name", "Email", "Module", "Rating", "Comment", "Submitted At",
+    ];
+    const moduleFeedbackRows = moduleFeedback.map((f) => {
+      const u = userById[f.userId];
+      const m = moduleById[f.moduleId];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        m?.title ?? `Module ${f.moduleId}`,
+        f.rating, f.comment ?? "",
+        f.createdAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 4: App Feedback ─────────────────────────────────────────────────
+    const APP_FEEDBACK_HEADERS = [
+      "Student Name", "Email", "Rating", "Comment", "Submitted At",
+    ];
+    const appFeedbackRows = appFeedback.map((f) => {
+      const u = userById[f.userId];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        f.rating, f.comment ?? "",
+        f.createdAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 5: Inspections (detailed) ──────────────────────────────────────
+    const INSPECTION_HEADERS = [
+      "Student Name", "Email", "Saw / Equipment ID",
+      "Overall Result", "Item", "Section", "Status", "Note", "Submitted At",
+    ];
+    const inspectionRows: ReturnType<typeof toRow>[] = [];
+    for (const insp of inspections) {
+      const u = userById[insp.userId];
+      let items: Array<{ id?: number; label?: string; section?: string; status?: string; note?: string }> = [];
+      try { items = JSON.parse(insp.items as unknown as string); } catch { /* ignore */ }
+      if (items.length === 0) {
+        inspectionRows.push(toRow([
+          u?.fullName ?? "", u?.email ?? "",
+          insp.sawIdentifier ?? "",
+          insp.hasFailures ? "FAILED" : "PASS",
+          "", "", "", "",
+          insp.createdAt?.toISOString() ?? "",
+        ]));
+      } else {
+        items.forEach((item) => {
+          inspectionRows.push(toRow([
+            u?.fullName ?? "", u?.email ?? "",
+            insp.sawIdentifier ?? "",
+            insp.hasFailures ? "FAILED" : "PASS",
+            item.label ?? "", item.section ?? "",
+            item.status ?? "", item.note ?? "",
+            insp.createdAt?.toISOString() ?? "",
+          ]));
+        });
+      }
+    }
+
+    // ── Sheet 6: Risk Assessments (detailed) ─────────────────────────────────
+    const RISK_HEADERS = [
+      "Student Name", "Email", "Task Description", "Site Description",
+      "Address", "Grid Ref", "What3Words",
+      "Nearest Hospital", "Hospital Phone",
+      "Hazard", "Likelihood", "Severity", "Risk Rating", "Control Measures",
+      "Submitted At",
+    ];
+    const riskRows: ReturnType<typeof toRow>[] = [];
+    for (const ra of risks) {
+      const u = userById[ra.userId];
+      let hazards: Array<{ label?: string; likelihood?: number; severity?: number; riskRating?: number; controlMeasures?: string }> = [];
+      try { hazards = JSON.parse(ra.hazards as unknown as string); } catch { /* ignore */ }
+      if (hazards.length === 0) {
+        riskRows.push(toRow([
+          u?.fullName ?? "", u?.email ?? "",
+          ra.taskDescription ?? "", ra.siteDescription ?? "",
+          ra.address ?? "", ra.gridReference ?? "", ra.what3Words ?? "",
+          ra.nearestHospital ?? "", ra.hospitalPhone ?? "",
+          "", "", "", "", "",
+          ra.createdAt?.toISOString() ?? "",
+        ]));
+      } else {
+        hazards.forEach((h) => {
+          riskRows.push(toRow([
+            u?.fullName ?? "", u?.email ?? "",
+            ra.taskDescription ?? "", ra.siteDescription ?? "",
+            ra.address ?? "", ra.gridReference ?? "", ra.what3Words ?? "",
+            ra.nearestHospital ?? "", ra.hospitalPhone ?? "",
+            h.label ?? "", h.likelihood ?? "", h.severity ?? "",
+            h.riskRating ?? "", h.controlMeasures ?? "",
+            ra.createdAt?.toISOString() ?? "",
+          ]));
+        });
+      }
+    }
 
     // Orange header format matching brand colour #e27226
     const headerFmt = {
@@ -659,60 +805,52 @@ router.get("/admin/backup/export", async (req, res) => {
     const dateLabel = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     const title = `Chainsaw Courses Export — ${dateLabel}`;
 
-    // ── Create the spreadsheet with two sheets ────────────────────────────────
+    const allSheets = [
+      { id: 0, title: "Learners",           headers: LEARNER_HEADERS,         rows: learnerRows },
+      { id: 1, title: "Unused Codes",        headers: CODE_HEADERS,            rows: codeRows },
+      { id: 2, title: "Video Progress",      headers: VIDEO_HEADERS,           rows: videoRows },
+      { id: 3, title: "Module Feedback",     headers: MODULE_FEEDBACK_HEADERS, rows: moduleFeedbackRows },
+      { id: 4, title: "App Feedback",        headers: APP_FEEDBACK_HEADERS,    rows: appFeedbackRows },
+      { id: 5, title: "Inspections",         headers: INSPECTION_HEADERS,      rows: inspectionRows },
+      { id: 6, title: "Risk Assessments",    headers: RISK_HEADERS,            rows: riskRows },
+    ];
+
+    // ── Create the spreadsheet ────────────────────────────────────────────────
     const connectors = new ReplitConnectors();
     const createRes = await connectors.proxy("google-sheet", "/v4/spreadsheets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         properties: { title },
-        sheets: [
-          {
-            properties: { title: "Learners", sheetId: 0 },
-            data: [{ rowData: [toRow(LEARNER_HEADERS), ...learnerRows] }],
-          },
-          {
-            properties: { title: "Unused Codes", sheetId: 1 },
-            data: [{ rowData: [toRow(CODE_HEADERS), ...codeRows] }],
-          },
-        ],
+        sheets: allSheets.map((s) => ({
+          properties: { title: s.title, sheetId: s.id },
+          data: [{ rowData: [toRow(s.headers), ...s.rows] }],
+        })),
       }),
     });
 
     const sheet = await createRes.json() as { spreadsheetId: string };
 
     // ── Apply header formatting + auto-resize columns ─────────────────────────
+    const formatRequests = allSheets.flatMap((s) => [
+      {
+        repeatCell: {
+          range: { sheetId: s.id, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: s.headers.length },
+          cell: headerFmt,
+          fields: "userEnteredFormat(textFormat,backgroundColor)",
+        },
+      },
+      {
+        autoResizeDimensions: {
+          dimensions: { sheetId: s.id, dimension: "COLUMNS", startIndex: 0, endIndex: s.headers.length },
+        },
+      },
+    ]);
+
     await connectors.proxy("google-sheet", `/v4/spreadsheets/${sheet.spreadsheetId}:batchUpdate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requests: [
-          {
-            repeatCell: {
-              range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: LEARNER_HEADERS.length },
-              cell: headerFmt,
-              fields: "userEnteredFormat(textFormat,backgroundColor)",
-            },
-          },
-          {
-            repeatCell: {
-              range: { sheetId: 1, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: CODE_HEADERS.length },
-              cell: headerFmt,
-              fields: "userEnteredFormat(textFormat,backgroundColor)",
-            },
-          },
-          {
-            autoResizeDimensions: {
-              dimensions: { sheetId: 0, dimension: "COLUMNS", startIndex: 0, endIndex: LEARNER_HEADERS.length },
-            },
-          },
-          {
-            autoResizeDimensions: {
-              dimensions: { sheetId: 1, dimension: "COLUMNS", startIndex: 0, endIndex: CODE_HEADERS.length },
-            },
-          },
-        ],
-      }),
+      body: JSON.stringify({ requests: formatRequests }),
     });
 
     const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
@@ -846,6 +984,18 @@ router.post("/admin/bind-preview", async (req, res) => {
 });
 
 // ─── Delete inspection records ───────────────────────────────────────────────
+// NOTE: /all must be declared BEFORE /:id so Express doesn't swallow "all" as an id param.
+
+router.delete("/admin/inspections/all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    await db.delete(inspectionRecordsTable);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting all inspection records");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.delete("/admin/inspections/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -861,18 +1011,19 @@ router.delete("/admin/inspections/:id", async (req, res) => {
   }
 });
 
-router.delete("/admin/inspections/all", async (req, res) => {
+// ─── Delete risk assessment records ──────────────────────────────────────────
+// NOTE: /all must be declared BEFORE /:id for the same reason.
+
+router.delete("/admin/risk-assessments/all", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
-    await db.delete(inspectionRecordsTable);
+    await db.delete(riskAssessmentsTable);
     res.json({ success: true });
   } catch (err) {
-    logger.error({ err }, "Error deleting all inspection records");
+    logger.error({ err }, "Error deleting all risk assessment records");
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// ─── Delete risk assessment records ──────────────────────────────────────────
 
 router.delete("/admin/risk-assessments/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
@@ -884,17 +1035,6 @@ router.delete("/admin/risk-assessments/:id", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     logger.error({ err }, "Error deleting risk assessment record");
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.delete("/admin/risk-assessments/all", async (req, res) => {
-  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
-  try {
-    await db.delete(riskAssessmentsTable);
-    res.json({ success: true });
-  } catch (err) {
-    logger.error({ err }, "Error deleting all risk assessment records");
     res.status(500).json({ error: "Internal server error" });
   }
 });
