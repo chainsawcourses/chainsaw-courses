@@ -90,6 +90,9 @@ export default function TrainingList() {
   const [nptcClicked, setNptcClicked] = useState(() =>
     localStorage.getItem("nptc-clicked") === "true"
   );
+  const [findCentreClicked, setFindCentreClicked] = useState(() =>
+    localStorage.getItem("find-centre-clicked") === "true"
+  );
   const [docsOpen, setDocsOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
@@ -833,7 +836,13 @@ export default function TrainingList() {
               {examPassed && (
                 <Link
                   href="/gateway"
-                  className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-700 underline underline-offset-2 transition-colors"
+                  onClick={() => {
+                    if (!findCentreClicked) {
+                      setFindCentreClicked(true);
+                      localStorage.setItem("find-centre-clicked", "true");
+                    }
+                  }}
+                  className={`font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-700 underline underline-offset-2 transition-colors${!findCentreClicked ? " animate-green-pulse" : ""}`}
                 >
                   Find a Centre
                 </Link>
