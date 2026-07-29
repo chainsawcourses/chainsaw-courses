@@ -75,7 +75,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     () => IS_DEMO ? DEMO_ACTIVATION_CODE : readPersisted("activationCode")
   );
   const [deviceId] = useState<string | null>(() => {
-    if (IS_DEMO) return DEMO_DEVICE_ID;
+    if (IS_DEMO) {
+      // Write demo credentials to localStorage so custom-fetch.ts picks them up
+      // as auth headers on every API call.
+      localStorage.setItem("deviceId", DEMO_DEVICE_ID);
+      localStorage.setItem("activationCode", DEMO_ACTIVATION_CODE);
+      localStorage.setItem("userId", "0");
+      return DEMO_DEVICE_ID;
+    }
     let id = readPersisted("deviceId");
     if (!id) {
       id = uuidv4();
