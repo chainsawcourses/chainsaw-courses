@@ -108,14 +108,12 @@ export default function TrainingList() {
     setCertLoading(true);
     try {
       const res = await fetch("/api/certificate", { headers: certHeaders });
-      if (!res.ok) return;
+      if (!res.ok) { toast({ variant: "destructive", title: "Could not load certificate", description: "Please try again." }); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      const w = window.open(url, "_blank");
+      if (!w) window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
     } finally { setCertLoading(false); }
   };
 
@@ -124,12 +122,12 @@ export default function TrainingList() {
     setCertDownloading(true);
     try {
       const res = await fetch("/api/certificate?download=1", { headers: certHeaders });
-      if (!res.ok) return;
+      if (!res.ok) { toast({ variant: "destructive", title: "Could not download certificate", description: "Please try again." }); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "Chainsaw_Certificate.pdf"; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      const w = window.open(url, "_blank");
+      if (!w) window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
     } finally { setCertDownloading(false); }
   };
 
