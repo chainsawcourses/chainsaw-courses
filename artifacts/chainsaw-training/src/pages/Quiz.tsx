@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star, PlayCircle } from "lucide-react";
 import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
@@ -31,6 +31,25 @@ export default function Quiz() {
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
+
+  const playDing = () => {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+      osc.onended = () => ctx.close();
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+    } catch (e) { /* silently ignore */ }
+  };
 
   useEffect(() => {
     if (!activationCode || !deviceId) {
@@ -184,6 +203,7 @@ export default function Quiz() {
                   disabled={feedbackRating === 0 || submitFeedback.isPending || !deviceId || !activationCode}
                   onClick={() => {
                     if (!deviceId || !activationCode) return;
+                    playDing();
                     submitFeedback.mutate(
                       { moduleId: id, data: { deviceId, activationCode, rating: feedbackRating, comment: feedbackComment || undefined } },
                       { onSuccess: () => setFeedbackSent(true) }
@@ -198,18 +218,27 @@ export default function Quiz() {
               <p className="text-xs font-mono text-primary mb-8 uppercase tracking-widest">Thanks for your feedback!</p>
             )}
 
-            <div className="flex gap-4 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               {!result.passed ? (
-                <Button
-                  onClick={() => {
-                    setResult(null);
-                    setCurrentQuestionIdx(0);
-                    setAnswers({});
-                  }}
-                  className="w-full h-14 font-mono font-bold tracking-widest"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setLocation(`/training/${id}`)}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <PlayCircle className="mr-2 w-4 h-4" /> RE-WATCH VIDEO
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setResult(null);
+                      setCurrentQuestionIdx(0);
+                      setAnswers({});
+                    }}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
+                  </Button>
+                </>
               ) : (
                 <Button
                   className="w-full h-14 font-mono font-bold tracking-widest"

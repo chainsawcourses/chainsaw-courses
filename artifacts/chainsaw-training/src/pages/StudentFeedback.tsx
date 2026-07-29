@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Star, ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,12 @@ export default function StudentFeedback() {
       // silently ignore if AudioContext unavailable
     }
   };
+
+  // Also play the ding when the success screen appears — catches cases where
+  // the button-click audio was blocked before the network call resolved.
+  useEffect(() => {
+    if (submitted) playDing();
+  }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = () => {
     if (!rating || !deviceId || !activationCode) return;
