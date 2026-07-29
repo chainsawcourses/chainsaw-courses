@@ -178,9 +178,17 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   // Roaming watermark
   useEffect(() => {
     const move = () => {
+      // On desktop the 16:9 container holds a portrait video that fills the
+      // full width via the 316%-height iframe trick, but slight letterboxing
+      // can still appear if a video isn't exactly 9:16. Keep the watermark in
+      // a horizontal safe zone (20–80%) to avoid any black bars on the sides.
+      // On mobile the container is 9:16 so the full width is live video.
+      const isDesktop = window.innerWidth >= 640;
+      const leftMin = isDesktop ? 20 : 15;
+      const leftMax = isDesktop ? 80 : 85;
       const zones = [
-        { top: `${10 + Math.random() * 15}%`, left: `${10 + Math.random() * 80}%` },
-        { top: `${70 + Math.random() * 20}%`, left: `${10 + Math.random() * 80}%` },
+        { top: `${15 + Math.random() * 15}%`, left: `${leftMin + Math.random() * (leftMax - leftMin)}%` },
+        { top: `${68 + Math.random() * 17}%`, left: `${leftMin + Math.random() * (leftMax - leftMin)}%` },
       ];
       setWatermarkPos(zones[Math.floor(Math.random() * zones.length)]);
     };
@@ -292,7 +300,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
               left: watermarkPos.left,
               transform: "translate(-50%, -50%)",
               fontFamily: "monospace",
-              fontSize: "clamp(0.6rem, 1.5vw, 0.75rem)",
+              fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
