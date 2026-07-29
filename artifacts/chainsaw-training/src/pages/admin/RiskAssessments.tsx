@@ -3,9 +3,10 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, MapPin, Search, X } from "lucide-react";
-import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey } from "@workspace/api-client-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, MapPin, Search, Trash2, X } from "lucide-react";
+import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey, useDeleteRiskAssessment, useDeleteAllRiskAssessments } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 function riskBand(rating: number): { label: string; className: string } {
   if (rating >= 15) return { label: "High", className: "text-destructive border-destructive bg-destructive/10" };
@@ -16,6 +17,7 @@ function riskBand(rating: number): { label: string; className: string } {
 export default function RiskAssessments() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady } = useAdminSession();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isReady && !adminToken) setLocation("/admin");
@@ -25,9 +27,14 @@ export default function RiskAssessments() {
     query: { queryKey: getListAllRiskAssessmentsQueryKey(), enabled: !!adminToken },
   });
 
+  const deleteOne = useDeleteRiskAssessment();
+  const deleteAll = useDeleteAllRiskAssessments();
+
   const [search, setSearch] = useState("");
   const [highRiskOnly, setHighRiskOnly] = useState(false);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
 
   const toggle = (id: number) =>
     setExpanded((prev) => {
@@ -35,6 +42,24 @@ export default function RiskAssessments() {
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+
+  const handleDeleteOne = (id: number) => {
+    deleteOne.mutate({ id }, {
+      onSuccess: () => {
+        setConfirmDeleteId(null);
+        queryClient.invalidateQueries({ queryKey: getListAllRiskAssessmentsQueryKey() });
+      },
+    });
+  };
+
+  const handleDeleteAll = () => {
+    deleteAll.mutate(undefined, {
+      onSuccess: () => {
+        setConfirmDeleteAll(false);
+        queryClient.invalidateQueries({ queryKey: getListAllRiskAssessmentsQueryKey() });
+      },
+    });
+  };
 
   const highRiskCount = assessments?.filter(
     (a) => Math.max(0, ...a.hazards.map((h) => h.riskRating)) >= 15
@@ -67,16 +92,36 @@ export default function RiskAssessments() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <Card className="bg-secondary/20">
-          <CardContent className="p-4 flex items-center gap-3">
-            <MapPin className="w-5 h-5" />
-            <span className="font-mono text-sm">
-              {assessments
-                ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"} recorded, ${highRiskCount} flagged high-risk`
-                : "No risk assessments submitted yet"}
-            </span>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-between gap-4">
+          <Card className="bg-secondary/20 flex-1">
+            <CardContent className="p-4 flex items-center gap-3">
+              <MapPin className="w-5 h-5" />
+              <span className="font-mono text-sm">
+                {assessments
+                  ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"} recorded, ${highRiskCount} flagged high-risk`
+                  : "No risk assessments submitted yet"}
+              </span>
+            </CardContent>
+          </Card>
+          {(assessments?.length ?? 0) > 0 && (
+            confirmDeleteAll ? (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="font-mono text-xs text-destructive">Delete all {assessments?.length} records?</span>
+                <Button size="sm" variant="destructive" className="font-mono text-xs h-8"
+                  onClick={handleDeleteAll} disabled={deleteAll.isPending}>
+                  {deleteAll.isPending ? "Deleting…" : "Yes, delete all"}
+                </Button>
+                <Button size="sm" variant="outline" className="font-mono text-xs h-8"
+                  onClick={() => setConfirmDeleteAll(false)}>Cancel</Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" className="font-mono text-xs h-8 text-destructive border-destructive/40 hover:bg-destructive/10 shrink-0"
+                onClick={() => setConfirmDeleteAll(true)}>
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Delete All
+              </Button>
+            )
+          )}
+        </div>
 
         {/* Search + filter */}
         <div className="flex gap-2">
@@ -119,27 +164,60 @@ export default function RiskAssessments() {
             const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
             const band = riskBand(maxRisk);
             const isOpen = expanded.has(record.id);
+            const isConfirming = confirmDeleteId === record.id;
             return (
               <Card key={record.id} className={maxRisk >= 15 ? "border-destructive/50" : undefined}>
-                {/* Summary row — always visible, click to expand */}
-                <button
-                  className="w-full text-left px-4 py-3 flex items-center gap-3"
-                  onClick={() => toggle(record.id)}
-                >
-                  {isOpen
-                    ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                    : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
-                  <span className="font-mono text-sm font-bold flex-1 truncate">
-                    {record.studentName ?? "Unknown student"}
-                  </span>
-                  <span className="font-mono text-[10px] text-muted-foreground hidden sm:block shrink-0">
-                    {new Date(record.createdAt).toLocaleDateString()}
-                  </span>
-                  <span className={`shrink-0 flex items-center gap-1 text-xs uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
-                    {maxRisk >= 15 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
-                    {band.label}
-                  </span>
-                </button>
+                {/* Summary row */}
+                <div className="flex items-center gap-1">
+                  <button
+                    className="flex-1 text-left px-4 py-3 flex items-center gap-3 min-w-0"
+                    onClick={() => toggle(record.id)}
+                  >
+                    {isOpen
+                      ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                      : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                    <span className="font-mono text-sm font-bold flex-1 truncate">
+                      {record.studentName ?? "Unknown student"}
+                    </span>
+                    <span className="font-mono text-[10px] text-muted-foreground hidden sm:block shrink-0">
+                      {new Date(record.createdAt).toLocaleDateString()}
+                    </span>
+                    <span className={`shrink-0 flex items-center gap-1 text-xs uppercase tracking-widest px-2 py-0.5 rounded border ${band.className}`}>
+                      {maxRisk >= 15 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                      {band.label}
+                    </span>
+                  </button>
+
+                  {/* Delete control */}
+                  <div className="px-3 shrink-0">
+                    {isConfirming ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          className="font-mono text-[10px] text-destructive underline underline-offset-2 hover:no-underline"
+                          onClick={() => handleDeleteOne(record.id)}
+                          disabled={deleteOne.isPending}
+                        >
+                          {deleteOne.isPending ? "…" : "Confirm"}
+                        </button>
+                        <span className="text-muted-foreground/40 text-[10px]">·</span>
+                        <button
+                          className="font-mono text-[10px] text-muted-foreground underline underline-offset-2 hover:no-underline"
+                          onClick={() => setConfirmDeleteId(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="text-muted-foreground/40 hover:text-destructive transition-colors p-1"
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(record.id); }}
+                        title="Delete this record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 {/* Expanded detail */}
                 {isOpen && (

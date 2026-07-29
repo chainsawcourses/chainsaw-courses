@@ -1637,6 +1637,102 @@ export const usePatchInspection = <TError = ErrorType<unknown>,
       return useMutation(getPatchInspectionMutationOptions(options));
     }
 
+// ─── Delete inspection record ─────────────────────────────────────────────────
+
+export const getDeleteInspectionUrl = (id: number) => `/api/admin/inspections/${id}`;
+
+export const deleteInspection = async (id: number, options?: RequestInit): Promise<SuccessResponse> =>
+  customFetch<SuccessResponse>(getDeleteInspectionUrl(id), { ...options, method: 'DELETE' });
+
+export const getDeleteInspectionMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError, { id: number }, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError, { id: number }, TContext> => {
+  const mutationKey = ['deleteInspection'];
+  const { mutation: mutationOptions, request: requestOptions } = options ?
+    options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ? options
+    : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteInspection>>, { id: number }> = ({ id }) => deleteInspection(id, requestOptions);
+  return { mutationFn, ...mutationOptions };
+};
+
+export const useDeleteInspection = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError, { id: number }, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationResult<Awaited<ReturnType<typeof deleteInspection>>, TError, { id: number }, TContext> =>
+  useMutation(getDeleteInspectionMutationOptions(options));
+
+// ─── Delete all inspection records ───────────────────────────────────────────
+
+export const getDeleteAllInspectionsUrl = () => `/api/admin/inspections/all`;
+
+export const deleteAllInspections = async (options?: RequestInit): Promise<SuccessResponse> =>
+  customFetch<SuccessResponse>(getDeleteAllInspectionsUrl(), { ...options, method: 'DELETE' });
+
+export const getDeleteAllInspectionsMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError, void, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError, void, TContext> => {
+  const mutationKey = ['deleteAllInspections'];
+  const { mutation: mutationOptions, request: requestOptions } = options ?
+    options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ? options
+    : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllInspections>>, void> = () => deleteAllInspections(requestOptions);
+  return { mutationFn, ...mutationOptions };
+};
+
+export const useDeleteAllInspections = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError, void, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationResult<Awaited<ReturnType<typeof deleteAllInspections>>, TError, void, TContext> =>
+  useMutation(getDeleteAllInspectionsMutationOptions(options));
+
+// ─── Delete risk assessment record ───────────────────────────────────────────
+
+export const getDeleteRiskAssessmentUrl = (id: number) => `/api/admin/risk-assessments/${id}`;
+
+export const deleteRiskAssessment = async (id: number, options?: RequestInit): Promise<SuccessResponse> =>
+  customFetch<SuccessResponse>(getDeleteRiskAssessmentUrl(id), { ...options, method: 'DELETE' });
+
+export const getDeleteRiskAssessmentMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError, { id: number }, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError, { id: number }, TContext> => {
+  const mutationKey = ['deleteRiskAssessment'];
+  const { mutation: mutationOptions, request: requestOptions } = options ?
+    options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ? options
+    : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRiskAssessment>>, { id: number }> = ({ id }) => deleteRiskAssessment(id, requestOptions);
+  return { mutationFn, ...mutationOptions };
+};
+
+export const useDeleteRiskAssessment = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError, { id: number }, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationResult<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError, { id: number }, TContext> =>
+  useMutation(getDeleteRiskAssessmentMutationOptions(options));
+
+// ─── Delete all risk assessment records ──────────────────────────────────────
+
+export const getDeleteAllRiskAssessmentsUrl = () => `/api/admin/risk-assessments/all`;
+
+export const deleteAllRiskAssessments = async (options?: RequestInit): Promise<SuccessResponse> =>
+  customFetch<SuccessResponse>(getDeleteAllRiskAssessmentsUrl(), { ...options, method: 'DELETE' });
+
+export const getDeleteAllRiskAssessmentsMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError, void, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError, void, TContext> => {
+  const mutationKey = ['deleteAllRiskAssessments'];
+  const { mutation: mutationOptions, request: requestOptions } = options ?
+    options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ? options
+    : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, void> = () => deleteAllRiskAssessments(requestOptions);
+  return { mutationFn, ...mutationOptions };
+};
+
+export const useDeleteAllRiskAssessments = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError, void, TContext>, request?: SecondParameter<typeof customFetch> }
+): UseMutationResult<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError, void, TContext> =>
+  useMutation(getDeleteAllRiskAssessmentsMutationOptions(options));
+
 export const getListAllInspectionsUrl = () => {
 
 

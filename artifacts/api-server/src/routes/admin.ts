@@ -845,4 +845,58 @@ router.post("/admin/bind-preview", async (req, res) => {
   }
 });
 
+// ─── Delete inspection records ───────────────────────────────────────────────
+
+router.delete("/admin/inspections/:id", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  try {
+    const rows = await db.delete(inspectionRecordsTable).where(eq(inspectionRecordsTable.id, id)).returning();
+    if (rows.length === 0) { res.status(404).json({ error: "Record not found" }); return; }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting inspection record");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/inspections/all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    await db.delete(inspectionRecordsTable);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting all inspection records");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Delete risk assessment records ──────────────────────────────────────────
+
+router.delete("/admin/risk-assessments/:id", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  try {
+    const rows = await db.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.id, id)).returning();
+    if (rows.length === 0) { res.status(404).json({ error: "Record not found" }); return; }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting risk assessment record");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/risk-assessments/all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    await db.delete(riskAssessmentsTable);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting all risk assessment records");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
