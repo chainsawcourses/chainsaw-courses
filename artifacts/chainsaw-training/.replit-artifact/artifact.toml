@@ -18,7 +18,7 @@ localPort = 19478
 run = "pnpm --filter @workspace/chainsaw-training run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/chainsaw-training", "run", "build" ]
+build = [ "pnpm", "--filter", "@workspace/chainsaw-training", "run", "build:demo" ]
 publicDir = "artifacts/chainsaw-training/dist/public"
 serve = "static"
 
