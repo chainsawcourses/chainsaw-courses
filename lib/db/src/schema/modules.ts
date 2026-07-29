@@ -61,6 +61,15 @@ export const chatMessagesTable = pgTable("chat_messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const mockQuestionsTable = pgTable("mock_questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  prompts: text("prompts").notNull(), // JSON: VocalPrompt[]
+  image: text("image"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
 export const hazardReferenceTable = pgTable("hazard_reference", {
   id: serial("id").primaryKey(),
   category: text("category").notNull(), // 'site' | 'chainsaw' | 'job'

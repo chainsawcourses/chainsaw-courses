@@ -123,13 +123,17 @@ export default function MockTest() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: allModules } = useListModules();
+
+  const [dbQuestions, setDbQuestions] = useState<typeof VOCAL_EXAM_QUESTIONS | null>(null);
+  const allQuestions = dbQuestions ?? VOCAL_EXAM_QUESTIONS;
+
   const activeQuestions = (() => {
-    if (!moduleId) return VOCAL_EXAM_QUESTIONS;
+    if (!moduleId) return allQuestions;
     const id = Number(moduleId);
     const ids = MODULE_QUESTION_MAP[id];
-    if (!ids || ids.length === 0) return VOCAL_EXAM_QUESTIONS;
+    if (!ids || ids.length === 0) return allQuestions;
     const idSet = new Set(ids);
-    return VOCAL_EXAM_QUESTIONS.filter((q) => idSet.has(q.id));
+    return allQuestions.filter((q) => idSet.has(q.id));
   })();
 
   const [phase, setPhase] = useState<Phase>("intro");
@@ -158,6 +162,17 @@ export default function MockTest() {
 
   // Hazard reference (Q2/Q3/Q4)
   const { activationCode, deviceId, userId } = useUserSession();
+
+  // Fetch questions from DB (admin-editable); fall back to hardcoded TS data if empty or unavailable
+  useEffect(() => {
+    if (!activationCode || !deviceId) return;
+    fetch("/api/mock-questions", { headers: { activationcode: activationCode, deviceid: deviceId } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.questions?.length > 0) setDbQuestions(data.questions); })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activationCode, deviceId]);
+
   const [hazardRefs, setHazardRefs] = useState<HazardRef[]>([]);
   const [hazardRefOpen, setHazardRefOpen] = useState(false);
   const [hazardRefLoading, setHazardRefLoading] = useState(false);

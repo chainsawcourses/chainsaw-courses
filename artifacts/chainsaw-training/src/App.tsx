@@ -54,6 +54,7 @@ import MalpracticeLog from "@/pages/admin/MalpracticeLog";
 import QrLanding from "@/pages/QrLanding";
 import ExamPreview from "@/pages/ExamPreview";
 import CertificatePage from "@/pages/Certificate";
+import MockQuestionsAdmin from "@/pages/admin/MockQuestions";
 import AdminPreviewLogin from "@/pages/AdminPreviewLogin";
 import AccessExpired from "@/pages/AccessExpired";
 import Install from "@/pages/Install";
@@ -225,6 +226,7 @@ function Router() {
       <Route path="/admin/certificates" component={CertificateRegister} />
       <Route path="/admin/exam-log" component={ExamLog} />
       <Route path="/admin/assessment-bank" component={AssessmentBank} />
+      <Route path="/admin/mock-questions" component={MockQuestionsAdmin} />
       <Route path="/admin/iqa" component={IQALog} />
       <Route path="/admin/reasonable-adjustments" component={ReasonableAdjustments} />
       <Route path="/admin/malpractice" component={MalpracticeLog} />
