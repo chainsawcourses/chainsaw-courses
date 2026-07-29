@@ -102,3 +102,9 @@ id = "sZy67hRqzllGcfJpt3tIq"
 uri = "file://attached_assets/signing_1785245390413.keystore"
 type = "unspecified"
 title = "signing.keystore (the correct one — password: yuWoWD_gRaB2)"
+
+[[outputs]]
+id = "qfkA49UJMqRMdli8IBNNS"
+uri = "file://chain-id-qr.png"
+type = "image"
+title = "Chain Identification QR Code — app.chainsawcourses.com/chain-chart"
