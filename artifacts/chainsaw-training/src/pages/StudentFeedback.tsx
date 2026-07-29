@@ -6,6 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSubmitAppFeedback } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 
+const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.load();
+
 export default function StudentFeedback() {
   const { deviceId, activationCode } = useUserSession();
   const submitFeedback = useSubmitAppFeedback();
@@ -17,8 +20,8 @@ export default function StudentFeedback() {
 
   const playDing = () => {
     try {
-      const audio = new Audio("/audio/ding.wav");
-      audio.play().catch(() => {});
+      dingAudio.currentTime = 0;
+      dingAudio.play().catch(() => {});
     } catch (e) { /* silent fail */ }
   };
 

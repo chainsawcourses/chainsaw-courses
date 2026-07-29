@@ -9,6 +9,9 @@ import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQ
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
 
+const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.load();
+
 export default function Quiz() {
   const { moduleId } = useParams();
   const id = moduleId ? parseInt(moduleId) : 0;
@@ -34,8 +37,8 @@ export default function Quiz() {
 
   const playDing = () => {
     try {
-      const audio = new Audio("/audio/ding.wav");
-      audio.play().catch(() => {});
+      dingAudio.currentTime = 0;
+      dingAudio.play().catch(() => {});
     } catch (e) { /* silent fail */ }
   };
 
