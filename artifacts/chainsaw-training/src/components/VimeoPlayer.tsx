@@ -14,6 +14,8 @@ interface VimeoPlayerProps {
   /** True when the user has already watched this video to completion at least once.
    *  If false, seeking forward past the furthest-watched point is blocked. */
   videoWatched?: boolean;
+  /** True when the source video is portrait (9:16). Crops black bars on desktop. */
+  isPortrait?: boolean;
 }
 
 function buildEmbedUrl(vimeoId: string, nativeControls: boolean): string {
@@ -41,7 +43,7 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
+export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false, isPortrait = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -248,7 +250,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
       } : undefined}
     >
       {/* ── Video frame ── */}
-      <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isFullscreen ? "flex-1 rounded-none" : "aspect-video rounded-t-lg"}`}>
+      <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isPortrait ? "vimeo-is-portrait" : ""} ${isFullscreen ? "flex-1 rounded-none" : isPortrait ? "aspect-[9/16] max-h-[85vh] mx-auto rounded-t-lg" : "aspect-video rounded-t-lg"}`}>
         <iframe
           ref={iframeRef}
           key={vimeoId}
@@ -292,7 +294,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
               left: watermarkPos.left,
               transform: "translate(-50%, -50%)",
               fontFamily: "monospace",
-              fontSize: "clamp(0.6rem, 1.5vw, 0.75rem)",
+              fontSize: IS_DEMO ? "clamp(2rem, 8vw, 3.5rem)" : "clamp(0.6rem, 1.5vw, 0.75rem)",
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",

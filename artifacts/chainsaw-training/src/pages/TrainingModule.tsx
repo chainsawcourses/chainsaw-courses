@@ -7,6 +7,7 @@ import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat,
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer, type VimeoPlayerHandle } from "@/components/VimeoPlayer";
+import { IS_DEMO } from "../lib/demo";
 import { useToast } from "@/hooks/use-toast";
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { VOCAL_EXAM_QUESTIONS } from "../data/vocalExamQuestions";
@@ -315,6 +316,7 @@ export default function TrainingModule() {
                       onTimeUpdate={handleTimeUpdate}
                       onEnded={handleVideoEnded}
                       videoWatched={module.isCompleted || videoCompleted}
+                      isPortrait={IS_DEMO}
                     />
                   );
                 }

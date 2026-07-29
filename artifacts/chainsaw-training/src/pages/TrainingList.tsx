@@ -811,10 +811,10 @@ export default function TrainingList() {
               )}
             </div>
 
-            {/* Practical Progression Gateway — locked until exam passed */}
+            {/* Practical Progression Gateway — locked until exam passed (or demo mode) */}
             <div className="flex items-center justify-between pt-1 border-t border-border">
               <div className="flex items-center gap-2">
-                {examPassed ? (
+                {(examPassed || IS_DEMO) ? (
                   <Link
                     href="/gateway"
                     className="font-mono font-semibold uppercase tracking-widest text-xs text-[#e27226] hover:text-[#c9621f] transition-colors flex items-center gap-1.5"
@@ -831,7 +831,7 @@ export default function TrainingList() {
                   </span>
                 )}
               </div>
-              {examPassed && (
+              {(examPassed || IS_DEMO) && (
                 <Link
                   href="/gateway"
                   className="font-mono text-[10px] uppercase tracking-widest text-[#e27226] hover:text-[#c9621f] underline underline-offset-2 transition-colors"

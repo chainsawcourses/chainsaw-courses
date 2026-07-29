@@ -174,11 +174,12 @@
 }
 
 /* On portrait phones: 9:16 container, crop sides of 16:9 video to fill height */
+/* Skip the scale trick for videos that are already portrait (vimeo-is-portrait) */
 @media (max-width: 639px) and (orientation: portrait) {
-  .vimeo-portrait-container {
+  .vimeo-portrait-container:not(.vimeo-is-portrait) {
     aspect-ratio: 9 / 16;
   }
-  .vimeo-iframe {
+  .vimeo-portrait-container:not(.vimeo-is-portrait) .vimeo-iframe {
     /* Scale iframe wide enough so video height fills the 9:16 container */
     /* (16/9)^2 ≈ 3.16× wider, centred with negative left offset */
     width: 316%;
