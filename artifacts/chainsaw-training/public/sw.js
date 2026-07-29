@@ -1,4 +1,4 @@
-const CACHE_NAME = "chainsaw-shell-v3";
+const CACHE_NAME = "chainsaw-shell-v4";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_ASSETS = [
