@@ -1,17 +1,20 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useEffect, useState, useMemo } from "react";
+import { Link, useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare } from "lucide-react";
+import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import {
   useListFeedback, getListFeedbackQueryKey,
   useListAppFeedback, getListAppFeedbackQueryKey,
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
+type Tab = "by-student" | "by-module" | "course";
+
 export default function Feedback() {
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const { adminToken, isReady } = useAdminSession();
 
   useEffect(() => {
@@ -26,8 +29,24 @@ export default function Feedback() {
     query: { queryKey: getListAppFeedbackQueryKey(), enabled: !!adminToken },
   });
 
-  const [videoSearch, setVideoSearch] = useState("");
+  // Read ?student= param from roster link — pre-fills search and opens by-student tab
+  const studentParam = useMemo(() => {
+    const params = new URLSearchParams(search);
+    return params.get("student") ?? "";
+  }, [search]);
+
+  const [activeTab, setActiveTab] = useState<Tab>(studentParam ? "by-student" : "by-module");
+  const [videoSearch, setVideoSearch] = useState(studentParam);
   const [courseSearch, setCourseSearch] = useState("");
+  const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
+
+  // Sync if param changes after mount
+  useEffect(() => {
+    if (studentParam) {
+      setVideoSearch(studentParam);
+      setActiveTab("by-student");
+    }
+  }, [studentParam]);
 
   const videoAvg = videoFeedback && videoFeedback.length > 0
     ? (videoFeedback.reduce((s, f) => s + f.rating, 0) / videoFeedback.length).toFixed(1)
@@ -37,6 +56,7 @@ export default function Feedback() {
     ? (courseFeedback.reduce((s, f) => s + f.rating, 0) / courseFeedback.length).toFixed(1)
     : null;
 
+  // ── By Student filter ──────────────────────────────────────────────────────
   const vq = videoSearch.trim().toLowerCase();
   const filteredVideo = vq
     ? videoFeedback?.filter((f) =>
@@ -54,6 +74,41 @@ export default function Feedback() {
       )
     : courseFeedback;
 
+  // ── By Module grouping ─────────────────────────────────────────────────────
+  const moduleGroups = useMemo(() => {
+    if (!videoFeedback) return [];
+    const map = new Map<number, { moduleId: number; moduleTitle: string; entries: typeof videoFeedback }>();
+    for (const f of videoFeedback) {
+      if (!map.has(f.moduleId)) {
+        map.set(f.moduleId, { moduleId: f.moduleId, moduleTitle: f.moduleTitle, entries: [] });
+      }
+      map.get(f.moduleId)!.entries.push(f);
+    }
+    return Array.from(map.values())
+      .map((g) => ({
+        ...g,
+        avg: g.entries.reduce((s, e) => s + e.rating, 0) / g.entries.length,
+        count: g.entries.length,
+      }))
+      .sort((a, b) => b.avg - a.avg);
+  }, [videoFeedback]);
+
+  const toggleModule = (id: number) => {
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const Stars = ({ rating, size = "w-3.5 h-3.5" }: { rating: number; size?: string }) => (
+    <span className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className={`${size} ${i < rating ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+      ))}
+    </span>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
@@ -67,141 +122,239 @@ export default function Feedback() {
             </Link>
           </Button>
         </div>
+
+        {/* Tabs */}
+        <div className="border-t border-border">
+          <div className="max-w-5xl mx-auto px-4 flex gap-1 py-1.5">
+            {(["by-module", "by-student", "course"] as Tab[]).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`font-mono text-xs uppercase tracking-widest px-3 py-1.5 rounded transition-colors ${
+                  activeTab === tab
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                }`}
+              >
+                {tab === "by-module" ? "By Module" : tab === "by-student" ? "By Student" : "Course Feedback"}
+              </button>
+            ))}
+          </div>
+        </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
-        {/* ── Video Feedback ─────────────────────────────────────────── */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-primary" />
-            <h2 className="font-mono font-black uppercase tracking-widest text-base">Video Feedback</h2>
-          </div>
+        {/* ── BY MODULE ──────────────────────────────────────────────────── */}
+        {activeTab === "by-module" && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-5 bg-primary" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base">Feedback by Module</h2>
+              <span className="font-mono text-xs text-muted-foreground">{moduleGroups.length} modules with responses</span>
+            </div>
 
-          <Card className="bg-secondary/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <Star className="w-5 h-5 text-primary fill-primary" />
-              <span className="font-mono text-sm">
-                {videoAvg
-                  ? `Average rating: ${videoAvg} / 5 across ${videoFeedback?.length} responses`
-                  : "No video feedback submitted yet"}
-              </span>
-            </CardContent>
-          </Card>
+            <Card className="bg-secondary/20">
+              <CardContent className="p-4 flex items-center gap-3">
+                <Star className="w-5 h-5 text-primary fill-primary" />
+                <span className="font-mono text-sm">
+                  {videoAvg
+                    ? `Overall average: ${videoAvg} / 5 across ${videoFeedback?.length} responses`
+                    : "No video feedback submitted yet"}
+                </span>
+              </CardContent>
+            </Card>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by module, student or comment…"
-              value={videoSearch}
-              onChange={(e) => setVideoSearch(e.target.value)}
-              className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
-            />
-            {videoSearch && (
-              <button onClick={() => setVideoSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
-              </button>
+            {loadingVideo && (
+              <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
             )}
-          </div>
-
-          {loadingVideo && (
-            <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
-          )}
-          {!loadingVideo && filteredVideo?.length === 0 && (
-            <p className="text-center text-muted-foreground font-mono text-sm py-8">
-              {vq ? `No results for "${videoSearch}"` : "No video feedback submitted yet"}
-            </p>
-          )}
-
-          <div className="space-y-3">
-            {filteredVideo?.map((f) => (
-              <Card key={f.id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center justify-between text-sm font-mono">
-                    <span>{f.moduleTitle}</span>
-                    <span className="flex items-center gap-1 text-primary">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < f.rating ? "fill-primary" : "text-muted-foreground"}`} />
-                      ))}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-sm font-mono text-muted-foreground">
-                  {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
-                  <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">
-                    {f.studentName ? `${f.studentName} — ` : ""}{new Date(f.createdAt).toLocaleString()}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Course Feedback ────────────────────────────────────────── */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-5 bg-primary" />
-            <h2 className="font-mono font-black uppercase tracking-widest text-base">Course Feedback</h2>
-          </div>
-
-          <Card className="bg-secondary/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <MessageSquare className="w-5 h-5 text-primary" />
-              <span className="font-mono text-sm">
-                {courseAvg
-                  ? `Average rating: ${courseAvg} / 5 across ${courseFeedback?.length} responses`
-                  : "No course feedback submitted yet"}
-              </span>
-            </CardContent>
-          </Card>
-
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by student or comment…"
-              value={courseSearch}
-              onChange={(e) => setCourseSearch(e.target.value)}
-              className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
-            />
-            {courseSearch && (
-              <button onClick={() => setCourseSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
-              </button>
+            {!loadingVideo && moduleGroups.length === 0 && (
+              <p className="text-center text-muted-foreground font-mono text-sm py-8">No video feedback submitted yet</p>
             )}
-          </div>
 
-          {loadingCourse && (
-            <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
-          )}
-          {!loadingCourse && filteredCourse?.length === 0 && (
-            <p className="text-center text-muted-foreground font-mono text-sm py-8">
-              {cq ? `No results for "${courseSearch}"` : "No course feedback submitted yet"}
-            </p>
-          )}
+            <div className="space-y-3">
+              {moduleGroups.map((group) => {
+                const isExpanded = expandedModules.has(group.moduleId);
+                return (
+                  <Card key={group.moduleId} className="overflow-hidden">
+                    <button
+                      className="w-full text-left"
+                      onClick={() => toggleModule(group.moduleId)}
+                    >
+                      <CardHeader className="pb-3 hover:bg-secondary/10 transition-colors">
+                        <CardTitle className="flex items-center justify-between text-sm font-mono gap-3">
+                          <span className="truncate">{group.moduleTitle}</span>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <Stars rating={Math.round(group.avg)} />
+                            <span className="text-muted-foreground text-xs">{group.avg.toFixed(1)} · {group.count} {group.count === 1 ? "response" : "responses"}</span>
+                            {isExpanded
+                              ? <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                              : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                    </button>
 
-          <div className="space-y-3">
-            {filteredCourse?.map((f) => (
-              <Card key={f.id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center justify-between text-sm font-mono">
-                    <span className="text-muted-foreground">{f.studentName ?? "Anonymous"}</span>
-                    <span className="flex items-center gap-1 text-primary">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < f.rating ? "fill-primary" : "text-muted-foreground"}`} />
-                      ))}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 text-sm font-mono text-muted-foreground">
-                  {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
-                  <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">
-                    {new Date(f.createdAt).toLocaleString()}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+                    {isExpanded && (
+                      <CardContent className="pt-0 pb-3 border-t border-border divide-y divide-border">
+                        {group.entries.map((e) => (
+                          <div key={e.id} className="py-3 first:pt-3">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-mono text-xs font-bold">{e.studentName ?? "Anonymous"}</span>
+                              <Stars rating={e.rating} size="w-3 h-3" />
+                            </div>
+                            <p className="text-sm text-muted-foreground font-mono">
+                              {e.comment ?? <span className="italic opacity-60">No comment</span>}
+                            </p>
+                            <div className="text-[10px] font-mono text-muted-foreground/60 mt-1 uppercase tracking-widest">
+                              {new Date(e.createdAt).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </CardContent>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── BY STUDENT ─────────────────────────────────────────────────── */}
+        {activeTab === "by-student" && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-5 bg-primary" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base">Feedback by Student</h2>
+            </div>
+
+            <Card className="bg-secondary/20">
+              <CardContent className="p-4 flex items-center gap-3">
+                <Star className="w-5 h-5 text-primary fill-primary" />
+                <span className="font-mono text-sm">
+                  {videoAvg
+                    ? `Average rating: ${videoAvg} / 5 across ${videoFeedback?.length} responses`
+                    : "No video feedback submitted yet"}
+                </span>
+              </CardContent>
+            </Card>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by module, student or comment…"
+                value={videoSearch}
+                onChange={(e) => setVideoSearch(e.target.value)}
+                className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
+              />
+              {videoSearch && (
+                <button onClick={() => setVideoSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {loadingVideo && (
+              <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
+            )}
+            {!loadingVideo && filteredVideo?.length === 0 && (
+              <p className="text-center text-muted-foreground font-mono text-sm py-8">
+                {vq ? `No results for "${videoSearch}"` : "No video feedback submitted yet"}
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {filteredVideo?.map((f) => (
+                <Card key={f.id}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center justify-between text-sm font-mono">
+                      <span>{f.moduleTitle}</span>
+                      <span className="flex items-center gap-1 text-primary">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < f.rating ? "fill-primary" : "text-muted-foreground"}`} />
+                        ))}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0 text-sm font-mono text-muted-foreground">
+                    {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
+                    <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">
+                      {f.studentName ? `${f.studentName} — ` : ""}{new Date(f.createdAt).toLocaleString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── COURSE FEEDBACK ────────────────────────────────────────────── */}
+        {activeTab === "course" && (
+          <section className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-5 bg-primary" />
+              <h2 className="font-mono font-black uppercase tracking-widest text-base">Course Feedback</h2>
+            </div>
+
+            <Card className="bg-secondary/20">
+              <CardContent className="p-4 flex items-center gap-3">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <span className="font-mono text-sm">
+                  {courseAvg
+                    ? `Average rating: ${courseAvg} / 5 across ${courseFeedback?.length} responses`
+                    : "No course feedback submitted yet"}
+                </span>
+              </CardContent>
+            </Card>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by student or comment…"
+                value={courseSearch}
+                onChange={(e) => setCourseSearch(e.target.value)}
+                className="pl-10 pr-10 h-10 font-mono text-sm bg-card"
+              />
+              {courseSearch && (
+                <button onClick={() => setCourseSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {loadingCourse && (
+              <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
+            )}
+            {!loadingCourse && filteredCourse?.length === 0 && (
+              <p className="text-center text-muted-foreground font-mono text-sm py-8">
+                {cq ? `No results for "${courseSearch}"` : "No course feedback submitted yet"}
+              </p>
+            )}
+
+            <div className="space-y-3">
+              {filteredCourse?.map((f) => (
+                <Card key={f.id}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center justify-between text-sm font-mono">
+                      <span className="text-muted-foreground">{f.studentName ?? "Anonymous"}</span>
+                      <span className="flex items-center gap-1 text-primary">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < f.rating ? "fill-primary" : "text-muted-foreground"}`} />
+                        ))}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0 text-sm font-mono text-muted-foreground">
+                    {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
+                    <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">
+                      {new Date(f.createdAt).toLocaleString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
 
       </main>
     </div>

@@ -414,6 +414,8 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
+  feedbackCount?: number;
+  totalQuizAttempts?: number;
 }
 
 export interface StudentQuizResult {

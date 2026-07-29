@@ -196,6 +196,18 @@ router.get("/admin/students", async (req, res) => {
       progressMap.set(p.userId, (progressMap.get(p.userId) ?? 0) + 1);
     }
 
+    const [feedbackCounts, quizAttemptCounts] = await Promise.all([
+      db.select({ userId: moduleFeedbackTable.userId, cnt: count() })
+        .from(moduleFeedbackTable)
+        .groupBy(moduleFeedbackTable.userId),
+      db.select({ userId: quizAttemptsTable.userId, cnt: count() })
+        .from(quizAttemptsTable)
+        .groupBy(quizAttemptsTable.userId),
+    ]);
+
+    const feedbackCountMap = new Map(feedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const quizAttemptCountMap = new Map(quizAttemptCounts.map((r) => [r.userId, Number(r.cnt)]));
+
     const result = users.map((u) => ({
       id: u.id,
       fullName: u.fullName,
@@ -208,6 +220,8 @@ router.get("/admin/students", async (req, res) => {
       quizzesPassed: progressMap.get(u.id) ?? 0,
       waiverSigned: !!waiverMap.get(u.id),
       lastActivity: u.lastActivityAt?.toISOString() ?? null,
+      feedbackCount: feedbackCountMap.get(u.id) ?? 0,
+      totalQuizAttempts: quizAttemptCountMap.get(u.id) ?? 0,
     }));
 
     res.json(result);

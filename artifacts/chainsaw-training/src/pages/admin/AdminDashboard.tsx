@@ -532,7 +532,7 @@ export default function AdminDashboard() {
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">{student.email}</div>
-                    <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
                       <span className="text-muted-foreground">·</span>
                       {student.waiverSigned ? (
@@ -542,6 +542,17 @@ export default function AdminDashboard() {
                       )}
                       <span className="text-muted-foreground">·</span>
                       <span className="font-mono text-[10px] text-muted-foreground">{student.completedModules}/{student.totalModules}</span>
+                      {(student.totalQuizAttempts ?? 0) > 0 && (
+                        <>
+                          <span className="text-muted-foreground">·</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">{student.totalQuizAttempts} quiz attempts</span>
+                        </>
+                      )}
+                      {(student.feedbackCount ?? 0) > 0 && (
+                        <Link href={`/admin/feedback?student=${encodeURIComponent(student.fullName)}`} className="flex items-center gap-0.5 text-primary font-mono text-[10px]">
+                          <Star className="w-2.5 h-2.5 fill-primary" /> {student.feedbackCount} feedback
+                        </Link>
+                      )}
                     </div>
                   </div>
                   <Button size="sm" variant="outline" className="font-mono text-xs h-9 px-4 shrink-0" asChild>
@@ -560,6 +571,8 @@ export default function AdminDashboard() {
                     <TableHead className="font-mono text-xs">CODE</TableHead>
                     <TableHead className="font-mono text-xs">PROGRESS</TableHead>
                     <TableHead className="font-mono text-xs">WAIVER</TableHead>
+                    <TableHead className="font-mono text-xs text-center">QUIZ ATTEMPTS</TableHead>
+                    <TableHead className="font-mono text-xs text-center">FEEDBACK</TableHead>
                     <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -596,6 +609,24 @@ export default function AdminDashboard() {
                           <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none">MISSING</Badge>
                         )}
                       </TableCell>
+                      <TableCell className="text-center font-mono text-sm">
+                        {(student.totalQuizAttempts ?? 0) > 0 ? (
+                          <span className="font-bold">{student.totalQuizAttempts}</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {(student.feedbackCount ?? 0) > 0 ? (
+                          <Button size="sm" variant="outline" className="font-mono text-[10px] h-6 px-2 text-primary border-primary/40 hover:bg-primary/10" asChild>
+                            <Link href={`/admin/feedback?student=${encodeURIComponent(student.fullName)}`}>
+                              <Star className="w-3 h-3 mr-1 fill-primary" />{student.feedbackCount}
+                            </Link>
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground text-xs font-mono">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="outline" className="font-mono text-xs h-7" asChild>
                           <Link href={`/admin/students/${student.id}`}>VIEW</Link>
@@ -605,7 +636,7 @@ export default function AdminDashboard() {
                   ))}
                   {filteredRoster?.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground font-mono text-sm">
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground font-mono text-sm">
                         NO RECORDS FOUND
                       </TableCell>
                     </TableRow>
