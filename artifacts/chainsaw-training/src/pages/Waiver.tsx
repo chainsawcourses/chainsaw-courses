@@ -8,7 +8,8 @@ import { useSignWaiver } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { SignatureCanvas, SignaturePadRef } from "@/components/SignaturePad";
 import { IS_DEMO } from "../lib/demo";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, ClipboardList, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 
 const CLAUSES = [
   {
@@ -75,13 +76,42 @@ export default function Waiver() {
   useEffect(() => {
     if (!IS_DEMO && (!activationCode || !deviceId)) {
       setLocation("/");
-      return;
-    }
-    // Demo mode: waiver page is not accessible — redirect back to training
-    if (IS_DEMO) {
-      setLocation("/training");
     }
   }, [activationCode, deviceId, setLocation]);
+
+  if (IS_DEMO) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center gap-6 bg-background">
+        <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full shadow-sm space-y-5">
+          <div className="flex justify-center">
+            <div className="bg-primary/10 rounded-full p-4">
+              <ClipboardList className="w-8 h-8 text-primary" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="font-black tracking-tighter text-xl uppercase">Not Available in App Preview</h1>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Registered candidates go through a full checklist liability waiver before accessing the course. You can review it here:
+            </p>
+          </div>
+          <a
+            href="https://chainsawcourses.com/waiver"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-mono font-semibold text-[#e27226] hover:text-[#c9621f] underline underline-offset-4 transition-colors"
+          >
+            <ClipboardList className="w-4 h-4" />
+            View the candidate waiver
+          </a>
+          <div className="pt-2 border-t border-border">
+            <Button asChild variant="ghost" size="sm" className="font-mono uppercase tracking-widest text-xs">
+              <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back to Training</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const toggle = (id: string) => {
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
