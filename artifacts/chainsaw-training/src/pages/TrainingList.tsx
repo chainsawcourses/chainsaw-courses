@@ -83,7 +83,13 @@ export default function TrainingList() {
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
   const [preparingOpen, setPreparingOpen] = useState(false);
+  const [preparingClicked, setPreparingClicked] = useState(() =>
+    localStorage.getItem("preparing-clicked") === "true"
+  );
   const [nptcOpen, setNptcOpen] = useState(false);
+  const [nptcClicked, setNptcClicked] = useState(() =>
+    localStorage.getItem("nptc-clicked") === "true"
+  );
   const [docsOpen, setDocsOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
@@ -995,14 +1001,25 @@ export default function TrainingList() {
             <div>
               <button
                 ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setPreparingOpen((o) => !o); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreparingOpen((o) => !o);
+                  if (examPassed && !preparingClicked) {
+                    setPreparingClicked(true);
+                    localStorage.setItem("preparing-clicked", "true");
+                  }
+                }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                <h3 className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${
+                  examPassed
+                    ? `text-green-600 group-hover:text-green-700 ${!preparingClicked ? "animate-green-pulse" : ""}`
+                    : "text-muted-foreground group-hover:text-primary"
+                }`}>
                   Preparing for Your Assessment
                 </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${preparingOpen ? "rotate-180 text-primary" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${examPassed ? "text-green-600 group-hover:text-green-700" : "text-muted-foreground group-hover:text-primary"} ${preparingOpen ? "rotate-180" : ""}`} />
               </button>
               {preparingOpen && (
                 <Card className="border-border bg-card/60 mt-1">
@@ -1037,14 +1054,25 @@ export default function TrainingList() {
             <div>
               <button
                 ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNptcOpen((o) => !o);
+                  if (examPassed && !nptcClicked) {
+                    setNptcClicked(true);
+                    localStorage.setItem("nptc-clicked", "true");
+                  }
+                }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                <h3 className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${
+                  examPassed
+                    ? `text-green-600 group-hover:text-green-700 ${!nptcClicked ? "animate-green-pulse" : ""}`
+                    : "text-muted-foreground group-hover:text-primary"
+                }`}>
                   NPTC Resources
                 </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${examPassed ? "text-green-600 group-hover:text-green-700" : "text-muted-foreground group-hover:text-primary"} ${nptcOpen ? "rotate-180" : ""}`} />
               </button>
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1">
