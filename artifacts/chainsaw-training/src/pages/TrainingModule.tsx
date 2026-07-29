@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, LogOut, RotateCcw } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, RotateCcw } from "lucide-react";
 import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey, useListModules } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
@@ -226,10 +226,7 @@ export default function TrainingModule() {
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-2" /> BACK</Link>
           </Button>
           <div className="font-mono text-sm font-bold uppercase truncate max-w-[50vw]">{module.title}</div>
-          <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive w-[80px]"
-            onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-            <LogOut className="w-3 h-3 mr-1" /> LOG OUT
-          </Button>
+          <div className="w-[80px]" />
         </div>
       </header>
 

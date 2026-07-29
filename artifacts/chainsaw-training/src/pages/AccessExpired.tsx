@@ -6,7 +6,7 @@ const SUBSCRIPTION_URL = "https://chainsawcourses.com/subscribe";
 const ORANGE = "#e27226";
 
 export default function AccessExpired() {
-  const { activationCode, fullName, courseCompletedAt, clearSession } = useUserSession();
+  const { activationCode, fullName, courseCompletedAt } = useUserSession();
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -78,13 +78,7 @@ export default function AccessExpired() {
           </div>
 
           <div className="border-t pt-4">
-            <p className="text-xs text-gray-400 mb-2">Questions? Email <a href="mailto:info@chainsawcourses.com" className="underline">info@chainsawcourses.com</a></p>
-            <button
-              onClick={clearSession}
-              className="text-xs text-gray-400 underline"
-            >
-              Sign out
-            </button>
+            <p className="text-xs text-gray-400">Questions? Email <a href="mailto:info@chainsawcourses.com" className="underline">info@chainsawcourses.com</a></p>
           </div>
         </div>
       </div>
