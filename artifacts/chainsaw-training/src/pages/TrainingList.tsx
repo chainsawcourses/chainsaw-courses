@@ -820,7 +820,7 @@ export default function TrainingList() {
                 {examPassed ? (
                   <Link
                     href="/gateway"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-[#e27226] hover:text-[#c9621f] transition-colors flex items-center gap-1.5"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 hover:text-green-700 transition-colors flex items-center gap-1.5"
                   >
                     <MapPin className="w-3 h-3 shrink-0" />
                     Practical Progression Gateway
@@ -837,7 +837,7 @@ export default function TrainingList() {
               {examPassed && (
                 <Link
                   href="/gateway"
-                  className="font-mono text-[10px] uppercase tracking-widest text-[#e27226] hover:text-[#c9621f] underline underline-offset-2 transition-colors"
+                  className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-700 underline underline-offset-2 transition-colors"
                 >
                   Find a Centre
                 </Link>
@@ -1095,7 +1095,7 @@ export default function TrainingList() {
               {courseUnlocked ? (
                 <Link
                   href="/mock-test"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                  className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${examPassed ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-primary"}`}
                 >
                   Practical Mock Assessment
                 </Link>
