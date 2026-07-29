@@ -303,7 +303,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
                 textShadow: "0 1px 4px rgba(0,0,0,0.4)",
               }}
             >
-              DEMO
+              DEMO PREVIEW
             </div>
           ) : (
             <div
