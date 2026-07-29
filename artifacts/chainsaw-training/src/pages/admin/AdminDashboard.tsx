@@ -320,7 +320,7 @@ export default function AdminDashboard() {
         </div>
         {/* Row 2 — navigation links */}
         <div className="border-t border-border bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto">
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/videos"><Video className="w-3.5 h-3.5 mr-1" /> VIDEO SETTINGS</Link>
             </Button>
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
         </div>
         {/* Row 3 — EQA / quality features */}
         <div className="border-t border-border bg-orange-50/40">
-          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto">
             <span className="font-mono text-xs text-muted-foreground mr-1">EQA:</span>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/stats"><BarChart2 className="w-3.5 h-3.5 mr-1" /> STATISTICS</Link>
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8 pt-[132px]">
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8 pt-[140px]">
 
         {/* Global Search */}
         <div className="relative">

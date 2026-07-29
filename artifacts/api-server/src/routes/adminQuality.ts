@@ -217,6 +217,36 @@ router.get("/admin/assessment-bank", async (req, res) => {
 
 // ─── Question CRUD ───────────────────────────────────────────────────────────
 
+router.get("/admin/questions/stats", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const attempts = await db.select({ answers: examAttemptsTable.answers }).from(examAttemptsTable);
+    const correct = new Map<number, number>();
+    const incorrect = new Map<number, number>();
+    for (const { answers } of attempts) {
+      let parsed: { questionId: number; correct: boolean }[] = [];
+      try { parsed = JSON.parse(answers); } catch { continue; }
+      for (const a of parsed) {
+        if (typeof a.questionId !== "number") continue;
+        if (a.correct) {
+          correct.set(a.questionId, (correct.get(a.questionId) ?? 0) + 1);
+        } else {
+          incorrect.set(a.questionId, (incorrect.get(a.questionId) ?? 0) + 1);
+        }
+      }
+    }
+    const allIds = new Set([...correct.keys(), ...incorrect.keys()]);
+    res.json([...allIds].map(id => ({
+      questionId: id,
+      correct: correct.get(id) ?? 0,
+      incorrect: incorrect.get(id) ?? 0,
+    })));
+  } catch (err) {
+    logger.error({ err }, "Error fetching question stats");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/admin/questions", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
