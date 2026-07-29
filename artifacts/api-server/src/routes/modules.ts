@@ -22,15 +22,13 @@ router.get("/modules", async (req, res) => {
     return;
   }
 
-  // Demo mode: return all modules with only the first 3 video modules unlocked
+  // Demo mode: return all modules with only specific video modules unlocked
   if (user.id === 0) {
+    const DEMO_UNLOCKED_TITLES = ["Spark Plug", "Chain Basics", "Bore Cutting"];
     const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
-    let videoUnlocked = 0;
     return res.json(allMods.map((mod) => {
       const isCourseReq = mod.category === "COURSE REQUIREMENTS";
-      const isVideo = mod.contentType === "video";
-      const unlocked = isCourseReq || (isVideo && videoUnlocked < 3);
-      if (isVideo && unlocked) videoUnlocked++;
+      const unlocked = isCourseReq || DEMO_UNLOCKED_TITLES.includes(mod.title);
       return {
         id: mod.id,
         title: mod.title,
