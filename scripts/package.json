@@ -8,6 +8,7 @@
     "seed-quiz": "tsx ./src/seed-quiz-questions.ts",
     "add-battery-module": "tsx ./src/add-battery-chainsaw-module.ts",
     "seed-hazards": "tsx ./src/seed-hazard-reference.ts",
+    "seed-mock-questions": "tsx ./src/seed-mock-questions.ts",
     "generate-pdfs": "tsx ./src/generate-pdfs.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
