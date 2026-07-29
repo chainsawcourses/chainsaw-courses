@@ -315,7 +315,7 @@ export default function TrainingModule() {
                       vimeoId={module.vimeoId!}
                       onTimeUpdate={handleTimeUpdate}
                       onEnded={handleVideoEnded}
-                      videoWatched={module.isCompleted || videoCompleted}
+                      videoWatched={module.isCompleted || videoCompleted || IS_DEMO}
                       isPortrait={IS_DEMO}
                     />
                   );
