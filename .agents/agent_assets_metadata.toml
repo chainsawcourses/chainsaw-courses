@@ -108,3 +108,9 @@ id = "qfkA49UJMqRMdli8IBNNS"
 uri = "file://chain-id-qr.png"
 type = "image"
 title = "Chain Identification QR Code — app.chainsawcourses.com/chain-chart"
+
+[[outputs]]
+id = "9NgZnH3xyIxZU3V2LVHoZ"
+uri = "file://glossary-qr.png"
+type = "image"
+title = "Glossary QR Code — app.chainsawcourses.com/glossary"
