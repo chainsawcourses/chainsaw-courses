@@ -1185,8 +1185,11 @@ export default function TrainingList() {
                       const isPdf = module.contentType === "pdf";
                       const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
                       const moduleIndex = modules!.findIndex((m) => m.id === module.id);
+                      // needsHazards is only used to show a soft prompt — it no longer gates access.
+                      // Modules unlock purely based on the backend isLocked flag (quiz + video completion).
                       const needsHazards = riskAssessmentIndex !== -1 && moduleIndex > riskAssessmentIndex && !hazardsViewed;
-                      const effectiveLocked = module.isLocked || needsHazards;
+                      void needsHazards;
+                      const effectiveLocked = module.isLocked;
                       return (
                         <div key={module.id} id={`module-${module.id}`}>
                           <Card
