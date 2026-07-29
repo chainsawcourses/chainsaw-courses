@@ -738,10 +738,10 @@ export default function TrainingList() {
             {/* Final Exam row */}
             <div className="flex items-center pt-1 border-t border-border">
               {examPassed ? (
-                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 flex items-center gap-1.5 cursor-default">
+                <Link href="/exam" className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 hover:text-green-700 flex items-center gap-1.5 transition-colors">
                   <Award className="w-3 h-3 shrink-0" />
                   Final Exam ✓
-                </span>
+                </Link>
               ) : courseUnlocked ? (
                 <Link href="/exam" className="relative inline-flex items-center group">
                   {/* Ping ring */}
