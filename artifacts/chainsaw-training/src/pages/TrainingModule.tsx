@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, LogOut, RotateCcw } from "lucide-react";
-import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
+import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey, useListModules } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
 import { VimeoPlayer, type VimeoPlayerHandle } from "@/components/VimeoPlayer";
@@ -24,6 +24,20 @@ export default function TrainingModule() {
   const { data: module, isLoading } = useGetModule(id, {
     query: { queryKey: getGetModuleQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
   });
+
+  const { data: allModules } = useListModules({
+    query: { queryKey: getListModulesQueryKey(), enabled: !!activationCode && !!deviceId }
+  });
+
+  // Next video module after this one (by order), used when there's no quiz
+  const nextVideoModule = allModules
+    ? allModules
+        .filter(m => m.contentType !== "pdf" && m.id !== id)
+        .sort((a, b) => a.order - b.order)
+        .find(m => m.order > (module?.order ?? 0)) ?? null
+    : null;
+
+  const hasQuiz = (module?.quizCount ?? 1) > 0;
 
   const completeVideo = useCompleteVideo();
   const saveHeartbeat = useSaveHeartbeat();
@@ -333,9 +347,19 @@ export default function TrainingModule() {
                       className="font-mono font-bold tracking-widest w-full gap-1.5"
                       asChild
                     >
-                      <Link href={`/quiz/${module.id}`}>
-                        <ChevronRight className="w-3.5 h-3.5" /> TAKE MODULE QUIZ
-                      </Link>
+                      {hasQuiz ? (
+                        <Link href={`/quiz/${module.id}`}>
+                          <ChevronRight className="w-3.5 h-3.5" /> TAKE MODULE QUIZ
+                        </Link>
+                      ) : nextVideoModule ? (
+                        <Link href={`/module/${nextVideoModule.id}`}>
+                          <ChevronRight className="w-3.5 h-3.5" /> PLAY NEXT VIDEO
+                        </Link>
+                      ) : (
+                        <Link href="/training">
+                          <ChevronRight className="w-3.5 h-3.5" /> BACK TO COURSE
+                        </Link>
+                      )}
                     </Button>
                     <Button size="sm" variant="ghost" className="font-mono text-white/70 hover:text-white hover:bg-white/10 w-full text-xs gap-1.5" onClick={handleReplay}>
                       <RotateCcw className="w-3 h-3" /> REPLAY VIDEO
@@ -345,17 +369,31 @@ export default function TrainingModule() {
               )}
             </div>
 
-            {/* Quiz button — always visible, disabled until video is watched */}
+            {/* Quiz / next-video button — always visible, disabled until video is watched */}
             <div className="flex justify-center max-w-3xl mx-auto w-full">
               {(videoCompleted || module.isCompleted) ? (
-                <Button className="w-full font-mono tracking-widest" asChild>
-                  <Link href={`/quiz/${module.id}`}>
-                    <ChevronRight className="w-4 h-4 mr-1.5" /> TAKE MODULE QUIZ
-                  </Link>
-                </Button>
+                hasQuiz ? (
+                  <Button className="w-full font-mono tracking-widest" asChild>
+                    <Link href={`/quiz/${module.id}`}>
+                      <ChevronRight className="w-4 h-4 mr-1.5" /> TAKE MODULE QUIZ
+                    </Link>
+                  </Button>
+                ) : nextVideoModule ? (
+                  <Button className="w-full font-mono tracking-widest" asChild>
+                    <Link href={`/module/${nextVideoModule.id}`}>
+                      <ChevronRight className="w-4 h-4 mr-1.5" /> PLAY NEXT VIDEO
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button className="w-full font-mono tracking-widest" asChild>
+                    <Link href="/training">
+                      <ChevronRight className="w-4 h-4 mr-1.5" /> BACK TO COURSE
+                    </Link>
+                  </Button>
+                )
               ) : (
                 <Button className="w-full font-mono tracking-widest" disabled>
-                  QUIZ LOCKED — WATCH VIDEO FIRST
+                  {hasQuiz ? "QUIZ LOCKED — WATCH VIDEO FIRST" : "WATCH VIDEO TO CONTINUE"}
                 </Button>
               )}
             </div>

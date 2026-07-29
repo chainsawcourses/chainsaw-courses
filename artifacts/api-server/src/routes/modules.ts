@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { modulesTable, userProgressTable, quizQuestionsTable } from "@workspace/db";
-import { eq, asc, and, sql } from "drizzle-orm";
+import { eq, asc, and, sql, count } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 
@@ -263,18 +263,25 @@ router.get("/modules/:moduleId", async (req, res) => {
       }
     }
 
-    const myProgressAll = await db
-      .select()
-      .from(userProgressTable)
-      .where(
-        and(
-          eq(userProgressTable.userId, user.id),
-          eq(userProgressTable.moduleId, moduleId)
-        )
-      );
+    const [myProgressAll, quizCountRows] = await Promise.all([
+      db
+        .select()
+        .from(userProgressTable)
+        .where(
+          and(
+            eq(userProgressTable.userId, user.id),
+            eq(userProgressTable.moduleId, moduleId)
+          )
+        ),
+      db
+        .select({ count: count() })
+        .from(quizQuestionsTable)
+        .where(eq(quizQuestionsTable.moduleId, moduleId)),
+    ]);
     const myProgress = myProgressAll.length > 0
       ? myProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
       : null;
+    const quizCount = quizCountRows[0]?.count ?? 0;
 
     res.json({
       id: mod.id,
@@ -296,6 +303,7 @@ router.get("/modules/:moduleId", async (req, res) => {
       safetyText: mod.safetyText ?? null,
       learningOutcome: mod.learningOutcome ?? null,
       assessmentCriteria: mod.assessmentCriteria ?? null,
+      quizCount,
     });
   } catch (err) {
     logger.error({ err }, "Error fetching module");
