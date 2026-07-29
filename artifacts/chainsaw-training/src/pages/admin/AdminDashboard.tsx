@@ -302,7 +302,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 sticky top-0 z-10">
+      <header className="border-b border-border bg-card/50 fixed top-0 left-0 right-0 z-50 w-full">
         {/* Row 1 — brand + primary actions */}
         <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8 pt-[132px]">
 
         {/* Global Search */}
         <div className="relative">

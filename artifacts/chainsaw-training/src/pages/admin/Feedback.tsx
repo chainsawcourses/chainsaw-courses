@@ -111,7 +111,7 @@ export default function Feedback() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 sticky top-0 z-10">
+      <header className="border-b border-border bg-card/50 fixed top-0 left-0 right-0 z-50 w-full">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <Biohazard className="w-5 h-5 mr-2 inline" /> FEEDBACK
@@ -143,7 +143,7 @@ export default function Feedback() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6 pt-[110px]">
 
         {/* ── BY MODULE ──────────────────────────────────────────────────── */}
         {activeTab === "by-module" && (
