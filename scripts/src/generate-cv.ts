@@ -167,11 +167,11 @@ async function generate() {
     xScale: CIRCLE_R + 3, yScale: CIRCLE_R + 3,
     color: BRAND,
   });
-  // Dark inner circle (matches icon background)
+  // White inner circle
   s.page.drawEllipse({
     x: circleCX, y: circleCY,
     xScale: CIRCLE_R, yScale: CIRCLE_R,
-    color: rgb(0.08, 0.06, 0.04),
+    color: WHITE,
   });
   // Icon centred in the circle
   const ICON_SIZE = CIRCLE_R * 1.4;
