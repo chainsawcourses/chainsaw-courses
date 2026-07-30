@@ -324,15 +324,6 @@ async function generate() {
   s = para(s, "Fully self-developed Progressive Web Application providing IIRSM-approved eLearning in chainsaw maintenance and cross cutting. Features video streaming, device-locked access, AI mock examination, automated certification, and integrated risk assessment tooling.");
   s.y -= 20;
 
-  // ── Affiliations & Standards Involvement ────────────────────────────────────
-  s = section(s, "AFFILIATIONS & STANDARDS INVOLVEMENT");
-
-  s = bullet(s, "UK Power Networks (UKPN) — Specialist standard-setting days and demonstrations for the utility sector.");
-  s.y -= 4;
-  s = bullet(s, "City & Guilds / NPTC — Registered assessor contributing to practical competence evaluation across land-based qualifications.");
-  s.y -= 4;
-  s = bullet(s, "LANTRA — Accredited instructor and assessor for forestry and arboricultural vocational training.");
-
   const pdfBytes = await doc.save();
   fs.writeFileSync(OUT, pdfBytes);
   console.log(`✓ Written ${Math.round(pdfBytes.length / 1024)} KB  →  ${OUT}`);
