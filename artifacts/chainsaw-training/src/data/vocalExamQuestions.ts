@@ -1302,6 +1302,22 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   },
 
   {
+    id: 78,
+    question: "What do the Manual Handling Operations Regulations 1992 (MHOR) require you to do before manually moving heavy timber on site?",
+    prompts: [{
+      prompt: "What do the Manual Handling Operations Regulations 1992 require you to do before manually moving heavy timber on site?",
+      threshold: 2,
+      keyPoints: [
+        { label: "Avoid manual handling where reasonably practicable — use mechanical aids", keywords: ["avoid", "mechanical aid", "cant hook", "timber jack", "avoid manual handling", "use tools", "use equipment", "reasonably practicable", "avoid it if you can", "don't lift if you can use tools", "use mechanical aids", "mechanical lifting", "use a tool", "avoid lifting by hand"] },
+        { label: "Assess the load — weight, shape, distance to be moved", keywords: ["assess", "assessment", "assess the load", "assess weight", "weight", "shape", "distance", "assess the task", "assess the risk", "look at it first", "think about it", "weigh up the task", "assess what you're lifting"] },
+        { label: "Reduce the risk of injury — correct posture, bend knees, back straight", keywords: ["reduce risk", "correct posture", "bend knees", "back straight", "knees bent", "posture", "reduce injury", "safe posture", "lift safely", "safe lifting", "back upright", "straight back", "bend at knees"] },
+        { label: "Team lift if the load is too heavy for one person", keywords: ["team lift", "two person lift", "ask for help", "team", "two people", "get help", "don't lift alone", "ask a colleague", "get a partner", "lift together", "teamwork", "two man lift"] },
+        { label: "Never twist — turn your feet instead", keywords: ["never twist", "don't twist", "turn feet", "feet not spine", "no twisting", "pivot your feet", "turn whole body", "avoid twisting", "dont twist your back"] },
+      ],
+    }],
+  },
+
+  {
     id: 77,
     question: "What PPE do you need when using and operating a chainsaw?",
     prompts: [{
