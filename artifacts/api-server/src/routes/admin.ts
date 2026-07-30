@@ -815,60 +815,152 @@ router.get("/admin/backup/export", async (req, res) => {
       { id: 6, title: "Risk Assessments",    headers: RISK_HEADERS,            rows: riskRows },
     ];
 
-    // ── Create the spreadsheet ────────────────────────────────────────────────
+    // ── Find or create the "Chainsaw Courses User Backup" folder ─────────────
     const connectors = new ReplitConnectors();
-    const createRes = await connectors.proxy("google-sheet", "/v4/spreadsheets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        properties: { title },
-        sheets: allSheets.map((s) => ({
-          properties: { title: s.title, sheetId: s.id },
-          data: [{ rowData: [toRow(s.headers), ...s.rows] }],
-        })),
-      }),
-    });
+    const BACKUP_FOLDER_NAME = "Chainsaw Courses User Backup";
 
-    const sheet = await createRes.json() as { spreadsheetId: string };
+    const folderSearchRes = await connectors.proxy(
+      "google-drive",
+      `/drive/v3/files?q=${encodeURIComponent(`name='${BACKUP_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`)}&fields=files(id)`,
+      { method: "GET" },
+    );
+    const folderSearchData = await folderSearchRes.json() as { files: Array<{ id: string }> };
 
-    // ── Apply header formatting + auto-resize columns ─────────────────────────
-    const formatRequests = allSheets.flatMap((s) => [
+    let folderId: string;
+    if (folderSearchData.files.length > 0) {
+      folderId = folderSearchData.files[0].id;
+    } else {
+      const createFolderRes = await connectors.proxy(
+        "google-drive",
+        "/drive/v3/files",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: BACKUP_FOLDER_NAME,
+            mimeType: "application/vnd.google-apps.folder",
+          }),
+        },
+      );
+      const folderData = await createFolderRes.json() as { id: string };
+      folderId = folderData.id;
+      logger.info({ folderId }, "Created Google Drive backup folder");
+    }
+
+    // ── Create blank spreadsheet inside the folder ────────────────────────────
+    const createFileRes = await connectors.proxy(
+      "google-drive",
+      "/drive/v3/files",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: title,
+          mimeType: "application/vnd.google-apps.spreadsheet",
+          parents: [folderId],
+        }),
+      },
+    );
+    const fileData = await createFileRes.json() as { id: string };
+    const spreadsheetId = fileData.id;
+
+    // ── Discover the default sheet's actual ID ────────────────────────────────
+    const metaRes = await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties.sheetId`,
+      { method: "GET" },
+    );
+    const metaData = await metaRes.json() as { sheets: Array<{ properties: { sheetId: number } }> };
+    const defaultSheetId = metaData.sheets[0].properties.sheetId;
+
+    // Map logical sheet IDs (0–6) to real IDs:
+    // sheet 0 → defaultSheetId, sheets 1–6 → 1001–1006
+    const sheetIdMap = allSheets.map((s, i) => ({
+      ...s,
+      actualId: i === 0 ? defaultSheetId : 1000 + i,
+    }));
+
+    // ── Rename default sheet + add remaining sheets ───────────────────────────
+    const setupRequests = [
+      {
+        updateSheetProperties: {
+          properties: { sheetId: defaultSheetId, title: sheetIdMap[0].title },
+          fields: "title",
+        },
+      },
+      ...sheetIdMap.slice(1).map((s) => ({
+        addSheet: { properties: { sheetId: s.actualId, title: s.title } },
+      })),
+    ];
+
+    await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requests: setupRequests }),
+      },
+    );
+
+    // ── Populate data + format headers + auto-resize ──────────────────────────
+    const populateRequests = sheetIdMap.flatMap((s) => [
+      {
+        updateCells: {
+          start: { sheetId: s.actualId, rowIndex: 0, columnIndex: 0 },
+          rows: [toRow(s.headers), ...s.rows],
+          fields: "userEnteredValue,userEnteredFormat",
+        },
+      },
       {
         repeatCell: {
-          range: { sheetId: s.id, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: s.headers.length },
+          range: {
+            sheetId: s.actualId,
+            startRowIndex: 0, endRowIndex: 1,
+            startColumnIndex: 0, endColumnIndex: s.headers.length,
+          },
           cell: headerFmt,
           fields: "userEnteredFormat(textFormat,backgroundColor)",
         },
       },
       {
         autoResizeDimensions: {
-          dimensions: { sheetId: s.id, dimension: "COLUMNS", startIndex: 0, endIndex: s.headers.length },
+          dimensions: {
+            sheetId: s.actualId,
+            dimension: "COLUMNS",
+            startIndex: 0,
+            endIndex: s.headers.length,
+          },
         },
       },
     ]);
 
-    await connectors.proxy("google-sheet", `/v4/spreadsheets/${sheet.spreadsheetId}:batchUpdate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requests: formatRequests }),
-    });
+    await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requests: populateRequests }),
+      },
+    );
 
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 
     // ── Save export record to DB ──────────────────────────────────────────────
     try {
       await db.insert(backupExportsTable).values({
         title,
         sheetUrl,
-        folderId: null,
+        folderId,
         rowCount: users.length,
       });
     } catch (dbErr) {
       logger.warn({ dbErr }, "Could not save backup export record");
     }
 
-    res.json({ url: sheetUrl, title });
-    logger.info({ rows: users.length, sheetId: sheet.spreadsheetId }, "Admin exported data to Google Sheet");
+    res.json({ url: sheetUrl, title, folderId });
+    logger.info({ rows: users.length, spreadsheetId, folderId }, "Admin exported data to Google Sheet in Drive folder");
   } catch (err) {
     logger.error({ err }, "Error generating Google Sheet export");
     res.status(500).json({ error: "Internal server error" });
