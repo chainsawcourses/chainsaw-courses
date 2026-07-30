@@ -123,6 +123,18 @@ const SECTIONS: Section[] = [
         url: "https://www.hse.gov.uk/risk/",
         type: "HSE Guidance",
       },
+      {
+        title: "HSE — Manual Handling at Work (L23)",
+        description: "The HSE's approved code of practice and guidance on the Manual Handling Operations Regulations 1992. Covers the TILE risk assessment framework, weight guidelines, and control measures directly applicable to log lifting, carrying, and timber stacking in chainsaw operations.",
+        url: "https://www.hse.gov.uk/pubns/books/l23.htm",
+        type: "HSE Guidance",
+      },
+      {
+        title: "HSE — Manual Handling Guidance",
+        description: "HSE's main manual handling guidance hub, including practical advice on reducing the risk of musculoskeletal injuries from handling heavy or awkward loads. Relevant to log lifting, moving cut timber, and repetitive stacking tasks common in chainsaw and forestry work.",
+        url: "https://www.hse.gov.uk/manual-handling/",
+        type: "HSE Guidance",
+      },
     ],
   },
   {
