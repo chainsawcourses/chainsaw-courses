@@ -26,7 +26,7 @@ router.get("/modules", async (req, res) => {
   if (user.id === 0) {
     const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
     let videoUnlocked = 0;
-    return res.json(allMods.map((mod) => {
+    res.json(allMods.map((mod) => {
       const isCourseReq = mod.category === "COURSE REQUIREMENTS";
       const isVideo = mod.contentType === "video";
       const unlocked = isCourseReq || (isVideo && videoUnlocked < 3);
@@ -155,7 +155,7 @@ router.get("/modules/:moduleId", async (req, res) => {
 
     // Demo mode: no locking logic needed — just return the module with no progress
     if (user.id === 0) {
-      return res.json({
+      res.json({
         id: mod.id,
         title: mod.title,
         description: mod.description,
@@ -174,6 +174,7 @@ router.get("/modules/:moduleId", async (req, res) => {
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       });
+      return;
     }
 
     const allModules = await db

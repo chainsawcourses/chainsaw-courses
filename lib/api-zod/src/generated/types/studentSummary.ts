@@ -19,4 +19,6 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
+  totalQuizAttempts?: number;
+  feedbackCount?: number;
 }
