@@ -485,7 +485,7 @@ export default function AdminDashboard() {
                 disabled={exportLoading}
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                {exportLoading ? "PREPARING…" : "OPEN GOOGLE SHEET"}
+                {exportLoading ? "PREPARING…" : "BACKUP DATA"}
               </Button>
               <Button
                 size="sm"
@@ -493,7 +493,7 @@ export default function AdminDashboard() {
                 className="h-9 font-mono text-xs"
                 asChild
               >
-                <a href="https://drive.google.com/drive/search?q=Chainsaw+Courses+Export" target="_blank" rel="noopener noreferrer">
+                <a href={exportHistory.find(e => e.folderId)?.folderId ? `https://drive.google.com/drive/folders/${exportHistory.find(e => e.folderId)!.folderId}` : "https://drive.google.com/drive/search?q=Chainsaw+Courses+User+Backup"} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-3.5 h-3.5 mr-1" /> BACKUP FOLDER
                 </a>
               </Button>
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
                 <div className="py-4 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
               ) : exportHistory.length === 0 ? (
                 <div className="py-4 text-center text-muted-foreground font-mono text-xs">
-                  No exports yet. Click "OPEN GOOGLE SHEET" to create your first export.
+                  No exports yet. Click "BACKUP DATA" to create your first export.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
