@@ -18,6 +18,7 @@ const CATEGORIES: Category[] = [
     heading: "IIRSM Accreditation",
     docs: [
       { label: "IIRSM Submission Brief", file: "IIRSM_Submission_Brief.pdf" },
+      { label: "IIRSM Competency Framework Mapping", file: "IIRSM_Competency_Framework_Mapping.pdf" },
     ],
   },
   {
