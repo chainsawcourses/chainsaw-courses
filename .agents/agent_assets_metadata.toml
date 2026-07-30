@@ -11,7 +11,7 @@ title = "applause"
 id = "YTmJm1zatLSH-DYp7_cd4"
 uri = "file://artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 type = "pdf"
-title = "IIRSM Submission Brief v1.4 (corrected)"
+title = "IIRSM Submission Brief — fixed layout"
 
 [[outputs]]
 id = "iw93YlzKUoPZHjslZZ2Qy"
@@ -156,3 +156,15 @@ id = "Gy9gJgHfnC-F1nWjRgf_3"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Assessment_Policy.pdf"
 type = "pdf"
 title = "Assessment Policy"
+
+[[outputs]]
+id = "uXxmscllzrYR253KD04Dg"
+uri = "file://artifacts/chainsaw-training/public/brief_preview_p1.png"
+type = "image"
+title = "Brief Page 1 render"
+
+[[outputs]]
+id = "FDGIemI2fgKMgOFKNqJCp"
+uri = "file://artifacts/chainsaw-training/public/brief_preview_p2.png"
+type = "image"
+title = "Brief Page 2 render"

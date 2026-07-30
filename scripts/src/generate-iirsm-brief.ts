@@ -159,15 +159,17 @@ async function generate() {
       s.page.drawRectangle({ x: M, y: s.y - rowH + 4, width: COL_W, height: rowH, color: WHITE });
     }
 
-    // draw label lines — vertically centred within the row
-    let ty = s.y - ((rowLines - labelLines.length) * lh) / 2;
+    // draw label lines — vertically centred within the row, with top padding so
+    // the font ascender stays inside the row background rectangle
+    const TOP_PAD = 4;
+    let ty = s.y - TOP_PAD - ((rowLines - labelLines.length) * lh) / 2;
     for (const ll of labelLines) {
       s.page.drawText(ll, { x: M + 6, y: ty, size: labelFontSize, font: fBold, color: DARK });
       ty -= lh;
     }
 
     // draw value lines — vertically centred within the row
-    ty = s.y - ((rowLines - valueLines.length) * lh) / 2;
+    ty = s.y - TOP_PAD - ((rowLines - valueLines.length) * lh) / 2;
     for (const vl of valueLines) {
       s.page.drawText(vl, { x: valueX + 4, y: ty, size: valueFontSize, font: fReg, color: DARK });
       ty -= lh;
