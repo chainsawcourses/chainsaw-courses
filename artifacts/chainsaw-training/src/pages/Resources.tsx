@@ -62,6 +62,12 @@ const SECTIONS: Section[] = [
         type: "Statutory Instrument",
       },
       {
+        title: "Manual Handling Operations Regulations 1992 (MHOR 1992)",
+        description: "Requires employers to avoid hazardous manual handling where reasonably practicable and to assess risks from all manual handling tasks. Directly applies to log lifting, carrying, and timber stacking in chainsaw operations. The TILE framework (Task, Individual, Load, Environment) is the standard risk assessment tool. Manual stacks must not exceed 1.2 m; always use aids such as timber tongs and hooks where possible.",
+        url: "https://www.legislation.gov.uk/uksi/1992/2793/contents",
+        type: "Statutory Instrument",
+      },
+      {
         title: "Lifting Operations and Lifting Equipment Regulations 1998 (LOLER)",
         description: "Applies to lifting operations in arboricultural and forestry contexts including aerial work platforms and rope-based access and positioning systems.",
         url: "https://www.legislation.gov.uk/uksi/1998/2307/contents",

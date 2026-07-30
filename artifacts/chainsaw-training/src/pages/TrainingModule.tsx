@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, RotateCcw } from "lucide-react";
+import { ArrowLeft, Biohazard, BookOpen, CheckCircle2, ChevronRight, ExternalLink, FileText, RotateCcw, Scale } from "lucide-react";
 import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey, useListModules } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
@@ -394,6 +394,80 @@ export default function TrainingModule() {
                 </Button>
               )}
             </div>
+
+            {/* MHOR 1992 supplementary card — shown for the Law & Regulations module */}
+            {(module.title?.toLowerCase().includes("law") || module.assessmentCriteria?.includes("MHOR") || module.assessmentCriteria?.includes("1.5")) && (
+              <div className="max-w-3xl mx-auto w-full border border-primary/30 rounded-lg bg-primary/5 overflow-hidden">
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-primary/20 bg-primary/10">
+                  <Scale className="w-4 h-4 text-primary shrink-0" />
+                  <span className="font-mono text-xs font-bold uppercase tracking-widest text-primary">Key Regulation — AC 1.5</span>
+                  <span className="ml-auto font-mono text-[10px] text-primary/60 uppercase tracking-wide">Manual Handling Operations Regulations 1992</span>
+                </div>
+                <div className="px-5 py-4 space-y-4">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The <strong className="text-foreground">Manual Handling Operations Regulations 1992 (MHOR 1992)</strong> require employers and employees to avoid hazardous manual handling where reasonably practicable, and to assess and reduce the risk of injury from all manual handling tasks — including <strong className="text-foreground">log lifting, carrying, and timber stacking</strong> during chainsaw operations.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">TILE Framework</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li><span className="font-semibold text-foreground">T</span>ask — what the lift involves (distance, frequency, posture)</li>
+                        <li><span className="font-semibold text-foreground">I</span>ndividual — the person's capability and fitness</li>
+                        <li><span className="font-semibold text-foreground">L</span>oad — weight, shape, and stability of the log</li>
+                        <li><span className="font-semibold text-foreground">E</span>nvironment — ground conditions, slope, and space</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Log Lifting Rules</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Avoid manual lifting — use machinery or mechanical aids where possible</li>
+                        <li>Only lift within your personal capability</li>
+                        <li>Use timber tongs, hooks, or cant hooks to roll or drag logs</li>
+                        <li>Never lift and carry when rolling or dragging is an option</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Timber Stacking</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Manual stacks must not exceed <strong className="text-foreground">1.2 m high</strong></li>
+                        <li>On slopes, ensure stacks are braced to prevent rolling</li>
+                        <li>Never climb on or stand on a timber stack</li>
+                        <li>Machine-assisted stacking: check the rated lifting capacity</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <ExternalLink className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Back Injury Risk</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Back injury is the most common chainsaw-related musculoskeletal harm</li>
+                        <li>Cold muscles and fatigue significantly increase injury risk</li>
+                        <li>Always warm up before manual handling activity on site</li>
+                        <li>Report near-misses and strain incidents under RIDDOR</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide">
+                    Reference: Manual Handling Operations Regulations 1992 (SI 1992/2793) · HSE L23 Manual Handling Guidance · Chainsaw Manual pages 19 &amp; 120
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>
