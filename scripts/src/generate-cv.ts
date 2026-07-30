@@ -281,8 +281,7 @@ async function generate() {
   }
   s.y -= 8;
 
-  // ── NPTC Assessor Scope — force to top of new page ──────────────────────────
-  s = forcePage(s);
+  // ── NPTC Assessor Scope ──────────────────────────────────────────────────────
   s = section(s, "CITY & GUILDS NPTC ASSESSOR SCOPE — REGISTERED UNIT PORTFOLIO");
 
   // Ground Chainsaw & Felling Suite
