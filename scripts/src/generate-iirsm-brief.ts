@@ -272,7 +272,7 @@ async function generate() {
     ["Published Author",              "Author of 'The Chainsaw Manual' — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course."],
     ["Subject Research",              "Course content developed with reference to current UK HSE guidance, NPTC 0039-20 unit standards, and the Overleaf Chainsaw Manual (published reference text)"],
     ["Platform Development",          "Full-stack eLearning platform designed, developed and operated by author — Progressive Web Application with device-locked access, video streaming, and automated assessment"],
-    ["CPD Status",                    "Author holds current CPD membership and engages in ongoing professional development in chainsaw safety and vocational eLearning design"],
+    ["CPD Status",                    "Author engages in ongoing professional development in chainsaw safety and vocational eLearning design"],
   ];
   for (let i = 0; i < sec2rows.length; i++) {
     s = checkPageBreak(s, 50);
