@@ -132,3 +132,9 @@ id = "69GOE_y00614ISYiqqvcz"
 uri = "file://brand-opengraph.jpg"
 type = "image"
 title = "OG / Social Share Image"
+
+[[outputs]]
+id = "Mn9X5FeSghpcr2Yeg7OiK"
+uri = "file://brand-logo.png"
+type = "image"
+title = "Brand Logo (PNG)"
