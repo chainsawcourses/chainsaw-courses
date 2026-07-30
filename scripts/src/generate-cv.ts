@@ -161,20 +161,15 @@ async function generate() {
   const circleCX = PAGE_W - M - CIRCLE_R;
   const circleCY = PAGE_H - HEADER_H / 2;
 
-  // Outer orange ring
+  // White circle (no outline)
+  const CIRCLE_INNER = CIRCLE_R * 0.75;
   s.page.drawEllipse({
     x: circleCX, y: circleCY,
-    xScale: CIRCLE_R + 3, yScale: CIRCLE_R + 3,
-    color: BRAND,
-  });
-  // White inner circle
-  s.page.drawEllipse({
-    x: circleCX, y: circleCY,
-    xScale: CIRCLE_R, yScale: CIRCLE_R,
+    xScale: CIRCLE_INNER, yScale: CIRCLE_INNER,
     color: WHITE,
   });
   // Icon centred in the circle
-  const ICON_SIZE = CIRCLE_R * 1.4;
+  const ICON_SIZE = CIRCLE_INNER * 1.4;
   s.page.drawImage(iconImage, {
     x: circleCX - ICON_SIZE / 2,
     y: circleCY - ICON_SIZE / 2,
