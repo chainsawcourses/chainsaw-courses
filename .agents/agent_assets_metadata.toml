@@ -11,7 +11,7 @@ title = "applause"
 id = "YTmJm1zatLSH-DYp7_cd4"
 uri = "file://artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 type = "pdf"
-title = "IIRSM Submission Brief v1.4 — Signed"
+title = "IIRSM Submission Brief v1.4"
 
 [[outputs]]
 id = "iw93YlzKUoPZHjslZZ2Qy"
@@ -150,3 +150,9 @@ id = "HqGNxQl6Xu2zJ15Ak-IEa"
 uri = "file://iirsm-initial-contact-email.md"
 type = "text"
 title = "IIRSM Initial Contact — Draft Email"
+
+[[outputs]]
+id = "Gy9gJgHfnC-F1nWjRgf_3"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Assessment_Policy.pdf"
+type = "pdf"
+title = "Assessment Policy"
