@@ -138,3 +138,15 @@ id = "Mn9X5FeSghpcr2Yeg7OiK"
 uri = "file://brand-logo.png"
 type = "image"
 title = "Brand Logo (PNG)"
+
+[[outputs]]
+id = "gdE-ZT3pVcSwni5PivlS5"
+uri = "file://chainsaw-courses-iirsm-audit.md"
+type = "text"
+title = "IIRSM Pre-Submission Audit Report"
+
+[[outputs]]
+id = "HqGNxQl6Xu2zJ15Ak-IEa"
+uri = "file://iirsm-initial-contact-email.md"
+type = "text"
+title = "IIRSM Initial Contact — Draft Email"
