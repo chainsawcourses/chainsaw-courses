@@ -1281,7 +1281,7 @@ async function genIIRSMBrief(): Promise<void> {
 
   twoColTable(doc, ["Stage", "Description"], [
     ["1 — Purchase & Activate", "Learner purchases via chainsawcourses.com; receives a unique Activation Code bonded to their device on first use. Digital liability waiver signed on activation."],
-    ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (6–8 hours total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
+    ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (approximately 90 minutes of video content in total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
     ["3 — Pass Module Quizzes", "80% pass threshold on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
     ["4 — Pass Mock Examination", "45-question randomised mock examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
     ["5 — Receive IIRSM Certificate", "IIRSM-approved certificate of theoretical competence issued automatically on platform completion. Certificate includes learner name, date, and course reference."],
@@ -1295,7 +1295,7 @@ async function genIIRSMBrief(): Promise<void> {
     "Dynamic Risk Assessment tool — GPS-located, records site hazards using the same framework assessed at NPTC level",
     "AI Chainsaw Manual Examiner — interactive mock assessment restricted to chainsaw safety topics; provides immediate explanatory feedback",
     "Biosecurity & Hazard Map — illustrative reference for statutory containment zones (OPM, ash dieback, etc.)",
-    "Chain Identification Chart — reference tool for the appendix content examined in the written element of NPTC assessment",
+    "Chain Identification Chart — visual reference for chain types, pitch, gauge, and drive link counts to support correct chain selection and maintenance",
   ]);
 
   // Section 4 — Learning Outcomes

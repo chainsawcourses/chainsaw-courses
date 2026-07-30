@@ -159,15 +159,15 @@ async function generate() {
       s.page.drawRectangle({ x: M, y: s.y - rowH + 4, width: COL_W, height: rowH, color: WHITE });
     }
 
-    // draw label lines
-    let ty = s.y;
+    // draw label lines — vertically centred within the row
+    let ty = s.y - ((rowLines - labelLines.length) * lh) / 2;
     for (const ll of labelLines) {
       s.page.drawText(ll, { x: M + 6, y: ty, size: labelFontSize, font: fBold, color: DARK });
       ty -= lh;
     }
 
-    // draw value lines
-    ty = s.y;
+    // draw value lines — vertically centred within the row
+    ty = s.y - ((rowLines - valueLines.length) * lh) / 2;
     for (const vl of valueLines) {
       s.page.drawText(vl, { x: valueX + 4, y: ty, size: valueFontSize, font: fReg, color: DARK });
       ty -= lh;
@@ -234,7 +234,7 @@ async function generate() {
     ["NOS Alignment",                  "Independently mapped to UK National Occupational Standards (NOS) for Chainsaw Operations"],
     ["NPTC Alignment",                 "Assessment criteria independently mapped to City & Guilds NPTC 0039-20 unit parameters for theoretical reference and CPD purposes only"],
     ["CPD Points Awarded",             "5 Verifiable CPD Points"],
-    ["Guided Learning Hours (GLH)",    "16 Hours — technical text, annotated diagrams, and seven sequential video modules"],
+    ["Guided Learning Hours (GLH)",    "16 Hours — technical text, annotated diagrams, and video modules (approximately 90 minutes of video content in total)"],
     ["Directed Online Assessment",     "1.5 Hours — 45-question randomised multiple-choice examination"],
     ["Independent Self-Study",         "1.5 Hours — risk evaluation practice, glossary review, and field tool exercises"],
     ["Total Qualification Time (TQT)", "19 Hours total"],
@@ -283,7 +283,7 @@ async function generate() {
   s = checkPageBreak(s, 120);
   sectionHeading(s, "SECTION 3  |  Learning Outcomes & Assessment Criteria");
   gap(s, 2);
-  drawText(s, "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification.", {
+  drawText(s, "The course is structured across video modules, each mapped to a discrete learning outcome (approximately 90 minutes of video content in total). Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification.", {
     size: 7.5, color: MID, font: fItal,
   });
   gap(s, 6);
