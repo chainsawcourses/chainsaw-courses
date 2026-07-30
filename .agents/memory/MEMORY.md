@@ -2,3 +2,4 @@
 - [Firebase audio files](audio-files.md) — 75 WAV voice recordings in `chainsaw-courses.firebasestorage.app`, public via `?alt=media` URL pattern, no download token required.
 - [SpeechRecognition types](speech-recognition-types.md) — Browser Web Speech API types not in TypeScript lib; declare via `.d.ts` in `src/types/` with `SpeechRecognition`, `SpeechRecognitionEvent`, `SpeechRecognitionErrorEvent`.
 - [Gemini rate limits](gemini-rate-limits.md) — Free tier hits `RESOURCE_EXHAUSTED` (429) on `gemini-2.0-flash` with per-minute and per-day caps. AI grading falls back to keyword matching when quota exceeded.
+- [Step cut correct answer](step-cut-answer.md) — Module 43 Q1 answer is option 1 "When timber is under tension" — confirmed by PDF p.126. Option 2 "bar too short" is wrong.
