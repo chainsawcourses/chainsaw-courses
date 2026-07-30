@@ -130,12 +130,6 @@ const SECTIONS: Section[] = [
         type: "HSE Guidance",
       },
       {
-        title: "HSE — Manual Handling Guidance",
-        description: "HSE's main manual handling guidance hub, including practical advice on reducing the risk of musculoskeletal injuries from handling heavy or awkward loads. Relevant to log lifting, moving cut timber, and repetitive stacking tasks common in chainsaw and forestry work.",
-        url: "https://www.hse.gov.uk/manual-handling/",
-        type: "HSE Guidance",
-      },
-      {
         title: "FISA — Forest Industry Safety Accord",
         description: "The UK's primary source of practical safety guidance for forestry and arboriculture. FISA publishes the full Safety Guides library covering chainsaw use, cross-cutting, stacking, windblown trees, felling, and more. Free to download — essential reading alongside this course.",
         url: "https://ukfisa.com",
