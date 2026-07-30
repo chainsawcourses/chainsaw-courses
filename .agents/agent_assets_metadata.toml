@@ -168,3 +168,9 @@ id = "FDGIemI2fgKMgOFKNqJCp"
 uri = "file://artifacts/chainsaw-training/public/brief_preview_p2.png"
 type = "image"
 title = "Brief Page 2 render"
+
+[[outputs]]
+id = "_dMCZIOmJzDrcnOG2VFTd"
+uri = "file://artifacts/chainsaw-training/public/pdfs/David_Daniel_CV.pdf"
+type = "pdf"
+title = "David Daniel CV"
