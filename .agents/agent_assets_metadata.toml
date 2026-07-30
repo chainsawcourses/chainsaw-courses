@@ -114,3 +114,21 @@ id = "9NgZnH3xyIxZU3V2LVHoZ"
 uri = "file://glossary-qr.png"
 type = "image"
 title = "Glossary QR Code — app.chainsawcourses.com/glossary"
+
+[[outputs]]
+id = "bNmYlIYOj38I4GH0zL80n"
+uri = "file://chainsaw-courses-brand.md"
+type = "text"
+title = "Chainsaw Courses — Brand Reference"
+
+[[outputs]]
+id = "ir475b6lyytccQg-xdAPQ"
+uri = "file://brand-logo.svg"
+type = "image"
+title = "Brand Logo (SVG)"
+
+[[outputs]]
+id = "69GOE_y00614ISYiqqvcz"
+uri = "file://brand-opengraph.jpg"
+type = "image"
+title = "OG / Social Share Image"
