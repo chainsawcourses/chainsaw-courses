@@ -136,15 +136,18 @@ UNIT 1: Occupational Standards, Health & Safety, and Risk Evaluation
 Learning Outcome 1 (LO1): Describe the statutory legal framework and personal
 safety requirements dictating chainsaw operations.
 AC 1.1: Identify the primary obligations of employers and employees under the Health
-and Safety at Work Act (HSWA) and global equivalents.
+and Safety at Work Act 1974 (HSWA 1974) and global equivalents.
 AC 1.2: Explain the operational parameters mandated by the Provision and Use of
-Work Equipment Regulations (PUWER) regarding tool maintenance and operator
-competence.
-AC 1.3: Summarize the control tracking required by COSHH when handling
+Work Equipment Regulations 1998 (PUWER 1998) regarding tool maintenance and
+operator competence.
+AC 1.3: Summarize the control tracking required by COSHH 2002 when handling
 hazardous fuels, battery cells, lubricants, and toxic flora species.
 AC 1.4: Detail the correct European (CE/UKCA) and global standard class markings
 required for safety helmets, visual shields, hearing protection, gloves, and Type A
-versus Type C protective trousers.
+versus Type C protective trousers (EN ISO 11393 / EN 381).
+AC 1.5: Describe the requirements of the Manual Handling Operations Regulations
+1992 (MHOR 1992) and explain how they apply to log handling, lifting, and timber
+stacking during chainsaw operations.
 Learning Outcome 2 (LO2): Evaluate environmental hazards, risk metrics, and
 implement emergency protocols.
 AC 2.1: Execute a 5-step site-specific risk assessment documenting local ground
@@ -754,7 +757,7 @@ and guidance to help employers and employees achieve this.
 NOTE: While this manual presents global regulatory equivalents for international
 context, formal assessment protocols will strictly evaluate the statutory laws active
 within the learner’s local operating jurisdiction. In the United Kingdom, compliance with
-HSWA, PUWER, COSHH, PPE and wildlife protection remains mandatory.
+HSWA 1974, PUWER 1998, COSHH 2002, MHOR 1992, PPEWR and wildlife protection remains mandatory.
 Employers and employees have
 a duty of care to keep themselves
 and others safe including
@@ -763,8 +766,8 @@ Follow training and wear PPE
 provided.
 Maintain a safe working
 environment.
-HSWA Health & Safety at
-Work Act
+HSWA 1974 Health & Safety at
+Work Act 1974
 EU Framework Directive
 OSHA Occupational Safety
 and Health Administration
@@ -779,8 +782,8 @@ intervals by a competent
 technician.
 All operators are to be trained &
 competent.
-PUWER Provision & Use of
-Work Equipment Regulations
+PUWER 1998 Provision & Use of
+Work Equipment Regulations 1998
 Use of Work Equipment
 Directive 2009/104/EC
 ANSI B175.1-2000
@@ -791,8 +794,8 @@ Health and Safety at Work:
 -- 18 of 138 --
 
 19	The Chainsaw Manual
-COSHH Control of Substances
-Hazardous to Health
+COSHH 2002 Control of Substances
+Hazardous to Health Regulations 2002
 CLP Classification, Labelling
 and Packaging
 HCS Hazard
@@ -808,6 +811,22 @@ for all fuels, oils and chemicals.
 Any noted defects in PPE must
 be immediately reported and the
 items taken out of service.
+MHOR 1992 Manual Handling
+Operations Regulations 1992
+EU Manual Handling Directive
+OSHA 29 CFR 1910.269 /
+NIOSH Lifting Equation
+Avoid hazardous manual
+handling where reasonably
+practicable. Assess and reduce
+the risk of injury from all
+manual handling tasks —
+including log lifting, carrying,
+and timber stacking.
+Apply the TILE framework:
+Task, Individual, Load &
+Environment.
+Manual Handling:
 PPEWR Personal Protective
 Equipment Regulations
 Regulation EU 2016/425
@@ -939,7 +958,7 @@ your chain?
 2. Standards &
 Regulations
 HAZARDOUS CHEMICALS & MATERIALS
-COSHH - Control of Substances Hazardous to Health
+COSHH 2002 - Control of Substances Hazardous to Health Regulations 2002
 Handling fuel, oil, insecticides, and other mechanical lubricants is a daily reality with
 chainsaw operations. These substances and materials pose significant fire, health,
 and environmental risks. Chemical exposure and flash fires are entirely preventable if
@@ -4167,7 +4186,11 @@ y 	Try to keep a straight back when cutting.
 y 	If possible, raise the logs to just below waist height for a more
 comfortable cutting position.
 y 	Only lift logs within your capabilities and use good lifting
-techniques.
+techniques. Under the Manual Handling Operations Regulations 1992
+(MHOR 1992), you must avoid hazardous manual handling where
+reasonably practicable, assess risks that cannot be avoided, and
+reduce the risk of injury — bend your knees, keep your back
+straight, and keep the load close to your body.
 y 	Use lifting and rolling aids such as timber tongs and hooks, felling
 levers, turning straps, cant hooks, hookeroons and pickeroons.
 y 	Use another person to help with the lift.
@@ -4890,21 +4913,21 @@ Module Alignment
 Page
 AC 1.1 	Identify the primary obligations of employers and
 employees under the Health and Safety at Work
-Act (HSWA) and global equivalents.
+Act 1974 (HSWA 1974) and global equivalents.
 MODULE 3 -
 Regulations &
 Codes of Practice
 Page 18
 AC 1.2 	Explain the operational parameters mandated
 by the Provision and Use of Work Equipment
-Regulations (PUWER) regarding tool
+Regulations 1998 (PUWER 1998) regarding tool
 maintenance and operator competence.
 MODULE 3 -
 Regulations &
 Codes of Practice
 Page 18
 AC 1.3 	Summarize the control tracking required by
-COSHH when handling hazardous fuels, battery
+COSHH 2002 when handling hazardous fuels, battery
 cells, lubricants, and toxic flora species.
 MODULE 3 -
 Regulations &
@@ -4916,13 +4939,21 @@ AC 1.4 	Detail the correct European (CE/UKCA) and
 global standard class markings required for
 safety helmets, visual shields, hearing protection,
 gloves, and Type A versus Type C protective
-trousers.
+trousers (EN ISO 11393 / EN 381).
 MODULE 1 - PPE
 (Compliance &
 Standards)
 Pages
 10, 11,
 21
+AC 1.5 	Describe the requirements of the Manual
+Handling Operations Regulations 1992 (MHOR 1992)
+and explain how they apply to log handling, lifting,
+and timber stacking during chainsaw operations.
+MODULE 3 -
+Regulations &
+Codes of Practice
+Page 19
 AC 2.1 	Execute a 5-step site-specific risk assessment
 documenting local ground hazards, pedestrian
 proximity and structural vulnerabilities.
