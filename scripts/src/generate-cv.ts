@@ -159,10 +159,10 @@ async function generate() {
   // ── Circular logo ──────────────────────────────────────────────────────────
   const CIRCLE_R = 36;
   const circleCX = PAGE_W - M - CIRCLE_R;
-  const circleCY = PAGE_H - HEADER_H / 2;
+  const circleCY = PAGE_H - HEADER_H / 2 + 30;
 
   // White circle (no outline)
-  const CIRCLE_INNER = CIRCLE_R * 0.75;
+  const CIRCLE_INNER = CIRCLE_R * 0.55;
   s.page.drawEllipse({
     x: circleCX, y: circleCY,
     xScale: CIRCLE_INNER, yScale: CIRCLE_INNER,
