@@ -56,13 +56,32 @@ export default function AdminDashboard() {
   type AccessCode = {
     id: number; code: string; isUsed: boolean; isUnlimited: boolean;
     allModulesUnlocked: boolean; isPaused: boolean; notes: string | null;
-    createdAt: string; userCount: number;
+    assignedTo: string | null; createdAt: string; userCount: number;
   };
   type BackupLog = { id: number; testedAt: string; testedBy: string; outcome: string; notes: string | null; createdAt: string };
   type BackupExport = { id: number; title: string; sheetUrl: string; folderId: string | null; rowCount: number; exportedAt: string };
   const [accessCodes, setAccessCodes] = useState<AccessCode[]>([]);
   const [accessCodesLoading, setAccessCodesLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState<string | null>(null); // code being edited
+  const [editingNameValue, setEditingNameValue] = useState("");
+
+  const handleSaveAssignedTo = async (code: string) => {
+    if (!adminToken) return;
+    const trimmed = editingNameValue.trim();
+    try {
+      const res = await fetch(`/api/admin/codes/${code}/assign`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", admintoken: adminToken },
+        body: JSON.stringify({ assignedTo: trimmed || null }),
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.map((c) => c.code === code ? { ...c, assignedTo: trimmed || null } : c));
+      }
+    } finally {
+      setEditingName(null);
+    }
+  };
 
   const fetchAccessCodes = useCallback(async () => {
     if (!adminToken) return;
@@ -627,7 +646,7 @@ export default function AdminDashboard() {
                       <TableHead className="font-mono text-xs">DATE TESTED</TableHead>
                       <TableHead className="font-mono text-xs">TESTED BY</TableHead>
                       <TableHead className="font-mono text-xs">OUTCOME</TableHead>
-                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                      <TableHead className="font-mono text-xs">ASSIGNED TO</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -686,7 +705,7 @@ export default function AdminDashboard() {
                       <TableHead className="font-mono text-xs">CODE</TableHead>
                       <TableHead className="font-mono text-xs">TYPE</TableHead>
                       <TableHead className="font-mono text-xs">USERS</TableHead>
-                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                      <TableHead className="font-mono text-xs">ASSIGNED TO</TableHead>
                       <TableHead className="font-mono text-xs">STATUS</TableHead>
                       <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
                     </TableRow>
@@ -707,7 +726,30 @@ export default function AdminDashboard() {
                           )}
                         </TableCell>
                         <TableCell className="font-mono text-sm">{c.userCount}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">{c.notes ?? "—"}</TableCell>
+                        <TableCell className="text-xs max-w-[160px]">
+                          {editingName === c.code ? (
+                            <input
+                              autoFocus
+                              className="w-full bg-secondary/40 border border-border rounded px-1.5 py-0.5 font-mono text-xs outline-none focus:border-primary"
+                              value={editingNameValue}
+                              onChange={(e) => setEditingNameValue(e.target.value)}
+                              onBlur={() => handleSaveAssignedTo(c.code)}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleSaveAssignedTo(c.code); if (e.key === "Escape") setEditingName(null); }}
+                            />
+                          ) : (
+                            <button
+                              className="text-left w-full truncate hover:text-foreground transition-colors group"
+                              onClick={() => { setEditingName(c.code); setEditingNameValue(c.assignedTo ?? ""); }}
+                              title="Click to edit"
+                            >
+                              {c.assignedTo ? (
+                                <span className="font-medium text-foreground">{c.assignedTo}</span>
+                              ) : (
+                                <span className="text-muted-foreground/50 group-hover:text-muted-foreground italic">unassigned</span>
+                              )}
+                            </button>
+                          )}
+                        </TableCell>
                         <TableCell>
                           {c.isPaused ? (
                             <Badge variant="outline" className="font-mono text-[10px] rounded-none text-destructive border-destructive flex items-center gap-1 w-fit">

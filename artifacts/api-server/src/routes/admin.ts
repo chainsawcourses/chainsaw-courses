@@ -358,7 +358,7 @@ router.post("/admin/codes", async (req, res) => {
     return;
   }
 
-  const { code, notes } = parse.data;
+  const { code, notes, assignedTo } = parse.data;
 
   try {
     const [existing] = await db
@@ -373,7 +373,7 @@ router.post("/admin/codes", async (req, res) => {
 
     const [newCode] = await db
       .insert(activationCodesTable)
-      .values({ code, notes: notes ?? null })
+      .values({ code, notes: notes ?? null, assignedTo: assignedTo ?? null })
       .returning();
 
     res.status(201).json({
@@ -382,6 +382,7 @@ router.post("/admin/codes", async (req, res) => {
       isUsed: newCode.isUsed,
       createdAt: newCode.createdAt.toISOString(),
       notes: newCode.notes ?? null,
+      assignedTo: newCode.assignedTo ?? null,
     });
   } catch (err) {
     logger.error({ err }, "Error creating activation code");
@@ -409,11 +410,31 @@ router.get("/admin/codes", async (req, res) => {
       allModulesUnlocked: c.allModulesUnlocked,
       isPaused: c.isPaused,
       notes: c.notes ?? null,
+      assignedTo: c.assignedTo ?? null,
       createdAt: c.createdAt.toISOString(),
       userCount: countMap.get(c.code) ?? 0,
     })));
   } catch (err) {
     logger.error({ err }, "Error listing codes");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update assignedTo on a code
+router.patch("/admin/codes/:code/assign", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const code = req.params.code.toUpperCase();
+  const { assignedTo } = req.body as { assignedTo: string | null };
+  try {
+    const [updated] = await db
+      .update(activationCodesTable)
+      .set({ assignedTo: assignedTo ?? null })
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Code not found" }); return; }
+    res.json({ code: updated.code, assignedTo: updated.assignedTo ?? null });
+  } catch (err) {
+    logger.error({ err }, "Error updating code assignedTo");
     res.status(500).json({ error: "Internal server error" });
   }
 });

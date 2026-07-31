@@ -9,6 +9,7 @@ export const activationCodesTable = pgTable("activation_codes", {
   isUnlimited: boolean("is_unlimited").notNull().default(false),
   allModulesUnlocked: boolean("all_modules_unlocked").notNull().default(false),
   isPaused: boolean("is_paused").notNull().default(false),
+  assignedTo: text("assigned_to"),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

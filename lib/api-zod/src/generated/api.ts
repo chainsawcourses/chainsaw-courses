@@ -923,7 +923,8 @@ export const CreateActivationCodeHeader = zod.object({
 
 export const CreateActivationCodeBody = zod.object({
   "code": zod.string(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "assignedTo": zod.string().optional()
 })
 
 
