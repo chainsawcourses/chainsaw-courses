@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, Download, ExternalLink, FileText, LogOut, MapPin, MessageSquare, Newspaper, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -53,8 +53,45 @@ export default function AdminDashboard() {
   const [newCodeNotes, setNewCodeNotes] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
 
+  type AccessCode = {
+    id: number; code: string; isUsed: boolean; isUnlimited: boolean;
+    allModulesUnlocked: boolean; isPaused: boolean; notes: string | null;
+    createdAt: string; userCount: number;
+  };
   type BackupLog = { id: number; testedAt: string; testedBy: string; outcome: string; notes: string | null; createdAt: string };
   type BackupExport = { id: number; title: string; sheetUrl: string; folderId: string | null; rowCount: number; exportedAt: string };
+  const [accessCodes, setAccessCodes] = useState<AccessCode[]>([]);
+  const [accessCodesLoading, setAccessCodesLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState<string | null>(null);
+
+  const fetchAccessCodes = useCallback(async () => {
+    if (!adminToken) return;
+    setAccessCodesLoading(true);
+    try {
+      const res = await fetch("/api/admin/codes", { headers: { admintoken: adminToken } });
+      if (res.ok) setAccessCodes(await res.json());
+    } finally {
+      setAccessCodesLoading(false);
+    }
+  }, [adminToken]);
+
+  const handleTogglePause = async (code: string, currentlyPaused: boolean) => {
+    if (!adminToken) return;
+    setPauseLoading(code);
+    try {
+      const res = await fetch(`/api/admin/codes/${code}/pause`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", admintoken: adminToken },
+        body: JSON.stringify({ paused: !currentlyPaused }),
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.map((c) => c.code === code ? { ...c, isPaused: !currentlyPaused } : c));
+      }
+    } finally {
+      setPauseLoading(null);
+    }
+  };
+
   const [backupLogs, setBackupLogs] = useState<BackupLog[]>([]);
   const [backupLogsLoading, setBackupLogsLoading] = useState(false);
   const [exportHistory, setExportHistory] = useState<BackupExport[]>([]);
@@ -93,7 +130,7 @@ export default function AdminDashboard() {
     }
   }, [adminToken]);
 
-  useEffect(() => { if (adminToken) { fetchBackupLogs(); fetchExportHistory(); } }, [adminToken, fetchBackupLogs, fetchExportHistory]);
+  useEffect(() => { if (adminToken) { fetchBackupLogs(); fetchExportHistory(); fetchAccessCodes(); } }, [adminToken, fetchBackupLogs, fetchExportHistory, fetchAccessCodes]);
 
 
   const handleExport = async () => {
@@ -151,6 +188,7 @@ export default function AdminDashboard() {
         onSuccess: (data) => {
           setGeneratedCode(data.code);
           setNewCodeNotes("");
+          fetchAccessCodes();
         },
       }
     );
@@ -611,6 +649,87 @@ export default function AdminDashboard() {
                           )}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground max-w-xs truncate">{log.notes ?? "—"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Access Codes */}
+        <Card className="border-border bg-card/30">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-primary" /> Access Codes
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1 font-mono">
+                Manage unlimited/reviewer codes · Pause to block access instantly
+              </p>
+            </div>
+            <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
+              <Plus className="w-4 h-4 mr-1" /> NEW CODE
+            </Button>
+          </CardHeader>
+          <CardContent className="p-0">
+            {accessCodesLoading ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+            ) : accessCodes.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-xs">No codes yet.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-secondary/30">
+                    <TableRow className="border-border">
+                      <TableHead className="font-mono text-xs">CODE</TableHead>
+                      <TableHead className="font-mono text-xs">TYPE</TableHead>
+                      <TableHead className="font-mono text-xs">USERS</TableHead>
+                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                      <TableHead className="font-mono text-xs">STATUS</TableHead>
+                      <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {accessCodes.map((c) => (
+                      <TableRow key={c.id} className={`border-border hover:bg-secondary/10 ${c.isPaused ? "opacity-50" : ""}`}>
+                        <TableCell className="font-mono text-sm font-bold tracking-wider">{c.code}</TableCell>
+                        <TableCell>
+                          {c.isUnlimited ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-purple-600 border-purple-500 flex items-center gap-1 w-fit">
+                              <Infinity className="w-3 h-3" /> UNLIMITED
+                            </Badge>
+                          ) : c.isUsed ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-muted-foreground flex items-center gap-1 w-fit">USED</Badge>
+                          ) : (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-green-600 border-green-500 flex items-center gap-1 w-fit">UNUSED</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{c.userCount}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">{c.notes ?? "—"}</TableCell>
+                        <TableCell>
+                          {c.isPaused ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-destructive border-destructive flex items-center gap-1 w-fit">
+                              <Pause className="w-3 h-3" /> PAUSED
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-green-600 border-green-600 flex items-center gap-1 w-fit">
+                              <Play className="w-3 h-3" /> ACTIVE
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant={c.isPaused ? "default" : "outline"}
+                            className={`font-mono text-xs h-7 ${c.isPaused ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "text-destructive border-destructive hover:bg-destructive/10"}`}
+                            disabled={pauseLoading === c.code}
+                            onClick={() => handleTogglePause(c.code, c.isPaused)}
+                          >
+                            {pauseLoading === c.code ? "…" : c.isPaused ? "RESUME" : "PAUSE"}
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

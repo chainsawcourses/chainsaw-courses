@@ -60,6 +60,7 @@ async function runStartupDataFix() {
       .onConflictDoUpdate({
         target: activationCodesTable.code,
         set: { isUnlimited: true, allModulesUnlocked: true },
+        // Note: isPaused is intentionally NOT reset on boot — admin may have paused it
       });
     logger.info("Startup: APPTEST26 reviewer code ensured");
   } catch (err) {

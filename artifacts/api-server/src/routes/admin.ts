@@ -389,6 +389,56 @@ router.post("/admin/codes", async (req, res) => {
   }
 });
 
+// List all access codes (unlimited + standard)
+router.get("/admin/codes", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const codes = await db.select().from(activationCodesTable).orderBy(desc(activationCodesTable.createdAt));
+    // Attach user count per code
+    const userCounts = await db
+      .select({ code: usersTable.activationCode, cnt: count(usersTable.id) })
+      .from(usersTable)
+      .where(isNull(usersTable.deletedAt))
+      .groupBy(usersTable.activationCode);
+    const countMap = new Map(userCounts.map((r) => [r.code, Number(r.cnt)]));
+    res.json(codes.map((c) => ({
+      id: c.id,
+      code: c.code,
+      isUsed: c.isUsed,
+      isUnlimited: c.isUnlimited,
+      allModulesUnlocked: c.allModulesUnlocked,
+      isPaused: c.isPaused,
+      notes: c.notes ?? null,
+      createdAt: c.createdAt.toISOString(),
+      userCount: countMap.get(c.code) ?? 0,
+    })));
+  } catch (err) {
+    logger.error({ err }, "Error listing codes");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Toggle pause on any code
+router.patch("/admin/codes/:code/pause", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const code = req.params.code.toUpperCase();
+  const { paused } = req.body as { paused: boolean };
+  if (typeof paused !== "boolean") { res.status(400).json({ error: "paused must be boolean" }); return; }
+  try {
+    const [updated] = await db
+      .update(activationCodesTable)
+      .set({ isPaused: paused })
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Code not found" }); return; }
+    logger.info({ code, paused }, "Admin toggled code pause state");
+    res.json({ code: updated.code, isPaused: updated.isPaused });
+  } catch (err) {
+    logger.error({ err }, "Error toggling code pause");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.get("/admin/modules", async (req, res) => {
   if (!verifyAdmin(req)) {
     res.status(401).json({ error: "Unauthorized" });

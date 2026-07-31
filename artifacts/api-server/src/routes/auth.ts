@@ -39,6 +39,10 @@ router.post("/auth/activate", async (req, res) => {
         return { error: "Invalid activation code", status: 400 };
       }
 
+      if (activation.isPaused) {
+        return { error: "This access code has been temporarily paused. Please contact support.", status: 403 };
+      }
+
       // Unlimited codes: look up by code + name + email so each
       // distinct person gets their own user record and must sign their own waiver.
       if (activation.isUnlimited) {
@@ -182,10 +186,13 @@ async function resolveUser(activationCode: string, deviceId: string, userId?: nu
 
   // Check if this is a reviewer / all-modules-unlocked code — these are device-agnostic
   const [codeRecord] = await db
-    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked })
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked, isPaused: activationCodesTable.isPaused })
     .from(activationCodesTable)
     .where(eq(activationCodesTable.code, normalizedCode));
   const deviceAgnostic = codeRecord?.allModulesUnlocked ?? false;
+
+  // Paused codes are treated as unauthorised for all session requests
+  if (codeRecord?.isPaused) return null;
 
   // Fast path: when the client supplies its own userId, verify it directly.
   if (userId) {
