@@ -19,7 +19,7 @@ export default function TrainingModule() {
 
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { activationCode, deviceId, clearSession } = useUserSession();
+  const { activationCode, deviceId, clearSession, allModulesUnlocked } = useUserSession();
 
   const { data: module, isLoading } = useGetModule(id, {
     query: { queryKey: getGetModuleQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
@@ -312,6 +312,7 @@ export default function TrainingModule() {
                       onTimeUpdate={handleTimeUpdate}
                       onEnded={handleVideoEnded}
                       videoWatched={module.isCompleted || videoCompleted}
+                      allowSeek={allModulesUnlocked}
                     />
                   );
                 }

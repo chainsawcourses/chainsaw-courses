@@ -96,6 +96,7 @@ function GlobalAccessCheck() {
           accessExpiresAt: data.accessExpiresAt ?? null,
           courseCompletedAt: data.courseCompletedAt ?? null,
           accessStatus: status,
+          allModulesUnlocked: data.allModulesUnlocked ?? false,
         });
         if (status === "expired") {
           navigate("/expired");

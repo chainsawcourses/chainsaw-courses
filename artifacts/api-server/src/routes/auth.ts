@@ -249,6 +249,12 @@ router.get("/auth/me", async (req, res) => {
     ? Math.max(0, Math.ceil((user.accessExpiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
     : null;
 
+  // Fetch allModulesUnlocked flag for this activation code
+  const [codeFlags] = await db
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked })
+    .from(activationCodesTable)
+    .where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+
   res.json({
     id: user.id,
     fullName: user.fullName,
@@ -260,6 +266,7 @@ router.get("/auth/me", async (req, res) => {
     accessExpiresAt: user.accessExpiresAt?.toISOString() ?? null,
     courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
     daysRemaining,
+    allModulesUnlocked: codeFlags?.allModulesUnlocked ?? false,
   });
 });
 

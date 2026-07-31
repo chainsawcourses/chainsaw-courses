@@ -14,6 +14,8 @@ interface VimeoPlayerProps {
   /** True when the user has already watched this video to completion at least once.
    *  If false, seeking forward past the furthest-watched point is blocked. */
   videoWatched?: boolean;
+  /** True for reviewer/admin codes — forward seeking is never restricted. */
+  allowSeek?: boolean;
 }
 
 function buildEmbedUrl(vimeoId: string, nativeControls: boolean): string {
@@ -41,7 +43,7 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
+export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false, allowSeek = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -224,9 +226,9 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const applySeek = useCallback((clientX: number) => {
     const t = clientXToTime(clientX);
     if (t === null) return;
-    // If the video hasn't been fully watched yet, cap seeking to the furthest
-    // point the user has already reached in this session.
-    const capped = (!videoWatched && t > maxReachedTimeRef.current)
+    // If the video hasn't been fully watched yet (and seek isn't explicitly
+    // allowed for this user), cap seeking to the furthest point reached.
+    const capped = (!allowSeek && !videoWatched && t > maxReachedTimeRef.current)
       ? maxReachedTimeRef.current
       : t;
     setCurrentTime(capped);
