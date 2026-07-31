@@ -57,8 +57,9 @@ const CLAUSES = [
 
 export default function Waiver() {
   const [, setLocation] = useLocation();
+  const navigate = setLocation;
   const { toast } = useToast();
-  const { deviceId, activationCode } = useUserSession();
+  const { deviceId, activationCode, clearSession } = useUserSession();
   const signWaiver = useSignWaiver();
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -263,6 +264,15 @@ export default function Waiver() {
         <p className="text-center text-xs font-mono text-muted-foreground/50 mt-4 uppercase tracking-widest">
           This waiver is stored securely and can be reviewed from your training dashboard.
         </p>
+
+        <div className="text-center mt-3">
+          <button
+            onClick={() => { clearSession(); navigate("/"); }}
+            className="text-xs font-mono text-muted-foreground/40 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+          >
+            Sign out / use a different code
+          </button>
+        </div>
       </div>
     </div>
   );
