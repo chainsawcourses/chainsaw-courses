@@ -153,12 +153,25 @@ function isDevEnvironment(): boolean {
   return h === "localhost" || h.includes(".replit.dev") || h.includes(".repl.co");
 }
 
-// Gate: browser visitors see the download page; only installed-app, admin/dev, demo, or public pages get through
+// Returns true if the user has already activated (code stored in localStorage or cookie)
+function hasActivationCode(): boolean {
+  try {
+    if (localStorage.getItem("activationCode")) return true;
+    // Cookie fallback (Safari clears localStorage after ~7 days inactivity)
+    const match = document.cookie.match(/(?:^|;\s*)activationCode=([^;]+)/);
+    return !!match?.[1];
+  } catch {
+    return false;
+  }
+}
+
+// Gate: browser visitors see the download page unless they are admin, already
+// activated, on a public route, in dev, installed as a PWA, or in demo mode.
 function AppGate({ children }: { children: React.ReactNode }) {
   const [path] = useLocation();
   const isAdmin = path.startsWith("/admin") || path === "/admin-preview";
   const isPublic = path === "/" || path === "/privacy" || path === "/legal";
-  if (!isAdmin && !isPublic && !isDevEnvironment() && !isInstalledApp() && !IS_DEMO) {
+  if (!isAdmin && !isPublic && !isDevEnvironment() && !isInstalledApp() && !IS_DEMO && !hasActivationCode()) {
     return <DownloadApp />;
   }
   return <>{children}</>;
