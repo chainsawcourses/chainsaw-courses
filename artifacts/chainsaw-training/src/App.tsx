@@ -153,11 +153,12 @@ function isDevEnvironment(): boolean {
   return h === "localhost" || h.includes(".replit.dev") || h.includes(".repl.co");
 }
 
-// Gate: browser visitors see the download page; only installed-app, admin/dev, or demo get through
+// Gate: browser visitors see the download page; only installed-app, admin/dev, demo, or public pages get through
 function AppGate({ children }: { children: React.ReactNode }) {
   const [path] = useLocation();
   const isAdmin = path.startsWith("/admin") || path === "/admin-preview";
-  if (!isAdmin && !isDevEnvironment() && !isInstalledApp() && !IS_DEMO) {
+  const isPublic = path === "/" || path === "/privacy" || path === "/legal";
+  if (!isAdmin && !isPublic && !isDevEnvironment() && !isInstalledApp() && !IS_DEMO) {
     return <DownloadApp />;
   }
   return <>{children}</>;
