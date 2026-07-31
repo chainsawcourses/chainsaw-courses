@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable, quizQuestionsTable } from "@workspace/db";
+import { modulesTable, userProgressTable, quizQuestionsTable, activationCodesTable } from "@workspace/db";
 import { eq, asc, and, sql, count } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
@@ -21,6 +21,10 @@ router.get("/modules", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+
+  // Check if this activation code unlocks all modules (e.g. reviewer codes)
+  const [codeRow] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+  const allUnlocked = codeRow?.allModulesUnlocked ?? false;
 
   // Demo mode: return all modules with only the first 3 video modules unlocked
   if (user.id === 0) {
@@ -49,6 +53,30 @@ router.get("/modules", async (req, res) => {
         assessmentCriteria: mod.assessmentCriteria ?? null,
       };
     }));
+    return;
+  }
+
+  // Reviewer / all-modules-unlocked codes: every module accessible, no sequential gating
+  if (allUnlocked) {
+    const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
+    res.json(allMods.map((mod) => ({
+      id: mod.id,
+      title: mod.title,
+      description: mod.description,
+      order: mod.order,
+      category: mod.category,
+      subCategory: mod.subCategory ?? null,
+      contentType: mod.contentType,
+      isLocked: false,
+      isCompleted: false,
+      quizPassed: false,
+      duration: mod.duration,
+      thumbnailUrl: mod.thumbnailUrl ?? null,
+      isHighRisk: mod.isHighRisk,
+      learningOutcome: mod.learningOutcome ?? null,
+      assessmentCriteria: mod.assessmentCriteria ?? null,
+    })));
+    return;
   }
 
   try {
@@ -142,6 +170,10 @@ router.get("/modules/:moduleId", async (req, res) => {
     return;
   }
 
+  // Check if this activation code unlocks all modules
+  const [codeRow2] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+  const allUnlocked2 = codeRow2?.allModulesUnlocked ?? false;
+
   try {
     const [mod] = await db
       .select()
@@ -173,6 +205,33 @@ router.get("/modules/:moduleId", async (req, res) => {
         isHighRisk: mod.isHighRisk,
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
+      });
+      return;
+    }
+
+    // Reviewer / all-modules-unlocked: skip locking and return full module detail
+    if (allUnlocked2) {
+      res.json({
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: false,
+        isCompleted: false,
+        quizPassed: false,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        vimeoId: mod.vimeoId ?? null,
+        pdfUrl: mod.pdfUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+        lastTimestamp: null,
+        safetyText: mod.safetyText ?? null,
+        quizCount: 0,
       });
       return;
     }
