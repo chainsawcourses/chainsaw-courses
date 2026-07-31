@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -63,6 +63,9 @@ export default function AdminDashboard() {
   const [accessCodes, setAccessCodes] = useState<AccessCode[]>([]);
   const [accessCodesLoading, setAccessCodesLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState<string | null>(null);
+  const [dataBackupOpen, setDataBackupOpen] = useState(true);
+  const [accessCodesOpen, setAccessCodesOpen] = useState(true);
+  const [studentRosterOpen, setStudentRosterOpen] = useState(true);
   const [editingName, setEditingName] = useState<string | null>(null); // code being edited
   const [editingNameValue, setEditingNameValue] = useState("");
 
@@ -525,15 +528,18 @@ export default function AdminDashboard() {
         {/* Data & Backup */}
         <Card className="border-border bg-card/30">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1 font-mono">
-                Export learner data · View Replit DB backups · Log quarterly restoration tests
-              </p>
-            </div>
-            <div className="flex gap-2 flex-wrap">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setDataBackupOpen((v) => !v)}>
+              <div>
+                <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  Export learner data · View Replit DB backups · Log quarterly restoration tests
+                </p>
+              </div>
+              {dataBackupOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {dataBackupOpen && <div className="flex gap-2 flex-wrap">
               <Button
                 size="sm"
                 variant="outline"
@@ -561,9 +567,10 @@ export default function AdminDashboard() {
               >
                 <Plus className="w-3.5 h-3.5 mr-1" /> LOG RESTORE TEST
               </Button>
-            </div>
+            </div>}
           </CardHeader>
-          <CardContent className="p-0 space-y-0">
+          {dataBackupOpen && (
+            <CardContent className="p-0 space-y-0">
 
             {/* Export History */}
             <div className="px-6 pt-4 pb-2">
@@ -674,25 +681,30 @@ export default function AdminDashboard() {
                 </Table>
               </div>
             )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         {/* Access Codes */}
         <Card className="border-border bg-card/30">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-primary" /> Access Codes
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1 font-mono">
-                Manage unlimited/reviewer codes · Pause to block access instantly
-              </p>
-            </div>
-            <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setAccessCodesOpen((v) => !v)}>
+              <div>
+                <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-primary" /> Access Codes
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  Manage unlimited/reviewer codes · Pause to block access instantly
+                </p>
+              </div>
+              {accessCodesOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {accessCodesOpen && <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
               <Plus className="w-4 h-4 mr-1" /> NEW CODE
-            </Button>
+            </Button>}
           </CardHeader>
-          <CardContent className="p-0">
+          {accessCodesOpen && (
+            <CardContent className="p-0">
             {accessCodesLoading ? (
               <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
             ) : accessCodes.length === 0 ? (
@@ -779,13 +791,17 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
+          )}
         </Card>
 
         {/* Students Table */}
         <Card className="border-border bg-card/30">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="font-mono uppercase tracking-widest">Student Roster</CardTitle>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setStudentRosterOpen((v) => !v)}>
+              <CardTitle className="font-mono uppercase tracking-widest">Student Roster</CardTitle>
+              {studentRosterOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {studentRosterOpen && <div className="flex gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-64">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -808,9 +824,10 @@ export default function AdminDashboard() {
               <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
                 <Plus className="w-4 h-4 mr-1" /> NEW CODE
               </Button>
-            </div>
+            </div>}
           </CardHeader>
-          <CardContent className="p-0">
+          {studentRosterOpen && (
+            <CardContent className="p-0">
             {/* Mobile card list */}
             <div className="sm:hidden divide-y divide-border">
               {filteredRoster?.length === 0 && (
@@ -938,7 +955,8 @@ export default function AdminDashboard() {
                 </TableBody>
               </Table>
             </div>
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
       </main>
 
