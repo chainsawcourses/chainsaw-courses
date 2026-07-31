@@ -194,13 +194,5 @@
   }
 }
 
-/* On desktop (and tablet landscape): portrait video fills the 16:9 container
-   by making the iframe (16/9)^2 ≈ 316% as tall, then centring it so the
-   top/bottom overflow is clipped by the container's overflow-hidden. */
-@media (min-width: 640px) {
-  .vimeo-iframe {
-    height: 316%;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
+/* On desktop (and tablet landscape): iframe fills the 16:9 container normally.
+   No scaling needed — Vimeo renders the video at the correct aspect ratio. */
