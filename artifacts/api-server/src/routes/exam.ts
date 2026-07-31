@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable, usersTable } from "@workspace/db";
+import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable, usersTable, activationCodesTable } from "@workspace/db";
 import { SubmitExamBody } from "@workspace/api-zod";
 import { eq, asc, sql, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
@@ -19,6 +19,14 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+async function isReviewerCode(activationCode: string): Promise<boolean> {
+  const [row] = await db
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked })
+    .from(activationCodesTable)
+    .where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+  return row?.allModulesUnlocked ?? false;
 }
 
 async function isCourseComplete(userId: number): Promise<boolean> {
@@ -68,16 +76,20 @@ router.get("/exam", async (req, res) => {
   }
 
   try {
-    // Block access once already passed
-    if (await hasAlreadyPassed(user.id)) {
-      res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
-      return;
-    }
+    const reviewer = await isReviewerCode(activationCode);
 
-    const complete = await isCourseComplete(user.id);
-    if (!complete) {
-      res.status(403).json({ error: "Complete all training modules before taking the final exam." });
-      return;
+    if (!reviewer) {
+      // Block access once already passed
+      if (await hasAlreadyPassed(user.id)) {
+        res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
+        return;
+      }
+
+      const complete = await isCourseComplete(user.id);
+      if (!complete) {
+        res.status(403).json({ error: "Complete all training modules before taking the final exam." });
+        return;
+      }
     }
 
     const bank = await db.select().from(examQuestionsTable).where(eq(examQuestionsTable.isActive, true));
@@ -115,16 +127,20 @@ router.post("/exam/submit", async (req, res) => {
   }
 
   try {
-    // Block re-submission once already passed
-    if (await hasAlreadyPassed(user.id)) {
-      res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
-      return;
-    }
+    const reviewer = await isReviewerCode(activationCode);
 
-    const complete = await isCourseComplete(user.id);
-    if (!complete) {
-      res.status(403).json({ error: "Complete all training modules before taking the final exam." });
-      return;
+    if (!reviewer) {
+      // Block re-submission once already passed
+      if (await hasAlreadyPassed(user.id)) {
+        res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
+        return;
+      }
+
+      const complete = await isCourseComplete(user.id);
+      if (!complete) {
+        res.status(403).json({ error: "Complete all training modules before taking the final exam." });
+        return;
+      }
     }
 
     const questionIds = answers.map((a) => a.questionId);
@@ -206,7 +222,8 @@ router.get("/exam/status", async (req, res) => {
   }
 
   try {
-    const unlocked = await isCourseComplete(user.id);
+    const reviewer = await isReviewerCode(activationCode);
+    const unlocked = reviewer || await isCourseComplete(user.id);
     const attempts = await db
       .select()
       .from(examAttemptsTable)
@@ -214,7 +231,7 @@ router.get("/exam/status", async (req, res) => {
       .orderBy(desc(examAttemptsTable.attemptedAt));
 
     const bestScore = attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : null;
-    const passed = attempts.some((a) => a.passed);
+    const passed = reviewer || attempts.some((a) => a.passed);
 
     res.json({
       unlocked,
