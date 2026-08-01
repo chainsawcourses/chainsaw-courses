@@ -96,6 +96,9 @@ export default function AdminNews() {
   const [processingId, setProcessingId] = useState<number | null>(null);
   const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
+  const [purgeOldConfirm, setPurgeOldConfirm] = useState(false);
+  const [purgingOld, setPurgingOld] = useState(false);
+  const [purgeResult, setPurgeResult] = useState<{ deleted: number; kept: number } | null>(null);
 
   const openCreate = () => {
     setEditingId(null);
@@ -188,6 +191,29 @@ export default function AdminNews() {
     }
   };
 
+  const handlePurgeOld = async () => {
+    if (!adminToken) return;
+    setPurgeOldConfirm(false);
+    setPurgingOld(true);
+    try {
+      const res = await fetch("/api/admin/news/purge-old", {
+        method: "DELETE",
+        headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      invalidate();
+      queryClient.invalidateQueries({ queryKey: getListNewsItemsQueryKey() });
+      const count = data.deleted ?? 0;
+      setFetchResult(null);
+      // Briefly surface the result via a toast-like inline message
+      setPurgeResult({ deleted: count, kept: data.kept ?? 0 });
+    } catch {
+      // silent — user can retry
+    } finally {
+      setPurgingOld(false);
+    }
+  };
+
   const handleFetchNow = async () => {
     setFetching(true);
     setFetchResult(null);
@@ -235,6 +261,22 @@ export default function AdminNews() {
             <Plus className="w-4 h-4 mr-2" /> Add Manual Article
           </Button>
         </div>
+
+        {/* Purge result banner */}
+        {purgeResult && (
+          <Card className="bg-secondary/20">
+            <CardContent className="p-4 font-mono text-sm flex items-center justify-between gap-3">
+              <p>
+                <span className="font-bold">Purge complete — </span>
+                deleted <span className="text-destructive font-bold">{purgeResult.deleted}</span> older articles,
+                kept <span className="text-primary font-bold">{purgeResult.kept}</span> most recent.
+              </p>
+              <button onClick={() => setPurgeResult(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Fetch result banner */}
         {fetchResult && (
@@ -293,6 +335,18 @@ export default function AdminNews() {
               <Badge className="h-4 px-1.5 text-xs font-mono">{pendingCount}</Badge>
             )}
           </button>
+          {tab === "live" && (liveItems?.length ?? 0) > 20 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPurgeOldConfirm(true)}
+              disabled={purgingOld}
+              className="ml-auto font-mono text-xs uppercase tracking-widest text-destructive hover:text-destructive border-destructive/40 hover:border-destructive"
+            >
+              {purgingOld ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+              {purgingOld ? "Purging…" : `Keep Recent 20 (delete ${(liveItems?.length ?? 0) - 20} older)`}
+            </Button>
+          )}
           {tab === "pending" && pendingCount > 0 && (
             <Button
               size="sm"
@@ -444,6 +498,27 @@ export default function AdminNews() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="font-mono text-xs">Cancel</Button>
             <Button onClick={handleSave} disabled={!valid || saving} className="font-mono text-xs uppercase tracking-widest">
               {saving ? "Saving…" : editingId !== null ? "Save Changes" : "Add Article"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Purge old articles confirmation */}
+      <Dialog open={purgeOldConfirm} onOpenChange={setPurgeOldConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-mono uppercase tracking-widest text-sm">Keep Recent 20?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will permanently delete{" "}
+            <span className="font-bold text-foreground">{(liveItems?.length ?? 0) - 20}</span> older articles,
+            keeping only the{" "}
+            <span className="font-bold text-foreground">20</span> most recent. This cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPurgeOldConfirm(false)} className="font-mono text-xs">Cancel</Button>
+            <Button variant="destructive" onClick={handlePurgeOld} className="font-mono text-xs uppercase tracking-widest">
+              Delete Older Articles
             </Button>
           </DialogFooter>
         </DialogContent>

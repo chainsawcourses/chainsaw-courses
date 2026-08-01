@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, newsItemsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, notInArray } from "drizzle-orm";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import { fetchAllFeeds } from "../lib/rssFetcher";
@@ -161,6 +161,33 @@ router.patch("/admin/news/:id", async (req, res) => {
 });
 
 // Admin: delete item
+// Keep the 20 most recent approved articles, delete all older ones
+router.delete("/admin/news/purge-old", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const keep = await db
+      .select({ id: newsItemsTable.id })
+      .from(newsItemsTable)
+      .where(eq(newsItemsTable.approved, true))
+      .orderBy(desc(newsItemsTable.publishedAt))
+      .limit(20);
+
+    const keepIds = keep.map(r => r.id);
+
+    const deleted = keepIds.length === 0
+      ? await db.delete(newsItemsTable).where(eq(newsItemsTable.approved, true)).returning()
+      : await db.delete(newsItemsTable)
+          .where(and(eq(newsItemsTable.approved, true), notInArray(newsItemsTable.id, keepIds)))
+          .returning();
+
+    logger.info({ deleted: deleted.length, kept: keepIds.length }, "Purged old news articles");
+    res.json({ deleted: deleted.length, kept: keepIds.length });
+  } catch (err) {
+    logger.error({ err }, "Failed to purge old news");
+    res.status(500).json({ error: "Failed to purge old news" });
+  }
+});
+
 router.delete("/admin/news/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
