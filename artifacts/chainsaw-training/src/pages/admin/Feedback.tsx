@@ -3,7 +3,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp, Sheet, ExternalLink, Loader2 } from "lucide-react";
 import {
   useListFeedback, getListFeedbackQueryKey,
   useListAppFeedback, getListAppFeedbackQueryKey,
@@ -40,6 +40,9 @@ export default function Feedback() {
   const [courseSearch, setCourseSearch] = useState("");
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
   const [expandedStudents, setExpandedStudents] = useState<Set<string>>(new Set());
+  const [exporting, setExporting] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   useEffect(() => {
     if (studentParam) {
@@ -131,6 +134,26 @@ export default function Feedback() {
   const expandAllStudents = () => setExpandedStudents(new Set(filteredStudentGroups.map((g) => g.studentName)));
   const collapseAllStudents = () => setExpandedStudents(new Set());
 
+  const handleExportSheets = async () => {
+    if (!adminToken) return;
+    setExporting(true);
+    setExportError(null);
+    setSheetUrl(null);
+    try {
+      const res = await fetch("/api/admin/feedback/export-sheets", {
+        method: "POST",
+        headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Export failed");
+      setSheetUrl(data.url);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const Stars = ({ rating, size = "w-3.5 h-3.5" }: { rating: number; size?: string }) => (
     <span className="flex items-center gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
@@ -146,11 +169,24 @@ export default function Feedback() {
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <Biohazard className="w-5 h-5 mr-2 inline" /> FEEDBACK
           </div>
-          <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-            <Link href="/admin/dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" /> BACK TO DASHBOARD
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportSheets}
+              disabled={exporting}
+              className="font-mono text-xs uppercase tracking-widest"
+            >
+              {exporting
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Exporting…</>
+                : <><Sheet className="w-4 h-4 mr-2" /> Export to Sheets</>}
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <Link href="/admin/dashboard">
+                <ArrowLeft className="w-4 h-4 mr-2" /> BACK TO DASHBOARD
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -174,6 +210,35 @@ export default function Feedback() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6 pt-[110px]">
+
+        {/* Export result / error banner */}
+        {sheetUrl && (
+          <Card className="bg-secondary/20">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 font-mono text-sm">
+                <Sheet className="w-4 h-4 text-primary shrink-0" />
+                <span>Exported to Google Sheets — </span>
+                <a href={sheetUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center gap-1">
+                  Open Feedback sheet <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+              <button onClick={() => setSheetUrl(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </CardContent>
+          </Card>
+        )}
+        {exportError && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <span className="font-mono text-sm text-destructive">{exportError}</span>
+              <button onClick={() => setExportError(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── BY MODULE ──────────────────────────────────────────────────── */}
         {activeTab === "by-module" && (
