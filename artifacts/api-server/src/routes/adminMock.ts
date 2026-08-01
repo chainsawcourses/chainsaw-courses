@@ -8,6 +8,33 @@ import { verifyAdmin } from "./admin";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 
+// Bundled default questions — auto-seeded on first startup when table is empty
+// Try multiple candidate paths to support both dev (CWD=artifacts/api-server) and
+// production (CWD=workspace root) environments.
+type SeedQuestion = { id: number; question: string; prompts: unknown; image?: string };
+let _seedQuestions: SeedQuestion[] | null = null;
+function getSeedQuestions(): SeedQuestion[] {
+  if (!_seedQuestions) {
+    const candidates = [
+      path.resolve("src/data/mockQuestionsSeed.json"),                         // dev: CWD = artifacts/api-server
+      path.resolve("artifacts/api-server/src/data/mockQuestionsSeed.json"),    // prod: CWD = workspace root
+      path.join(__dirname, "data/mockQuestionsSeed.json"),                     // dist copy (build output)
+    ];
+    for (const p of candidates) {
+      try {
+        _seedQuestions = JSON.parse(fs.readFileSync(p, "utf-8")) as SeedQuestion[];
+        logger.info({ path: p, count: _seedQuestions.length }, "Loaded mock questions seed");
+        break;
+      } catch { /* try next */ }
+    }
+    if (!_seedQuestions) {
+      logger.warn("mockQuestionsSeed.json not found in any candidate path — skipping auto-seed");
+      _seedQuestions = [];
+    }
+  }
+  return _seedQuestions;
+}
+
 const UPLOAD_DIR = path.join(__dirname, "../../uploads/question-images");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -34,7 +61,7 @@ function adminGuard(req: Parameters<typeof verifyAdmin>[0], res: { status: (n: n
   return true;
 }
 
-// Ensure table exists (CREATE TABLE IF NOT EXISTS for safety on fresh deploys)
+// Ensure table exists and is seeded with default questions on first startup
 async function ensureTable() {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS mock_questions (
@@ -46,6 +73,24 @@ async function ensureTable() {
       is_active BOOLEAN NOT NULL DEFAULT TRUE
     )
   `);
+
+  // Auto-seed if the table is empty
+  const countResult = await db.execute(sql`SELECT COUNT(*)::int AS count FROM mock_questions`);
+  const count = Number((countResult.rows?.[0] as { count?: number } | undefined)?.count ?? 0);
+  if (count === 0) {
+    const seeds = getSeedQuestions();
+    if (seeds.length > 0) {
+      const rows = seeds.map((q, i) => ({
+        question: q.question,
+        prompts: JSON.stringify(q.prompts),
+        image: q.image ?? null,
+        sortOrder: i,
+        isActive: true,
+      }));
+      await db.insert(mockQuestionsTable).values(rows);
+      logger.info({ count: rows.length }, "Auto-seeded mock_questions table with defaults");
+    }
+  }
 }
 ensureTable().catch(err => logger.error({ err }, "Failed to ensure mock_questions table"));
 
