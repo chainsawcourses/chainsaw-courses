@@ -17,6 +17,7 @@ const __dirname  = path.dirname(__filename);
 
 const OUT_DIR   = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/pdfs");
 const LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/logo.png");
+const SIG_PATH  = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/signature_director.png");
 const OUT       = path.join(OUT_DIR, "IIRSM_Competency_Framework_Mapping.pdf");
 
 const ORANGE = "#e27226";
@@ -215,7 +216,7 @@ async function generate(): Promise<void> {
   sectionHeading(doc, "2.  Course Scope and Positioning");
   body(doc,
     "This eLearning course provides the theoretical knowledge and understanding required to support " +
-    "candidates preparing for the NPTC Unit CS30 / CS31 practical chainsaw certification. It does " +
+    "candidates preparing for the NPTC Unit CS30 practical chainsaw certification. It does " +
     "not constitute legal authorisation to operate a chainsaw and does not replace the mandatory " +
     "practical assessment conducted by a LANTRA or NPTC-approved assessor."
   );
@@ -389,6 +390,10 @@ async function generate(): Promise<void> {
   );
 
   doc.moveDown(1.5);
+  if (fs.existsSync(SIG_PATH)) {
+    doc.image(SIG_PATH, 60, doc.y, { width: 150, height: 55 });
+    doc.text("", 60, doc.y + 55);
+  }
   doc.moveTo(60, doc.y).lineTo(220, doc.y).strokeColor(DARK).lineWidth(0.75).stroke();
   doc.moveDown(0.3);
   doc.fontSize(8).fillColor(MID).font("Helvetica").text("Signature");
