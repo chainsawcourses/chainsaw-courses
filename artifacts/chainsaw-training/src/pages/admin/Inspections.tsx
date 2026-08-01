@@ -180,7 +180,7 @@ export default function Inspections() {
                         <AlertTriangle className="w-3.5 h-3.5" /> Failed
                       </span>
                     ) : (
-                      <span className="shrink-0 flex items-center gap-1 text-primary text-xs uppercase tracking-widest">
+                      <span className="shrink-0 flex items-center gap-1 text-xs uppercase tracking-widest" style={{ color: "#16a34a" }}>
                         <CheckCircle2 className="w-3.5 h-3.5" /> Clear
                       </span>
                     )}

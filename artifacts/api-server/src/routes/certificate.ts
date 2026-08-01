@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { examAttemptsTable } from "@workspace/db";
+import { examAttemptsTable, usersTable } from "@workspace/db";
 import { eq, and, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
+import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import { generateCertificatePdf } from "../lib/generateCertificate";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
@@ -81,6 +82,39 @@ router.post("/certificate/resend", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error resending certificate");
     res.status(500).json({ error: "Could not resend certificate" });
+  }
+});
+
+// GET /api/admin/certificate/:userId — admin view of any student's certificate
+// Accepts admintoken as header OR ?token= query param (for new-tab links)
+router.get("/admin/certificate/:userId", async (req, res) => {
+  const tokenFromQuery = req.query["token"] as string | undefined;
+  const reqWithToken = tokenFromQuery
+    ? { headers: { ...req.headers, admintoken: tokenFromQuery } }
+    : req;
+  if (!verifyAdmin(reqWithToken)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [passedAttempt] = await db
+      .select()
+      .from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, userId), eq(examAttemptsTable.passed, true)))
+      .orderBy(desc(examAttemptsTable.attemptedAt))
+      .limit(1);
+    const passedAt    = passedAttempt?.attemptedAt ?? new Date();
+    const passedScore = passedAttempt?.score ?? null;
+    const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+    const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="Certificate_${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    logger.error({ err, userId }, "Error generating certificate for admin");
+    res.status(500).json({ error: "Could not generate certificate" });
   }
 });
 

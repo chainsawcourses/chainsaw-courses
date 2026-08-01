@@ -105,9 +105,14 @@ export default function CertificateRegister() {
                   <p>Access expires</p>
                 </div>
               </div>
-              <Link href={`/admin/students/${c.id}`}>
-                <button className="text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors">View</button>
-              </Link>
+              <a
+                href={`/api/admin/certificate/${c.id}?token=${encodeURIComponent(adminToken ?? "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors"
+              >
+                View
+              </a>
             </div>
           ))}
         </div>
