@@ -440,6 +440,24 @@ router.patch("/admin/codes/:code/assign", async (req, res) => {
 });
 
 // Toggle pause on any code
+router.delete("/admin/codes/:code", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const { code } = req.params;
+  try {
+    const deleted = await db.delete(activationCodesTable)
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (deleted.length === 0) {
+      res.status(404).json({ error: "Code not found" });
+      return;
+    }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Failed to delete activation code");
+    res.status(500).json({ error: "Failed to delete code" });
+  }
+});
+
 router.patch("/admin/codes/:code/pause", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const code = req.params.code.toUpperCase();

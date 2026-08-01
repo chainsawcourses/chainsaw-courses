@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Trash2, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -63,6 +63,7 @@ export default function AdminDashboard() {
   const [accessCodes, setAccessCodes] = useState<AccessCode[]>([]);
   const [accessCodesLoading, setAccessCodesLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [dataBackupOpen, setDataBackupOpen] = useState(true);
   const [accessCodesOpen, setAccessCodesOpen] = useState(true);
   const [studentRosterOpen, setStudentRosterOpen] = useState(true);
@@ -96,6 +97,23 @@ export default function AdminDashboard() {
       setAccessCodesLoading(false);
     }
   }, [adminToken]);
+
+  const handleDeleteCode = async (code: string) => {
+    if (!adminToken) return;
+    if (!window.confirm(`Delete code "${code}"? This cannot be undone.`)) return;
+    setDeleteLoading(code);
+    try {
+      const res = await fetch(`/api/admin/codes/${code}`, {
+        method: "DELETE",
+        headers: { admintoken: adminToken },
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.filter((c) => c.code !== code));
+      }
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   const handleTogglePause = async (code: string, currentlyPaused: boolean) => {
     if (!adminToken) return;
@@ -774,15 +792,27 @@ export default function AdminDashboard() {
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant={c.isPaused ? "default" : "outline"}
-                            className={`font-mono text-xs h-7 ${c.isPaused ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "text-destructive border-destructive hover:bg-destructive/10"}`}
-                            disabled={pauseLoading === c.code}
-                            onClick={() => handleTogglePause(c.code, c.isPaused)}
-                          >
-                            {pauseLoading === c.code ? "…" : c.isPaused ? "RESUME" : "PAUSE"}
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={c.isPaused ? "default" : "outline"}
+                              className={`font-mono text-xs h-7 ${c.isPaused ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "text-destructive border-destructive hover:bg-destructive/10"}`}
+                              disabled={pauseLoading === c.code}
+                              onClick={() => handleTogglePause(c.code, c.isPaused)}
+                            >
+                              {pauseLoading === c.code ? "…" : c.isPaused ? "RESUME" : "PAUSE"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="font-mono text-xs h-7 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              disabled={deleteLoading === c.code}
+                              onClick={() => handleDeleteCode(c.code)}
+                              title="Delete code"
+                            >
+                              {deleteLoading === c.code ? "…" : <Trash2 className="w-3.5 h-3.5" />}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
