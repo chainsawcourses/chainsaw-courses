@@ -6,6 +6,7 @@ import { eq, asc, sql, desc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
+import { saveCertificateToDrive } from "../lib/driveCertificates";
 
 const router = Router();
 
@@ -190,6 +191,10 @@ router.post("/exam/submit", async (req, res) => {
       // Fire-and-forget certificate email
       sendCertificateEmail(user, attemptedAt, score).catch((err) => {
         logger.error({ err, userId: user.id }, "Certificate email fire-and-forget failed");
+      });
+      // Fire-and-forget Drive save
+      saveCertificateToDrive(user, attemptedAt, score).catch((err) => {
+        logger.error({ err, userId: user.id }, "Certificate Drive save fire-and-forget failed");
       });
     }
 

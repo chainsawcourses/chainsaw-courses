@@ -7,6 +7,7 @@ import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import { generateCertificatePdf } from "../lib/generateCertificate";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
+import { saveCertificateToDrive, getCertsFolderId, uploadPdfToDrive } from "../lib/driveCertificates";
 
 const router = Router();
 
@@ -115,6 +116,74 @@ router.get("/admin/certificate/:userId", async (req, res) => {
   } catch (err) {
     logger.error({ err, userId }, "Error generating certificate for admin");
     res.status(500).json({ error: "Could not generate certificate" });
+  }
+});
+
+// POST /api/admin/certificate/:userId/save-to-drive — save one certificate PDF to Drive
+router.post("/admin/certificate/:userId/save-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [passedAttempt] = await db
+      .select().from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, userId), eq(examAttemptsTable.passed, true)))
+      .orderBy(desc(examAttemptsTable.attemptedAt)).limit(1);
+    const passedAt    = passedAttempt?.attemptedAt ?? new Date();
+    const passedScore = passedAttempt?.score ?? null;
+    const driveUrl = await saveCertificateToDrive(user, passedAt, passedScore);
+    res.json({ url: driveUrl });
+  } catch (err) {
+    logger.error({ err, userId }, "Error saving certificate to Drive");
+    res.status(500).json({ error: "Could not save certificate to Drive" });
+  }
+});
+
+// POST /api/admin/certificates/export-to-drive — bulk-save ALL certificates to Drive
+router.post("/admin/certificates/export-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    // Get all users with a certificate
+    const users = await db
+      .select()
+      .from(usersTable)
+      .where(and(
+        eq(usersTable.isActive, true),
+        ...[usersTable.courseCompletedAt ? [] : []],
+      ));
+    const certUsers = users.filter(u => u.courseCompletedAt != null);
+
+    // Resolve folder once, reuse for all uploads
+    const { connectors, folderId } = await getCertsFolderId();
+
+    let saved = 0;
+    const errors: string[] = [];
+
+    for (const user of certUsers) {
+      try {
+        const [passedAttempt] = await db
+          .select().from(examAttemptsTable)
+          .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.passed, true)))
+          .orderBy(desc(examAttemptsTable.attemptedAt)).limit(1);
+        const passedAt    = passedAttempt?.attemptedAt ?? user.courseCompletedAt ?? new Date();
+        const passedScore = passedAttempt?.score ?? null;
+        const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+        const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+        await uploadPdfToDrive(connectors, pdfBytes, `Certificate_${safeName}.pdf`, folderId);
+        saved++;
+      } catch (e) {
+        errors.push(`${user.fullName} (${user.id}): ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    logger.info({ saved, errors: errors.length, folderId }, "Bulk certificate export to Drive");
+    res.json({ saved, errors, folderUrl });
+  } catch (err) {
+    logger.error({ err }, "Error bulk-exporting certificates to Drive");
+    res.status(500).json({ error: "Could not export certificates to Drive" });
   }
 });
 

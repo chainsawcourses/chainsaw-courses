@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, FolderOpen, Loader2 } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 
 interface CertRecord {
@@ -16,6 +16,16 @@ export default function CertificateRegister() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  // Per-row Drive save state
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [savedUrls, setSavedUrls] = useState<Record<number, string>>({});
+  const [saveErrors, setSaveErrors] = useState<Record<number, string>>({});
+
+  // Bulk export state
+  const [exporting, setExporting] = useState(false);
+  const [exportResult, setExportResult] = useState<{ saved: number; errors: string[]; folderUrl: string } | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+
   useEffect(() => { if (isReady && !adminToken) setLocation("/admin"); }, [isReady, adminToken, setLocation]);
 
   useEffect(() => {
@@ -30,20 +40,43 @@ export default function CertificateRegister() {
     c.activationCode.toLowerCase().includes(search.toLowerCase())
   );
 
-  const exportCsv = () => {
-    const header = ["Name", "Email", "Activation Code", "Certificate Issued", "Exam Score", "Access Expires"];
-    const rows = certs.map(c => [
-      c.fullName, c.email, c.activationCode,
-      c.certificateIssuedAt ? new Date(c.certificateIssuedAt).toLocaleDateString("en-GB") : "",
-      c.examScore !== null ? `${c.examScore}%` : "",
-      c.accessExpiresAt ? new Date(c.accessExpiresAt).toLocaleDateString("en-GB") : "Unlimited",
-    ]);
-    const csv = [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `certificate-register-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
+  const handleSaveToDrive = async (userId: number) => {
+    if (!adminToken || savingId !== null) return;
+    setSavingId(userId);
+    setSaveErrors(prev => { const n = { ...prev }; delete n[userId]; return n; });
+    try {
+      const res = await fetch(`/api/admin/certificate/${userId}/save-to-drive`, {
+        method: "POST",
+        headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      setSavedUrls(prev => ({ ...prev, [userId]: data.url }));
+    } catch (e) {
+      setSaveErrors(prev => ({ ...prev, [userId]: e instanceof Error ? e.message : "Save failed" }));
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const handleExportToDrive = async () => {
+    if (!adminToken || exporting) return;
+    setExporting(true);
+    setExportResult(null);
+    setExportError(null);
+    try {
+      const res = await fetch("/api/admin/certificates/export-to-drive", {
+        method: "POST",
+        headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Export failed");
+      setExportResult(data);
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -58,16 +91,50 @@ export default function CertificateRegister() {
           <span className="text-muted-foreground/40">·</span>
           <span className="font-semibold text-sm flex-1">Certificate Register</span>
           <button
-            onClick={exportCsv}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium"
+            onClick={handleExportToDrive}
+            disabled={exporting}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60"
             style={{ background: "#e27226" }}
           >
-            <Download className="w-3.5 h-3.5" />Export CSV
+            {exporting
+              ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Exporting…</>
+              : <><FolderOpen className="w-3.5 h-3.5" />Export Certificates</>}
           </button>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
+
+        {/* Export result banner */}
+        {exportResult && (
+          <div className="rounded-xl border border-border bg-card px-4 py-3 flex items-start justify-between gap-3">
+            <div className="text-sm font-mono space-y-1">
+              <p className="font-semibold">
+                Export complete — {exportResult.saved} certificate{exportResult.saved !== 1 ? "s" : ""} saved to Drive
+              </p>
+              {exportResult.errors.length > 0 && (
+                <p className="text-xs text-destructive">{exportResult.errors.length} failed: {exportResult.errors.slice(0, 2).join("; ")}{exportResult.errors.length > 2 ? "…" : ""}</p>
+              )}
+              <a
+                href={exportResult.folderUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs hover:underline"
+                style={{ color: "#e27226" }}
+              >
+                <ExternalLink className="w-3 h-3" /> Open User Certificates folder
+              </a>
+            </div>
+            <button onClick={() => setExportResult(null)} className="text-muted-foreground hover:text-foreground text-xs shrink-0">✕</button>
+          </div>
+        )}
+        {exportError && (
+          <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 flex items-center justify-between gap-3">
+            <span className="text-sm text-destructive font-mono">{exportError}</span>
+            <button onClick={() => setExportError(null)} className="text-muted-foreground hover:text-foreground text-xs shrink-0">✕</button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-4">
           <input
             value={search} onChange={e => setSearch(e.target.value)}
@@ -90,6 +157,17 @@ export default function CertificateRegister() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-foreground">{c.fullName}</p>
                 <p className="text-xs text-muted-foreground">{c.email} · {c.activationCode}</p>
+                {/* Drive save result */}
+                {savedUrls[c.id] && (
+                  <a href={savedUrls[c.id]} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs mt-0.5 hover:underline"
+                    style={{ color: "#e27226" }}>
+                    <ExternalLink className="w-3 h-3" /> Saved to Drive
+                  </a>
+                )}
+                {saveErrors[c.id] && (
+                  <p className="text-xs text-destructive mt-0.5">{saveErrors[c.id]}</p>
+                )}
               </div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground flex-shrink-0">
                 <div className="text-right">
@@ -105,14 +183,27 @@ export default function CertificateRegister() {
                   <p>Access expires</p>
                 </div>
               </div>
-              <a
-                href={`/api/admin/certificate/${c.id}?token=${encodeURIComponent(adminToken ?? "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors"
-              >
-                View
-              </a>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <a
+                  href={`/api/admin/certificate/${c.id}?token=${encodeURIComponent(adminToken ?? "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors"
+                >
+                  View
+                </a>
+                <button
+                  onClick={() => handleSaveToDrive(c.id)}
+                  disabled={savingId !== null}
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors disabled:opacity-50"
+                  title="Save PDF to Google Drive › User Certificates"
+                >
+                  {savingId === c.id
+                    ? <Loader2 className="w-3 h-3 animate-spin" />
+                    : <Download className="w-3 h-3" />}
+                  {savingId === c.id ? "Saving…" : "Download"}
+                </button>
+              </div>
             </div>
           ))}
         </div>

@@ -566,7 +566,7 @@ export default function AdminDashboard() {
                 disabled={exportLoading}
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                {exportLoading ? "PREPARING…" : "BACKUP DATA"}
+                {exportLoading ? "PREPARING…" : "BACKUP ALL DATA"}
               </Button>
               <Button
                 size="sm"
