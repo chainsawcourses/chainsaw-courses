@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { examAttemptsTable, usersTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNotNull } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
@@ -146,14 +146,10 @@ router.post("/admin/certificates/export-to-drive", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
     // Get all users with a certificate
-    const users = await db
+    const certUsers = await db
       .select()
       .from(usersTable)
-      .where(and(
-        eq(usersTable.isActive, true),
-        ...[usersTable.courseCompletedAt ? [] : []],
-      ));
-    const certUsers = users.filter(u => u.courseCompletedAt != null);
+      .where(isNotNull(usersTable.courseCompletedAt));
 
     // Resolve folder once, reuse for all uploads
     const { connectors, folderId } = await getCertsFolderId();
