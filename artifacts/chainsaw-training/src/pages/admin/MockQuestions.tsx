@@ -374,7 +374,7 @@ export default function MockQuestions() {
                 className="font-mono text-xs gap-1.5"
               >
                 <Upload className="w-3.5 h-3.5" />
-                {questions.length === 0 ? "Import Defaults" : "Re-import Defaults"}
+                {questions.length === 0 ? `Import Defaults (${VOCAL_EXAM_QUESTIONS.length})` : "Re-import Defaults"}
               </Button>
             ) : (
               <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-md px-3 py-1.5">
@@ -416,7 +416,7 @@ export default function MockQuestions() {
           <div className="text-center py-16 text-muted-foreground">
             <p className="font-mono text-sm mb-3">No questions yet.</p>
             <Button size="sm" variant="outline" onClick={() => handleImportDefaults(false)} disabled={importing} className="font-mono text-xs gap-1.5">
-              <Upload className="w-3.5 h-3.5" /> Import the 78 default questions
+              <Upload className="w-3.5 h-3.5" /> Import the {VOCAL_EXAM_QUESTIONS.length} default questions
             </Button>
           </div>
         )}
