@@ -417,7 +417,7 @@ export default function AdminDashboard() {
               <Link href="/admin/certificates"><Award className="w-3.5 h-3.5 mr-1" /> CERT REGISTER</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <Link href="/admin/exam-log"><BookOpen className="w-3.5 h-3.5 mr-1" /> EXAM LOG</Link>
+              <Link href="/admin/exam-log"><BookOpen className="w-3.5 h-3.5 mr-1" /> FINAL EXAM LOG</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/assessment-bank"><ClipboardList className="w-3.5 h-3.5 mr-1" /> ASSESSMENT BANK</Link>
