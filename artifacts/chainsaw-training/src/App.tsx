@@ -101,6 +101,19 @@ function GlobalAccessCheck() {
         if (status === "expired") {
           navigate("/expired");
         }
+        // Apply reasonable adjustments to the document root for this user
+        const adjustments: string[] = data.activeAdjustments ?? [];
+        const html = document.documentElement;
+        if (adjustments.some(a => a === "Large Print")) {
+          html.setAttribute("data-large-print", "true");
+        } else {
+          html.removeAttribute("data-large-print");
+        }
+        if (adjustments.some(a => a === "Screen Reader")) {
+          html.setAttribute("data-screen-reader", "true");
+        } else {
+          html.removeAttribute("data-screen-reader");
+        }
       })
       .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps

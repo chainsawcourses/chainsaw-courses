@@ -196,3 +196,24 @@
 
 /* On desktop (and tablet landscape): iframe fills the 16:9 container normally.
    No scaling needed — Vimeo renders the video at the correct aspect ratio. */
+
+/* ── Reasonable Adjustment: Large Print ─────────────────────────────────────
+   Applied to <html> when the logged-in user has an active Large Print adjustment.
+   Scales the base font size up ~130% — all rem-based sizes in the app scale with it. */
+html[data-large-print="true"] {
+  font-size: 130%;
+}
+
+/* ── Reasonable Adjustment: Screen Reader ───────────────────────────────────
+   Applied to <html> when the logged-in user has an active Screen Reader adjustment.
+   Enhances visible focus rings throughout the app so keyboard/AT navigation is clear. */
+html[data-screen-reader="true"] *:focus-visible {
+  outline: 3px solid #e27226 !important;
+  outline-offset: 3px !important;
+  border-radius: 3px;
+}
+html[data-screen-reader="true"] *:focus {
+  outline: 3px solid #e27226 !important;
+  outline-offset: 3px !important;
+  border-radius: 3px;
+}

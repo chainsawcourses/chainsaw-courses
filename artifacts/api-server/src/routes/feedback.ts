@@ -54,6 +54,7 @@ router.get("/admin/feedback", async (req, res) => {
         comment: moduleFeedbackTable.comment,
         createdAt: moduleFeedbackTable.createdAt,
         moduleTitle: modulesTable.title,
+        moduleOrder: modulesTable.order,
         studentName: usersTable.fullName,
       })
       .from(moduleFeedbackTable)
@@ -66,6 +67,7 @@ router.get("/admin/feedback", async (req, res) => {
         id: r.id,
         moduleId: r.moduleId,
         moduleTitle: r.moduleTitle ?? "Unknown module",
+        moduleOrder: r.moduleOrder ?? 9999,
         rating: r.rating,
         comment: r.comment ?? null,
         studentName: r.studentName ?? "Unknown",

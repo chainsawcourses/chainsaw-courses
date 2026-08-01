@@ -12,9 +12,10 @@ import {
   videoEngagementTable,
   moduleFeedbackTable,
   examAttemptsTable,
+  reasonableAdjustmentsTable,
 } from "@workspace/db";
 import { ActivateCodeBody } from "@workspace/api-zod";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, or, gte } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -255,6 +256,21 @@ router.get("/auth/me", async (req, res) => {
     .from(activationCodesTable)
     .where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
 
+  // Fetch active reasonable adjustments for this user
+  const adjustmentRows = await db
+    .select({ adjustmentType: reasonableAdjustmentsTable.adjustmentType })
+    .from(reasonableAdjustmentsTable)
+    .where(
+      and(
+        eq(reasonableAdjustmentsTable.userId, user.id),
+        or(
+          isNull(reasonableAdjustmentsTable.expiresAt),
+          gte(reasonableAdjustmentsTable.expiresAt, now)
+        )
+      )
+    );
+  const activeAdjustments = adjustmentRows.map(r => r.adjustmentType);
+
   res.json({
     id: user.id,
     fullName: user.fullName,
@@ -267,6 +283,7 @@ router.get("/auth/me", async (req, res) => {
     courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
     daysRemaining,
     allModulesUnlocked: codeFlags?.allModulesUnlocked ?? false,
+    activeAdjustments,
   });
 });
 

@@ -59,10 +59,10 @@ export default function Feedback() {
   // ── By Module grouping ─────────────────────────────────────────────────────
   const moduleGroups = useMemo(() => {
     if (!videoFeedback) return [];
-    const map = new Map<number, { moduleId: number; moduleTitle: string; entries: typeof videoFeedback }>();
+    const map = new Map<number, { moduleId: number; moduleTitle: string; moduleOrder: number; entries: typeof videoFeedback }>();
     for (const f of videoFeedback) {
       if (!map.has(f.moduleId)) {
-        map.set(f.moduleId, { moduleId: f.moduleId, moduleTitle: f.moduleTitle, entries: [] });
+        map.set(f.moduleId, { moduleId: f.moduleId, moduleTitle: f.moduleTitle, moduleOrder: (f as typeof f & { moduleOrder?: number }).moduleOrder ?? 9999, entries: [] });
       }
       map.get(f.moduleId)!.entries.push(f);
     }
@@ -72,7 +72,7 @@ export default function Feedback() {
         avg: g.entries.reduce((s, e) => s + e.rating, 0) / g.entries.length,
         count: g.entries.length,
       }))
-      .sort((a, b) => b.avg - a.avg);
+      .sort((a, b) => a.moduleOrder - b.moduleOrder);
   }, [videoFeedback]);
 
   // ── By Student grouping ────────────────────────────────────────────────────
