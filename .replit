@@ -26,7 +26,7 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-ADMIN_PASSWORD = "pigplums"
+ADMIN_PASSWORD = "CHAIN26"
 VAPID_PUBLIC_KEY = "BDR2Y5H4WerxIjaMvMdnBm58GItDh38sSkKQgnjLua-CXFqr_yOfcX-dT_f1MM1nTGRtorMq20klzTujCLSlJHw"
 VAPID_PRIVATE_KEY = "u0PqDiMxZ4TaY-ek_f4tOCPHY4cBk8d-dhYSwyRojGs"
 VAPID_EMAIL = "mailto:admin@chainsawcourses.co.uk"
