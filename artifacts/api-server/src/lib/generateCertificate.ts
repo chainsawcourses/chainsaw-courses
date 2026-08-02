@@ -119,7 +119,7 @@ export async function generateCertificatePdf(
 
   rule(243, 0.28);
 
-  const glhLine = "Guided Learning Hours: 5  \u00B7  CPD: 5 Verifiable CPD Hours  \u00B7  IIRSM Approved Learning";
+  const glhLine = "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Learning";
   page.drawText(glhLine, { x: cx(glhLine, 9.5, fBold, W), y: 318, size: 9.5, font: fBold, color: black });
 
   const unitLine = "Unit Ref: 0039-20  \u00B7  Assessment: Online Theory & Knowledge  \u00B7  Pass Mark: 80%";

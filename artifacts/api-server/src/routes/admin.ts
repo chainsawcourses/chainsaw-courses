@@ -1151,6 +1151,16 @@ router.post("/admin/bind-preview", async (req, res) => {
       .set({ deviceId })
       .where(eq(usersTable.id, user.id));
 
+    // Auto-sign waiver so the preview never gets blocked by the waiver gate
+    const [existingWaiver] = await db.select().from(waiversTable).where(eq(waiversTable.userId, user.id));
+    if (!existingWaiver) {
+      await db.insert(waiversTable).values({
+        userId: user.id,
+        signatureData: "ADMIN-AUTO-SIGNED",
+        agreedToTerms: true,
+      });
+    }
+
     res.json({
       userId: user.id,
       activationCode: "ADMIN-PREVIEW",
