@@ -63,6 +63,20 @@ export default function Feedback() {
     ? (courseFeedback.reduce((s, f) => s + f.rating, 0) / courseFeedback.length).toFixed(1)
     : null;
 
+  const clarityAvg = useMemo(() => {
+    const rated = courseFeedback?.filter((f) => f.clarityRating != null) ?? [];
+    return rated.length > 0
+      ? (rated.reduce((s, f) => s + (f.clarityRating ?? 0), 0) / rated.length).toFixed(1)
+      : null;
+  }, [courseFeedback]);
+
+  const usabilityAvg = useMemo(() => {
+    const rated = courseFeedback?.filter((f) => f.usabilityRating != null) ?? [];
+    return rated.length > 0
+      ? (rated.reduce((s, f) => s + (f.usabilityRating ?? 0), 0) / rated.length).toFixed(1)
+      : null;
+  }, [courseFeedback]);
+
   // ── By Module grouping ─────────────────────────────────────────────────────
   const moduleGroups = useMemo(() => {
     if (!videoFeedback) return [];
@@ -479,13 +493,35 @@ export default function Feedback() {
             </div>
 
             <Card className="bg-secondary/20">
-              <CardContent className="p-4 flex items-center gap-3">
-                <MessageSquare className="w-5 h-5 text-primary" />
-                <span className="font-mono text-sm">
-                  {courseAvg
-                    ? `Average rating: ${courseAvg} / 5 across ${courseFeedback?.length} responses`
-                    : "No course feedback submitted yet"}
-                </span>
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="w-5 h-5 text-primary shrink-0" />
+                  <span className="font-mono text-sm">
+                    {courseAvg
+                      ? `Average rating: ${courseAvg} / 5 across ${courseFeedback?.length} responses`
+                      : "No course feedback submitted yet"}
+                  </span>
+                </div>
+                {(clarityAvg || usabilityAvg) && (
+                  <div className="flex gap-6 pl-8">
+                    {clarityAvg && (
+                      <div className="font-mono text-xs text-muted-foreground">
+                        <span className="text-foreground font-bold">{clarityAvg}</span> / 5 content clarity
+                        <span className="opacity-50 ml-1">
+                          ({courseFeedback?.filter((f) => f.clarityRating != null).length} rated)
+                        </span>
+                      </div>
+                    )}
+                    {usabilityAvg && (
+                      <div className="font-mono text-xs text-muted-foreground">
+                        <span className="text-foreground font-bold">{usabilityAvg}</span> / 5 platform usability
+                        <span className="opacity-50 ml-1">
+                          ({courseFeedback?.filter((f) => f.usabilityRating != null).length} rated)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -519,16 +555,30 @@ export default function Feedback() {
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-sm font-mono">
                       <span className="text-muted-foreground">{f.studentName ?? "Anonymous"}</span>
-                      <span className="flex items-center gap-1 text-primary">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < f.rating ? "fill-primary" : "text-muted-foreground"}`} />
-                        ))}
-                      </span>
+                      <Stars rating={f.rating} size="w-4 h-4" />
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-0 text-sm font-mono text-muted-foreground">
-                    {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
-                    <div className="mt-2 text-[10px] uppercase tracking-widest opacity-60">
+                  <CardContent className="pt-0 space-y-2">
+                    {(f.clarityRating != null || f.usabilityRating != null) && (
+                      <div className="flex gap-4 flex-wrap">
+                        {f.clarityRating != null && (
+                          <div className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                            <span className="uppercase tracking-widest">Clarity</span>
+                            <Stars rating={f.clarityRating} size="w-3 h-3" />
+                          </div>
+                        )}
+                        {f.usabilityRating != null && (
+                          <div className="flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                            <span className="uppercase tracking-widest">Usability</span>
+                            <Stars rating={f.usabilityRating} size="w-3 h-3" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-sm font-mono text-muted-foreground">
+                      {f.comment ? f.comment : <span className="italic opacity-60">No comment provided</span>}
+                    </p>
+                    <div className="text-[10px] uppercase tracking-widest opacity-60 font-mono">
                       {new Date(f.createdAt).toLocaleString()}
                     </div>
                   </CardContent>

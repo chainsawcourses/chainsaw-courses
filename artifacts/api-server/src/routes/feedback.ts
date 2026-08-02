@@ -88,6 +88,8 @@ const SubmitAppFeedbackBody = z.object({
   deviceId: z.string(),
   activationCode: z.string(),
   rating: z.number().int().min(1).max(5),
+  clarityRating: z.number().int().min(1).max(5).optional(),
+  usabilityRating: z.number().int().min(1).max(5).optional(),
   comment: z.string().optional(),
 });
 
@@ -97,14 +99,20 @@ router.post("/app-feedback", async (req, res) => {
     res.status(400).json({ error: "Invalid request body" });
     return;
   }
-  const { deviceId, activationCode, rating, comment } = parse.data;
+  const { deviceId, activationCode, rating, clarityRating, usabilityRating, comment } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
   try {
-    await db.insert(appFeedbackTable).values({ userId: user.id, rating, comment: comment ?? null });
+    await db.insert(appFeedbackTable).values({
+      userId: user.id,
+      rating,
+      clarityRating: clarityRating ?? null,
+      usabilityRating: usabilityRating ?? null,
+      comment: comment ?? null,
+    });
     res.json({ success: true, message: "Feedback recorded" });
   } catch (err) {
     logger.error({ err }, "Error saving app feedback");
@@ -122,6 +130,8 @@ router.get("/admin/app-feedback", async (req, res) => {
       .select({
         id: appFeedbackTable.id,
         rating: appFeedbackTable.rating,
+        clarityRating: appFeedbackTable.clarityRating,
+        usabilityRating: appFeedbackTable.usabilityRating,
         comment: appFeedbackTable.comment,
         createdAt: appFeedbackTable.createdAt,
         studentName: usersTable.fullName,
@@ -132,6 +142,8 @@ router.get("/admin/app-feedback", async (req, res) => {
     res.json(rows.map((r) => ({
       id: r.id,
       rating: r.rating,
+      clarityRating: r.clarityRating ?? null,
+      usabilityRating: r.usabilityRating ?? null,
       comment: r.comment ?? null,
       studentName: r.studentName ?? "Unknown",
       createdAt: r.createdAt?.toISOString?.() ?? String(r.createdAt),

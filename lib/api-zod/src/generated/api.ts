@@ -309,6 +309,8 @@ export const SubmitAppFeedbackBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "rating": zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
+  "clarityRating": zod.number().min(1).max(5).optional(),
+  "usabilityRating": zod.number().min(1).max(5).optional(),
   "comment": zod.string().optional()
 })
 
@@ -328,6 +330,8 @@ export const ListAppFeedbackHeader = zod.object({
 export const ListAppFeedbackResponseItem = zod.object({
   "id": zod.number(),
   "rating": zod.number(),
+  "clarityRating": zod.number().nullish(),
+  "usabilityRating": zod.number().nullish(),
   "comment": zod.string().nullish(),
   "studentName": zod.string(),
   "createdAt": zod.string()

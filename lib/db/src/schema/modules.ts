@@ -196,6 +196,8 @@ export const appFeedbackTable = pgTable("app_feedback", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   rating: integer("rating").notNull(),
+  clarityRating: integer("clarity_rating"),
+  usabilityRating: integer("usability_rating"),
   comment: text("comment"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

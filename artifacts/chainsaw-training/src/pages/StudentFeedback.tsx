@@ -10,12 +10,50 @@ const dingAudio = new Audio("/audio/ding.wav");
 dingAudio.volume = 0.5;
 dingAudio.load();
 
+function StarRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div>
+      <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">{label}</div>
+      <div className="flex gap-2">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(n)}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(0)}
+            className="focus:outline-none transition-transform hover:scale-110"
+          >
+            <Star
+              className={`w-9 h-9 transition-colors ${
+                n <= (hovered || value)
+                  ? "text-primary fill-primary"
+                  : "text-muted-foreground/30"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function StudentFeedback() {
   const { deviceId, activationCode } = useUserSession();
   const submitFeedback = useSubmitAppFeedback();
 
   const [rating, setRating] = useState(0);
-  const [hovered, setHovered] = useState(0);
+  const [clarityRating, setClarityRating] = useState(0);
+  const [usabilityRating, setUsabilityRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -26,8 +64,6 @@ export default function StudentFeedback() {
     } catch (e) { /* silent fail */ }
   };
 
-  // Also play the ding when the success screen appears — catches cases where
-  // the button-click audio was blocked before the network call resolved.
   useEffect(() => {
     if (submitted) playDing();
   }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -36,7 +72,16 @@ export default function StudentFeedback() {
     if (!rating || !deviceId || !activationCode) return;
     playDing();
     submitFeedback.mutate(
-      { data: { deviceId, activationCode, rating, comment: comment || undefined } },
+      {
+        data: {
+          deviceId,
+          activationCode,
+          rating,
+          clarityRating: clarityRating || undefined,
+          usabilityRating: usabilityRating || undefined,
+          comment: comment || undefined,
+        },
+      },
       { onSuccess: () => setSubmitted(true) }
     );
   };
@@ -70,34 +115,18 @@ export default function StudentFeedback() {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course overall?</h2>
+                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course?</h2>
                   <p className="font-mono text-xs text-muted-foreground">
                     Your feedback helps us improve the learning experience for future students.
                   </p>
                 </div>
 
-                <div>
-                  <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">Overall Rating</div>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setRating(n)}
-                        onMouseEnter={() => setHovered(n)}
-                        onMouseLeave={() => setHovered(0)}
-                        className="focus:outline-none transition-transform hover:scale-110"
-                      >
-                        <Star
-                          className={`w-9 h-9 transition-colors ${
-                            n <= (hovered || rating)
-                              ? "text-primary fill-primary"
-                              : "text-muted-foreground/30"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                <StarRow label="Overall Rating *" value={rating} onChange={setRating} />
+
+                <div className="border-t border-border/40 pt-4 space-y-5">
+                  <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Optional ratings</p>
+                  <StarRow label="Content Clarity" value={clarityRating} onChange={setClarityRating} />
+                  <StarRow label="Platform Usability" value={usabilityRating} onChange={setUsabilityRating} />
                 </div>
 
                 <div>

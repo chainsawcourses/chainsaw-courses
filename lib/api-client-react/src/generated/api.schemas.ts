@@ -546,12 +546,18 @@ export interface AppFeedbackInput {
      * @maximum 5
      */
   rating: number;
+  /** @minimum 1 @maximum 5 */
+  clarityRating?: number;
+  /** @minimum 1 @maximum 5 */
+  usabilityRating?: number;
   comment?: string;
 }
 
 export interface AppFeedbackItem {
   id: number;
   rating: number;
+  clarityRating?: number | null;
+  usabilityRating?: number | null;
   /** @nullable */
   comment?: string | null;
   studentName: string;
