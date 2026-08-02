@@ -7,6 +7,7 @@ import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { getManualText, getQaResource, findQaForQuestion } from "../lib/ai-resource";
 import { searchManual, buildTutorAnswer } from "../lib/manual-search";
+import { getIirsmFramework } from "../lib/iirsm-framework";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
@@ -81,7 +82,7 @@ RULES:
 7. If a question is completely outside chainsaw and forestry safety, say so in one sentence.
 8. Do NOT invent facts. If genuinely uncertain about a specific regulation detail not in the manual and not in your training knowledge, say so clearly.`;
 
-function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): string {
+async function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): Promise<string> {
   const manual = getManualText();
   const qa = getQaResource();
 
@@ -90,7 +91,14 @@ function buildSystemPrompt(mode: "exam" | "tutor" = "exam"): string {
     if (manual) {
       const trimmed =
         manual.length > 30000 ? manual.slice(0, 30000) + "\n...[truncated]" : manual;
-      parts.push(`---\n\nREFERENCE MANUAL (your ONLY knowledge source):\n${trimmed}`);
+      parts.push(`---\n\nREFERENCE MANUAL (your PRIMARY knowledge source):\n${trimmed}`);
+    }
+    // Inject the IIRSM Competence Framework as a secondary reference
+    const iirsm = await getIirsmFramework();
+    if (iirsm) {
+      parts.push(
+        `---\n\nIIRSM RISK MANAGEMENT AND LEADERSHIP COMPETENCE FRAMEWORK (secondary reference — use when learners ask about IIRSM competency levels, membership grades, leadership behaviours, or the framework itself):\n${iirsm}`
+      );
     }
     return parts.join("\n\n");
   }
@@ -172,7 +180,7 @@ router.post("/ai/chat", async (req, res) => {
         model: "gemini-2.0-flash",
         contents,
         config: {
-          systemInstruction: buildSystemPrompt(chatMode),
+          systemInstruction: await buildSystemPrompt(chatMode),
           maxOutputTokens: 8192,
         },
       });
