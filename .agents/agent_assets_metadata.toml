@@ -181,3 +181,10 @@ uri = "file://artifacts/chainsaw-training/public/pdfs/Learner_Feedback_Policy.pd
 type = "pdf"
 title = "Learner Feedback Policy"
 description = "9-section policy document in Chainsaw Courses brand style — matches the Assessment Policy layout with orange header, branded footer, info rows, tables, and bullet sections."
+
+[[outputs]]
+id = "WPz1iuAtbFAvm1YQUPXPz"
+uri = "file://generated-docs/chainsaw-courses-terms-and-conditions.pdf"
+type = "pdf"
+title = "Terms and Conditions — Chainsaw Courses"
+description = "3 pages, no blank pages. Headers and page numbers stamped cleanly on all pages."

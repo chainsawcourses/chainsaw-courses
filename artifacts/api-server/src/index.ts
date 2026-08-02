@@ -63,6 +63,22 @@ async function runStartupDataFix() {
         // Note: isPaused is intentionally NOT reset on boot — admin may have paused it
       });
     logger.info("Startup: APPTEST26 reviewer code ensured");
+
+    // Ensure ADMIN-PREVIEW always has allModulesUnlocked = true (upsert — safe to run on every boot)
+    await db
+      .insert(activationCodesTable)
+      .values({
+        code: "ADMIN-PREVIEW",
+        isUsed: false,
+        isUnlimited: true,
+        allModulesUnlocked: true,
+        notes: "Admin app preview — all modules unlocked, all content accessible",
+      })
+      .onConflictDoUpdate({
+        target: activationCodesTable.code,
+        set: { isUnlimited: true, allModulesUnlocked: true },
+      });
+    logger.info("Startup: ADMIN-PREVIEW reviewer code ensured");
   } catch (err) {
     logger.error({ err }, "Startup data-fix failed (non-fatal)");
   }
