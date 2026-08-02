@@ -396,10 +396,10 @@ export default function TrainingModule() {
               )}
             </div>
 
-            {/* MHOR 1992 supplementary card — shown for the Law & Regulations module (id 13).
+            {/* MHOR 1992 supplementary card — shown for the Stacking module (id 30).
                 Keyed to the module's stable database id, not free-text fields, so renaming
                 the module title or editing assessmentCriteria will not hide this card. */}
-            {module.id === 13 && (
+            {module.id === 30 && (
               <div className="max-w-3xl mx-auto w-full border border-primary/30 rounded-lg bg-primary/5 overflow-hidden">
                 <div className="flex items-center gap-2 px-5 py-3 border-b border-primary/20 bg-primary/10">
                   <Scale className="w-4 h-4 text-primary shrink-0" />
