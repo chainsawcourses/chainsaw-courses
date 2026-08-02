@@ -271,7 +271,7 @@ async function generate() {
     ["First Aid Certification",       "Current First Aid at Work certificate held"],
     ["Industry Experience",           "Over 27 years in the arboricultural and forestry industry. Worked as an arboricultural contract climber for numerous large and small companies throughout this period, gaining extensive hands-on operational experience across a wide range of site conditions and chainsaw applications."],
     ["Assessor & Instructor Qualifications", "City & Guilds NPTC Assessor and LANTRA Instructor and Assessor for 8 years — covering practical chainsaw assessment and vocational training delivery to industry standard."],
-    ["Published Author",              "Author of 'The Chainsaw Manual' — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course."],
+    ["Published Author",              "Author of 'The Chainsaw Manual' (Version 1.1, July 2026) — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course."],
     ["Subject Research",              "Course content developed with reference to current UK HSE guidance, NPTC 0039-20 unit standards, and the Overleaf Chainsaw Manual (published reference text)"],
     ["Platform Development",          "Full-stack eLearning platform designed, developed and operated by author — Progressive Web Application with device-locked access, video streaming, and automated assessment"],
     ["CPD Status",                    "Author engages in ongoing professional development in chainsaw safety and vocational eLearning design"],
@@ -292,18 +292,24 @@ async function generate() {
 
   // Table header for Section 3
   s.page.drawRectangle({ x: M, y: s.y - 16, width: COL_W, height: 20, color: rgb(0.25, 0.25, 0.25) });
-  s.page.drawText("Module", { x: M + 6, y: s.y - 10, size: 8, font: fBold, color: WHITE });
-  s.page.drawText("Learning Outcome", { x: M + 155 + 4, y: s.y - 10, size: 8, font: fBold, color: WHITE });
+  s.page.drawText("Learning Outcome", { x: M + 6, y: s.y - 10, size: 8, font: fBold, color: WHITE });
+  s.page.drawText("Description & Assessment Criteria Coverage", { x: M + 155 + 4, y: s.y - 10, size: 8, font: fBold, color: WHITE });
   s.y -= 20;
 
+  // LO structure from The Chainsaw Manual V1.1 (July 2026)
   const sec3rows: [string, string][] = [
-    ["Equipment List",              "Identify and describe the personal protective equipment (PPE) and tools required for safe chainsaw operation"],
-    ["PPE & First Aid",             "Demonstrate knowledge of appropriate PPE standards and first-aid procedures relevant to chainsaw injury"],
-    ["5 Steps to Risk Assessment",  "Apply the HSE five-step risk assessment framework to chainsaw operations"],
-    ["Hazards & Risks",             "Identify site-specific hazards and evaluate risk levels using likelihood and severity matrices"],
-    ["Emergency Planning Information", "Develop and communicate an emergency action plan for chainsaw operations on site"],
-    ["Law & Legislation",           "Describe the legal framework governing chainsaw use including PUWER and HSE guidance"],
-    ["Chainsaw Safety Features",    "Identify and explain the function of all primary chainsaw safety features and their activation mechanisms"],
+    ["LO1  |  Legal Framework & Personal Safety  (Unit 1)",
+     "Describe the statutory legal framework and personal safety requirements governing chainsaw operations: HSWA employer/employee obligations; PUWER equipment parameters; COSHH control tracking for fuels and lubricants; CE/UKCA class markings for helmets, hearing protection, gloves, and Type A/C protective trousers (AC 1.1–1.4)."],
+    ["LO2  |  Hazard Evaluation & Emergency Protocols  (Unit 1)",
+     "Evaluate environmental hazards, risk metrics, and implement emergency protocols: 5-step site-specific risk assessment documenting ground hazards, pedestrian proximity, and structural vulnerabilities; emergency communication and extraction mapping with grid references and trauma kit deployment; bio-security cleaning controls for invasive arboreal pathogens (AC 2.1–2.3)."],
+    ["LO3  |  Chainsaw Architecture & Safety Features  (Unit 2)",
+     "Analyse the mechanical differences, design attributes, and safety features of internal combustion and battery-powered chainsaws: 2-stroke combustion cycle and 50:1 fuel-to-oil ratio; battery thermal runaway risks; identification and function of the 10 core safety features across front, centre, and rear chainsaw architecture (AC 3.1–3.3)."],
+    ["LO4  |  Diagnostic, Servicing & Maintenance  (Unit 2)",
+     "Describe the diagnostic, servicing, and maintenance procedures required to sustain cutting-assembly integrity: air filter cleaning and spark plug electrode colour interpretation; Rim vs. Spur sprocket differences; guidebar wear conditions (burring, rail splaying, thermal bluing); chain pitch, gauge, tooth shapes (Full-Chisel vs. Semi-Chisel), and filing profiles (AC 4.1–4.4)."],
+    ["LO5  |  Pre-Use Verification & Startup  (Unit 3)",
+     "Implement safe pre-use verification protocols and startup methodologies: cold start floor-anchor vs. warm start knee-clamp procedures for Husqvarna and Stihl platforms; 4-point dynamic check assessing chain brake engagement, oil dispersion flow, chain creep at tick-over, and off-switch motor cut (AC 5.1–5.2)."],
+    ["LO6  |  Cutting Mechanics: Tension & Compression  (Unit 3)",
+     "Apply mechanical principles to resolve tension and compression forces during timber cutting: log setup analysis; pulling vs. pushing chain physics; kickback zone definition and safe plunge bore entry; cut sequences for standard logs, oversized timber, and extreme-tension timber using Toast Rack and reduction sink techniques (AC 6.1–6.4)."],
   ];
   for (let i = 0; i < sec3rows.length; i++) {
     s = checkPageBreak(s, 40);
@@ -327,7 +333,7 @@ async function generate() {
     ["Data Security",      "All data encrypted in transit (TLS 1.3); hosted on Replit deployment infrastructure (EU region)"],
     ["Accessibility",      "WCAG 2.1 AA compliant colour contrast; keyboard navigable; screen-reader compatible markup"],
     ["Browser Support",    "Chrome 120+, Safari 16+, Firefox 120+, Edge 120+"],
-    ["Companion Manual",   "Overleaf Chainsaw Manual (printed) — supplied separately; referenced throughout the digital course"],
+    ["Companion Manual",   "The Chainsaw Manual by Overleaf Publishers Ltd — Version 1.1 (July 2026); printed; supplied separately; referenced and QR-code linked throughout the digital course"],
   ];
   for (let i = 0; i < sec4rows.length; i++) {
     s = checkPageBreak(s, 40);

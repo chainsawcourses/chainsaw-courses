@@ -188,3 +188,10 @@ uri = "file://generated-docs/chainsaw-courses-terms-and-conditions.pdf"
 type = "pdf"
 title = "Terms and Conditions — Chainsaw Courses"
 description = "3 pages, no blank pages. Headers and page numbers stamped cleanly on all pages."
+
+[[outputs]]
+id = "nI3ZW_hhPverV6QU9c-D2"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Q23_Course_Materials_Pack.pdf"
+type = "pdf"
+title = "Q23 Course Materials Pack — Branded"
+description = "Redesigned with Chainsaw Courses branding — orange #E27226, near-black, logo on cover, IIRSM mark, orange question badges, 156 exam questions + 80 mock questions."
