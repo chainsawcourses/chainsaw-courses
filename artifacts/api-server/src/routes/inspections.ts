@@ -10,6 +10,9 @@ import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
+import { generateInspectionPdf } from "../lib/generateInspectionPdf";
+import { getOrCreateDriveFolder, uploadPdfToDrive, BACKUP_FOLDER } from "../lib/driveCertificates";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 
 const router = Router();
 
@@ -365,6 +368,100 @@ router.get("/admin/inspections", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching all inspections");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ── Admin: download a single inspection as PDF ─────────────────────────────────
+router.get("/admin/inspections/:id/pdf", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .where(eq(inspectionRecordsTable.id, id))
+      .limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+    const pdfBuffer = await generateInspectionPdf(record);
+    const safeName = record.studentName.replace(/[^a-z0-9]/gi, "-");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="inspection-${safeName}-${id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    logger.error({ err, id }, "Error generating admin inspection PDF");
+    if (!res.headersSent) res.status(500).json({ error: "Failed to generate PDF" });
+  }
+});
+
+// ── Admin: save a single inspection to Google Drive ───────────────────────────
+router.post("/admin/inspections/:id/save-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .where(eq(inspectionRecordsTable.id, id))
+      .limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+    const pdfBuffer = await generateInspectionPdf(record);
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Inspections", backupId);
+    const safeName   = record.studentName.replace(/[^a-z0-9]/gi, "_");
+    const dateStr    = record.createdAt.toISOString().slice(0, 10);
+    const fileName   = `Inspection_${safeName}_${dateStr}_${id}.pdf`;
+    const url        = await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+    logger.info({ id, fileName, url }, "Inspection saved to Drive");
+    res.json({ url, fileName });
+  } catch (err) {
+    logger.error({ err, id }, "Error saving inspection to Drive");
+    res.status(500).json({ error: "Could not save to Drive" });
+  }
+});
+
+// ── Admin: bulk export all inspections to Google Drive ────────────────────────
+router.post("/admin/inspections/export-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const rows = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .orderBy(desc(inspectionRecordsTable.createdAt));
+
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Inspections", backupId);
+
+    let saved = 0;
+    const errors: string[] = [];
+    for (const row of rows) {
+      try {
+        const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+        const pdfBuffer = await generateInspectionPdf(record);
+        const safeName  = record.studentName.replace(/[^a-z0-9]/gi, "_");
+        const dateStr   = record.createdAt.toISOString().slice(0, 10);
+        const fileName  = `Inspection_${safeName}_${dateStr}_${row.id}.pdf`;
+        await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+        saved++;
+      } catch (e) {
+        errors.push(`ID ${row.id}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    logger.info({ saved, errors: errors.length, folderId }, "Bulk inspection export to Drive");
+    res.json({ saved, errors, folderUrl });
+  } catch (err) {
+    logger.error({ err }, "Error bulk-exporting inspections to Drive");
+    res.status(500).json({ error: "Could not export to Drive" });
   }
 });
 

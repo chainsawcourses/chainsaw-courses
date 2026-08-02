@@ -10,6 +10,9 @@ import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
+import { generateRiskAssessmentPdf } from "../lib/generateRiskAssessmentPdf";
+import { getOrCreateDriveFolder, uploadPdfToDrive, BACKUP_FOLDER } from "../lib/driveCertificates";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 
 const router = Router();
 
@@ -475,6 +478,125 @@ router.get("/admin/risk-assessments", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching all risk assessments");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ── Shared DB select shape for admin RA queries ───────────────────────────────
+const adminRaSelect = {
+  id: riskAssessmentsTable.id,
+  siteDescription: riskAssessmentsTable.siteDescription,
+  taskDescription: riskAssessmentsTable.taskDescription,
+  latitude: riskAssessmentsTable.latitude,
+  longitude: riskAssessmentsTable.longitude,
+  address: riskAssessmentsTable.address,
+  gridReference: riskAssessmentsTable.gridReference,
+  what3Words: riskAssessmentsTable.what3Words,
+  nearestHospital: riskAssessmentsTable.nearestHospital,
+  hospitalPhone: riskAssessmentsTable.hospitalPhone,
+  siteAccess: riskAssessmentsTable.siteAccess,
+  meetingPoint: riskAssessmentsTable.meetingPoint,
+  firstAidKit: riskAssessmentsTable.firstAidKit,
+  nearestAed: riskAssessmentsTable.nearestAed,
+  nearestSignal: riskAssessmentsTable.nearestSignal,
+  hazards: riskAssessmentsTable.hazards,
+  createdAt: riskAssessmentsTable.createdAt,
+  amendedAt: riskAssessmentsTable.amendedAt,
+  studentName: usersTable.fullName,
+} as const;
+
+function rowToRaRecord(row: typeof adminRaSelect extends Record<string, infer _> ? { [K in keyof typeof adminRaSelect]: any } : never) {
+  return {
+    ...row,
+    hazards: JSON.parse(row.hazards) as import("../lib/generateRiskAssessmentPdf").HazardEntry[],
+    studentName: (row.studentName ?? "Unknown") as string,
+    createdAt: row.createdAt as Date,
+    amendedAt: row.amendedAt as Date | null,
+  };
+}
+
+// ── Admin: download a single risk assessment as PDF ───────────────────────────
+router.get("/admin/risk-assessments/:id/pdf", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db.select(adminRaSelect).from(riskAssessmentsTable)
+      .leftJoin(usersTable, eq(riskAssessmentsTable.userId, usersTable.id))
+      .where(eq(riskAssessmentsTable.id, id)).limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record = rowToRaRecord(row);
+    const pdfBuffer = await generateRiskAssessmentPdf(record);
+    const safeName = record.studentName.replace(/[^a-z0-9]/gi, "-");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="risk-assessment-${safeName}-${id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    logger.error({ err, id }, "Error generating admin risk assessment PDF");
+    if (!res.headersSent) res.status(500).json({ error: "Failed to generate PDF" });
+  }
+});
+
+// ── Admin: save a single risk assessment to Google Drive ──────────────────────
+router.post("/admin/risk-assessments/:id/save-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db.select(adminRaSelect).from(riskAssessmentsTable)
+      .leftJoin(usersTable, eq(riskAssessmentsTable.userId, usersTable.id))
+      .where(eq(riskAssessmentsTable.id, id)).limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record    = rowToRaRecord(row);
+    const pdfBuffer = await generateRiskAssessmentPdf(record);
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Risk Assessments", backupId);
+    const safeName   = record.studentName.replace(/[^a-z0-9]/gi, "_");
+    const dateStr    = record.createdAt.toISOString().slice(0, 10);
+    const fileName   = `RiskAssessment_${safeName}_${dateStr}_${id}.pdf`;
+    const url        = await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+    logger.info({ id, fileName, url }, "Risk assessment saved to Drive");
+    res.json({ url, fileName });
+  } catch (err) {
+    logger.error({ err, id }, "Error saving risk assessment to Drive");
+    res.status(500).json({ error: "Could not save to Drive" });
+  }
+});
+
+// ── Admin: bulk export all risk assessments to Google Drive ───────────────────
+router.post("/admin/risk-assessments/export-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const rows = await db.select(adminRaSelect).from(riskAssessmentsTable)
+      .leftJoin(usersTable, eq(riskAssessmentsTable.userId, usersTable.id))
+      .orderBy(desc(riskAssessmentsTable.createdAt));
+
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Risk Assessments", backupId);
+
+    let saved = 0;
+    const errors: string[] = [];
+    for (const row of rows) {
+      try {
+        const record    = rowToRaRecord(row);
+        const pdfBuffer = await generateRiskAssessmentPdf(record);
+        const safeName  = record.studentName.replace(/[^a-z0-9]/gi, "_");
+        const dateStr   = record.createdAt.toISOString().slice(0, 10);
+        const fileName  = `RiskAssessment_${safeName}_${dateStr}_${row.id}.pdf`;
+        await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+        saved++;
+      } catch (e) {
+        errors.push(`ID ${row.id}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    logger.info({ saved, errors: errors.length, folderId }, "Bulk risk assessment export to Drive");
+    res.json({ saved, errors, folderUrl });
+  } catch (err) {
+    logger.error({ err }, "Error bulk-exporting risk assessments to Drive");
+    res.status(500).json({ error: "Could not export to Drive" });
   }
 });
 

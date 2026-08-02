@@ -3,7 +3,7 @@ import { Link, useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp, Sheet, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp, Sheet, ExternalLink, Loader2, HardDrive } from "lucide-react";
 import {
   useListFeedback, getListFeedbackQueryKey,
   useListAppFeedback, getListAppFeedbackQueryKey,
@@ -44,6 +44,10 @@ export default function Feedback() {
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
+  // Per-student Drive save state: userId → "saving" | "done" | "error"
+  const [studentDriveState, setStudentDriveState] = useState<Map<number, "saving" | "done" | "error">>(new Map());
+  const [studentDriveUrls, setStudentDriveUrls] = useState<Map<number, string>>(new Map());
+
   useEffect(() => {
     if (studentParam) {
       setStudentSearch(studentParam);
@@ -81,10 +85,10 @@ export default function Feedback() {
   // ── By Student grouping ────────────────────────────────────────────────────
   const studentGroups = useMemo(() => {
     if (!videoFeedback) return [];
-    const map = new Map<string, { studentName: string; entries: typeof videoFeedback }>();
+    const map = new Map<string, { studentName: string; userId: number | null; entries: typeof videoFeedback }>();
     for (const f of videoFeedback) {
       const name = f.studentName ?? "Unknown";
-      if (!map.has(name)) map.set(name, { studentName: name, entries: [] });
+      if (!map.has(name)) map.set(name, { studentName: name, userId: (f as typeof f & { userId?: number }).userId ?? null, entries: [] });
       map.get(name)!.entries.push(f);
     }
     return Array.from(map.values())
@@ -133,6 +137,24 @@ export default function Feedback() {
 
   const expandAllStudents = () => setExpandedStudents(new Set(filteredStudentGroups.map((g) => g.studentName)));
   const collapseAllStudents = () => setExpandedStudents(new Set());
+
+  const handleStudentSaveToDrive = async (userId: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // don't toggle accordion
+    if (!adminToken) return;
+    setStudentDriveState((prev) => new Map(prev).set(userId, "saving"));
+    try {
+      const res = await fetch(`/api/admin/feedback/student/${userId}/save-to-drive`, {
+        method: "POST",
+        headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      setStudentDriveUrls((prev) => new Map(prev).set(userId, data.url));
+      setStudentDriveState((prev) => new Map(prev).set(userId, "done"));
+    } catch (e) {
+      setStudentDriveState((prev) => new Map(prev).set(userId, "error"));
+    }
+  };
 
   const handleExportSheets = async () => {
     if (!adminToken) return;
@@ -371,6 +393,8 @@ export default function Feedback() {
                 const sortedEntries = [...g.entries].sort(
                   (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
+                const driveState = g.userId != null ? studentDriveState.get(g.userId) : undefined;
+                const driveUrl   = g.userId != null ? studentDriveUrls.get(g.userId) : undefined;
                 return (
                   <Card key={g.studentName} className="overflow-hidden">
                     {/* Student header */}
@@ -386,6 +410,32 @@ export default function Feedback() {
                             <span className="text-muted-foreground text-xs">
                               {g.avg.toFixed(1)} avg · {g.count} {g.count === 1 ? "response" : "responses"}
                             </span>
+                            {/* Drive save button */}
+                            {g.userId != null && (
+                              driveState === "done" && driveUrl ? (
+                                <a
+                                  href={driveUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title="Open in Google Drive"
+                                  className="text-green-600 hover:text-green-700 transition-colors"
+                                >
+                                  <HardDrive className="w-4 h-4" />
+                                </a>
+                              ) : (
+                                <button
+                                  onClick={(e) => handleStudentSaveToDrive(g.userId!, e)}
+                                  disabled={driveState === "saving"}
+                                  title={driveState === "error" ? "Save failed — retry" : "Save feedback to Google Drive"}
+                                  className={`transition-colors ${driveState === "error" ? "text-destructive hover:text-destructive/80" : "text-muted-foreground hover:text-primary"}`}
+                                >
+                                  {driveState === "saving"
+                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                    : <HardDrive className="w-4 h-4" />}
+                                </button>
+                              )
+                            )}
                             {isOpen
                               ? <ChevronUp className="w-4 h-4 text-muted-foreground" />
                               : <ChevronDown className="w-4 h-4 text-muted-foreground" />}

@@ -3,15 +3,15 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, MapPin, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, Download, ExternalLink, HardDrive, Loader2, MapPin, Search, Trash2, X } from "lucide-react";
 import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey, useDeleteRiskAssessment, useDeleteAllRiskAssessments } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
 
 function riskBand(rating: number): { label: string; className: string } {
   if (rating >= 15) return { label: "High", className: "text-destructive border-destructive bg-destructive/10" };
-  if (rating >= 8) return { label: "Medium", className: "text-amber-600 border-amber-500 bg-amber-500/10" };
-  return { label: "Low", className: "text-primary border-primary bg-primary/10" };
+  if (rating >= 8)  return { label: "Medium", className: "text-amber-600 border-amber-500 bg-amber-500/10" };
+  return                   { label: "Low", className: "text-primary border-primary bg-primary/10" };
 }
 
 export default function RiskAssessments() {
@@ -35,6 +35,15 @@ export default function RiskAssessments() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+
+  // Per-record Drive state
+  const [driveState, setDriveState] = useState<Map<number, "saving" | "done" | "error">>(new Map());
+  const [driveUrls, setDriveUrls]   = useState<Map<number, string>>(new Map());
+  // Per-record download state
+  const [dlState, setDlState] = useState<Map<number, "downloading" | "done" | "error">>(new Map());
+  // Bulk export
+  const [bulkState, setBulkState] = useState<"idle" | "exporting" | "done" | "error">("idle");
+  const [bulkResult, setBulkResult] = useState<{ saved: number; errors: string[]; folderUrl: string } | null>(null);
 
   const toggle = (id: number) =>
     setExpanded((prev) => {
@@ -61,6 +70,58 @@ export default function RiskAssessments() {
     });
   };
 
+  const handleDownload = async (id: number, studentName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!adminToken) return;
+    setDlState((prev) => new Map(prev).set(id, "downloading"));
+    try {
+      const res = await fetch(`/api/admin/risk-assessments/${id}/pdf`, { headers: { admintoken: adminToken } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `risk-assessment-${studentName.replace(/\s+/g, "-")}-${id}.pdf`; a.click();
+      URL.revokeObjectURL(url);
+      setDlState((prev) => new Map(prev).set(id, "done"));
+    } catch {
+      setDlState((prev) => new Map(prev).set(id, "error"));
+    }
+  };
+
+  const handleSaveToDrive = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!adminToken) return;
+    setDriveState((prev) => new Map(prev).set(id, "saving"));
+    try {
+      const res = await fetch(`/api/admin/risk-assessments/${id}/save-to-drive`, {
+        method: "POST", headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      setDriveUrls((prev) => new Map(prev).set(id, data.url));
+      setDriveState((prev) => new Map(prev).set(id, "done"));
+    } catch {
+      setDriveState((prev) => new Map(prev).set(id, "error"));
+    }
+  };
+
+  const handleExportAll = async () => {
+    if (!adminToken) return;
+    setBulkState("exporting");
+    setBulkResult(null);
+    try {
+      const res = await fetch("/api/admin/risk-assessments/export-to-drive", {
+        method: "POST", headers: { admintoken: adminToken },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Export failed");
+      setBulkResult(data);
+      setBulkState("done");
+    } catch {
+      setBulkState("error");
+    }
+  };
+
   const highRiskCount = assessments?.filter(
     (a) => Math.max(0, ...a.hazards.map((h) => h.riskRating)) >= 15
   ).length ?? 0;
@@ -79,19 +140,61 @@ export default function RiskAssessments() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <Biohazard className="w-5 h-5 mr-2 inline" /> RISK ASSESSMENTS
           </div>
-          <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
-            <Link href="/admin/dashboard">
-              <ArrowLeft className="w-4 h-4 mr-2" /> BACK TO DASHBOARD
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            {(assessments?.length ?? 0) > 0 && (
+              bulkState === "exporting" ? (
+                <Button size="sm" variant="outline" disabled className="font-mono text-xs">
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Exporting…
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" onClick={handleExportAll} className="font-mono text-xs">
+                  <HardDrive className="w-4 h-4 mr-2" /> Export All to Drive
+                </Button>
+              )
+            )}
+            <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
+              <Link href="/admin/dashboard">
+                <ArrowLeft className="w-4 h-4 mr-2" /> BACK
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+
+        {/* Bulk export result banner */}
+        {bulkState === "done" && bulkResult && (
+          <Card className="bg-secondary/20">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 font-mono text-sm">
+                <HardDrive className="w-4 h-4 text-primary shrink-0" />
+                <span>{bulkResult.saved} assessment{bulkResult.saved !== 1 ? "s" : ""} saved to Drive</span>
+                {bulkResult.errors.length > 0 && (
+                  <span className="text-destructive text-xs ml-1">({bulkResult.errors.length} failed)</span>
+                )}
+                <a href={bulkResult.folderUrl} target="_blank" rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center gap-1 ml-1">
+                  Open folder <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+              <button onClick={() => { setBulkState("idle"); setBulkResult(null); }} className="text-muted-foreground hover:text-foreground shrink-0"><X className="w-4 h-4" /></button>
+            </CardContent>
+          </Card>
+        )}
+        {bulkState === "error" && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-4 flex items-center justify-between gap-3">
+              <span className="font-mono text-sm text-destructive">Export failed. Please try again.</span>
+              <button onClick={() => setBulkState("idle")} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex items-center justify-between gap-4">
           <Card className="bg-secondary/20 flex-1">
             <CardContent className="p-4 flex items-center gap-3">
@@ -165,6 +268,9 @@ export default function RiskAssessments() {
             const band = riskBand(maxRisk);
             const isOpen = expanded.has(record.id);
             const isConfirming = confirmDeleteId === record.id;
+            const ds  = driveState.get(record.id);
+            const du  = driveUrls.get(record.id);
+            const dls = dlState.get(record.id);
             return (
               <Card key={record.id} className={maxRisk >= 15 ? "border-destructive/50" : undefined}>
                 {/* Summary row */}
@@ -188,10 +294,44 @@ export default function RiskAssessments() {
                     </span>
                   </button>
 
-                  {/* Delete control */}
-                  <div className="px-3 shrink-0">
+                  {/* Action buttons */}
+                  <div className="px-2 shrink-0 flex items-center gap-1">
+                    {/* Download PDF */}
+                    <button
+                      onClick={(e) => handleDownload(record.id, record.studentName ?? "student", e)}
+                      disabled={dls === "downloading"}
+                      title={dls === "error" ? "Download failed — retry" : "Download PDF"}
+                      className={`p-1.5 rounded transition-colors ${dls === "error" ? "text-destructive hover:text-destructive/80" : dls === "done" ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                    >
+                      {dls === "downloading"
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <Download className="w-3.5 h-3.5" />}
+                    </button>
+
+                    {/* Save to Drive */}
+                    {ds === "done" && du ? (
+                      <a href={du} target="_blank" rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Open in Google Drive"
+                        className="p-1.5 rounded text-green-600 hover:text-green-700 transition-colors">
+                        <HardDrive className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <button
+                        onClick={(e) => handleSaveToDrive(record.id, e)}
+                        disabled={ds === "saving"}
+                        title={ds === "error" ? "Drive save failed — retry" : "Save to Google Drive"}
+                        className={`p-1.5 rounded transition-colors ${ds === "error" ? "text-destructive hover:text-destructive/80" : "text-muted-foreground hover:text-primary"}`}
+                      >
+                        {ds === "saving"
+                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          : <HardDrive className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+
+                    {/* Delete control */}
                     {isConfirming ? (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 pl-1">
                         <button
                           className="font-mono text-[10px] text-destructive underline underline-offset-2 hover:no-underline"
                           onClick={() => handleDeleteOne(record.id)}
@@ -209,7 +349,7 @@ export default function RiskAssessments() {
                       </div>
                     ) : (
                       <button
-                        className="text-muted-foreground/40 hover:text-destructive transition-colors p-1"
+                        className="text-muted-foreground/40 hover:text-destructive transition-colors p-1.5"
                         onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(record.id); }}
                         title="Delete this record"
                       >

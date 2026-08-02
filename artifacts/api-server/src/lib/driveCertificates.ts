@@ -6,11 +6,11 @@ import { ReplitConnectors } from "@replit/connectors-sdk";
 import { generateCertificatePdf, CertUser } from "./generateCertificate";
 import { logger } from "./logger";
 
-const BACKUP_FOLDER = "Chainsaw Courses User Backup";
+export const BACKUP_FOLDER = "Chainsaw Courses User Backup";
 const CERTS_FOLDER  = "User Certificates";
 
 /** Find or create a Drive folder by name, optionally scoped to a parent. */
-async function getOrCreateDriveFolder(
+export async function getOrCreateDriveFolder(
   connectors: ReplitConnectors,
   name: string,
   parentId?: string,
