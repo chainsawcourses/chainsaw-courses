@@ -209,8 +209,12 @@ router.get("/modules/:moduleId", async (req, res) => {
       return;
     }
 
-    // Reviewer / all-modules-unlocked: skip locking and return full module detail
+    // Reviewer / all-modules-unlocked: skip locking but still return real quizCount
     if (allUnlocked2) {
+      const [quizCountRow] = await db
+        .select({ count: count() })
+        .from(quizQuestionsTable)
+        .where(eq(quizQuestionsTable.moduleId, moduleId));
       res.json({
         id: mod.id,
         title: mod.title,
@@ -231,7 +235,7 @@ router.get("/modules/:moduleId", async (req, res) => {
         assessmentCriteria: mod.assessmentCriteria ?? null,
         lastTimestamp: null,
         safetyText: mod.safetyText ?? null,
-        quizCount: 0,
+        quizCount: quizCountRow?.count ?? 0,
       });
       return;
     }

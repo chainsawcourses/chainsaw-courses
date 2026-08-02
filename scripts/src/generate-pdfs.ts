@@ -527,7 +527,6 @@ async function genReasonableAdjustments(): Promise<void> {
     "Alternative formats for course materials where technically feasible.",
     "Flexibility in assessment timing where a health condition affects concentration or endurance.",
     "Reduced-session access to support students who cannot study for extended periods.",
-    "Direct contact with a named tutor or support person for guidance.",
   ]);
 
   sectionHeading(doc, "4. How to Apply");
