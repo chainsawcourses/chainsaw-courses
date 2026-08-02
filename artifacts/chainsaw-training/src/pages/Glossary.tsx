@@ -96,7 +96,7 @@ const TERMS: { term: string; definition: string; category: string }[] = [
   // G
   { term: "Gasket", definition: "A sealing material placed between mating engine components (such as the cylinder and crankcase) to prevent leaks of fuel, oil, or combustion gases. A damaged or incorrectly fitted gasket causes air leaks that disrupt the fuel-air mixture and reduce engine performance.", category: "Chainsaw Components" },
   { term: "Gauge (chain gauge)", definition: "See Chain gauge.", category: "Chain & Bar" },
-  { term: "GLH (Guided Learning Hours)", definition: "The estimated number of hours a typical learner requires to complete the training activities in a course, excluding independent study. This course is rated at 16 GLH for the technical content, plus 1.5 GLH for directed online assessment.", category: "Training & Assessment" },
+  { term: "GLH (Guided Learning Hours)", definition: "The estimated number of hours a typical learner requires to complete the training activities in a course, excluding independent study. This course has 4 GLH: PWA online modules, video content, and gated knowledge checks.", category: "Training & Assessment" },
   { term: "Gullet", definition: "The curved recess between the cutting edge and the depth gauge of a cutter tooth. The gullet provides space for sawdust to escape as the tooth cuts. A correctly formed gullet is maintained during sharpening; incorrect filing can distort the gullet shape and reduce cutting efficiency.", category: "Chain & Bar" },
 
   // H

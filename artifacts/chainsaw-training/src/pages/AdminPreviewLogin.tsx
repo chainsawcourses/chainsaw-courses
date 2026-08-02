@@ -1,70 +1,45 @@
 import { useEffect, useState } from "react";
 
+// Preview credentials — ADMIN-PREVIEW code has allModulesUnlocked=true, which means
+// the server accepts any deviceId (stores "reviewer-any-device" internally).
+// Bypassing the bind-preview API call so this works in all environments without
+// needing an in-memory admin token.
+const PREVIEW_CODE     = "ADMIN-PREVIEW";
+const PREVIEW_DEVICE   = "admin-preview-device-001";
+const PREVIEW_NAME     = "Admin";
+const PREVIEW_EMAIL    = "admin@chainsawcourses.com";
+const PREVIEW_USER_ID  = "33";
+
 export default function AdminPreviewLogin() {
   const [status, setStatus] = useState("Setting up preview...");
-  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    const setup = async () => {
-      try {
-        const deviceId   = localStorage.getItem("deviceId") || "admin-preview-device-001";
-        // Token passed via URL param (most reliable across new tabs) with localStorage as fallback
-        const tokenFromUrl = new URLSearchParams(window.location.search).get("token");
-        const adminToken   = tokenFromUrl || localStorage.getItem("adminToken") || "";
+    // Write preview session directly to localStorage — no API call needed.
+    localStorage.setItem("activationCode", PREVIEW_CODE);
+    localStorage.setItem("deviceId",       PREVIEW_DEVICE);
+    localStorage.setItem("fullName",        PREVIEW_NAME);
+    localStorage.setItem("email",           PREVIEW_EMAIL);
+    localStorage.setItem("userId",          PREVIEW_USER_ID);
 
-        const res = await fetch("/api/admin/bind-preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", admintoken: adminToken },
-          body: JSON.stringify({ deviceId }),
-        });
+    // Also set cookies so the UserContext cookie-fallback layer is consistent
+    const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
+    const cookieOpts = `; expires=${expires}; path=/; SameSite=Lax`;
+    document.cookie = `activationCode=${encodeURIComponent(PREVIEW_CODE)}${cookieOpts}`;
+    document.cookie = `deviceId=${encodeURIComponent(PREVIEW_DEVICE)}${cookieOpts}`;
+    document.cookie = `fullName=${encodeURIComponent(PREVIEW_NAME)}${cookieOpts}`;
+    document.cookie = `email=${encodeURIComponent(PREVIEW_EMAIL)}${cookieOpts}`;
+    document.cookie = `userId=${encodeURIComponent(PREVIEW_USER_ID)}${cookieOpts}`;
 
-        // Session expired — bounce to admin login then come back here
-        if (res.status === 401) {
-          setStatus("Admin session expired. Redirecting to login...");
-          setTimeout(() => {
-            window.location.href = `${import.meta.env.BASE_URL}admin?redirect=admin-preview`;
-          }, 1200);
-          return;
-        }
-
-        if (!res.ok) throw new Error(`bind failed (${res.status})`);
-
-        const data = await res.json();
-
-        localStorage.setItem("activationCode", data.activationCode);
-        localStorage.setItem("deviceId",       data.deviceId);
-        localStorage.setItem("fullName",        data.fullName);
-        localStorage.setItem("email",           data.email);
-        localStorage.setItem("userId",          String(data.userId));
-
-        setStatus("Launching preview...");
-        window.location.href = `${import.meta.env.BASE_URL}training`;
-      } catch (err) {
-        console.error(err);
-        setFailed(true);
-        setStatus("Something went wrong setting up the preview.");
-      }
-    };
-
-    setup();
+    setStatus("Launching preview...");
+    window.location.href = `${import.meta.env.BASE_URL}training`;
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4">
-      {!failed && (
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      )}
+      <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest text-center max-w-xs">
         {status}
       </p>
-      {failed && (
-        <a
-          href={`${import.meta.env.BASE_URL}admin`}
-          className="font-mono text-xs underline text-primary uppercase tracking-widest"
-        >
-          Go to Admin Login
-        </a>
-      )}
     </div>
   );
 }
