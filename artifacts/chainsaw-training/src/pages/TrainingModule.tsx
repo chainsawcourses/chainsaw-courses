@@ -369,7 +369,7 @@ export default function TrainingModule() {
 
             {/* Quiz / next-video button — always visible, disabled until video is watched */}
             <div className="flex justify-center max-w-3xl mx-auto w-full">
-              {(videoCompleted || module.isCompleted) ? (
+              {(videoCompleted || module.isCompleted || allModulesUnlocked) ? (
                 hasQuiz ? (
                   <Button className="w-full font-mono tracking-widest" asChild>
                     <Link href={`/quiz/${module.id}`}>
