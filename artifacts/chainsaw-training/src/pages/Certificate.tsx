@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
 import { useUserSession } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Download, Loader2 } from "lucide-react";
+import { ChevronLeft, Download, Loader2, FileCheck } from "lucide-react";
+
+// iOS Safari cannot render PDFs inline in iframes — it shows a broken "view / Open" picker.
+// The Download button works fine on iOS 13+, so we skip the iframe on iOS entirely.
+const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export default function CertificatePage() {
   const { activationCode, deviceId } = useUserSession();
@@ -79,24 +83,43 @@ export default function CertificatePage() {
         </Button>
       </div>
 
-      {/* Loading overlay — shown until iframe fires onLoad */}
-      {!iframeLoaded && (
-        <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
-            Generating certificate…
-          </p>
+      {isIOS ? (
+        /* iOS can't render PDFs in iframes — show a download prompt instead */
+        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 text-center">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+            <FileCheck className="w-10 h-10 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <p className="font-mono font-bold text-sm uppercase tracking-widest text-foreground">
+              Certificate Ready
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Tap <strong>Download</strong> above to save your certificate as a PDF.
+            </p>
+          </div>
         </div>
-      )}
+      ) : (
+        <>
+          {/* Loading overlay — shown until iframe fires onLoad */}
+          {!iframeLoaded && (
+            <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+                Generating certificate…
+              </p>
+            </div>
+          )}
 
-      {/* PDF iframe — real HTTP URL works on iOS Safari */}
-      {viewUrl && (
-        <iframe
-          src={viewUrl}
-          className="flex-1 w-full border-none"
-          title="Your Certificate"
-          onLoad={() => setIframeLoaded(true)}
-        />
+          {/* PDF iframe — real HTTP URL works on non-iOS browsers */}
+          {viewUrl && (
+            <iframe
+              src={viewUrl}
+              className="flex-1 w-full border-none"
+              title="Your Certificate"
+              onLoad={() => setIframeLoaded(true)}
+            />
+          )}
+        </>
       )}
     </div>
   );
