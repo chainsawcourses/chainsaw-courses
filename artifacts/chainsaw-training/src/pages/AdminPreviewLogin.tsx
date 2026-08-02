@@ -7,8 +7,10 @@ export default function AdminPreviewLogin() {
   useEffect(() => {
     const setup = async () => {
       try {
-        const deviceId   = localStorage.getItem("deviceId")   || "admin-preview-device-001";
-        const adminToken = localStorage.getItem("adminToken") || "";
+        const deviceId   = localStorage.getItem("deviceId") || "admin-preview-device-001";
+        // Token passed via URL param (most reliable across new tabs) with localStorage as fallback
+        const tokenFromUrl = new URLSearchParams(window.location.search).get("token");
+        const adminToken   = tokenFromUrl || localStorage.getItem("adminToken") || "";
 
         const res = await fetch("/api/admin/bind-preview", {
           method: "POST",

@@ -362,8 +362,12 @@ export default function AdminDashboard() {
             <Biohazard className="w-5 h-5 mr-2 inline" /> OVERSEER
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
-              <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW</a>
+            <Button
+              size="sm"
+              className="font-mono text-xs bg-primary text-primary-foreground"
+              onClick={() => window.open(`${import.meta.env.BASE_URL}admin-preview?token=${encodeURIComponent(adminToken ?? "")}`, "_blank")}
+            >
+              <ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW
             </Button>
 
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
