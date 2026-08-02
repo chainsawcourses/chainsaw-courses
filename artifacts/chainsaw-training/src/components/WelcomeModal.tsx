@@ -20,7 +20,7 @@ interface WelcomeConfig {
 }
 
 export default function WelcomeModal() {
-  const { userId } = useUserSession();
+  const { userId, assignedTo } = useUserSession();
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<Phase>("logo-in");
   const [config, setConfig] = useState<WelcomeConfig>({ intro: DEFAULT_INTRO, steps: DEFAULT_STEPS });
@@ -154,6 +154,24 @@ export default function WelcomeModal() {
             >
               Welcome!
             </h2>
+
+            {assignedTo && (
+              <p
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  fontSize: "0.72rem",
+                  color: "#b45309",
+                  fontWeight: 600,
+                  margin: "0 0 12px",
+                  padding: "5px 10px",
+                  background: "#fef3c7",
+                  borderRadius: 6,
+                  border: "1px solid #fde68a",
+                }}
+              >
+                This course was arranged for you by <strong>{assignedTo}</strong>
+              </p>
+            )}
 
             <p
               style={{

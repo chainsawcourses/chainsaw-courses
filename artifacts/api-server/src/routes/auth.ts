@@ -250,9 +250,9 @@ router.get("/auth/me", async (req, res) => {
     ? Math.max(0, Math.ceil((user.accessExpiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
     : null;
 
-  // Fetch allModulesUnlocked flag for this activation code
+  // Fetch allModulesUnlocked + assignedTo flag for this activation code
   const [codeFlags] = await db
-    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked })
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked, assignedTo: activationCodesTable.assignedTo })
     .from(activationCodesTable)
     .where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
 
@@ -283,6 +283,7 @@ router.get("/auth/me", async (req, res) => {
     courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
     daysRemaining,
     allModulesUnlocked: codeFlags?.allModulesUnlocked ?? false,
+    assignedTo: codeFlags?.assignedTo ?? null,
     activeAdjustments,
   });
 });
