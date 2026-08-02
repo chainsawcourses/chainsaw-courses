@@ -70,9 +70,10 @@ export default function AdminPreviewLogin() {
               userid:          String(userId),
             },
             body: JSON.stringify({
-              signatureData:     "ADMIN-PREVIEW-AUTO",
-              agreedToTerms:     true,
-              clausesSnapshot:   null,
+              activationCode:  PREVIEW_CODE,
+              deviceId:        PREVIEW_DEVICE,
+              signatureData:   "ADMIN-PREVIEW-AUTO",
+              agreedToTerms:   true,
             }),
           });
           // Waiver failure is non-fatal — the waiver page will handle it if necessary.

@@ -2257,6 +2257,108 @@ async function genRiskRegister(): Promise<void> {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
+// ─── Learner Feedback Policy ─────────────────────────────────────────────────
+
+async function genFeedback(): Promise<void> {
+  const doc = newDoc("Learner Feedback Policy");
+  drawPageHeader(doc);
+  docTitle(doc, "Learner Feedback Policy");
+
+  infoRow(doc, "Document owner",   "Content Author / Director, Overleaf Publishers Ltd");
+  infoRow(doc, "Applies to",       "All delegates completing the Chainsaw Courses eLearning programme");
+  infoRow(doc, "Review frequency", "Monthly (data monitoring); Annually (policy review)");
+  infoRow(doc, "Related policies", "Assessment Policy; Quality Management Policy; Data Protection Policy");
+  doc.moveDown(0.6);
+
+  sectionHeading(doc, "1. Purpose and Scope");
+  body(doc,
+    "This policy describes how Overleaf Publishers Ltd collects, stores, analyses, and acts upon feedback from learners who complete the Chainsaw Courses eLearning programme. Systematic feedback collection is a core component of our quality management framework and our commitment to continuous improvement of course content, platform usability, and learner experience."
+  );
+  body(doc,
+    "This is a fully digital eLearning application. Post-examination feedback is captured automatically from all delegates upon completing the 45-question final examination. Collection is integrated directly into the platform so that every learner encounter generates a data point; no separate survey tool or manual follow-up is required."
+  );
+
+  sectionHeading(doc, "2. Feedback Collection Method");
+  body(doc,
+    "Feedback is collected at two points in the learner journey:"
+  );
+  bullet(doc, [
+    "Module-level feedback — presented immediately after each module quiz is passed. Learners rate the clarity and usefulness of that module's content.",
+    "Course-level (post-examination) feedback — presented upon passing the 45-question final examination. Learners provide an overall satisfaction rating and optional free-text comments covering content quality, platform usability, and any suggestions for improvement.",
+  ]);
+  body(doc,
+    "Both feedback forms are embedded within the platform interface and are presented at the natural completion point of each activity. Participation is voluntary; learners may skip either form without penalty and without affecting their assessment record or certificate."
+  );
+
+  sectionHeading(doc, "3. Metrics Captured");
+  twoColTable(doc, ["Metric", "Description"], [
+    ["Overall satisfaction score", "A 1–5 star rating of the learner's overall experience of the course and platform."],
+    ["Content clarity rating",     "A 1–5 rating of how clearly the course material explained the subject matter."],
+    ["Platform usability rating",  "A 1–5 rating of how easy the eLearning platform was to navigate and use."],
+    ["Free-text comments",         "Optional open-ended field allowing learners to describe their experience in their own words, highlight specific strengths, or identify areas for improvement."],
+    ["Module-level ratings",       "A per-module 1–5 rating of content quality and relevance, captured immediately after each module quiz is passed."],
+    ["Completion timestamp",       "The date and time the feedback was submitted, used to track response trends over time."],
+  ], 185);
+
+  sectionHeading(doc, "4. Data Storage and Security");
+  body(doc,
+    "All feedback responses are stored in a managed PostgreSQL relational database hosted within the Replit cloud infrastructure. Data is persisted indefinitely for longitudinal trend analysis unless a learner submits a Subject Access Request or Right to Erasure request under UK GDPR. The database is access-controlled; only authorised personnel within Overleaf Publishers Ltd may query feedback data."
+  );
+  body(doc,
+    "Free-text comments are stored as plain text and are not subject to automated sentiment analysis or third-party processing. Feedback data is not shared with any external organisation, including IIRSM, unless required to demonstrate quality assurance compliance during a course approval audit, in which case only anonymised aggregate statistics will be disclosed."
+  );
+  body(doc,
+    "All feedback data is handled in accordance with our Data Protection Policy and the UK GDPR. Learners wishing to view, correct, or request deletion of their feedback data should contact us at info@chainsawcourses.com."
+  );
+
+  sectionHeading(doc, "5. Review and Monitoring");
+  body(doc,
+    "The content author reviews all feedback data on a monthly basis. Each review examines:"
+  );
+  bullet(doc, [
+    "Mean satisfaction, clarity, and usability scores for the period.",
+    "Volume and direction of trend compared with the previous period.",
+    "Any free-text comments that identify a specific content error, technical fault, or systemic usability concern.",
+    "Per-module ratings to identify modules that consistently receive lower clarity scores.",
+    "Any correlation between low feedback scores and lower assessment pass rates in the same period.",
+  ]);
+  body(doc,
+    "Review findings are documented in the Monthly Feedback Summary, which is retained alongside the Internal Verification Log. Significant findings (e.g. a mean satisfaction score below 3.5/5, or repeated reports of the same content error) are escalated immediately to the Director without waiting for the next scheduled review."
+  );
+
+  sectionHeading(doc, "6. Acting on Feedback");
+  twoColTable(doc, ["Finding", "Action"], [
+    ["Content error identified in free-text",     "Flagged for Internal Verification; corrected within 10 working days; IV log updated."],
+    ["Module clarity score below 3.5 for 2 consecutive months", "Module content reviewed and rewritten; updated video re-recorded if necessary; change logged."],
+    ["Platform usability concern mentioned by 3+ learners", "Development team notified; bug or UX issue investigated within 5 working days."],
+    ["Overall satisfaction mean above 4.5/5",    "Noted in Management Review as evidence of course quality; no immediate action required."],
+    ["No feedback received in a calendar month",  "Checked against enrolment data; if learners completed the exam but did not submit feedback, the feedback prompt is reviewed for technical faults."],
+  ], 220);
+
+  sectionHeading(doc, "7. Reporting");
+  body(doc,
+    "Aggregated and anonymised feedback statistics are included in the Quarterly Quality Management Report and the Annual Management Review. These reports are retained for a minimum of 3 years. Where IIRSM requests evidence of learner feedback as part of course approval monitoring, the content author will prepare an anonymised summary from the database records."
+  );
+  body(doc,
+    "Individual learner responses are never disclosed to third parties and are not used for any purpose other than improving the quality of the Chainsaw Courses programme."
+  );
+
+  sectionHeading(doc, "8. Complaints Arising from the Feedback Process");
+  body(doc,
+    "If a learner believes their feedback has not been taken into account, or wishes to raise a concern about how their feedback data has been handled, they should refer to the Complaints Procedure. Complaints relating to data handling should additionally refer to the Data Protection Policy and, if unresolved, may be escalated to the Information Commissioner's Office (ICO) at ico.org.uk."
+  );
+
+  sectionHeading(doc, "9. Policy Review");
+  body(doc,
+    "This policy is reviewed annually as part of the Quality Management review cycle, or immediately following any material change in the platform's feedback architecture, applicable data protection legislation, or IIRSM course approval requirements. The content author is responsible for initiating each review and for ensuring any revisions are communicated to relevant staff."
+  );
+
+  body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd");
+  await save(doc, "Learner_Feedback_Policy.pdf", "Learner Feedback Policy");
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
 async function main(): Promise<void> {
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
   console.log(`\nGenerating PDFs → ${OUT_DIR}\n`);
@@ -2289,6 +2391,7 @@ async function main(): Promise<void> {
   await genEmergency();
   await genCompetenceFramework();
   await genRiskRegister();
+  await genFeedback();
 
   console.log("\n✅  All PDFs generated successfully.\n");
 }

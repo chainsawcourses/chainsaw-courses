@@ -174,3 +174,10 @@ id = "_dMCZIOmJzDrcnOG2VFTd"
 uri = "file://artifacts/chainsaw-training/public/pdfs/David_Daniel_CV.pdf"
 type = "pdf"
 title = "David Daniel CV — affiliations removed"
+
+[[outputs]]
+id = "8FlEdjzDuFGSA3Rk1s7Wq"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Learner_Feedback_Policy.pdf"
+type = "pdf"
+title = "Learner Feedback Policy"
+description = "9-section policy document in Chainsaw Courses brand style — matches the Assessment Policy layout with orange header, branded footer, info rows, tables, and bullet sections."

@@ -29,6 +29,7 @@ const CATEGORIES: Category[] = [
       { label: "Internal Verification Policy", file: "Internal_Verification_Policy.pdf" },
       { label: "Malpractice & Maladministration Policy", file: "Malpractice_and_Maladministration_Policy.pdf" },
       { label: "Reasonable Adjustments Policy", file: "Reasonable_Adjustments_Policy.pdf" },
+      { label: "Learner Feedback Policy", file: "Learner_Feedback_Policy.pdf" },
       { label: "Competence & Training Framework", file: "Competence_and_Training_Framework.pdf" },
     ],
   },
