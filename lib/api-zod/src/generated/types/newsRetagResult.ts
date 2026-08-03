@@ -6,8 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ActivationCodeInput {
-  code: string;
-  notes?: string;
-  assignedTo?: string;
+export interface NewsRetagResult {
+  total: number;
+  tagged: number;
+  errors: number;
 }

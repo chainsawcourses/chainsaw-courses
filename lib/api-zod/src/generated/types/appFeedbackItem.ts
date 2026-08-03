@@ -10,6 +10,10 @@ export interface AppFeedbackItem {
   id: number;
   rating: number;
   /** @nullable */
+  clarityRating?: number | null;
+  /** @nullable */
+  usabilityRating?: number | null;
+  /** @nullable */
   comment?: string | null;
   studentName: string;
   createdAt: string;

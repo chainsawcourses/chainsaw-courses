@@ -677,8 +677,6 @@ const tblRow4 = (y: number, cols: {text?: string; w: number}[], rowH: number, al
 sp(10);
 
 
-
-
 footer();
 
 // ════════════════════════════════════════════════════════════════════════════════
@@ -699,10 +697,8 @@ examQs.forEach((q, i) => {
   ensurePts(80);
   const y0 = doc.y;
 
-  // Alternating row tint
   if (i % 2 === 0) {
-    // Estimate block height for row bg (generous: 16 badge + 3 lines question + 4 options 1 line each)
-    const bgH = 16 + 45 + 4 * 13 + 12;
+    const bgH = 16 + 45 + (q.keyPoints.length ? q.keyPoints.length * 13 + 14 : 0) + 12;
     doc.rect(ML, y0, CW, bgH).fill(LGY);
   }
 

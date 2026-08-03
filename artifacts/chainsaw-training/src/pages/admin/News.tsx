@@ -16,6 +16,7 @@ import {
   useApproveNewsItem,
   useRejectNewsItem,
   useTriggerNewsFetch,
+  useRetagAllNewsItems,
   getListNewsItemsQueryKey,
   getListPendingNewsItemsQueryKey,
 } from "@workspace/api-client-react";
@@ -85,6 +86,7 @@ export default function AdminNews() {
   const approveItem = useApproveNewsItem();
   const rejectItem = useRejectNewsItem();
   const triggerFetch = useTriggerNewsFetch();
+  const retagAll = useRetagAllNewsItems();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -99,6 +101,8 @@ export default function AdminNews() {
   const [purgeOldConfirm, setPurgeOldConfirm] = useState(false);
   const [purgingOld, setPurgingOld] = useState(false);
   const [purgeResult, setPurgeResult] = useState<{ deleted: number; kept: number } | null>(null);
+  const [retagging, setRetagging] = useState(false);
+  const [retagResult, setRetagResult] = useState<{ total: number; tagged: number; errors: number } | null>(null);
 
   const openCreate = () => {
     setEditingId(null);
@@ -226,6 +230,18 @@ export default function AdminNews() {
     }
   };
 
+  const handleRetagAll = async () => {
+    setRetagging(true);
+    setRetagResult(null);
+    try {
+      const result = await retagAll.mutateAsync();
+      setRetagResult(result);
+      invalidate();
+    } finally {
+      setRetagging(false);
+    }
+  };
+
   const valid = form.title.trim() && form.excerpt.trim() && form.url.trim() && form.publishedAt;
   const pendingCount = pendingItems?.length ?? 0;
 
@@ -260,7 +276,34 @@ export default function AdminNews() {
           <Button onClick={openCreate} className="font-mono text-xs uppercase tracking-widest">
             <Plus className="w-4 h-4 mr-2" /> Add Manual Article
           </Button>
+          <Button
+            variant="outline"
+            onClick={handleRetagAll}
+            disabled={retagging}
+            className="font-mono text-xs uppercase tracking-widest"
+          >
+            {retagging ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Newspaper className="w-4 h-4 mr-2" />}
+            {retagging ? "Tagging…" : "Tag Untagged Articles"}
+          </Button>
         </div>
+
+        {/* Retag result banner */}
+        {retagResult && (
+          <Card className="bg-secondary/20">
+            <CardContent className="p-4 font-mono text-sm flex items-center justify-between gap-3">
+              <p>
+                <span className="font-bold">Tagging complete — </span>
+                {retagResult.total === 0
+                  ? "All articles already tagged."
+                  : <>tagged <span className="text-primary font-bold">{retagResult.tagged}</span> of <span className="font-bold">{retagResult.total}</span> untagged articles{retagResult.errors > 0 && <>, <span className="text-destructive font-bold">{retagResult.errors}</span> failed</>}.</>
+                }
+              </p>
+              <button onClick={() => setRetagResult(null)} className="text-muted-foreground hover:text-foreground shrink-0">
+                <X className="w-4 h-4" />
+              </button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Purge result banner */}
         {purgeResult && (

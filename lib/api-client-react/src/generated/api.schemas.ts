@@ -91,6 +91,7 @@ export interface ModuleDetail {
   learningOutcome?: string | null;
   /** @nullable */
   assessmentCriteria?: string | null;
+  quizCount?: number;
 }
 
 export interface HeartbeatInput {
@@ -413,6 +414,8 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
+  feedbackCount?: number;
+  totalQuizAttempts?: number;
 }
 
 export interface StudentQuizResult {
@@ -421,6 +424,7 @@ export interface StudentQuizResult {
   passed: boolean;
   score: number;
   attemptedAt: string;
+  totalAttempts?: number;
 }
 
 export interface StudentExamAttempt {
@@ -485,6 +489,7 @@ export interface AdminStats {
 export interface ActivationCodeInput {
   code: string;
   notes?: string;
+  assignedTo?: string;
 }
 
 export interface ActivationCode {
@@ -494,6 +499,8 @@ export interface ActivationCode {
   createdAt: string;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  assignedTo?: string | null;
 }
 
 export interface NewsItem {
@@ -514,6 +521,11 @@ export interface NewsItem {
   assessmentCriteria?: string | null;
 }
 
+export interface NewsRetagResult {
+  total: number;
+  tagged: number;
+  errors: number;
+}
 export interface NewsFetchResult {
   fetched: number;
   inserted: number;
@@ -546,12 +558,26 @@ export interface AppFeedbackInput {
      * @maximum 5
      */
   rating: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  clarityRating?: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  usabilityRating?: number;
   comment?: string;
 }
 
 export interface AppFeedbackItem {
   id: number;
   rating: number;
+  /** @nullable */
+  clarityRating?: number | null;
+  /** @nullable */
+  usabilityRating?: number | null;
   /** @nullable */
   comment?: string | null;
   studentName: string;
@@ -573,4 +599,3 @@ export type DeleteAllRiskAssessments200 = {
 export type DeleteRiskAssessment200 = {
   success: boolean;
 };
-

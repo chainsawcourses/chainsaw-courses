@@ -1316,6 +1316,8 @@ components:
           type: ["string", "null"]
         assessmentCriteria:
           type: ["string", "null"]
+        quizCount:
+          type: integer
 
     HeartbeatInput:
       type: object
@@ -1869,6 +1871,10 @@ components:
           type: boolean
         lastActivity:
           type: ["string", "null"]
+        feedbackCount:
+          type: integer
+        totalQuizAttempts:
+          type: integer
 
     StudentDetail:
       type: object
@@ -1936,6 +1942,8 @@ components:
           type: integer
         attemptedAt:
           type: string
+        totalAttempts:
+          type: integer
 
     AdminStats:
       type: object
@@ -2000,6 +2008,8 @@ components:
           type: string
         notes:
           type: string
+        assignedTo:
+          type: string
 
     ActivationCode:
       type: object
@@ -2014,6 +2024,8 @@ components:
         createdAt:
           type: string
         notes:
+          type: ["string", "null"]
+        assignedTo:
           type: ["string", "null"]
 
     NewsItem:
@@ -2099,6 +2111,14 @@ components:
           type: integer
           minimum: 1
           maximum: 5
+        clarityRating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        usabilityRating:
+          type: integer
+          minimum: 1
+          maximum: 5
         comment:
           type: string
 
@@ -2110,6 +2130,10 @@ components:
           type: integer
         rating:
           type: integer
+        clarityRating:
+          type: ["integer", "null"]
+        usabilityRating:
+          type: ["integer", "null"]
         comment:
           type: ["string", "null"]
         studentName:

@@ -126,7 +126,8 @@ export const GetModuleResponse = zod.object({
   "lastTimestamp": zod.number().nullish(),
   "safetyText": zod.string().nullish(),
   "learningOutcome": zod.string().nullish(),
-  "assessmentCriteria": zod.string().nullish()
+  "assessmentCriteria": zod.string().nullish(),
+  "quizCount": zod.number().optional()
 })
 
 
@@ -303,12 +304,17 @@ export const GetExamStatusResponse = zod.object({
  */
 export const submitAppFeedbackBodyRatingMax = 5;
 
+export const submitAppFeedbackBodyClarityRatingMax = 5;
+
+export const submitAppFeedbackBodyUsabilityRatingMax = 5;
 
 
 export const SubmitAppFeedbackBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "rating": zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
+  "clarityRating": zod.number().min(1).max(submitAppFeedbackBodyClarityRatingMax).optional(),
+  "usabilityRating": zod.number().min(1).max(submitAppFeedbackBodyUsabilityRatingMax).optional(),
   "comment": zod.string().optional()
 })
 
@@ -328,6 +334,8 @@ export const ListAppFeedbackHeader = zod.object({
 export const ListAppFeedbackResponseItem = zod.object({
   "id": zod.number(),
   "rating": zod.number(),
+  "clarityRating": zod.number().nullish(),
+  "usabilityRating": zod.number().nullish(),
   "comment": zod.string().nullish(),
   "studentName": zod.string(),
   "createdAt": zod.string()
@@ -856,7 +864,9 @@ export const ListStudentsResponseItem = zod.object({
   "totalModules": zod.number(),
   "quizzesPassed": zod.number().optional(),
   "waiverSigned": zod.boolean(),
-  "lastActivity": zod.string().nullish()
+  "lastActivity": zod.string().nullish(),
+  "feedbackCount": zod.number().optional(),
+  "totalQuizAttempts": zod.number().optional()
 })
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem)
 
@@ -889,7 +899,8 @@ export const GetStudentResponse = zod.object({
   "moduleTitle": zod.string(),
   "passed": zod.boolean(),
   "score": zod.number(),
-  "attemptedAt": zod.string()
+  "attemptedAt": zod.string(),
+  "totalAttempts": zod.number().optional()
 })),
   "examAttempts": zod.array(zod.object({
   "id": zod.number(),
@@ -979,7 +990,8 @@ export const CreateActivationCodeHeader = zod.object({
 
 export const CreateActivationCodeBody = zod.object({
   "code": zod.string(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "assignedTo": zod.string().optional()
 })
 
 
@@ -1055,7 +1067,12 @@ export const TriggerNewsFetchResponse = zod.object({
   "errors": zod.array(zod.string())
 })
 
-
+/**
+ * @summary Tag all approved articles that are missing LO/AC using Gemini
+ */
+export const RetagAllNewsItemsHeader = zod.object({
+  "adminToken": zod.string()
+})
 /**
  * @summary Approve a pending news item
  */
@@ -1140,3 +1157,8 @@ export const DeleteNewsItemHeader = zod.object({
 })
 
 
+export const RetagAllNewsItemsResponse = zod.object({
+  "total": zod.number(),
+  "tagged": zod.number(),
+  "errors": zod.number()
+})

@@ -45,6 +45,7 @@ export * from './module';
 export * from './moduleDetail';
 export * from './newsFetchResult';
 export * from './newsItem';
+export * from './newsRetagResult';
 export * from './patchInspectionInput';
 export * from './patchRiskAssessmentInput';
 export * from './progressSummary';

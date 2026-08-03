@@ -48,6 +48,8 @@ LO6 — Know how to maintain ongoing competence in chainsaw operations
   AC 6.3 Describe how to maintain and demonstrate ongoing competence
 `;
 
+export type TagOutcome = "tagged" | "no_match" | "skipped_no_gemini" | "failed";
+
 function getGeminiClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -56,17 +58,17 @@ function getGeminiClient(): GoogleGenAI | null {
 
 /**
  * Tag a news article with the most relevant LO and AC.
- * Returns null values if Gemini is unavailable or no match is found.
+ * Returns a structured outcome so callers can report accurate counts.
  */
 export async function tagNewsArticle(
   id: number,
   title: string,
   excerpt: string,
-): Promise<void> {
+): Promise<TagOutcome> {
   const client = getGeminiClient();
   if (!client) {
     logger.warn("Gemini not configured — skipping news tagging");
-    return;
+    return "skipped_no_gemini";
   }
 
   const prompt = `You are an expert in chainsaw safety training. Given a news or CPD article, identify the single most relevant Learning Outcome (LO) and Assessment Criterion (AC) from the framework below.
@@ -99,10 +101,13 @@ If the article does not clearly relate to any LO or AC, respond with:
         .set({ learningOutcome: parsed.lo ?? null, assessmentCriteria: parsed.ac ?? null })
         .where(eq(newsItemsTable.id, id));
       logger.info({ id, lo: parsed.lo, ac: parsed.ac }, "News article tagged with LO/AC");
+      return "tagged";
     } else {
       logger.info({ id }, "News article: no LO/AC match found");
+      return "no_match";
     }
   } catch (err) {
     logger.warn({ err, id }, "News LO/AC tagging failed — article will remain untagged");
+    return "failed";
   }
 }

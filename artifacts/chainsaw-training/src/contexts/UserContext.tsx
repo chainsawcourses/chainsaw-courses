@@ -115,7 +115,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUserId(data.userId);
       };
 
-  const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown"; allModulesUnlocked?: boolean }) => {
+  const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown"; allModulesUnlocked?: boolean; assignedTo?: string | null }) => {
     setAccessExpiresAt(data.accessExpiresAt);
     setCourseCompletedAt(data.courseCompletedAt);
     setAccessStatus(data.accessStatus);
