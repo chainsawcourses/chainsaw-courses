@@ -3,11 +3,24 @@
  * Generates all policy documents and the IIRSM Submission Brief for Chainsaw Courses.
  * Run: pnpm --filter @workspace/scripts run generate-pdfs
  * Output: artifacts/chainsaw-training/public/pdfs/
+ *
+ * STT pre-flight check
+ * --------------------
+ * By default this script scans all video transcripts for known speech-to-text
+ * errors before writing any files.  If flags are found it prints them and
+ * exits non-zero so errors cannot silently reach the submission document.
+ *
+ * Override flags:
+ *   --skip-stt-check   Skip the transcript scan (use when all flags have
+ *                      already been reviewed via scan-transcripts.ts).
+ *   --force            Alias for --skip-stt-check.
  */
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { runSttPreflight } from "./stt-scan-lib.js";
+import { pool } from "@workspace/db";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2360,6 +2373,34 @@ async function genFeedback(): Promise<void> {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const skipStt =
+    args.includes("--skip-stt-check") || args.includes("--force");
+
+  if (!skipStt) {
+    const { fixturesPassed, flags } = await runSttPreflight();
+    await pool.end();
+
+    if (!fixturesPassed) {
+      console.error(
+        "⛔  Aborting PDF generation — STT dictionary precision fixtures failed.\n" +
+          "    Fix the dictionary in stt-scan-lib.ts, then try again.\n"
+      );
+      process.exit(1);
+    }
+
+    if (flags.length > 0) {
+      console.error(
+        `⛔  Aborting PDF generation — ${flags.length} transcript flag(s) must be resolved first.\n` +
+          "    Fix them with:  pnpm exec tsx scripts/src/scan-transcripts.ts --interactive\n" +
+          "    Then re-run generate-pdfs.  To skip this check: pass --skip-stt-check\n"
+      );
+      process.exit(1);
+    }
+  } else {
+    console.log("⚠️   --skip-stt-check active: transcript scan bypassed.\n");
+  }
+
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
   console.log(`\nGenerating PDFs → ${OUT_DIR}\n`);
 
