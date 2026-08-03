@@ -209,23 +209,26 @@ function optionBox(label: string, body: string) {
 // ════════════════════════════════════════════════════════════════════════════════
 pageNum = 1;
 
-doc.rect(0, 0, PW, 96).fill(OG);
+// White header band
+doc.rect(0, 0, PW, 96).fill(WHT);
+// Thin orange accent line along the bottom of the header
+doc.moveTo(0, 96).lineTo(PW, 96).strokeColor(OG).lineWidth(3).stroke();
 doc.image(LOGO, ML, 10, { height: 70 });
-doc.font("Helvetica-Bold").fontSize(21).fillColor(WHT)
+doc.font("Helvetica-Bold").fontSize(21).fillColor(OGD)
   .text("CHAINSAW COURSES", ML + 78, 18, { lineBreak: false });
-doc.font("Helvetica").fontSize(8.5).fillColor("#FFE0C0")
+doc.font("Helvetica").fontSize(8.5).fillColor(MGY)
   .text("chainsawcourses.com  ·  app.chainsawcourses.com", ML + 78, 46, { lineBreak: false });
 doc.image(IIRSM, PW - MR - 54, 12, { height: 58 });
-doc.font("Helvetica").fontSize(6.5).fillColor("#FFE0C0")
+doc.font("Helvetica").fontSize(6.5).fillColor(MGY)
   .text("IIRSM Course Approval", PW - MR - 60, 74, { width: 66, align: "center", lineBreak: false });
 
 doc.font("Helvetica-Bold").fontSize(22).fillColor(BLK)
   .text("Course Materials", ML, 112, { lineBreak: false });
-doc.font("Helvetica").fontSize(12).fillColor(DGY)
+doc.font("Helvetica").fontSize(12).fillColor(OG)
   .text("Chainsaw Maintenance & Cross Cutting", ML, 140, { lineBreak: false });
-doc.y = 176;
-doc.moveTo(ML, 176).lineTo(ML + CW, 176).strokeColor(OG).lineWidth(1.2).stroke();
-doc.y = 186;
+doc.y = 168;
+doc.moveTo(ML, 168).lineTo(ML + CW, 168).strokeColor(RUL).lineWidth(0.8).stroke();
+doc.y = 178;
 
 [
   ["Course",    "Chainsaw Maintenance & Cross Cutting"],
@@ -256,7 +259,7 @@ sp(10);
 [
   ["1", "How to Access the Live App & Admin Panel"],
   ["2", "A Note on the Training Manual"],
-  ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 23 Assessment Criteria"],
+  ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 22 Assessment Criteria"],
   ["4", `Syllabus Mapping Table — ${appModules.length} Modules · LO & AC Alignment`],
   ["5", "Compliance Tools & Practical Worksheets"],
   ["6", `Video Transcripts — ${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}`],
@@ -345,10 +348,10 @@ footer();
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
 sectionHead("3", "Learning Outcome Framework",
-  "3 Units  ·  6 Learning Outcomes  ·  23 Assessment Criteria");
+  "3 Units  ·  6 Learning Outcomes  ·  22 Assessment Criteria");
 
 doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
-  .text("The course is structured across three units and six formal learning outcomes, each broken into specific assessment criteria (ACs). All examination questions in Section 4 are tagged to their LO and AC. The modules listed under each outcome are the primary digital activities through which the content is delivered.", ML, doc.y, { width: CW });
+  .text("The course is structured across three units and six formal learning outcomes, each broken into specific assessment criteria (ACs). All examination questions in Section 7 are tagged to their LO and AC. The modules listed under each outcome are the primary digital activities through which the content is delivered.", ML, doc.y, { width: CW });
 sp(14);
 
 type LoEntry = {
@@ -366,7 +369,7 @@ const loFramework: LoEntry[] = [
       ["AC 1.3", "Summarise COSHH control tracking required for hazardous fuels, battery cells, lubricants, and toxic flora species."],
       ["AC 1.4", "Detail CE/UKCA and global standard class markings for safety helmets, hearing protection, gloves, and Type A/C protective trousers."],
     ],
-    modules: ["Equipment List", "PPE & First Aid", "Law & Legislation"],
+    modules: ["Equipment List", "PPE & First Aid", "Law & Regulations", "Hazards & Risks"],
   },
   {
     lo: "LO2", unit: "Unit 1 — Occupational Standards, Health & Safety, and Risk Evaluation",
@@ -388,7 +391,7 @@ const loFramework: LoEntry[] = [
       ["AC 3.2", "Compare the advantages and operational risks of battery-powered power units against internal combustion platforms."],
       ["AC 3.3", "Map and explain the mechanical function of the 10 core safety features across the front, centre, and rear chainsaw architecture."],
     ],
-    modules: ["Chainsaw Safety Features", "Battery Chainsaws"],
+    modules: ["Chainsaw Safety Features", "Battery Chainsaws", "Chain Brake", "Fuel & Oil Filters"],
   },
   {
     lo: "LO4", unit: "Unit 2 — Power Unit Architecture, Mechanical Integrity, and Component Maintenance",
@@ -396,15 +399,15 @@ const loFramework: LoEntry[] = [
     desc: "Describe the diagnostic, servicing, and maintenance procedures required to sustain the structural integrity of the chainsaw cutting assembly.",
     acs: [
       ["AC 4.1", "Detail air filter cleaning procedures and interpret spark plug electrode colour indicators (Brown / Black / White-Grey)."],
-      ["AC 4.2", "Explain safe carburettor adjusting rules using factory Idle (LA/T), Low (L), and High (H) screw limit constraints. (Advanced)"],
+      ["AC 4.2", "Explain safe carburettor adjusting rules using factory Idle (LA/T), Low (L), and High (H) screw limit constraints. (Advanced Extension)"],
       ["AC 4.3", "Differentiate Rim and Spur drive sprockets and diagnose guidebar wear including burring, rail splaying, and thermal bluing."],
       ["AC 4.4", "Identify chain pitch, gauge, and tooth shapes (Full-Chisel vs. Semi-Chisel) and calculate correct filing profile configurations."],
     ],
     modules: [
-      "Air Filter", "Spark Plug", "Cooling System", "Exhaust", "Fuel & Oil Filters",
-      "The Oiling System", "Recoil Starter", "Clutch Assembly", "Sprocket", "Chain Brake",
+      "Air Filter", "Spark Plug", "Cooling System", "Exhaust",
+      "The Oiling System", "Recoil Starter", "Clutch Assembly", "Sprocket",
       "Guidebar", "Chain Basics", "Chain Tension", "How to identify a chainsaw chain",
-      "Replacing The Chain", "Chain Sharpening", "Kickback",
+      "Replacing The Chain", "Chain Sharpening",
     ],
   },
   {
@@ -429,7 +432,7 @@ const loFramework: LoEntry[] = [
       ["AC 6.5", "Evaluate specialised branch removal, snedding, and de-limbing sequences along a felled stem. (Advanced Extension)"],
       ["AC 6.6", "Identify site threats with windblown windfalls, establishing escape routes and managing root plate movements. (Advanced Extension)"],
     ],
-    modules: ["Work Positioning", "Cutting Basics", "Tension & Compression", "Releasing A Trapped Chainsaw", "Bore Cutting", "Oversized & Tensioned Timber", "Stacking", "Additional Cuts"],
+    modules: ["Kickback", "Work Positioning", "Cutting Basics", "Tension & Compression", "Releasing A Trapped Chainsaw", "Bore Cutting", "Oversized & Tensioned Timber", "Stacking", "Additional Cuts"],
   },
 ];
 
@@ -610,7 +613,13 @@ for (const mod of appModules) {
   }
 
   const hasLo = !!mod.learning_outcome;
-  const rowH = 16;
+  const loText = mod.learning_outcome ?? "—";
+  const acText = mod.assessment_criteria ?? "—";
+
+  // Measure the two columns that can wrap, pick the tallest
+  const loH = doc.font("Helvetica-Bold").fontSize(7.5).heightOfString(loText, { width: C_LO - 6 });
+  const acH = doc.font("Helvetica").fontSize(7.5).heightOfString(acText, { width: C_AC - 8 });
+  const rowH = Math.max(16, loH + 7, acH + 7);
 
   if (doc.y + rowH > MAP_SAFE) {
     footer();
@@ -635,8 +644,9 @@ for (const mod of appModules) {
   doc.font("Helvetica").fontSize(7.5).fillColor(BLK)
     .text(mod.title, cx + 3, ry + 4, { width: C_TTL - 6, lineBreak: false });
   cx += C_TTL;
-  const typeLabel = mod.content_type === "video" ? "Video" : "PDF";
-  const typeCol   = mod.content_type === "video" ? OGD : "#4a6da7";
+  const isAppOnly = mod.order === 1 || mod.order === 4;
+  const typeLabel = mod.content_type === "video" ? "Video" : isAppOnly ? "App" : "PDF";
+  const typeCol   = mod.content_type === "video" ? OGD : isAppOnly ? "#2e7d60" : "#4a6da7";
   doc.font("Helvetica-Bold").fontSize(7).fillColor(typeCol)
     .text(typeLabel, cx + 3, ry + 4, { width: C_TYP - 6, lineBreak: false });
   cx += C_TYP;
@@ -649,11 +659,12 @@ for (const mod of appModules) {
   doc.font("Helvetica").fontSize(7).fillColor(DGY)
     .text(shortCat[mod.category] ?? mod.category, cx + 3, ry + 4, { width: C_CAT - 6, lineBreak: false });
   cx += C_CAT;
+  // LO and AC columns may wrap — no lineBreak: false
   doc.font("Helvetica-Bold").fontSize(7.5).fillColor(hasLo ? OG : MGY)
-    .text(mod.learning_outcome ?? "—", cx + 3, ry + 4, { width: C_LO - 4, lineBreak: false });
+    .text(loText, cx + 3, ry + 4, { width: C_LO - 6 });
   cx += C_LO;
   doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
-    .text(mod.assessment_criteria ?? "—", cx + 3, ry + 4, { width: C_AC - 6, lineBreak: false });
+    .text(acText, cx + 3, ry + 4, { width: C_AC - 8 });
   cx += C_AC;
   const pgRef = modulePageRefs[mod.order] ?? "—";
   doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
@@ -674,6 +685,7 @@ const legendItems = [
   ["AC x.x",  "Assessment Criteria — each LO has 2–6 specific criteria"],
   ["—",        "Course Requirements modules are prerequisite reference docs; no formal LO/AC assigned"],
   ["Video",    "Interactive video module with embedded quiz (sequentially gated)"],
+  ["App",      "Content embedded in the app interface (e.g. main page, risk assessment page) — not a separate file"],
   ["PDF",      "Read-only reference document (does not gate progression)"],
 ];
 for (const [term, def] of legendItems) {
@@ -759,7 +771,7 @@ sectionHead("6", "Video Transcripts",
   `${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}  ·  LO & AC Aligned  ·  Timecoded`);
 
 doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
-  .text("The transcripts below correspond to each video module in the course. They are provided for accessibility, reference during study, and alignment evidence. Each transcript is mapped to its Learning Outcome (LO) and Assessment Criteria (AC) and includes timecodes from the original recording.", ML, doc.y, { width: CW });
+  .text("The transcripts below correspond to each video module in the course. They are provided for assessor and IIRSM review purposes only and are not accessible to learners within the platform. Each transcript is mapped to its Learning Outcome (LO) and Assessment Criteria (AC) and includes timecodes from the original recording.", ML, doc.y, { width: CW });
 sp(10);
 
 if (transcripts.length === 0) {

@@ -1,0 +1,136 @@
+00:00:01:01 - 00:00:05:27
+Unknown
+This video is all about the clutch assembly.
+
+00:00:06:00 - 00:00:08:08
+Unknown
+So where is the clutch assembly?
+
+00:00:08:11 - 00:00:13:08
+Unknown
+The clutch assembly is located behind the chain and bar side cover.
+
+00:00:13:11 - 00:00:19:17
+Unknown
+The clutch assembly has the same components, whether it's in an inboard
+
+00:00:19:20 - 00:00:22:24
+Unknown
+or outboard configuration.
+
+00:00:22:27 - 00:00:30:16
+Unknown
+It consists of the sprocket,
+
+00:00:30:19 - 00:00:37:17
+Unknown
+the clutch drum,
+
+00:00:37:20 - 00:00:41:20
+Unknown
+the needle bearing,
+
+00:00:41:23 - 00:00:50:20
+Unknown
+and the clutch weights and springs.
+
+00:00:50:23 - 00:00:53:21
+Unknown
+What does the clutch assembly do?
+
+00:00:53:23 - 00:01:11:03
+Unknown
+The clutch assembly engages the clutch drum and sprocket. As the clutch assembly spins. The clutch weights overcome the springs and are thrown outwards by centrifugal force. Gripping the clutch drum, turning the sprocket and therefore the chain.
+
+00:01:11:06 - 00:01:15:26
+Unknown
+How do you remove and maintain an inboard clutch assembly?
+
+00:01:15:29 - 00:01:22:17
+Unknown
+This is fairly straightforward as you only need to remove the clip and washer.
+
+00:01:22:20 - 00:01:28:06
+Unknown
+This allows you to remove the sprocket,
+
+00:01:28:09 - 00:01:30:28
+Unknown
+clutch, drum
+
+00:01:31:00 - 00:01:33:04
+Unknown
+and needle bearing.
+
+00:01:33:07 - 00:01:36:05
+Unknown
+Check for any damage to the springs and weights.
+
+00:01:36:07 - 00:01:40:18
+Unknown
+Over time, the springs can eat and wear into the weights.
+
+00:01:40:21 - 00:01:46:05
+Unknown
+Check the clutch drum for any cracks blowing or any damage.
+
+00:01:46:08 - 00:01:59:25
+Unknown
+Check the needle bearing and apply grease as necessary. On some saws, this can be done without having to remove the clutch assembly using a small grease gun pumped into the middle.
+
+00:01:59:27 - 00:02:07:12
+Unknown
+If you need to remove the clutch weights and springs, you will need to remove the sparkplug and insert a piston stop.
+
+00:02:07:15 - 00:02:21:04
+Unknown
+This will allow you to undo it with a socket or spanner. This has an opposite thread, which means you have to turn it clockwise to loosen it.
+
+00:02:21:07 - 00:02:29:07
+Unknown
+When reinstalling the clutch drum and sprocket, make sure the oil notch lines up with the oil pump arm
+
+00:02:29:10 - 00:02:31:19
+Unknown
+and make sure it is properly seated.
+
+00:02:31:22 - 00:02:39:01
+Unknown
+If not, this can damage the oiling system.
+
+00:02:39:04 - 00:02:42:27
+Unknown
+Put the sprocket back on.
+
+00:02:43:00 - 00:02:46:02
+Unknown
+Pop the washer on
+
+00:02:46:05 - 00:02:51:14
+Unknown
+and use some pliers to snap the clip back into place.
+
+00:02:51:17 - 00:02:56:24
+Unknown
+To remove an outboard clutch, assembly is similar.
+
+00:02:56:27 - 00:03:01:10
+Unknown
+Remove the spark plug. Insert a piston stop
+
+00:03:01:12 - 00:03:10:25
+Unknown
+and using a special tool, undo the clutch assembly, turning clockwise to loosen.
+
+00:03:10:28 - 00:03:21:29
+Unknown
+Alternatively, you can place a combo spanner in one of the grooves and hit sharply with a hammer to shock the clutch off.
+
+00:03:22:02 - 00:03:36:03
+Unknown
+Once loosened, remove all the components. The clutch weights, clutch, drum, sprocket and needle bearing and perform the same maintenance checks as mentioned before.
+
+00:03:36:06 - 00:03:38:13
+Unknown
+This concludes the video on the clutch assembly.
+

@@ -1,0 +1,40 @@
+00:00:01:05 - 00:00:05:25
+Unknown
+In this video, we'll learn the information needed to replace the chain
+
+00:00:05:27 - 00:00:12:00
+Unknown
+In order to replace the chain, we'll need five pieces of information, some of which can be found on the guide bar.
+
+00:00:12:03 - 00:00:20:28
+Unknown
+the pitch, the gauge, the number of drive links, the length of guide bar, and the cutter profile.
+
+00:00:21:01 - 00:00:29:20
+Unknown
+The pitch of the chain is its physical size. This is calculated by measuring the distance between any three rivets and divide by two.
+
+00:00:29:22 - 00:00:36:27
+Unknown
+This measurement is important, otherwise you'll chain won't fit into your nose or drive sprocket.
+
+00:00:37:00 - 00:00:48:18
+Unknown
+The gauge of the chain is the thickness of the drive link. This is also an important measurement since if it's too big, it won't fit inside the rails of the guide bar,
+
+00:00:48:21 - 00:00:54:09
+Unknown
+if too small, we'll have excessive movement within the rails.
+
+00:00:54:11 - 00:01:02:24
+Unknown
+The number of drive links and length of bar are essential as guide bars have slightly different shapes.
+
+00:01:02:26 - 00:01:11:15
+Unknown
+And finally we have the cutter profile. This depends on the type of timber you're cutting or just your personal preference.
+
+00:01:11:18 - 00:01:14:07
+Unknown
+This concludes the video on replacing the chain.
+
