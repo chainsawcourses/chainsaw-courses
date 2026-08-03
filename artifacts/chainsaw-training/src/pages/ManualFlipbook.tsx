@@ -19,7 +19,8 @@ const WM_POS: [number, number][] = [
 ];
 
 function pageUrl(n: number) {
-  return `${PAGES_BASE}/page-${String(n).padStart(3, "0")}.jpg`;
+  // n is the virtual page number (1 = blank front endpaper, 2 = physical page 1, etc.)
+  return `${PAGES_BASE}/page-${String(n - 1).padStart(3, "0")}.jpg`;
 }
 
 // ── Synthesised paper-rasping sound ──────────────────────────────────────────
@@ -153,7 +154,7 @@ export default function ManualFlipbook() {
         return r.json() as Promise<{ pages: number }>;
       })
       .then(data => {
-        setNumPages(data.pages);
+        setNumPages(data.pages + 1); // +1 for blank front endpaper (virtual page 1)
         setLoadState("loaded");
         // Fetch search index in the background (non-blocking)
         fetch(`${PAGES_BASE}/search-index.json`)
@@ -556,7 +557,7 @@ export default function ManualFlipbook() {
                           <li key={hit.page}>
                             <button
                               className="w-full text-left px-4 py-2.5 hover:bg-accent transition-colors flex items-start gap-3 border-b border-border/50 last:border-0"
-                              onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
+                              onClick={() => { jumpToPage(hit.page + 1); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
                             >
                               <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-[#e27226]/20 text-[#c9621f] rounded px-1.5 py-0.5 leading-none">p.{hit.page}</span>
                               <span className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{hit.snippet}</span>

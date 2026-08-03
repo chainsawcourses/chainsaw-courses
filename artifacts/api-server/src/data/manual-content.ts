@@ -1,6 +1,4 @@
-// AUTO-GENERATED from Chainsaw Courses V1.1
-// DO NOT EDIT MANUALLY - changes will be lost on regeneration
-
+// Auto-generated from manual PDF — do not edit manually
 export const MANUAL_TEXT = `THE CHAINSAW MANUAL
 
 CHAINSAW
