@@ -44,6 +44,31 @@ const appModules: Array<{
   learning_outcome: string | null; assessment_criteria: string | null;
 }> = JSON.parse(fs.readFileSync("/tmp/prod_modules.json","utf8"));
 
+interface TranscriptSegment { timecodeStart: string; timecodeEnd: string; text: string; }
+const transcripts: Array<{
+  module_order: number; module_title: string;
+  learning_outcome: string | null; assessment_criteria: string | null;
+  segments: TranscriptSegment[];
+}> = (() => {
+  try {
+    const raw: Array<{ module_order: number; module_title: string; learning_outcome: string | null; assessment_criteria: string | null; segments: string | TranscriptSegment[] }> =
+      JSON.parse(fs.readFileSync("/tmp/prod_transcripts.json","utf8"));
+    return raw.map(r => ({
+      ...r,
+      segments: typeof r.segments === "string" ? JSON.parse(r.segments) : r.segments,
+    }));
+  } catch { return []; }
+})();
+
+// Format HH:MM:SS:FF → M:SS (drop hours if zero, drop frames always)
+const fmtTc = (tc: string): string => {
+  const parts = tc.split(":");
+  const hh = parseInt(parts[0] ?? "0", 10);
+  const mm = parseInt(parts[1] ?? "0", 10);
+  const ss = (parts[2] ?? "00").padStart(2, "0");
+  return hh > 0 ? `${hh}:${String(mm).padStart(2,"0")}:${ss}` : `${mm}:${ss}`;
+};
+
 // ─── Layout ───────────────────────────────────────────────────────────────────
 const ML = 50, MR = 50, MT = 48, MB = 48;
 const doc = new PDFDocument({
@@ -234,8 +259,9 @@ sp(10);
   ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 23 Assessment Criteria"],
   ["4", `Syllabus Mapping Table — ${appModules.length} Modules · LO & AC Alignment`],
   ["5", "Compliance Tools & Practical Worksheets"],
-  ["6", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`],
-  ["7", `Supplementary Oral & Practical Mock Questions (${mockQs.length})`],
+  ["6", `Video Transcripts — ${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}`],
+  ["7", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`],
+  ["8", `Supplementary Oral & Practical Mock Questions (${mockQs.length})`],
 ].forEach(([n, title]) => {
   const y = doc.y;
   doc.rect(ML, y, 20, 16).fill(OG);
@@ -359,7 +385,7 @@ const loFramework: LoEntry[] = [
     desc: "Analyse the mechanical differences, design attributes, and safety features of internal combustion and battery-powered chainsaws.",
     acs: [
       ["AC 3.1", "Describe the 2-stroke combustion cycle and determine fuel-to-oil lubrication ratios at a standard 50:1 mix."],
-      ["AC 3.2", "Compare advantages and operational risks (including charging thermal runaway) of battery-powered vs. IC platforms."],
+      ["AC 3.2", "Compare the advantages and operational risks of battery-powered power units against internal combustion platforms."],
       ["AC 3.3", "Map and explain the mechanical function of the 10 core safety features across the front, centre, and rear chainsaw architecture."],
     ],
     modules: ["Chainsaw Safety Features", "Battery Chainsaws"],
@@ -726,10 +752,84 @@ sp(10);
 footer();
 
 // ════════════════════════════════════════════════════════════════════════════════
-// SECTION 6 — ASSESSMENT BANK
+// SECTION 6 — VIDEO TRANSCRIPTS
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
-sectionHead("6","Assessment Bank",
+sectionHead("6", "Video Transcripts",
+  `${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}  ·  LO & AC Aligned  ·  Timecoded`);
+
+doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
+  .text("The transcripts below correspond to each video module in the course. They are provided for accessibility, reference during study, and alignment evidence. Each transcript is mapped to its Learning Outcome (LO) and Assessment Criteria (AC) and includes timecodes from the original recording.", ML, doc.y, { width: CW });
+sp(10);
+
+if (transcripts.length === 0) {
+  infoBox("No transcripts loaded",
+    "Transcripts have not yet been imported. Run: pnpm exec tsx scripts/src/import-transcript.ts --file <path> --order <n> --title <title> --lo LO1 --ac 'AC 1.4'");
+} else {
+  const C_TC = 88;
+  const C_TX = CW - C_TC;
+
+  for (const t of transcripts) {
+    const segs = t.segments.filter(s => s.text?.trim());
+    if (segs.length === 0) continue;
+
+    // ── Module sub-header ─────────────────────────────────────────────────────
+    ensurePts(54);
+    sp(8);
+    const mhy = doc.y;
+    doc.rect(ML, mhy, CW, 22).fill(OGD);
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(WHT)
+      .text(`Module ${t.module_order}: ${t.module_title}`, ML + 6, mhy + 6, { width: CW - 110, lineBreak: false });
+    if (t.learning_outcome || t.assessment_criteria) {
+      doc.font("Helvetica").fontSize(8).fillColor(OGL)
+        .text([t.learning_outcome, t.assessment_criteria].filter(Boolean).join("  ·  "),
+          ML + CW - 104, mhy + 7, { width: 100, align: "right", lineBreak: false });
+    }
+    doc.y = mhy + 22;
+
+    // ── Table header ─────────────────────────────────────────────────────────
+    const thy = doc.y;
+    doc.rect(ML, thy, CW, 16).fill(OG);
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(WHT)
+      .text("Timecode", ML + 4, thy + 4, { width: C_TC - 8, lineBreak: false });
+    doc.rect(ML + C_TC, thy, 0.5, 16).fill(WHT);
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(WHT)
+      .text("Transcript", ML + C_TC + 6, thy + 4, { width: C_TX - 10, lineBreak: false });
+    doc.y = thy + 16;
+
+    // ── Segment rows ─────────────────────────────────────────────────────────
+    let rowAlt = false;
+    for (const seg of segs) {
+      const text = seg.text.trim();
+      const lineH = doc.font("Helvetica").fontSize(8).heightOfString(text, { width: C_TX - 14 });
+      const rowH = Math.max(18, lineH + 8);
+      ensurePts(rowH + 2);
+      const ry = doc.y;
+      doc.rect(ML, ry, CW, rowH).fill(rowAlt ? "#F5F0EB" : WHT);
+      doc.rect(ML, ry, CW, rowH).strokeColor("#DDDDDD").lineWidth(0.4).stroke();
+      // Timecode cell
+      const tc = `${fmtTc(seg.timecodeStart)} – ${fmtTc(seg.timecodeEnd)}`;
+      doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
+        .text(tc, ML + 5, ry + 5, { width: C_TC - 8, lineBreak: false });
+      // Column divider
+      doc.moveTo(ML + C_TC, ry).lineTo(ML + C_TC, ry + rowH).strokeColor("#DDDDDD").lineWidth(0.4).stroke();
+      // Text cell
+      doc.font("Helvetica").fontSize(8).fillColor(DGY)
+        .text(text, ML + C_TC + 6, ry + 4, { width: C_TX - 14 });
+      doc.y = ry + rowH;
+      rowAlt = !rowAlt;
+    }
+    sp(4);
+  }
+}
+
+footer();
+
+// ════════════════════════════════════════════════════════════════════════════════
+// SECTION 7 — ASSESSMENT BANK
+// ════════════════════════════════════════════════════════════════════════════════
+doc.addPage();
+sectionHead("7","Assessment Bank",
   `${examQs.length} Multiple-Choice Questions  \xb7  Summative Examination Pool`);
 infoBox("How the exam works",
   `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass. Correct answers are highlighted in orange with ✓.`);
@@ -792,10 +892,10 @@ examQs.forEach((q, i) => {
 footer();
 
 // ════════════════════════════════════════════════════════════════════════════════
-// SECTION 7 — MOCK QUESTIONS
+// SECTION 8 — MOCK QUESTIONS
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
-sectionHead("7","Supplementary Oral & Practical Mock Questions",
+sectionHead("8","Supplementary Oral & Practical Mock Questions",
   `${mockQs.length} Questions  ·  Formative Practice Only — Not Formally Assessed`);
 infoBox("Important — these questions do not contribute to the pass/fail outcome",
   `These ${mockQs.length} questions are oral and practical preparation aids. They do NOT form part of the summative examination, do NOT appear on the certificate, and are NOT formally assessed. Within the app, learners practise them via an AI-assisted voice or text feature that provides formative feedback.`);

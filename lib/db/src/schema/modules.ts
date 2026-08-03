@@ -272,3 +272,19 @@ export const reasonableAdjustmentsTable = pgTable("reasonable_adjustments", {
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Stores full timecoded transcripts for video modules.
+// segments JSON: Array<{ timecodeStart: string; timecodeEnd: string; text: string }>
+export const videoTranscriptsTable = pgTable("video_transcripts", {
+  id: serial("id").primaryKey(),
+  moduleOrder: integer("module_order").notNull().unique(),
+  moduleTitle: text("module_title").notNull(),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
+  segments: text("segments").notNull().default("[]"), // JSON array
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type VideoTranscript = typeof videoTranscriptsTable.$inferSelect;
+export type InsertVideoTranscript = typeof videoTranscriptsTable.$inferInsert;

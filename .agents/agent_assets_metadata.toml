@@ -200,5 +200,5 @@ description = "Redesigned with Chainsaw Courses branding — orange #E27226, nea
 id = "5MElnEsOQvDuBYYFNANcj"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf"
 type = "pdf"
-title = "Course Materials (with page refs)"
-description = "Section 4 Syllabus Mapping Table now includes Manual pp. column sourced from the manual's own Syllabus Mapping Matrix (pp.135–136)"
+title = "Course Materials — with Video Transcripts"
+description = "Section 6 now shows the PPE & First Aid transcript (17 segments, LO1 / AC 1.4) in a timecoded two-column table. Assessment Bank is now Section 7, Mock Questions Section 8."

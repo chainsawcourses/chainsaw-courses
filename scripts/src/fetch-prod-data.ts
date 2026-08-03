@@ -25,7 +25,13 @@ async function main() {
   );
   fs.writeFileSync("/tmp/prod_modules.json", JSON.stringify(modules.rows));
 
-  console.log(`exam: ${examQs.rows.length}  mock: ${mockQs.rows.length}  modules: ${modules.rows.length}`);
+  const transcripts = await pool.query(
+    `SELECT module_order, module_title, learning_outcome, assessment_criteria, segments
+     FROM video_transcripts ORDER BY module_order`
+  );
+  fs.writeFileSync("/tmp/prod_transcripts.json", JSON.stringify(transcripts.rows));
+
+  console.log(`exam: ${examQs.rows.length}  mock: ${mockQs.rows.length}  modules: ${modules.rows.length}  transcripts: ${transcripts.rows.length}`);
   await pool.end();
 }
 main();
