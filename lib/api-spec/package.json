@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "codegen": "orval --config ./orval.config.ts && pnpm -w run typecheck:libs",
-    "check-routes": "node scripts/check-routes.mjs"
+    "check-routes": "node scripts/check-routes.mjs",
+    "typecheck": "pnpm -w run typecheck:libs"
   },
   "devDependencies": {
     "orval": "^8.9.1"
