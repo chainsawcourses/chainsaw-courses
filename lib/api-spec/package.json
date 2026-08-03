@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "codegen": "orval --config ./orval.config.ts && pnpm -w run typecheck:libs"
+    "codegen": "orval --config ./orval.config.ts && pnpm -w run typecheck:libs",
+    "check-routes": "node scripts/check-routes.mjs"
   },
   "devDependencies": {
     "orval": "^8.9.1"
