@@ -512,8 +512,15 @@ function drawMapHeader(): void {
   doc.y = hy + 18;
 }
 
+// MAP_SAFE: content must end above this — footer line draws at SAFE-20
+const MAP_SAFE = SAFE - 22;
+
 function drawCatBar(label: string): void {
-  ensurePts(20);
+  if (doc.y + 18 > MAP_SAFE) {
+    footer();
+    doc.addPage();
+    drawMapHeader();
+  }
   const cy = doc.y;
   doc.rect(ML, cy, CW, 16).fill("#2b2b2b");
   doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OG)
@@ -537,8 +544,12 @@ for (const mod of appModules) {
   const hasLo = !!mod.learning_outcome;
   const rowH = 16;
 
-  ensurePts(rowH + 4);
-  if (doc.y <= MT + 4) { drawMapHeader(); mapRowAlt = false; }
+  if (doc.y + rowH > MAP_SAFE) {
+    footer();
+    doc.addPage();
+    drawMapHeader();
+    mapRowAlt = false;
+  }
 
   const ry = doc.y;
   doc.rect(ML, ry, CW, rowH).fill(mapRowAlt ? "#F5F0EB" : WHT);
