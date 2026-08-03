@@ -200,5 +200,5 @@ description = "Redesigned with Chainsaw Courses branding — orange #E27226, nea
 id = "5MElnEsOQvDuBYYFNANcj"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf"
 type = "pdf"
-title = "Course Materials (footer fix)"
-description = "Table rows now break to the next page before reaching the footer — no more overlap"
+title = "Course Materials (with page refs)"
+description = "Section 4 Syllabus Mapping Table now includes Manual pp. column sourced from the manual's own Syllabus Mapping Matrix (pp.135–136)"

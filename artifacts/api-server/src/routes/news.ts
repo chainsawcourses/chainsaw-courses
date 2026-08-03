@@ -5,7 +5,7 @@ import { logger } from "../lib/logger";
 import { fetchAllFeeds } from "../lib/rssFetcher";
 import { z } from "zod/v4";
 import { sendPushToAll } from "./push";
-import { eq, desc, and, notInArray, isNull } from "drizzle-orm";
+import { eq, desc, and, isNull, notInArray } from "drizzle-orm";
 import { tagNewsArticle, TagOutcome } from "../lib/newsTagging";
 
 const router = Router();
@@ -32,7 +32,7 @@ router.get("/news", async (_req, res) => {
     const items = await db
       .select()
       .from(newsItemsTable)
-      .where(eq(newsItemsTable.status, "pending"))
+      .where(eq(newsItemsTable.status, "approved"))
       .orderBy(desc(newsItemsTable.publishedAt));
     res.json(items);
   } catch (err) {
@@ -57,7 +57,7 @@ router.get("/admin/news/pending", async (req, res) => {
   }
 });
 
-// Admin: manually trigger RSS fetch
+// Admin: manually trigger RSS fetch + tag any untagged approved articles
 router.post("/admin/news/fetch-now", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
@@ -67,29 +67,46 @@ router.post("/admin/news/fetch-now", async (req, res) => {
       .select({ id: newsItemsTable.id, title: newsItemsTable.title, excerpt: newsItemsTable.excerpt })
       .from(newsItemsTable)
       .where(and(eq(newsItemsTable.status, "approved"), isNull(newsItemsTable.learningOutcome)));
+
+    let tagged = 0;
+    let errors = 0;
+    for (const article of untagged) {
+      const outcome: TagOutcome = await tagNewsArticle(article.id, article.title, article.excerpt)
+        .catch((): TagOutcome => "failed");
+      if (outcome !== "failed") tagged++;
+      else errors++;
+    }
+
+    res.json({ ...result, tagged, errors });
+  } catch (err) {
+    logger.error({ err }, "Failed to fetch news");
+    res.status(500).json({ error: "Failed to fetch news" });
+  }
+});
+
+// Admin: approve a pending item
+router.post("/admin/news/:id/approve", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
   try {
     const [item] = await db
-      .delete(newsItemsTable)
+      .update(newsItemsTable)
+      .set({ status: "approved" })
       .where(eq(newsItemsTable.id, id))
       .returning();
-    res.status(201).json(item);
+    if (!item) { res.status(404).json({ error: "Not found" }); return; }
+    res.json(item);
     void tagNewsArticle(item.id, item.title, item.excerpt)
-      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after create"));
-    void sendPushToAll({
-      title: "🌳 Forestry & Arb News 🌳",
-      body: item.title,
-      url: item.url,
-    }).catch((err) => logger.warn({ err }, "Push notification failed after create"));
+      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after approve"));
   } catch (err) {
-    logger.error({ err }, "Failed to create news item");
-    res.status(500).json({ error: "Failed to create news item" });
+    logger.error({ err }, "Failed to approve news item");
+    res.status(500).json({ error: "Failed to approve" });
   }
 });
 
-// Admin: update item
-router.patch("/admin/news/:id", async (req, res) => {
+// Admin: reject (delete) a pending item
+router.post("/admin/news/:id/reject", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
@@ -106,16 +123,23 @@ router.patch("/admin/news/:id", async (req, res) => {
   }
 });
 
-// Admin: create manual item (auto-approved)
+// Admin: create a manual news item (auto-approved)
 router.post("/admin/news", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
-  const parse = UpdateNewsItemBody.safeParse(req.body);
+  const parse = CreateNewsItemBody.safeParse(req.body);
   if (!parse.success) { res.status(400).json({ error: "Invalid request body" }); return; }
   const { title, excerpt, url, imageUrl, publishedAt } = parse.data;
   try {
     const [item] = await db
-      .delete(newsItemsTable)
-      .where(eq(newsItemsTable.id, id))
+      .insert(newsItemsTable)
+      .values({
+        title,
+        excerpt,
+        url,
+        imageUrl: imageUrl ?? null,
+        publishedAt: new Date(publishedAt),
+        status: "approved",
+      })
       .returning();
     res.status(201).json(item);
     void tagNewsArticle(item.id, item.title, item.excerpt)
@@ -131,7 +155,7 @@ router.post("/admin/news", async (req, res) => {
   }
 });
 
-// Admin: update item
+// Admin: update item fields
 router.patch("/admin/news/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
@@ -146,7 +170,8 @@ router.patch("/admin/news/:id", async (req, res) => {
   if (parse.data.publishedAt !== undefined) updates.publishedAt = new Date(parse.data.publishedAt);
   try {
     const [item] = await db
-      .delete(newsItemsTable)
+      .update(newsItemsTable)
+      .set(updates)
       .where(eq(newsItemsTable.id, id))
       .returning();
     if (!item) { res.status(404).json({ error: "Not found" }); return; }
@@ -157,8 +182,7 @@ router.patch("/admin/news/:id", async (req, res) => {
   }
 });
 
-// Admin: delete item
-// Keep the 20 most recent approved articles, delete all older ones
+// Admin: keep 20 most recent approved articles, delete the rest
 router.delete("/admin/news/purge-old", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
@@ -185,6 +209,7 @@ router.delete("/admin/news/purge-old", async (req, res) => {
   }
 });
 
+// Admin: delete a specific item
 router.delete("/admin/news/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
@@ -203,10 +228,3 @@ router.delete("/admin/news/:id", async (req, res) => {
 });
 
 export default router;
-
-    let errors = 0;
-
-      const outcome: TagOutcome = await tagNewsArticle(article.id, article.title, article.excerpt)
-        .catch((): TagOutcome => "failed");
-
-    let tagged = 0;

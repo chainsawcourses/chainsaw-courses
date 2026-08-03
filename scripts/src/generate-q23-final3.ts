@@ -476,12 +476,13 @@ sp(12);
 
 // ── Column widths (total = CW = 495) ──────────────────────────────────────────
 const C_NUM  = 22;
-const C_TTL  = 172;
+const C_TTL  = 145;
 const C_TYP  = 36;
-const C_CAT  = 100;
-const C_LO   = 38;
-const C_AC   = 127;
-// total = 22+172+36+100+38+127 = 495 ✓
+const C_CAT  = 90;
+const C_LO   = 34;
+const C_AC   = 110;
+const C_PG   = 58;
+// total = 22+145+36+90+34+110+58 = 495 ✓
 
 const MAP_COLS = [
   { label: "#",                   w: C_NUM },
@@ -490,7 +491,48 @@ const MAP_COLS = [
   { label: "Category",            w: C_CAT },
   { label: "LO",                  w: C_LO  },
   { label: "Assessment Criteria", w: C_AC  },
+  { label: "Manual pp.",          w: C_PG  },
 ];
+
+// Page references keyed by module order number — sourced from the manual Syllabus Mapping Matrix (pp.135–136)
+const modulePageRefs: Record<number, string> = {
+   1: "—",
+   2: "pp.10–21",
+   3: "pp.14–15",
+   4: "pp.17–23",
+   5: "p.16",
+   6: "p.18",
+   7: "pp.30–33",
+   8: "pp.34–35",
+   9: "pp.36–39",
+  10: "pp.36–39",
+  11: "pp.36–39",
+  12: "pp.36–39",
+  13: "pp.26–39",
+  14: "pp.36–39",
+  15: "pp.36–39",
+  16: "pp.36–39",
+  17: "pp.54–63",
+  18: "pp.30–33",
+  19: "pp.54–63",
+  20: "pp.64–81",
+  21: "pp.64–81",
+  22: "pp.64–81",
+  23: "pp.64–81",
+  24: "pp.64–81",
+  25: "pp.82–83",
+  26: "pp.104–107",
+  27: "pp.100–101",
+  28: "pp.96–99",
+  29: "pp.100–101",
+  30: "pp.104–107",
+  31: "pp.104–107",
+  32: "p.104",
+  33: "pp.110–111",
+  34: "pp.108–121",
+  35: "pp.108–121",
+  36: "pp.108–121",
+};
 
 const categoryLabels: Record<string,string> = {
   "COURSE REQUIREMENTS": "Course Requirements — Reference Documents",
@@ -586,6 +628,10 @@ for (const mod of appModules) {
   cx += C_LO;
   doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
     .text(mod.assessment_criteria ?? "—", cx + 3, ry + 4, { width: C_AC - 6, lineBreak: false });
+  cx += C_AC;
+  const pgRef = modulePageRefs[mod.order] ?? "—";
+  doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
+    .text(pgRef, cx + 3, ry + 4, { width: C_PG - 6, lineBreak: false });
 
   doc.y = ry + rowH;
   mapRowAlt = !mapRowAlt;
@@ -698,7 +744,7 @@ examQs.forEach((q, i) => {
   const y0 = doc.y;
 
   if (i % 2 === 0) {
-    const bgH = 16 + 45 + (q.keyPoints.length ? q.keyPoints.length * 13 + 14 : 0) + 12;
+    const bgH = 16 + 45 + 4 * 13 + 12;
     doc.rect(ML, y0, CW, bgH).fill(LGY);
   }
 
