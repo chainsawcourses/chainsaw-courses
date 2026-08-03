@@ -388,6 +388,16 @@ export default function AdminNews() {
                             {item.feedSource && (
                               <Badge variant="outline" className="font-mono text-xs">{item.feedSource}</Badge>
                             )}
+                            {item.learningOutcome && (
+                              <Badge className="font-mono text-xs bg-primary/10 text-primary border border-primary/30 hover:bg-primary/10">
+                                {item.learningOutcome}
+                              </Badge>
+                            )}
+                            {item.assessmentCriteria && (
+                              <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+                                {item.assessmentCriteria}
+                              </Badge>
+                            )}
                             <a href={item.url} target="_blank" rel="noopener noreferrer"
                               className="text-xs text-primary hover:underline flex items-center gap-1 font-mono">
                               <ExternalLink className="w-3 h-3" /> View

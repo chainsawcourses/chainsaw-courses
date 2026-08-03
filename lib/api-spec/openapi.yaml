@@ -557,6 +557,57 @@ paths:
                 items:
                   $ref: "#/components/schemas/InspectionEntry"
 
+  /admin/inspections/all:
+    delete:
+      operationId: deleteAllInspections
+      tags: [admin]
+      summary: Delete all inspection records
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All inspections deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted]
+                properties:
+                  deleted:
+                    type: integer
+
+  /admin/inspections/{id}:
+    delete:
+      operationId: deleteInspection
+      tags: [admin]
+      summary: Delete a single inspection record
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inspection deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success:
+                    type: boolean
+
   /risk-assessments:
     post:
       operationId: submitRiskAssessment
@@ -645,6 +696,57 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RiskAssessmentEntry"
+
+  /admin/risk-assessments/all:
+    delete:
+      operationId: deleteAllRiskAssessments
+      tags: [admin]
+      summary: Delete all risk assessment records
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All risk assessments deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted]
+                properties:
+                  deleted:
+                    type: integer
+
+  /admin/risk-assessments/{id}:
+    delete:
+      operationId: deleteRiskAssessment
+      tags: [admin]
+      summary: Delete a single risk assessment record
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Risk assessment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success:
+                    type: boolean
 
   /waiver:
     get:
@@ -1935,6 +2037,10 @@ components:
         status:
           type: string
         feedSource:
+          type: ["string", "null"]
+        learningOutcome:
+          type: ["string", "null"]
+        assessmentCriteria:
           type: ["string", "null"]
 
     NewsFetchResult:

@@ -33,5 +33,4 @@ export interface ModuleDetail {
   learningOutcome?: string | null;
   /** @nullable */
   assessmentCriteria?: string | null;
-  quizCount?: number;
 }

@@ -91,7 +91,6 @@ export interface ModuleDetail {
   learningOutcome?: string | null;
   /** @nullable */
   assessmentCriteria?: string | null;
-  quizCount?: number;
 }
 
 export interface HeartbeatInput {
@@ -414,8 +413,6 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
-  feedbackCount?: number;
-  totalQuizAttempts?: number;
 }
 
 export interface StudentQuizResult {
@@ -424,7 +421,6 @@ export interface StudentQuizResult {
   passed: boolean;
   score: number;
   attemptedAt: string;
-  totalAttempts?: number;
 }
 
 export interface StudentExamAttempt {
@@ -512,6 +508,10 @@ export interface NewsItem {
   status: string;
   /** @nullable */
   feedSource?: string | null;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }
 
 export interface NewsFetchResult {
@@ -546,21 +546,31 @@ export interface AppFeedbackInput {
      * @maximum 5
      */
   rating: number;
-  /** @minimum 1 @maximum 5 */
-  clarityRating?: number;
-  /** @minimum 1 @maximum 5 */
-  usabilityRating?: number;
   comment?: string;
 }
 
 export interface AppFeedbackItem {
   id: number;
   rating: number;
-  clarityRating?: number | null;
-  usabilityRating?: number | null;
   /** @nullable */
   comment?: string | null;
   studentName: string;
   createdAt: string;
 }
+
+export type DeleteAllInspections200 = {
+  deleted: number;
+};
+
+export type DeleteInspection200 = {
+  success: boolean;
+};
+
+export type DeleteAllRiskAssessments200 = {
+  deleted: number;
+};
+
+export type DeleteRiskAssessment200 = {
+  success: boolean;
+};
 

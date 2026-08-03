@@ -124,9 +124,21 @@ export default function News() {
                     <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2">
                       {item.excerpt}
                     </p>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {formatDate(item.publishedAt)}
-                    </Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {formatDate(item.publishedAt)}
+                      </Badge>
+                      {item.learningOutcome && (
+                        <Badge className="font-mono text-xs bg-[#e27226]/10 text-[#e27226] border border-[#e27226]/30 hover:bg-[#e27226]/10">
+                          {item.learningOutcome}
+                        </Badge>
+                      )}
+                      {item.assessmentCriteria && (
+                        <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+                          {item.assessmentCriteria}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>

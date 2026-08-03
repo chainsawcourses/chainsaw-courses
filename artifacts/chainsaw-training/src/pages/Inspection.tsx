@@ -34,6 +34,16 @@ interface ChecklistItem {
   label: string;
 }
 
+const PPE_ITEMS: ChecklistItem[] = [
+  { id: "ppe-helmet",   label: "Safety helmet with integral face visor — present, undamaged, and CE/UKCA marked (EN 397 + EN 1731, Class 1 or 3)" },
+  { id: "ppe-hearing",  label: "Hearing protection — present and CE/UKCA marked (EN 352-1, SNR ≥ 27 dB)" },
+  { id: "ppe-gloves",   label: "Chainsaw protective gloves — present and undamaged (EN 388 / ISO 11393-4)" },
+  { id: "ppe-trousers", label: "Chainsaw protective trousers — correct type (Type A or C), undamaged (EN ISO 11393-2)" },
+  { id: "ppe-boots",    label: "Chainsaw safety boots or gaiters — correct class, undamaged (EN ISO 17249 Class 1 or 2)" },
+  { id: "ppe-hiviz",    label: "High-visibility vest or jacket — present (EN ISO 20471 Class 2+)" },
+  { id: "ppe-firstaid", label: "First aid kit — accessible on site (BS 8599-1)" },
+];
+
 const PRE_START_ITEMS: ChecklistItem[] = [
   { id: "chain-tension", label: "Chain tension is correct (snug against bar, moves freely by hand)" },
   { id: "chain-sharp", label: "Chain is sharp and undamaged, with no missing or broken teeth" },
@@ -58,7 +68,7 @@ const PRE_USE_ITEMS: ChecklistItem[] = [
 
 const buildInitialItems = (): Record<string, Status> => {
   const map: Record<string, Status> = {};
-  [...PRE_START_ITEMS, ...PRE_USE_ITEMS].forEach((item) => {
+  [...PPE_ITEMS, ...PRE_START_ITEMS, ...PRE_USE_ITEMS].forEach((item) => {
     map[item.id] = "na";
   });
   return map;
@@ -218,10 +228,11 @@ export default function Inspection() {
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode) return;
-    const payload = [...PRE_START_ITEMS, ...PRE_USE_ITEMS].map((item) => ({
+    const payload = [...PPE_ITEMS, ...PRE_START_ITEMS, ...PRE_USE_ITEMS].map((item) => ({
       id: item.id,
       label: item.label,
-      section: PRE_START_ITEMS.some((p) => p.id === item.id) ? "Pre-Start" : "Pre-Use",
+      section: PPE_ITEMS.some((p) => p.id === item.id) ? "PPE"
+        : PRE_START_ITEMS.some((p) => p.id === item.id) ? "Pre-Start" : "Pre-Use",
       status: items[item.id],
       note: notes[item.id]?.trim() || undefined,
     }));
@@ -326,11 +337,10 @@ export default function Inspection() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-28">
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
-            Pre-Start &amp; Pre-Use Checklist
+            PPE, Pre-Start &amp; Pre-Use Checklist
           </h1>
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            Use this checklist before using your chainsaw to run through the standard pre-start and pre-use safety
-            checks. This is a personal record only — it does not unlock or affect your course progress.
+            Verify PPE compliance, then run through the standard pre-start and pre-use chainsaw safety checks. This is a personal record — it does not unlock or affect your course progress.
           </p>
         </div>
 
@@ -459,6 +469,7 @@ export default function Inspection() {
               </CardContent>
             </Card>
 
+            {renderSection("PPE Verification", PPE_ITEMS)}
             {renderSection("Pre-Start Checks", PRE_START_ITEMS)}
             {renderSection("Pre-Use / On-Site Checks", PRE_USE_ITEMS)}
 

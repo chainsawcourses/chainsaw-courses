@@ -309,8 +309,6 @@ export const SubmitAppFeedbackBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "rating": zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
-  "clarityRating": zod.number().min(1).max(5).optional(),
-  "usabilityRating": zod.number().min(1).max(5).optional(),
   "comment": zod.string().optional()
 })
 
@@ -330,8 +328,6 @@ export const ListAppFeedbackHeader = zod.object({
 export const ListAppFeedbackResponseItem = zod.object({
   "id": zod.number(),
   "rating": zod.number(),
-  "clarityRating": zod.number().nullish(),
-  "usabilityRating": zod.number().nullish(),
   "comment": zod.string().nullish(),
   "studentName": zod.string(),
   "createdAt": zod.string()
@@ -497,6 +493,34 @@ export const ListAllInspectionsResponseItem = zod.object({
   "amendedAt": zod.string().nullish()
 })
 export const ListAllInspectionsResponse = zod.array(ListAllInspectionsResponseItem)
+
+
+/**
+ * @summary Delete all inspection records
+ */
+export const DeleteAllInspectionsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteAllInspectionsResponse = zod.object({
+  "deleted": zod.number()
+})
+
+
+/**
+ * @summary Delete a single inspection record
+ */
+export const DeleteInspectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteInspectionHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteInspectionResponse = zod.object({
+  "success": zod.boolean()
+})
 
 
 /**
@@ -704,6 +728,34 @@ export const ListAllRiskAssessmentsResponseItem = zod.object({
   "amendedAt": zod.string().nullish()
 })
 export const ListAllRiskAssessmentsResponse = zod.array(ListAllRiskAssessmentsResponseItem)
+
+
+/**
+ * @summary Delete all risk assessment records
+ */
+export const DeleteAllRiskAssessmentsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteAllRiskAssessmentsResponse = zod.object({
+  "deleted": zod.number()
+})
+
+
+/**
+ * @summary Delete a single risk assessment record
+ */
+export const DeleteRiskAssessmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteRiskAssessmentHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteRiskAssessmentResponse = zod.object({
+  "success": zod.boolean()
+})
 
 
 /**
@@ -927,8 +979,7 @@ export const CreateActivationCodeHeader = zod.object({
 
 export const CreateActivationCodeBody = zod.object({
   "code": zod.string(),
-  "notes": zod.string().optional(),
-  "assignedTo": zod.string().optional()
+  "notes": zod.string().optional()
 })
 
 
@@ -944,7 +995,9 @@ export const ListNewsItemsResponseItem = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 export const ListNewsItemsResponse = zod.array(ListNewsItemsResponseItem)
 
@@ -981,7 +1034,9 @@ export const ListPendingNewsItemsResponseItem = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 export const ListPendingNewsItemsResponse = zod.array(ListPendingNewsItemsResponseItem)
 
@@ -1021,7 +1076,9 @@ export const ApproveNewsItemResponse = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 
 
@@ -1065,7 +1122,9 @@ export const UpdateNewsItemResponse = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 
 

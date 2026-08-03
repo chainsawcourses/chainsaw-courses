@@ -195,3 +195,10 @@ uri = "file://artifacts/chainsaw-training/public/pdfs/Q23_Course_Materials_Pack.
 type = "pdf"
 title = "Q23 Course Materials Pack — Branded"
 description = "Redesigned with Chainsaw Courses branding — orange #E27226, near-black, logo on cover, IIRSM mark, orange question badges, 156 exam questions + 80 mock questions."
+
+[[outputs]]
+id = "5MElnEsOQvDuBYYFNANcj"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf"
+type = "pdf"
+title = "Course Materials (reordered)"
+description = "Syllabus Mapping Table is now Section 4, immediately after the Learning Outcome Framework"

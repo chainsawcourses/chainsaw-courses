@@ -6,10 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface StudentQuizResult {
-  moduleId: number;
-  moduleTitle: string;
-  passed: boolean;
-  score: number;
-  attemptedAt: string;
-}
+export type DeleteInspection200 = {
+  success: boolean;
+};

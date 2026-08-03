@@ -267,6 +267,7 @@ async function generate() {
   const credBullets = [
     "LANTRA Accredited Instructor & Assessor (Forestry & Arboriculture)",
     "City & Guilds NPTC Registered Assessor",
+    "PTLLS — Preparing to Teach in the Lifelong Learning Sector (Level 3 Award)",
     "LOLER Examiner — certified competent person for thorough examination of lifting equipment",
     "Current First Aid at Work (+F) Certificate",
   ];

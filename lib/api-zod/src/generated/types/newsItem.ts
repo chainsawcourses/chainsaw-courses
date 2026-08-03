@@ -18,4 +18,8 @@ export interface NewsItem {
   status: string;
   /** @nullable */
   feedSource?: string | null;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
 }

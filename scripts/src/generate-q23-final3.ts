@@ -26,7 +26,7 @@ const WHT = "#ffffff";
 
 const LOGO  = "/home/runner/workspace/artifacts/chainsaw-training/public/logo.png";
 const IIRSM = "/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-logo.png";
-const OUT   = "/home/runner/workspace/artifacts/chainsaw-training/public/pdfs/Q23_Course_Materials_Pack.pdf";
+const OUT   = "/home/runner/workspace/artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf";
 const OPTS  = ["A","B","C","D"];
 
 const examQs: Array<{
@@ -38,12 +38,18 @@ const mockQs: Array<{
   id: number; question: string; keyPoints: string[];
 }> = JSON.parse(fs.readFileSync("/tmp/prod_mock_simple.json","utf8"));
 
+const appModules: Array<{
+  id: number; title: string; order: number; category: string;
+  sub_category: string | null; content_type: string;
+  learning_outcome: string | null; assessment_criteria: string | null;
+}> = JSON.parse(fs.readFileSync("/tmp/prod_modules.json","utf8"));
+
 // ─── Layout ───────────────────────────────────────────────────────────────────
 const ML = 50, MR = 50, MT = 48, MB = 48;
 const doc = new PDFDocument({
   size: "A4",
   margins: { top: MT, bottom: MB, left: ML, right: MR },
-  info: { Title: "Course Materials Pack — Chainsaw Maintenance & Cross Cutting", Author: "Chainsaw Courses Ltd" },
+  info: { Title: "Course Materials — Chainsaw Maintenance & Cross Cutting", Author: "Chainsaw Courses Ltd" },
   autoFirstPage: true,
 });
 const stream = fs.createWriteStream(OUT);
@@ -75,7 +81,7 @@ function footer() {
   doc.moveTo(ML, fy).lineTo(ML + CW, fy).strokeColor(OG).lineWidth(0.8).stroke();
   doc.y = fy + 4;
   doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
-    .text("Chainsaw Maintenance & Cross Cutting  ·  Course Materials Pack", ML, doc.y,
+    .text("Chainsaw Maintenance & Cross Cutting  ·  Course Materials", ML, doc.y,
       { width: CW - 30, align: "left", lineBreak: false });
   doc.y = fy + 4;
   doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
@@ -189,12 +195,9 @@ doc.font("Helvetica").fontSize(6.5).fillColor("#FFE0C0")
   .text("IIRSM Course Approval", PW - MR - 60, 74, { width: 66, align: "center", lineBreak: false });
 
 doc.font("Helvetica-Bold").fontSize(22).fillColor(BLK)
-  .text("Course Materials Pack", ML, 112, { lineBreak: false });
+  .text("Course Materials", ML, 112, { lineBreak: false });
 doc.font("Helvetica").fontSize(12).fillColor(DGY)
   .text("Chainsaw Maintenance & Cross Cutting", ML, 140, { lineBreak: false });
-doc.font("Helvetica").fontSize(9).fillColor(MGY)
-  .text("Submitted in support of IIRSM Course Approval — Question 23", ML, 158, { lineBreak: false });
-
 doc.y = 176;
 doc.moveTo(ML, 176).lineTo(ML + CW, 176).strokeColor(OG).lineWidth(1.2).stroke();
 doc.y = 186;
@@ -206,7 +209,7 @@ doc.y = 186;
   ["Hours",     "4 hrs GLH  ·  2 hrs Assessment  ·  4 hrs Self-Study  ·  10 hrs TQT"],
   ["CPD",       "5 CPD Points (IIRSM)"],
   ["Threshold", "80% pass — randomised 45-question summative examination"],
-  ["Purpose",   "Training presentation & delegate materials (Q23)"],
+  ["Purpose",   "Training presentation & delegate materials"],
 ].forEach(([label, value], i) => {
   const y = doc.y;
   if (i % 2 === 0) doc.rect(ML, y, CW, 16).fill(LGY);
@@ -228,8 +231,11 @@ sp(10);
 [
   ["1", "How to Access the Live App & Admin Panel"],
   ["2", "A Note on the Training Manual"],
-  ["3", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`],
-  ["4", `Supplementary Oral & Practical Mock Questions (${mockQs.length})`],
+  ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 23 Assessment Criteria"],
+  ["4", `Syllabus Mapping Table — ${appModules.length} Modules · LO & AC Alignment`],
+  ["5", "Compliance Tools & Practical Worksheets"],
+  ["6", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`],
+  ["7", `Supplementary Oral & Practical Mock Questions (${mockQs.length})`],
 ].forEach(([n, title]) => {
   const y = doc.y;
   doc.rect(ML, y, 20, 16).fill(OG);
@@ -283,7 +289,11 @@ sp(10);
 ].forEach((s, i) => step(i + 1, s, BLK));
 
 sp(14); hrule(); sp(12);
-sectionHead("2","A Note on the Training Manual","File size & access options");
+sectionHead("2","A Note on the Training Manual","Published author  ·  File size & access options");
+
+infoBox("Published Author",
+  "Author of 'The Chainsaw Manual' (Version 1.1, July 2026) — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course. The first edition was published in September 2024.");
+sp(8);
 
 doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
   .text("The training manual — Chainsaw Maintenance & Cross Cutting: A Comprehensive Technical Manual (v1.1) — is the primary delegate learning resource. It is a richly illustrated 138-page document covering all Learning Outcomes and Assessment Criteria, including Advanced Workshop Extension modules.", ML, doc.y, { width: CW });
@@ -454,11 +464,218 @@ for (const entry of loFramework) {
 footer();
 
 // ════════════════════════════════════════════════════════════════════════════════
-// SECTION 4 — ASSESSMENT BANK
+// SECTION 4 — SYLLABUS MAPPING TABLE
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
-sectionHead("4","Assessment Bank",
-  `${examQs.length} Multiple-Choice Questions  ·  Summative Examination Pool`);
+sectionHead("4", "Syllabus Mapping Table",
+  `${appModules.length} Modules  ·  Learning Outcome & Assessment Criteria Alignment`);
+
+doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
+  .text("The table below maps every active app module to its corresponding Learning Outcome (LO) and Assessment Criteria (AC). This mirrors the alignment table at the back of the training manual. Modules categorised as Course Requirements are reference documents and do not carry a formal LO/AC assignment.", ML, doc.y, { width: CW });
+sp(12);
+
+// ── Column widths (total = CW = 495) ──────────────────────────────────────────
+const C_NUM  = 22;
+const C_TTL  = 172;
+const C_TYP  = 36;
+const C_CAT  = 100;
+const C_LO   = 38;
+const C_AC   = 127;
+// total = 22+172+36+100+38+127 = 495 ✓
+
+const MAP_COLS = [
+  { label: "#",                   w: C_NUM },
+  { label: "Module Title",        w: C_TTL },
+  { label: "Type",                w: C_TYP },
+  { label: "Category",            w: C_CAT },
+  { label: "LO",                  w: C_LO  },
+  { label: "Assessment Criteria", w: C_AC  },
+];
+
+const categoryLabels: Record<string,string> = {
+  "COURSE REQUIREMENTS": "Course Requirements — Reference Documents",
+  "ASSESSMENT MODULES":  "Unit 1 — Occupational Standards, Health & Safety & Risk Evaluation",
+  "CHAINSAW MAINTENANCE":"Unit 2 — Power Unit Architecture, Mechanical Integrity & Component Maintenance",
+  "CROSS CUTTING":       "Unit 3 — System Startups, Operational Testing & Processing Techniques",
+};
+
+function drawMapHeader(): void {
+  ensurePts(20);
+  const hy = doc.y;
+  doc.rect(ML, hy, CW, 18).fill(OG);
+  let hx = ML;
+  for (const col of MAP_COLS) {
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(WHT)
+      .text(col.label, hx + 3, hy + 5, { width: col.w - 4, lineBreak: false });
+    hx += col.w;
+  }
+  doc.y = hy + 18;
+}
+
+function drawCatBar(label: string): void {
+  ensurePts(20);
+  const cy = doc.y;
+  doc.rect(ML, cy, CW, 16).fill("#2b2b2b");
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OG)
+    .text(label.toUpperCase(), ML + 6, cy + 4, { width: CW - 10, lineBreak: false });
+  doc.y = cy + 16;
+}
+
+drawMapHeader();
+
+let mapRowAlt = false;
+let lastCat = "";
+
+for (const mod of appModules) {
+  if (mod.category !== lastCat) {
+    sp(4);
+    drawCatBar(categoryLabels[mod.category] ?? mod.category);
+    lastCat = mod.category;
+    mapRowAlt = false;
+  }
+
+  const hasLo = !!mod.learning_outcome;
+  const rowH = 16;
+
+  ensurePts(rowH + 4);
+  if (doc.y <= MT + 4) { drawMapHeader(); mapRowAlt = false; }
+
+  const ry = doc.y;
+  doc.rect(ML, ry, CW, rowH).fill(mapRowAlt ? "#F5F0EB" : WHT);
+
+  let bx = ML;
+  for (const col of MAP_COLS) {
+    doc.rect(bx, ry, col.w, rowH).strokeColor("#DDDDDD").lineWidth(0.4).stroke();
+    bx += col.w;
+  }
+
+  let cx = ML;
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
+    .text(String(mod.order), cx + 3, ry + 4, { width: C_NUM - 4, align: "center", lineBreak: false });
+  cx += C_NUM;
+  doc.font("Helvetica").fontSize(7.5).fillColor(BLK)
+    .text(mod.title, cx + 3, ry + 4, { width: C_TTL - 6, lineBreak: false });
+  cx += C_TTL;
+  const typeLabel = mod.content_type === "video" ? "Video" : "PDF";
+  const typeCol   = mod.content_type === "video" ? OGD : "#4a6da7";
+  doc.font("Helvetica-Bold").fontSize(7).fillColor(typeCol)
+    .text(typeLabel, cx + 3, ry + 4, { width: C_TYP - 6, lineBreak: false });
+  cx += C_TYP;
+  const shortCat: Record<string,string> = {
+    "COURSE REQUIREMENTS": "Course Req.",
+    "ASSESSMENT MODULES":  "Assessment",
+    "CHAINSAW MAINTENANCE":"Maintenance",
+    "CROSS CUTTING":       "Cross Cutting",
+  };
+  doc.font("Helvetica").fontSize(7).fillColor(DGY)
+    .text(shortCat[mod.category] ?? mod.category, cx + 3, ry + 4, { width: C_CAT - 6, lineBreak: false });
+  cx += C_CAT;
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(hasLo ? OG : MGY)
+    .text(mod.learning_outcome ?? "—", cx + 3, ry + 4, { width: C_LO - 4, lineBreak: false });
+  cx += C_LO;
+  doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
+    .text(mod.assessment_criteria ?? "—", cx + 3, ry + 4, { width: C_AC - 6, lineBreak: false });
+
+  doc.y = ry + rowH;
+  mapRowAlt = !mapRowAlt;
+}
+
+sp(14);
+ensurePts(60);
+hrule(OGL, 0.6);
+sp(8);
+doc.font("Helvetica-Bold").fontSize(8).fillColor(BLK).text("Key", ML, doc.y, { lineBreak: false });
+sp(12);
+const legendItems = [
+  ["LO1–LO6", "Learning Outcomes 1–6 across three units of the qualification"],
+  ["AC x.x",  "Assessment Criteria — each LO has 2–6 specific criteria"],
+  ["—",        "Course Requirements modules are prerequisite reference docs; no formal LO/AC assigned"],
+  ["Video",    "Interactive video module with embedded quiz (sequentially gated)"],
+  ["PDF",      "Read-only reference document (does not gate progression)"],
+];
+for (const [term, def] of legendItems) {
+  const ly = doc.y;
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
+    .text(term, ML + 4, ly, { width: 50, lineBreak: false });
+  doc.y = ly;
+  doc.font("Helvetica").fontSize(7.5).fillColor(DGY)
+    .text(def, ML + 58, doc.y, { width: CW - 62 });
+}
+
+footer();
+
+// ════════════════════════════════════════════════════════════════════════════════
+// SECTION 5 — COMPLIANCE TOOLS IN THE APP
+// ════════════════════════════════════════════════════════════════════════════════
+doc.addPage();
+sectionHead("5", "Compliance Tools & Practical Worksheets",
+  "Available within the course app  \xb7  PPE Verification  \xb7  Risk Assessment  \xb7  Emergency Action Plan  \xb7  Bio-Security  \xb7  CPD News");
+
+doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
+  .text("All practical compliance worksheets are embedded directly within the course app and are completed digitally by the learner. This approach ensures records are date-stamped, stored securely, and immediately exportable as a PDF or plain-text report for portfolio submission or regulatory inspection.", ML, doc.y, { width: CW });
+sp(10);
+
+infoBox("PPE Verification Checklist",
+  "Accessible from the app Inspection Checklist. The learner confirms each item of PPE — helmet, hearing protection, gloves, trousers, boots, hi-vis, and first aid kit — against its UK/international standard (EN 397, EN 352, EN ISO 11393, EN ISO 17249, EN ISO 20471, BS 8599-1). Mapped to LO1 / AC 1.4 and LO2 / AC 2.2.");
+sp(4);
+
+infoBox("Pre-Start & Pre-Use Chainsaw Inspection",
+  "Also within the app Inspection Checklist. Covers chain tension, sharpness, brake function, bar condition, oiler, fuel mix, air filter, handguards, chain catcher, exhaust, anti-vibration mounts, and controls. A 4-point dynamic check confirms brake engagement, oil spray, chain creep at idle, and off-switch cut. Mapped to LO5 / AC 5.2.");
+sp(4);
+
+infoBox("Risk Assessment, Emergency Action Plan & Bio-Security Log",
+  "A 5-step site risk assessment template, Emergency Action Plan (site grid reference, nearest A&E, first aider, muster point), and bio-security cleaning log are available via the app dashboard. Each record is retained and can be exported for IIRSM portfolio use. Mapped to LO2 / AC 2.1, 2.2, and 2.3.");
+sp(4);
+
+infoBox("News & CPD Updates",
+  "Industry news is published regularly through the app and tagged to its relevant Learning Outcome and AC. Engaging with updates directly supports the IIRSM RM&CF Ongoing Competence Assurance pillar. Accessible via the Admin Dashboard under the Updates tab.");
+
+// ─── Local helpers (table / form row) scoped to this section — kept for alignment map ──
+const subHead4 = (title: string) => {
+  ensurePts(36); sp(4);
+  const sy = doc.y;
+  doc.font("Helvetica-Bold").fontSize(10.5).fillColor(OGD).text(title, ML, sy, { width: CW });
+  doc.moveTo(ML, doc.y).lineTo(ML + CW, doc.y).strokeColor(OG).lineWidth(0.6).stroke();
+  sp(10);
+};
+const tblHead4 = (y: number, cols: {label: string; w: number}[]): number => {
+  const rowH = 18; const totalW = cols.reduce((s, c) => s + c.w, 0);
+  doc.rect(ML, y, totalW, rowH).fill(OG);
+  let cx = ML;
+  cols.forEach(col => {
+    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(WHT)
+      .text(col.label, cx + 4, y + 5, { width: col.w - 6, lineBreak: false });
+    cx += col.w;
+  });
+  return y + rowH;
+};
+const tblRow4 = (y: number, cols: {text?: string; w: number}[], rowH: number, alt: boolean): number => {
+  const totalW = cols.reduce((s, c) => s + c.w, 0);
+  doc.rect(ML, y, totalW, rowH).fill(alt ? "#F5F0EB" : WHT);
+  let cx = ML;
+  cols.forEach(col => {
+    doc.rect(cx, y, col.w, rowH).stroke("#CCCCCC");
+    if (col.text) {
+      doc.font("Helvetica").fontSize(7.5).fillColor(DGY)
+        .text(col.text, cx + 4, y + 5, { width: col.w - 8, lineBreak: false });
+    }
+    cx += col.w;
+  });
+  return y + rowH;
+};
+sp(10);
+
+
+
+
+footer();
+
+// ════════════════════════════════════════════════════════════════════════════════
+// SECTION 6 — ASSESSMENT BANK
+// ════════════════════════════════════════════════════════════════════════════════
+doc.addPage();
+sectionHead("6","Assessment Bank",
+  `${examQs.length} Multiple-Choice Questions  \xb7  Summative Examination Pool`);
 infoBox("How the exam works",
   `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass. Correct answers are highlighted in orange with ✓.`);
 
@@ -522,10 +739,10 @@ examQs.forEach((q, i) => {
 footer();
 
 // ════════════════════════════════════════════════════════════════════════════════
-// SECTION 5 — MOCK QUESTIONS
+// SECTION 7 — MOCK QUESTIONS
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
-sectionHead("5","Supplementary Oral & Practical Mock Questions",
+sectionHead("7","Supplementary Oral & Practical Mock Questions",
   `${mockQs.length} Questions  ·  Formative Practice Only — Not Formally Assessed`);
 infoBox("Important — these questions do not contribute to the pass/fail outcome",
   `These ${mockQs.length} questions are oral and practical preparation aids. They do NOT form part of the summative examination, do NOT appear on the certificate, and are NOT formally assessed. Within the app, learners practise them via an AI-assisted voice or text feature that provides formative feedback.`);
@@ -570,13 +787,15 @@ mockQs.forEach((q, i) => {
   sp(4);
 });
 
+footer();
+
 // End bar
 ensurePts(36);
 sp(10);
 doc.rect(ML, doc.y, CW, 26).fill(OG);
 doc.y += 10;
 doc.font("Helvetica-Bold").fontSize(9).fillColor(WHT)
-  .text("End of Course Materials Pack  ·  chainsawcourses.com  ·  © 2026 Chainsaw Courses Ltd",
+  .text("End of Course Materials  ·  chainsawcourses.com  ·  © 2026 Chainsaw Courses Ltd",
     ML, doc.y, { width: CW, align: "center", lineBreak: false });
 doc.y += 26;
 

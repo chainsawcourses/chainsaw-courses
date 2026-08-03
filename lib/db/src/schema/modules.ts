@@ -179,6 +179,8 @@ export const newsItemsTable = pgTable("news_items", {
   status: text("status").notNull().default("approved"),
   guid: text("guid").unique(),
   feedSource: text("feed_source"),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
 }, (t) => [index("news_items_published_at_idx").on(t.publishedAt)]);
 
 export const insertNewsItemSchema = createInsertSchema(newsItemsTable).omit({ id: true, createdAt: true });

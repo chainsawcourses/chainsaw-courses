@@ -6,6 +6,7 @@ import { logger } from "../lib/logger";
 import { fetchAllFeeds } from "../lib/rssFetcher";
 import { z } from "zod/v4";
 import { sendPushToAll } from "./push";
+import { tagNewsArticle } from "../lib/newsTagging";
 
 const router = Router();
 
@@ -81,6 +82,9 @@ router.post("/admin/news/:id/approve", async (req, res) => {
       .returning();
     if (!item) { res.status(404).json({ error: "Not found" }); return; }
     res.json(item);
+    // Fire async: LO/AC tagging + push notification (neither blocks the response)
+    void tagNewsArticle(item.id, item.title, item.excerpt)
+      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after approve"));
     void sendPushToAll({
       title: "🌳 Forestry & Arb News 🌳",
       body: item.title,
@@ -122,6 +126,8 @@ router.post("/admin/news", async (req, res) => {
       .values({ title, excerpt, url, imageUrl: imageUrl ?? null, publishedAt: new Date(publishedAt), status: "approved" })
       .returning();
     res.status(201).json(item);
+    void tagNewsArticle(item.id, item.title, item.excerpt)
+      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after create"));
     void sendPushToAll({
       title: "🌳 Forestry & Arb News 🌳",
       body: item.title,
