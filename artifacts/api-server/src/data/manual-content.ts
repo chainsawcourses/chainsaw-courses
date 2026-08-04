@@ -141,7 +141,7 @@ UNIT 1: Occupational Standards, Health & Safety, and Risk Evaluation
 Learning Outcome 1 (LO1): Describe the statutory legal framework and personal
 safety requirements dictating chainsaw operations.
 AC 1.1: Identify the primary obligations of employers and employees under the Health
-and Safety at Work Act (HSWA) and global equivalents.
+and Safety at Work Act (HSWA).
 AC 1.2: Explain the operational parameters mandated by the Provision and Use of
 Work Equipment Regulations (PUWER) regarding tool maintenance and operator
 competence.
@@ -168,7 +168,7 @@ features of internal combustion and battery-powered chainsaws.
 AC 3.1: Describe the internal 2-stroke combustion cycle (“Intake, compression, ignition,
 exhaust”) and determine fuel-to-oil component lubrication maths at a standard 50:1 ratio.
 AC 3.2: Compare the advantages and operational risks of battery-powered power units
-against internal combustion platforms.
+against internal combustion chainsaws.
 AC 3.3: Map and explain the mechanical function of the 10 core safety features spanning the
 front, centre, and rear architecture of a chainsaw.
 Learning Outcome 4 (LO4): Describe the diagnostic, servicing, and maintenance procedures
@@ -1525,9 +1525,6 @@ Bar & Chain
 
 3. Chainsaw
 Basics
-
-ADVANCED WORKSHOP EXTENSION MODULE
-
 HOW A TWO-STROKE
 ENGINE WORKS
 
@@ -7130,7 +7127,7 @@ AC 1.1
 
 Identify the primary obligations of employers and
 employees under the Health and Safety at Work
-Act (HSWA) and global equivalents.
+Act (HSWA).
 
 MODULE 3 Regulations &
 Codes of Practice
@@ -7232,7 +7229,7 @@ AC 3.2
 
 Compare the advantages and operational risks
 of battery-powered power units against internal
-combustion platforms.
+combustion chainsaws.
 
 MODULE 5 Maintenance
 (Battery

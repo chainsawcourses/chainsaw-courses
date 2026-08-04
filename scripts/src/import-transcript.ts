@@ -12,6 +12,9 @@
  */
 import { pool } from "@workspace/db";
 import * as fs from "fs";
+import { execSync } from "child_process";
+import * as path from "path";
+import { fileURLToPath } from "url";
 
 interface Segment {
   timecodeStart: string;
@@ -99,6 +102,14 @@ async function main() {
 
   console.log(`✅  Upserted transcript for Module ${moduleOrder}: ${moduleTitle}`);
   await pool.end();
+
+  // ── Regenerate Course Materials PDF ─────────────────────────────────────
+  const scriptsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  console.log("📄  Fetching latest DB data for PDF…");
+  execSync("npx tsx src/fetch-prod-data.ts", { cwd: scriptsDir, stdio: "inherit" });
+  console.log("📄  Regenerating Course Materials PDF…");
+  execSync("npx tsx src/generate-q23-final3.ts", { cwd: scriptsDir, stdio: "inherit" });
+  console.log("✅  Course Materials PDF updated.");
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

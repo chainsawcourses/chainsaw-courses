@@ -364,7 +364,7 @@ const loFramework: LoEntry[] = [
     title: "Legal Framework & Personal Safety",
     desc: "Describe the statutory legal framework and personal safety requirements governing chainsaw operations.",
     acs: [
-      ["AC 1.1", "Identify employer and employee obligations under the Health and Safety at Work Act (HSWA) and global equivalents."],
+      ["AC 1.1", "Identify employer and employee obligations under the Health and Safety at Work Act (HSWA)."],
       ["AC 1.2", "Explain PUWER operational parameters governing tool maintenance and operator competence."],
       ["AC 1.3", "Summarise COSHH control tracking required for hazardous fuels, battery cells, lubricants, and toxic flora species."],
       ["AC 1.4", "Detail CE/UKCA and global standard class markings for safety helmets, hearing protection, gloves, and Type A/C protective trousers."],
@@ -388,7 +388,7 @@ const loFramework: LoEntry[] = [
     desc: "Analyse the mechanical differences, design attributes, and safety features of internal combustion and battery-powered chainsaws.",
     acs: [
       ["AC 3.1", "Describe the 2-stroke combustion cycle and determine fuel-to-oil lubrication ratios at a standard 50:1 mix."],
-      ["AC 3.2", "Compare the advantages and operational risks of battery-powered power units against internal combustion platforms."],
+      ["AC 3.2", "Compare the advantages and operational risks of battery-powered power units against internal combustion chainsaws."],
       ["AC 3.3", "Map and explain the mechanical function of the 10 core safety features across the front, centre, and rear chainsaw architecture."],
     ],
     modules: ["Chainsaw Safety Features", "Battery Chainsaws", "Chain Brake", "Fuel & Oil Filters"],
