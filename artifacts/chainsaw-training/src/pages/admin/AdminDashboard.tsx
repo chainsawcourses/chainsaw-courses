@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronRight, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, MinusCircle, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Trash2, Users, Users2, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Trash2, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -66,8 +66,6 @@ export default function AdminDashboard() {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [dataBackupOpen, setDataBackupOpen] = useState(true);
   const [accessCodesOpen, setAccessCodesOpen] = useState(true);
-  const [inspectionsCardOpen, setInspectionsCardOpen] = useState(true);
-  const [expandedInspections, setExpandedInspections] = useState<Set<number>>(new Set());
   const [studentRosterOpen, setStudentRosterOpen] = useState(true);
   const [editingName, setEditingName] = useState<string | null>(null); // code being edited
   const [editingNameValue, setEditingNameValue] = useState("");
@@ -827,143 +825,6 @@ export default function AdminDashboard() {
               </div>
             )}
           </CardContent>
-          )}
-        </Card>
-
-        {/* Inspections */}
-        <Card className="border-border bg-card/30">
-          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <button className="flex items-center gap-2 text-left group" onClick={() => setInspectionsCardOpen((v) => !v)}>
-              <div>
-                <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-                  <ClipboardCheck className="w-4 h-4 text-primary" /> Inspections
-                </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1 font-mono">
-                  {inspections
-                    ? `${inspections.length} record${inspections.length !== 1 ? "s" : ""} · ${inspections.filter((i) => i.hasFailures).length} with failures`
-                    : "PPE · Pre-Start · Pre-Use checklists"}
-                </p>
-              </div>
-              {inspectionsCardOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
-            </button>
-            {inspectionsCardOpen && (
-              <Button size="sm" variant="outline" className="h-9 font-mono text-xs" asChild>
-                <Link href="/admin/inspections"><ExternalLink className="w-3.5 h-3.5 mr-1" /> VIEW ALL</Link>
-              </Button>
-            )}
-          </CardHeader>
-          {inspectionsCardOpen && (
-            <CardContent className="p-0">
-              {/* Summary stats */}
-              {inspections && inspections.length > 0 && (
-                <div className="px-6 pt-4 pb-3 grid grid-cols-3 gap-3">
-                  {[
-                    { label: "Total Records", value: inspections.length, warn: false },
-                    { label: "PPE Failures", value: inspections.filter((i) => i.items.some((it) => it.section === "PPE" && it.status === "fail")).length, warn: true },
-                    { label: "Chainsaw Failures", value: inspections.filter((i) => i.items.some((it) => it.section !== "PPE" && it.status === "fail")).length, warn: true },
-                  ].map((stat) => (
-                    <div key={stat.label} className="text-center border border-border rounded p-3 bg-background/40">
-                      <div className={`text-xl font-bold font-mono ${stat.warn && stat.value > 0 ? "text-destructive" : "text-foreground"}`}>{stat.value}</div>
-                      <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-0.5">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!inspections ? (
-                <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
-              ) : inspections.length === 0 ? (
-                <div className="py-8 text-center text-muted-foreground font-mono text-xs px-6">No inspection records yet.</div>
-              ) : (
-                <div className="px-6 pb-4 space-y-2">
-                  {inspections.slice(0, 10).map((record) => {
-                    const isExpanded = expandedInspections.has(record.id);
-                    const SECTIONS = ["PPE", "Pre-Start", "Pre-Use"] as const;
-                    return (
-                      <div key={record.id} className={`border rounded ${record.hasFailures ? "border-destructive/40" : "border-border"} bg-background/40`}>
-                        <button
-                          className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
-                          onClick={() =>
-                            setExpandedInspections((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(record.id)) next.delete(record.id);
-                              else next.add(record.id);
-                              return next;
-                            })
-                          }
-                        >
-                          {isExpanded
-                            ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                            : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
-                          <span className="font-mono text-sm font-bold flex-1 truncate">{record.studentName ?? "Unknown student"}</span>
-                          {record.sawIdentifier && (
-                            <span className="font-mono text-xs text-muted-foreground hidden sm:block shrink-0">{record.sawIdentifier}</span>
-                          )}
-                          <span className="font-mono text-[10px] text-muted-foreground shrink-0">
-                            {new Date(record.createdAt).toLocaleDateString()}
-                          </span>
-                          {record.hasFailures ? (
-                            <span className="text-destructive text-[10px] font-mono uppercase tracking-widest flex items-center gap-1 shrink-0">
-                              <AlertTriangle className="w-3 h-3" /> Failed
-                            </span>
-                          ) : (
-                            <span className="text-green-600 text-[10px] font-mono uppercase tracking-widest flex items-center gap-1 shrink-0">
-                              <CheckCircle2 className="w-3 h-3" /> Clear
-                            </span>
-                          )}
-                        </button>
-
-                        {isExpanded && (
-                          <div className="px-3 pb-3 border-t border-border space-y-3 pt-3">
-                            {SECTIONS.map((section) => {
-                              const sectionItems = record.items.filter((it) => it.section === section);
-                              if (sectionItems.length === 0) return null;
-                              const failCount = sectionItems.filter((it) => it.status === "fail").length;
-                              return (
-                                <div key={section}>
-                                  <div className="flex items-center gap-2 mb-1.5">
-                                    <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                                      {section} Checks
-                                    </span>
-                                    {failCount > 0 && (
-                                      <Badge variant="outline" className="text-[9px] font-mono rounded-none text-destructive border-destructive py-0 h-4">
-                                        {failCount} failed
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="grid sm:grid-cols-2 gap-1">
-                                    {sectionItems.map((item) => (
-                                      <div key={item.id} className="flex items-start gap-1.5 text-[10px]">
-                                        {item.status === "pass" && <CheckCircle2 className="w-3 h-3 text-green-600 shrink-0 mt-0.5" />}
-                                        {item.status === "fail" && <XCircle className="w-3 h-3 text-destructive shrink-0 mt-0.5" />}
-                                        {item.status === "na"   && <MinusCircle className="w-3 h-3 text-muted-foreground shrink-0 mt-0.5" />}
-                                        <div>
-                                          <span className={`font-mono leading-tight ${item.status === "fail" ? "text-destructive" : "text-muted-foreground"}`}>
-                                            {item.label}
-                                          </span>
-                                          {item.status === "fail" && item.note && (
-                                            <p className="text-destructive/70 italic mt-0.5">"{item.note}"</p>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {inspections.length > 10 && (
-                    <Link href="/admin/inspections" className="block text-center text-xs font-mono text-primary hover:underline pt-1">
-                      View all {inspections.length} records →
-                    </Link>
-                  )}
-                </div>
-              )}
-            </CardContent>
           )}
         </Card>
 
