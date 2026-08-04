@@ -521,11 +521,6 @@ export interface NewsItem {
   assessmentCriteria?: string | null;
 }
 
-export interface NewsRetagResult {
-  total: number;
-  tagged: number;
-  errors: number;
-}
 export interface NewsFetchResult {
   fetched: number;
   inserted: number;
@@ -599,3 +594,4 @@ export type DeleteAllRiskAssessments200 = {
 export type DeleteRiskAssessment200 = {
   success: boolean;
 };
+

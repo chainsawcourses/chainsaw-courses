@@ -28,6 +28,10 @@ args = "typecheck-generated"
 task = "workflow.run"
 args = "api-spec-test"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-generated"
+
 [[workflows.workflow]]
 name = "check-routes"
 author = "agent"
@@ -57,6 +61,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pnpm --filter @workspace/api-spec run test"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "check-generated"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-spec run check-generated"
 
 [workflows.workflow.metadata]
 isValidation = true

@@ -309,6 +309,7 @@ export const submitAppFeedbackBodyClarityRatingMax = 5;
 export const submitAppFeedbackBodyUsabilityRatingMax = 5;
 
 
+
 export const SubmitAppFeedbackBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
@@ -1067,12 +1068,7 @@ export const TriggerNewsFetchResponse = zod.object({
   "errors": zod.array(zod.string())
 })
 
-/**
- * @summary Tag all approved articles that are missing LO/AC using Gemini
- */
-export const RetagAllNewsItemsHeader = zod.object({
-  "adminToken": zod.string()
-})
+
 /**
  * @summary Approve a pending news item
  */
@@ -1157,8 +1153,3 @@ export const DeleteNewsItemHeader = zod.object({
 })
 
 
-export const RetagAllNewsItemsResponse = zod.object({
-  "total": zod.number(),
-  "tagged": zod.number(),
-  "errors": zod.number()
-})

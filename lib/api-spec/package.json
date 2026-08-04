@@ -5,6 +5,7 @@
   "scripts": {
     "codegen": "orval --config ./orval.config.ts && pnpm -w run typecheck:libs",
     "check-routes": "node scripts/check-routes.mjs",
+    "check-generated": "node scripts/check-generated.mjs",
     "test": "node --test scripts/check-routes.test.mjs",
     "typecheck": "pnpm -w run typecheck:libs"
   },
