@@ -1,0 +1,116 @@
+00:00:00:25 - 00:00:05:28
+Unknown
+This video covers the removal, refitting and tensioning of the chain.
+
+00:00:06:01 - 00:00:13:14
+Unknown
+Achieving the correct chain tension is important. If the chain is too loose, there is a risk of chain derailments.
+
+00:00:13:16 - 00:00:17:12
+Unknown
+If too tight, it can overheat the chain and bar.
+
+00:00:17:15 - 00:00:23:25
+Unknown
+Both of these scenarios will increase wear on the guidebar, sprocket and chain.
+
+00:00:23:27 - 00:00:26:28
+Unknown
+So how do you tension the chain?
+
+00:00:27:00 - 00:00:38:01
+Unknown
+Firstly, release the chain brake and use a combi spanner to turn the bolts anti-clockwise a few turns until loose. Do not try to tension the chain without loosening the side cover bolts first.
+
+00:00:38:07 - 00:00:43:10
+Unknown
+This results in damage to the chain tensioner mechanism.
+
+00:00:43:12 - 00:00:49:19
+Unknown
+This is found either in the saw body or the side cover.
+
+00:00:49:21 - 00:00:56:17
+Unknown
+Once loosened, turn the tensioner screw clockwise or anti-clockwise to achieve desired tension.
+
+00:00:56:19 - 00:01:04:24
+Unknown
+The correct tension should allow the chain to rotate easily, but stop when force is released.
+
+00:01:04:27 - 00:01:11:04
+Unknown
+Rest the nose of the bar on the work surface, then tighten the bolts back up
+
+00:01:11:06 - 00:01:15:27
+Unknown
+Now let's go over the process of removing and refitting the chain and guidebar.
+
+00:01:15:29 - 00:01:28:11
+Unknown
+When removing the chain and bar. Remember to always release the chain brake first if you don't, and try and remove the side cover, you can pull and distort the chain brake band.
+
+00:01:28:13 - 00:01:33:06
+Unknown
+This only applies to chainsaws with an outboard clutch assembly.
+
+00:01:33:08 - 00:01:38:29
+Unknown
+Once the chain brake has been released, undo the bolts and turn the chain tensioner screw anti-clockwise
+
+00:01:38:29 - 00:01:46:24
+Unknown
+A few turns, then loosen the bolts all the way until you can remove the side cover.
+
+00:01:46:26 - 00:01:59:16
+Unknown
+Bring the guidebar towards you and push towards the drive sprocket. This will allow the chain to slacken completely. Remove the chain from the nose before removing from behind the drive sprocket.
+
+00:01:59:19 - 00:02:07:15
+Unknown
+Repeat the same method for an inboard clutch, but remove the chain from the drive sprocket and first
+
+00:02:07:17 - 00:02:10:28
+Unknown
+to reassemble the chain and guidebar with an outboard clutch.
+
+00:02:11:00 - 00:02:19:09
+Unknown
+Make sure you put the chain behind the clutch first and it is seated in the drive sprocket.
+
+00:02:19:12 - 00:02:23:15
+Unknown
+Then manipulate the chain into the nose sprocket.
+
+00:02:23:17 - 00:02:28:00
+Unknown
+It can be easier to have the chainsaw upright when doing this.
+
+00:02:28:03 - 00:02:36:28
+Unknown
+If on its side, the chain can fall out the drive sprocket and groove, making things unnecessarily annoying.
+
+00:02:37:00 - 00:02:44:08
+Unknown
+Put the side cover back on, making sure to line up the tensioner screw with the hole in the guidebar.
+
+00:02:44:11 - 00:02:51:15
+Unknown
+If it's not lining up, undo the tensioner. Screw a little and move the bar back and forth until you feel it move into place.
+
+00:02:51:17 - 00:02:58:19
+Unknown
+Now tighten the bolts up finger tight and turn the tensioner screw until the correct tension is achieved.
+
+00:02:58:22 - 00:03:04:05
+Unknown
+Once this is done, firmly tighten up the bolts.
+
+00:03:04:07 - 00:03:25:13
+Unknown
+If you have an inboard clutch, the only difference is to install the chain around the new sprocket first, and then manipulate the chain into the drive sprocket and make sure the guidebar is located into the chain tensioner.
+
+00:03:25:15 - 00:03:29:09
+Unknown
+This concludes the video on chain tension removal and refitting.
+

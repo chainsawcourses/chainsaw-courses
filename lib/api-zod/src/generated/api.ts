@@ -1070,6 +1070,20 @@ export const TriggerNewsFetchResponse = zod.object({
 
 
 /**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const RetagAllNewsItemsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const RetagAllNewsItemsResponse = zod.object({
+  "total": zod.number(),
+  "tagged": zod.number(),
+  "errors": zod.number()
+})
+
+
+/**
  * @summary Approve a pending news item
  */
 export const ApproveNewsItemParams = zod.object({

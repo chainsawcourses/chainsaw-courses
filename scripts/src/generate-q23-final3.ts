@@ -34,9 +34,13 @@ const examQs: Array<{
   correct_option: number; learning_outcome: string; assessment_criteria: string;
 }> = JSON.parse(fs.readFileSync("/tmp/prod_exam_qs.json","utf8"));
 
+interface MockKeyPoint { label: string; keywords: string[]; }
+interface MockPrompt   { prompt: string; keyPoints: MockKeyPoint[]; threshold: number; }
 const mockQs: Array<{
-  id: number; question: string; keyPoints: string[];
+  id: number; sort_order: number; question: string; prompts: MockPrompt[];
 }> = JSON.parse(fs.readFileSync("/tmp/prod_mock_simple.json","utf8"));
+const numberedQs = mockQs.filter(q => q.sort_order < 9997);
+const closingStmts = mockQs.filter(q => q.sort_order >= 9997);
 
 const appModules: Array<{
   id: number; title: string; order: number; category: string;
@@ -59,6 +63,12 @@ const transcripts: Array<{
     }));
   } catch { return []; }
 })();
+
+// Sanitise common OCR / data-entry typos in LO codes
+const sanitizeLO = (v: string | null): string | null => {
+  if (!v) return v;
+  return v.replace(/^LOG\b/gi, "LO6").replace(/^LOS\b/gi, "LO5");
+};
 
 // Format HH:MM:SS:FF → M:SS (drop hours if zero, drop frames always)
 const fmtTc = (tc: string): string => {
@@ -106,7 +116,7 @@ function footer() {
   doc.moveTo(ML, fy).lineTo(ML + CW, fy).strokeColor(OG).lineWidth(0.8).stroke();
   doc.y = fy + 4;
   doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
-    .text("Chainsaw Maintenance & Cross Cutting  ·  Course Materials", ML, doc.y,
+    .text("Chainsaw Courses  ·  Course Materials", ML, doc.y,
       { width: CW - 30, align: "left", lineBreak: false });
   doc.y = fy + 4;
   doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
@@ -117,8 +127,12 @@ function footer() {
  * Guarantee at least `pts` of space remain on the current page.
  * If not, add a page NOW so that subsequent absolute positioning is safe.
  */
+// Content must stay above the footer zone (footer line at SAFE-20, text at SAFE-16).
+// CONTENT_SAFE = SAFE-26 gives a 6pt gap between the last content row and the footer line.
+const CONTENT_SAFE = SAFE - 26;
+
 function ensurePts(pts: number) {
-  if (doc.y + pts > SAFE) {
+  if (doc.y + pts > CONTENT_SAFE) {
     footer();
     doc.addPage();
   }
@@ -149,8 +163,9 @@ function sectionHead(n: string, title: string, sub = "") {
 
 // ─── Info box ─────────────────────────────────────────────────────────────────
 function infoBox(heading: string, body: string) {
-  const estBodyLines = Math.ceil(body.length / 90) + 1;
-  const h = 24 + estBodyLines * 13 + 8;
+  // Measure actual body height before rendering so ensurePts is accurate
+  const actualBodyH = doc.font("Helvetica").fontSize(9).heightOfString(body, { width: CW - 20 });
+  const h = 24 + actualBodyH + 10;
   ensurePts(h + 8);
   const y = doc.y;
   doc.rect(ML, y, 5, h).fill(OG);
@@ -163,13 +178,14 @@ function infoBox(heading: string, body: string) {
   doc.y = y + 21;
   doc.font("Helvetica").fontSize(9).fillColor(DGY)
     .text(body, ML + 12, doc.y, { width: CW - 20 });
-  // Advance past box (use max of actual position and estimated bottom)
+  // Advance past box (use max of actual position and measured bottom)
   doc.y = Math.max(doc.y, y + h) + 8;
 }
 
 // ─── Step row ─────────────────────────────────────────────────────────────────
 function step(n: number, text: string, col = OG) {
-  ensurePts(26); // enough for badge + 1 line minimum
+  const textH = doc.font("Helvetica").fontSize(9.5).heightOfString(text, { width: CW - 30 });
+  ensurePts(Math.max(26, textH + 8));
   const y = doc.y;
   // Badge rect
   doc.rect(ML, y, 22, 16).fill(col);
@@ -189,8 +205,8 @@ function step(n: number, text: string, col = OG) {
 
 // ─── Option box ───────────────────────────────────────────────────────────────
 function optionBox(label: string, body: string) {
-  const estLines = Math.ceil(body.length / 90) + 1;
-  const h = 24 + estLines * 13 + 8;
+  const actualBodyH = doc.font("Helvetica").fontSize(9).heightOfString(body, { width: CW - 20 });
+  const h = 24 + actualBodyH + 10;
   ensurePts(h + 8);
   const y = doc.y;
   doc.rect(ML, y, 5, h).fill(OG);
@@ -257,21 +273,26 @@ doc.font("Helvetica-Bold").fontSize(9.5).fillColor(BLK)
 sp(10);
 
 [
-  ["1", "How to Access the Live App & Admin Panel"],
-  ["2", "A Note on the Training Manual"],
-  ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 22 Assessment Criteria"],
-  ["4", `Syllabus Mapping Table — ${appModules.length} Modules · LO & AC Alignment`],
-  ["5", "Compliance Tools & Practical Worksheets"],
-  ["6", `Video Transcripts — ${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}`],
-  ["7", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`],
-  ["8", `Supplementary Oral & Practical Mock Questions (${mockQs.length})`],
-].forEach(([n, title]) => {
+  ["1", "How to Access the Live App & Admin Panel",                                                 "2"],
+  ["2", "A Note on the Training Manual",                                                            "3"],
+  ["3", "Learning Outcome Framework — 3 Units · 6 LOs · 22 Assessment Criteria",                   "4"],
+  ["4", `Syllabus Mapping Table — ${appModules.length + 3} Modules · LO & AC Alignment`,           "6"],
+  ["5", "Compliance Tools & Practical Worksheets",                                                  "7"],
+  ["6", `Video Transcripts — ${transcripts.length} Module${transcripts.length !== 1 ? "s" : ""}`,  "8"],
+  ["7", `Assessment Bank — ${examQs.length} Multiple-Choice Questions`,                            "33"],
+  ["8", `Supplementary Oral & Practical Mock Questions (${numberedQs.length})`,                    "53"],
+].forEach(([n, title, pg]) => {
   const y = doc.y;
   doc.rect(ML, y, 20, 16).fill(OG);
   doc.font("Helvetica-Bold").fontSize(8).fillColor(WHT)
     .text(n, ML, y + 4, { width: 20, align: "center", lineBreak: false });
   doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
-    .text(title, ML + 26, y + 4, { lineBreak: false });
+    .text(title, ML + 26, y + 4, { width: CW - 60, lineBreak: false });
+  if (pg) {
+    doc.y = y + 4;
+    doc.font("Helvetica").fontSize(8).fillColor(MGY)
+      .text(pg, ML, doc.y, { width: CW, align: "right", lineBreak: false });
+  }
   doc.y = y + 20;
 });
 
@@ -301,7 +322,7 @@ sp(8);
   "All videos, features, certificates, and IIRSM-referenced content are fully accessible for review.",
 ].forEach((s, i) => step(i + 1, s));
 
-sp(12); hrule(); sp(12);
+ensurePts(36); sp(12); hrule(); sp(12);
 doc.font("Helvetica-Bold").fontSize(10).fillColor(BLK)
   .text("New Learner Journey — Standard Access Route", ML, doc.y, { lineBreak: false });
 sp(16);
@@ -317,7 +338,7 @@ sp(10);
   "On completion, the 45-question exam unlocks. 80% pass auto-generates the IIRSM certificate.",
 ].forEach((s, i) => step(i + 1, s, BLK));
 
-sp(14); hrule(); sp(12);
+ensurePts(36); sp(14); hrule(); sp(12);
 sectionHead("2","A Note on the Training Manual","Published author  ·  File size & access options");
 
 infoBox("Published Author",
@@ -369,7 +390,7 @@ const loFramework: LoEntry[] = [
       ["AC 1.3", "Summarise COSHH control tracking required for hazardous fuels, battery cells, lubricants, and toxic flora species."],
       ["AC 1.4", "Detail CE/UKCA and global standard class markings for safety helmets, hearing protection, gloves, and Type A/C protective trousers."],
     ],
-    modules: ["Equipment List", "PPE & First Aid", "Law & Regulations", "Hazards & Risks"],
+    modules: ["PPE & First Aid", "Law & Regulations"],
   },
   {
     lo: "LO2", unit: "Unit 1 — Occupational Standards, Health & Safety, and Risk Evaluation",
@@ -380,7 +401,7 @@ const loFramework: LoEntry[] = [
       ["AC 2.2", "Formulate an emergency communication and extraction map with grid references, postcodes, access limitations, and trauma kit deployments."],
       ["AC 2.3", "Identify bio-security cleaning controls necessary to stop the spread of invasive arboreal pathogens and pests."],
     ],
-    modules: ["5 Steps To Risk Assessment", "Hazards & Risks", "Emergency Planning Information"],
+    modules: ["5 Steps To Risk Assessment", "Emergency Planning Information"],
   },
   {
     lo: "LO3", unit: "Unit 2 — Power Unit Architecture, Mechanical Integrity, and Component Maintenance",
@@ -469,6 +490,8 @@ for (const entry of loFramework) {
 
   // ── Assessment Criteria ───────────────────────────────────────────────────────
   for (const [ref, text] of entry.acs) {
+    const acH = doc.font("Helvetica").fontSize(8).heightOfString(text, { width: CW - 48 });
+    ensurePts(acH + 6);
     const acY = doc.y;
     doc.font("Helvetica-Bold").fontSize(8).fillColor(OG)
       .text(ref, ML + 4, acY, { width: 36, lineBreak: false });
@@ -479,12 +502,15 @@ for (const entry of loFramework) {
   sp(8);
 
   // ── Activities / Modules ─────────────────────────────────────────────────────
+  const modText = entry.modules.join("   \xb7   ");
+  const modH = doc.font("Helvetica").fontSize(7.5).heightOfString(modText, { width: CW - 56 });
+  ensurePts(modH + 36); // room for text + sp(14) + hrule + sp(8)
   const modY = doc.y;
   doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
     .text("Activities:", ML + 4, modY, { lineBreak: false });
   doc.y = modY;
   doc.font("Helvetica").fontSize(7.5).fillColor("#555555")
-    .text(entry.modules.join("   \xb7   "), ML + 52, doc.y, { width: CW - 56 });
+    .text(modText, ML + 52, doc.y, { width: CW - 56 });
   sp(14);
   hrule(OGL, 0.6);
   sp(8);
@@ -497,29 +523,29 @@ footer();
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
 sectionHead("4", "Syllabus Mapping Table",
-  `${appModules.length} Modules  ·  Learning Outcome & Assessment Criteria Alignment`);
+  `${appModules.length + 3} Modules  ·  Learning Outcome & Assessment Criteria Alignment`);
 
 doc.font("Helvetica").fontSize(9.5).fillColor(DGY)
-  .text("The table below maps every active app module to its corresponding Learning Outcome (LO) and Assessment Criteria (AC). This mirrors the alignment table at the back of the training manual. Modules categorised as Course Requirements are reference documents and do not carry a formal LO/AC assignment.", ML, doc.y, { width: CW });
+  .text("The table below maps every active app module to its corresponding Learning Outcome (LO), Assessment Criteria (AC), and Assessment Method. This mirrors the alignment table at the back of the training manual.", ML, doc.y, { width: CW });
 sp(12);
 
 // ── Column widths (total = CW = 495) ──────────────────────────────────────────
 const C_NUM  = 22;
-const C_TTL  = 145;
-const C_TYP  = 36;
+const C_TTL  = 115;
 const C_CAT  = 90;
-const C_LO   = 34;
-const C_AC   = 110;
+const C_LO   = 28;
+const C_AC   = 90;
+const C_AM   = 92;
 const C_PG   = 58;
-// total = 22+145+36+90+34+110+58 = 495 ✓
+// total = 22+115+90+28+90+92+58 = 495 ✓
 
 const MAP_COLS = [
-  { label: "#",                   w: C_NUM },
   { label: "Module Title",        w: C_TTL },
-  { label: "Type",                w: C_TYP },
+  { label: "#",                   w: C_NUM },
   { label: "Category",            w: C_CAT },
   { label: "LO",                  w: C_LO  },
   { label: "Assessment Criteria", w: C_AC  },
+  { label: "Assessment Method",   w: C_AM  },
   { label: "Manual pp.",          w: C_PG  },
 ];
 
@@ -603,8 +629,10 @@ drawMapHeader();
 
 let mapRowAlt = false;
 let lastCat = "";
+let mapRowNum = 0;
 
 for (const mod of appModules) {
+  mapRowNum++;
   if (mod.category !== lastCat) {
     sp(4);
     drawCatBar(categoryLabels[mod.category] ?? mod.category);
@@ -616,10 +644,12 @@ for (const mod of appModules) {
   const loText = mod.learning_outcome ?? "—";
   const acText = mod.assessment_criteria ?? "—";
 
-  // Measure the two columns that can wrap, pick the tallest
+  // Measure columns that can wrap, pick the tallest
+  const AM_TEXT = hasLo ? "Module Quiz & Final Exam" : "—";
   const loH = doc.font("Helvetica-Bold").fontSize(7.5).heightOfString(loText, { width: C_LO - 6 });
   const acH = doc.font("Helvetica").fontSize(7.5).heightOfString(acText, { width: C_AC - 8 });
-  const rowH = Math.max(16, loH + 7, acH + 7);
+  const amH = doc.font("Helvetica").fontSize(6.5).heightOfString(AM_TEXT, { width: C_AM - 6 });
+  const rowH = Math.max(16, loH + 7, acH + 7, amH + 7);
 
   if (doc.y + rowH > MAP_SAFE) {
     footer();
@@ -637,35 +667,33 @@ for (const mod of appModules) {
     bx += col.w;
   }
 
+
   let cx = ML;
-  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
-    .text(String(mod.order), cx + 3, ry + 4, { width: C_NUM - 4, align: "center", lineBreak: false });
-  cx += C_NUM;
   doc.font("Helvetica").fontSize(7.5).fillColor(BLK)
     .text(mod.title, cx + 3, ry + 4, { width: C_TTL - 6, lineBreak: false });
   cx += C_TTL;
-  const isAppOnly = mod.order === 1 || mod.order === 4;
-  const typeLabel = mod.content_type === "video" ? "Video" : isAppOnly ? "App" : "PDF";
-  const typeCol   = mod.content_type === "video" ? OGD : isAppOnly ? "#2e7d60" : "#4a6da7";
-  doc.font("Helvetica-Bold").fontSize(7).fillColor(typeCol)
-    .text(typeLabel, cx + 3, ry + 4, { width: C_TYP - 6, lineBreak: false });
-  cx += C_TYP;
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
+    .text(String(mapRowNum), cx + 3, ry + 4, { width: C_NUM - 4, align: "center", lineBreak: false });
+  cx += C_NUM;
   const shortCat: Record<string,string> = {
-    "COURSE REQUIREMENTS": "Course Req.",
-    "ASSESSMENT MODULES":  "Assessment",
-    "CHAINSAW MAINTENANCE":"Maintenance",
-    "CROSS CUTTING":       "Cross Cutting",
+    "COURSE REQUIREMENTS":  "Course Req.",
+    "ASSESSMENT MODULES":   "Under-pinning Knowledge",
+    "CHAINSAW MAINTENANCE": "Maintenance",
+    "CROSS CUTTING":        "Cross Cutting",
   };
   doc.font("Helvetica").fontSize(7).fillColor(DGY)
     .text(shortCat[mod.category] ?? mod.category, cx + 3, ry + 4, { width: C_CAT - 6, lineBreak: false });
   cx += C_CAT;
   // LO and AC columns may wrap — no lineBreak: false
   doc.font("Helvetica-Bold").fontSize(7.5).fillColor(hasLo ? OG : MGY)
-    .text(loText, cx + 3, ry + 4, { width: C_LO - 6 });
+    .text(sanitizeLO(loText) ?? loText, cx + 3, ry + 4, { width: C_LO - 6 });
   cx += C_LO;
   doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
     .text(acText, cx + 3, ry + 4, { width: C_AC - 8 });
   cx += C_AC;
+  doc.font("Helvetica").fontSize(6.5).fillColor(hasLo ? DGY : MGY)
+    .text(AM_TEXT, cx + 3, ry + 4, { width: C_AM - 6 });
+  cx += C_AM;
   const pgRef = modulePageRefs[mod.order] ?? "—";
   doc.font("Helvetica").fontSize(7.5).fillColor(hasLo ? DGY : MGY)
     .text(pgRef, cx + 3, ry + 4, { width: C_PG - 6, lineBreak: false });
@@ -674,35 +702,68 @@ for (const mod of appModules) {
   mapRowAlt = !mapRowAlt;
 }
 
-sp(14);
-ensurePts(60);
-hrule(OGL, 0.6);
-sp(8);
-doc.font("Helvetica-Bold").fontSize(8).fillColor(BLK).text("Key", ML, doc.y, { lineBreak: false });
-sp(12);
-const legendItems = [
-  ["LO1–LO6", "Learning Outcomes 1–6 across three units of the qualification"],
-  ["AC x.x",  "Assessment Criteria — each LO has 2–6 specific criteria"],
-  ["—",        "Course Requirements modules are prerequisite reference docs; no formal LO/AC assigned"],
-  ["Video",    "Interactive video module with embedded quiz (sequentially gated)"],
-  ["App",      "Content embedded in the app interface (e.g. main page, risk assessment page) — not a separate file"],
-  ["PDF",      "Read-only reference document (does not gate progression)"],
+// ── Advanced Workshop Extension rows (not app modules — appended after main loop) ──
+sp(4);
+drawCatBar("Advanced Workshop Extension — Supplementary Assessment Criteria");
+
+const advExtRows: Array<{ title: string; cat: string; lo: string; ac: string; am: string; pg: string }> = [
+  { title: "Carburettor Adjustment", cat: "Maintenance",    lo: "LO4", ac: "AC 4.2", am: "Not Assessed", pg: "pp. 40–41"   },
+  { title: "Snedding & De-Limbing",  cat: "Cross Cutting",  lo: "LO6", ac: "AC 6.5", am: "Not Assessed", pg: "pp. 118–119" },
+  { title: "Windfall & Root Plates", cat: "Cross Cutting",  lo: "LO6", ac: "AC 6.6", am: "Not Assessed", pg: "pp. 122–127" },
 ];
-for (const [term, def] of legendItems) {
-  const ly = doc.y;
+
+for (const ext of advExtRows) {
+  mapRowNum++;
+  const titleH = doc.font("Helvetica").fontSize(7.5).heightOfString(ext.title, { width: C_TTL - 6 });
+  const acH2   = doc.font("Helvetica").fontSize(7.5).heightOfString(ext.ac,    { width: C_AC - 8 });
+  const amH2   = doc.font("Helvetica").fontSize(6.5).heightOfString(ext.am,    { width: C_AM - 6 });
+  const rowH   = Math.max(16, titleH + 7, acH2 + 7, amH2 + 7);
+
+  if (doc.y + rowH > MAP_SAFE) { footer(); doc.addPage(); drawMapHeader(); mapRowAlt = false; }
+
+  const ry = doc.y;
+  doc.rect(ML, ry, CW, rowH).fill(mapRowAlt ? "#F5F0EB" : WHT);
+  let bx = ML;
+  for (const col of MAP_COLS) {
+    doc.rect(bx, ry, col.w, rowH).strokeColor("#DDDDDD").lineWidth(0.4).stroke();
+    bx += col.w;
+  }
+
+  let cx = ML;
+  doc.font("Helvetica").fontSize(7.5).fillColor(BLK)
+    .text(ext.title, cx + 3, ry + 4, { width: C_TTL - 6, lineBreak: false });
+  cx += C_TTL;
   doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OGD)
-    .text(term, ML + 4, ly, { width: 50, lineBreak: false });
-  doc.y = ly;
+    .text(String(mapRowNum), cx + 3, ry + 4, { width: C_NUM - 4, align: "center", lineBreak: false });
+  cx += C_NUM;
+  const shortExtCat: Record<string,string> = {
+    "Maintenance":   "Maintenance",
+    "Cross Cutting": "Cross Cutting",
+  };
+  doc.font("Helvetica").fontSize(7).fillColor(DGY)
+    .text(shortExtCat[ext.cat] ?? ext.cat, cx + 3, ry + 4, { width: C_CAT - 6, lineBreak: false });
+  cx += C_CAT;
+  doc.font("Helvetica-Bold").fontSize(7.5).fillColor(OG)
+    .text(ext.lo, cx + 3, ry + 4, { width: C_LO - 6 });
+  cx += C_LO;
   doc.font("Helvetica").fontSize(7.5).fillColor(DGY)
-    .text(def, ML + 58, doc.y, { width: CW - 62 });
+    .text(ext.ac, cx + 3, ry + 4, { width: C_AC - 8 });
+  cx += C_AC;
+  doc.font("Helvetica").fontSize(6.5).fillColor(DGY)
+    .text(ext.am, cx + 3, ry + 4, { width: C_AM - 6 });
+  cx += C_AM;
+  doc.font("Helvetica").fontSize(7.5).fillColor(DGY)
+    .text(ext.pg, cx + 3, ry + 4, { width: C_PG - 6, lineBreak: false });
+
+  doc.y = ry + rowH;
+  mapRowAlt = !mapRowAlt;
 }
 
-footer();
+sp(14);
 
 // ════════════════════════════════════════════════════════════════════════════════
 // SECTION 5 — COMPLIANCE TOOLS IN THE APP
 // ════════════════════════════════════════════════════════════════════════════════
-doc.addPage();
 sectionHead("5", "Compliance Tools & Practical Worksheets",
   "Available within the course app  \xb7  PPE Verification  \xb7  Risk Assessment  \xb7  Emergency Action Plan  \xb7  Bio-Security  \xb7  CPD News");
 
@@ -781,9 +842,15 @@ if (transcripts.length === 0) {
   const C_TC = 88;
   const C_TX = CW - C_TC;
 
+  // Build a map from DB order value → 1-based sequential position (matches syllabus table numbering)
+  const moduleSeqMap = new Map<number, number>();
+  [...appModules].sort((a, b) => a.order - b.order).forEach((m, i) => moduleSeqMap.set(m.order, i + 1));
+
   for (const t of transcripts) {
     const segs = t.segments.filter(s => s.text?.trim());
     if (segs.length === 0) continue;
+
+    const seqNum = moduleSeqMap.get(t.module_order) ?? t.module_order;
 
     // ── Module sub-header ─────────────────────────────────────────────────────
     ensurePts(54);
@@ -791,11 +858,11 @@ if (transcripts.length === 0) {
     const mhy = doc.y;
     doc.rect(ML, mhy, CW, 22).fill(OGD);
     doc.font("Helvetica-Bold").fontSize(9).fillColor(WHT)
-      .text(`Module ${t.module_order}: ${t.module_title}`, ML + 6, mhy + 6, { width: CW - 110, lineBreak: false });
+      .text(`Module ${seqNum}: ${t.module_title}`, ML + 6, mhy + 6, { width: CW - 110, lineBreak: false });
     if (t.learning_outcome || t.assessment_criteria) {
-      doc.font("Helvetica").fontSize(8).fillColor(OGL)
-        .text([t.learning_outcome, t.assessment_criteria].filter(Boolean).join("  ·  "),
-          ML + CW - 104, mhy + 7, { width: 100, align: "right", lineBreak: false });
+      doc.font("Helvetica").fontSize(7.5).fillColor(OGL)
+        .text([sanitizeLO(t.learning_outcome), t.assessment_criteria].filter(Boolean).join("  ·  "),
+          ML + CW - 134, mhy + 8, { width: 130, align: "right", lineBreak: false });
     }
     doc.y = mhy + 22;
 
@@ -844,7 +911,7 @@ doc.addPage();
 sectionHead("7","Assessment Bank",
   `${examQs.length} Multiple-Choice Questions  \xb7  Summative Examination Pool`);
 infoBox("How the exam works",
-  `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass. Correct answers are highlighted in orange with ✓.`);
+  `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass. Correct answers are highlighted in orange with ✓. The question bank is continuously reviewed and updated via the admin panel; the version printed here reflects the bank at the time of document generation.`);
 
 examQs.forEach((q, i) => {
   const options: string[] = JSON.parse(q.options);
@@ -871,7 +938,7 @@ examQs.forEach((q, i) => {
   // AC tag — advance to y0+4 first
   doc.y = y0 + 4;
   doc.font("Helvetica").fontSize(7.5).fillColor(MGY)
-    .text(`${q.learning_outcome}  ·  ${q.assessment_criteria}`,
+    .text(`${sanitizeLO(q.learning_outcome)}  ·  ${q.assessment_criteria}`,
       ML + 32, doc.y, { width: CW - 34, align: "right", lineBreak: false });
 
   // Advance past badge row
@@ -882,20 +949,22 @@ examQs.forEach((q, i) => {
     .text(q.question, ML + 6, doc.y, { width: CW - 12 });
   sp(2);
 
-  // Options — natural flow
+  // Options — guard each option individually
   options.forEach((opt, oi) => {
     const isCorrect = oi === q.correct_option;
+    const optStr = `${OPTS[oi]}.  ${opt}${isCorrect ? "  ✓" : ""}`;
+    const optH = doc.font(isCorrect ? "Helvetica-Bold" : "Helvetica")
+      .fontSize(9).heightOfString(optStr, { width: CW - 20 });
+    ensurePts(optH + 4);
     if (isCorrect) {
-      // Pale highlight — estimate height, draw behind text
-      const estLines = Math.ceil((opt.length + 8) / 80) + 1;
-      doc.rect(ML + 6, doc.y - 1, CW - 8, estLines * 12 + 2).fill(OGL);
+      doc.rect(ML + 6, doc.y - 1, CW - 8, optH + 4).fill(OGL);
     }
     doc.font(isCorrect ? "Helvetica-Bold" : "Helvetica")
       .fontSize(9).fillColor(isCorrect ? OG : MGY)
-      .text(`${OPTS[oi]}.  ${opt}${isCorrect ? "  ✓" : ""}`,
-        ML + 14, doc.y, { width: CW - 20 });
+      .text(optStr, ML + 14, doc.y, { width: CW - 20 });
   });
 
+  ensurePts(14);
   sp(5);
   hrule(RUL, 0.4);
   sp(4);
@@ -908,16 +977,19 @@ footer();
 // ════════════════════════════════════════════════════════════════════════════════
 doc.addPage();
 sectionHead("8","Supplementary Oral & Practical Mock Questions",
-  `${mockQs.length} Questions  ·  Formative Practice Only — Not Formally Assessed`);
+  `${numberedQs.length} Questions  ·  Formative Practice Only — Not Formally Assessed`);
 infoBox("Important — these questions do not contribute to the pass/fail outcome",
-  `These ${mockQs.length} questions are oral and practical preparation aids. They do NOT form part of the summative examination, do NOT appear on the certificate, and are NOT formally assessed. Within the app, learners practise them via an AI-assisted voice or text feature that provides formative feedback.`);
+  `These ${numberedQs.length} questions are oral and practical preparation aids. They do NOT form part of the summative examination, do NOT appear on the certificate, and are NOT formally assessed. Within the app, learners practise them via an AI-assisted voice or text feature that provides formative feedback.`);
 
-mockQs.forEach((q, i) => {
+numberedQs.forEach((q, i) => {
   ensurePts(80);
   const y0 = doc.y;
 
+  // Estimate total height: badge row + question + all prompts + key points + keywords
+  const totalKpLines = q.prompts.reduce((s, p) => s + p.keyPoints.length, 0);
+  const totalPromptLines = q.prompts.length;
+  const bgH = 20 + 40 + totalPromptLines * 28 + totalKpLines * 14 + 16;
   if (i % 2 === 0) {
-    const bgH = 16 + 45 + (q.keyPoints.length ? q.keyPoints.length * 13 + 14 : 0) + 12;
     doc.rect(ML, y0, CW, bgH).fill(LGY);
   }
 
@@ -935,37 +1007,94 @@ mockQs.forEach((q, i) => {
   doc.y = y0 + 20;
   doc.font("Helvetica-Bold").fontSize(9.5).fillColor(BLK)
     .text(q.question, ML + 6, doc.y, { width: CW - 12 });
-  sp(2);
+  sp(6);
 
-  if (q.keyPoints.length > 0) {
-    doc.font("Helvetica-Oblique").fontSize(8).fillColor(OG)
-      .text("Key points:", ML + 14, doc.y, { lineBreak: false });
-    sp(11);
-    q.keyPoints.forEach(kp => {
-      doc.font("Helvetica").fontSize(8.5).fillColor(DGY)
-        .text(`•  ${kp}`, ML + 18, doc.y, { width: CW - 26 });
-    });
-  }
+  q.prompts.forEach((p, pi) => {
+    // Measure actual prompt height for an accurate guard
+    const promptTrim = p.prompt?.trim() ?? "";
+    const promptH = promptTrim
+      ? doc.font("Helvetica-Oblique").fontSize(8.5).heightOfString(promptTrim, { width: CW - 22 })
+      : 0;
+    const labelH = q.prompts.length > 1 ? 18 : 0;
+    ensurePts(labelH + promptH + 16);
 
-  sp(5);
+    // Prompt label + text (only shown for multi-prompt questions)
+    if (q.prompts.length > 1) {
+      const promptLabel = `Option ${pi + 1}:`;
+      doc.font("Helvetica-Bold").fontSize(8).fillColor(OGD)
+        .text(promptLabel, ML + 10, doc.y, { lineBreak: false });
+      sp(11);
+    }
+    // Skip the italic prompt if it is identical to the question — avoids duplicate text
+    const isDuplicateOfQuestion = promptTrim === q.question.trim();
+    if (promptTrim && !isDuplicateOfQuestion) {
+      doc.font("Helvetica-Oblique").fontSize(8.5).fillColor(DGY)
+        .text(promptTrim, ML + 14, doc.y, { width: CW - 22 });
+      sp(3);
+    }
+
+    // Key points
+    if (p.keyPoints.length > 0) {
+      ensurePts(22);
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(MGY)
+        .text("Key points:", ML + 14, doc.y, { lineBreak: false });
+      sp(11);
+      p.keyPoints.forEach(kp => {
+        const kpH = doc.font("Helvetica").fontSize(8.5).heightOfString(`•  ${kp.label}`, { width: CW - 30 });
+        const kwH = kp.keywords.length > 0
+          ? doc.font("Helvetica-Oblique").fontSize(7.5).heightOfString(`    Keywords: ${kp.keywords.join(", ")}`, { width: CW - 30 })
+          : 0;
+        ensurePts(kpH + kwH + 4);
+        doc.font("Helvetica").fontSize(8.5).fillColor(DGY)
+          .text(`•  ${kp.label}`, ML + 20, doc.y, { width: CW - 30 });
+        if (kp.keywords.length > 0) {
+          doc.font("Helvetica-Oblique").fontSize(7.5).fillColor(MGY)
+            .text(`    Keywords: ${kp.keywords.join(", ")}`, ML + 20, doc.y, { width: CW - 30 });
+        }
+      });
+      sp(4);
+    }
+  });
+
+  sp(3);
   hrule(RUL, 0.4);
   sp(4);
 });
 
-footer();
+// ── Closing statements (unnumbered — assessor guidance only) ──────────────
+if (closingStmts.length > 0) {
+  sp(8);
+  hrule(RUL, 0.6);
+  sp(10);
+  closingStmts.forEach(q => {
+    const stmtH = doc.font("Helvetica-Oblique").fontSize(9.5).heightOfString(q.question, { width: CW });
+    ensurePts(stmtH + 6);
+    doc.font("Helvetica-Oblique").fontSize(9.5).fillColor(MGY)
+      .text(q.question, ML, doc.y, { width: CW });
+    sp(4);
+  });
+  sp(6);
+}
 
-// End bar
-ensurePts(36);
+// ── End bar — kept on same page as last content when possible ─────────────
+// Needs ~66pt: sp(10) + rect(26) + text_row(14) + gap to footer zone
+if (doc.y + 66 > CONTENT_SAFE) {
+  footer();
+  doc.addPage();
+}
 sp(10);
 doc.rect(ML, doc.y, CW, 26).fill(OG);
 doc.y += 10;
 doc.font("Helvetica-Bold").fontSize(9).fillColor(WHT)
   .text("End of Course Materials  ·  chainsawcourses.com  ·  © 2026 Chainsaw Courses Ltd",
     ML, doc.y, { width: CW, align: "center", lineBreak: false });
-doc.y += 26;
 
 footer();
 
+// Reset cursor to top-of-content before doc.end() to prevent pdfkit
+// from flushing a spurious blank trailing page caused by doc.y sitting
+// near the page bottom after the footer render.
+doc.y = doc.page.margins.top;
 doc.end();
 stream.on("finish", () => {
   const { size } = fs.statSync(OUT);

@@ -52,6 +52,7 @@ import type {
   ModuleDetail,
   NewsFetchResult,
   NewsItem,
+  NewsRetagResult,
   PatchInspectionInput,
   PatchRiskAssessmentInput,
   ProgressSummary,
@@ -3397,6 +3398,76 @@ export const useTriggerNewsFetch = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getTriggerNewsFetchMutationOptions(options));
+    }
+
+export const getRetagAllNewsItemsUrl = () => {
+
+
+
+
+  return `/api/admin/news/retag-all`
+}
+
+/**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const retagAllNewsItems = async ( options?: RequestInit): Promise<NewsRetagResult> => {
+
+  return customFetch<NewsRetagResult>(getRetagAllNewsItemsUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRetagAllNewsItemsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext> => {
+
+const mutationKey = ['retagAllNewsItems'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retagAllNewsItems>>, void> = () => {
+
+
+          return  retagAllNewsItems(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetagAllNewsItemsMutationResult = NonNullable<Awaited<ReturnType<typeof retagAllNewsItems>>>
+
+    export type RetagAllNewsItemsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const useRetagAllNewsItems = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof retagAllNewsItems>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRetagAllNewsItemsMutationOptions(options));
     }
 
 export const getApproveNewsItemUrl = (id: number,) => {

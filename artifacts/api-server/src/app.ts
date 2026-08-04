@@ -48,6 +48,8 @@ app.use("/api", (_req, res, next) => {
 
 // Serve uploaded question images as static files
 app.use("/question-images/uploads", express.static(path.join(__dirname, "../uploads/question-images")));
+// Serve uploaded question audio as static files
+app.use("/question-audio/uploads", express.static(path.join(__dirname, "../uploads/question-audio")));
 
 app.use("/api", router);
 

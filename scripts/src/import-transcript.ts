@@ -39,8 +39,14 @@ function parseTranscriptFile(content: string): Segment[] {
       const timecodeEnd = tcMatch[2];
       i++;
 
-      // Skip speaker label (e.g. "Unknown") or blank
-      if (i < lines.length) i++;
+      // Skip speaker label line only if it looks like one (blank, "Unknown", "Speaker 1:", etc.)
+      // — not all formats include a speaker label, so don't skip actual content.
+      if (i < lines.length) {
+        const possibleLabel = lines[i].trim();
+        const isLabel = possibleLabel === ""
+          || /^[A-Za-z][A-Za-z0-9 ]*:?\s*$/.test(possibleLabel) && possibleLabel.split(/\s+/).length <= 3;
+        if (isLabel) i++;
+      }
 
       // Collect text lines until blank line or next timecode
       const textLines: string[] = [];
@@ -77,6 +83,7 @@ async function main() {
   const moduleTitle   = get("--title");
   const learningOutcome   = get("--lo") ?? null;
   const assessmentCriteria = get("--ac") ?? null;
+  const skipPdf = args.includes("--skip-pdf");
 
   if (!filePath || isNaN(moduleOrder) || !moduleTitle) {
     console.error("Usage: tsx import-transcript.ts --file <path> --order <n> --title <title> [--lo LO1] [--ac 'AC 1.4']");
@@ -104,6 +111,7 @@ async function main() {
   await pool.end();
 
   // ── Regenerate Course Materials PDF ─────────────────────────────────────
+  if (skipPdf) { console.log("⏭   Skipping PDF regeneration (--skip-pdf)."); return; }
   const scriptsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   console.log("📄  Fetching latest DB data for PDF…");
   execSync("npx tsx src/fetch-prod-data.ts", { cwd: scriptsDir, stdio: "inherit" });

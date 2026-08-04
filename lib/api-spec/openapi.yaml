@@ -1077,6 +1077,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/NewsFetchResult"
 
+  /admin/news/retag-all:
+    post:
+      operationId: retagAllNewsItems
+      tags: [news]
+      summary: Retag all approved articles that have no LO/AC assigned
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retag result summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsRetagResult"
+
   /admin/news/{id}/approve:
     post:
       operationId: approveNewsItem
@@ -2054,6 +2073,17 @@ components:
           type: ["string", "null"]
         assessmentCriteria:
           type: ["string", "null"]
+
+    NewsRetagResult:
+      type: object
+      required: [total, tagged, errors]
+      properties:
+        total:
+          type: integer
+        tagged:
+          type: integer
+        errors:
+          type: integer
 
     NewsFetchResult:
       type: object

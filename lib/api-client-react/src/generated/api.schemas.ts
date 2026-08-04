@@ -521,6 +521,12 @@ export interface NewsItem {
   assessmentCriteria?: string | null;
 }
 
+export interface NewsRetagResult {
+  total: number;
+  tagged: number;
+  errors: number;
+}
+
 export interface NewsFetchResult {
   fetched: number;
   inserted: number;

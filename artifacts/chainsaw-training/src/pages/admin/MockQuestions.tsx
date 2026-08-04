@@ -10,7 +10,7 @@ const ORANGE = "#e27226";
 
 interface KeyPoint { label: string; keywords: string[]; }
 interface VocalPrompt { prompt: string; keyPoints: KeyPoint[]; threshold: number; isAction?: boolean; }
-interface MockQuestion { id: number; question: string; prompts: VocalPrompt[]; image?: string; sortOrder: number; isActive: boolean; }
+interface MockQuestion { id: number; question: string; prompts: VocalPrompt[]; image?: string; audioUrl?: string; sortOrder: number; isActive: boolean; }
 
 const BLANK_Q: Omit<MockQuestion, "id"> = {
   question: "",
@@ -22,14 +22,29 @@ const BLANK_Q: Omit<MockQuestion, "id"> = {
 function KeyPointEditor({
   kp, idx, onChange, onRemove, canRemove,
 }: { kp: KeyPoint; idx: number; onChange: (kp: KeyPoint) => void; onRemove: () => void; canRemove: boolean }) {
+  // Local state so every keystroke doesn't cascade up through the full state tree.
+  // The keywords textarea especially needs this — trimming on every change stripped
+  // trailing spaces, making it impossible to type "word, nextword".
+  const [label, setLabel] = useState(kp.label);
+  const [kwText, setKwText] = useState(kp.keywords.join(", "));
+
+  // Commit local state to parent (on blur or explicit action)
+  const commit = (nextLabel: string, nextKwText: string) => {
+    onChange({
+      label: nextLabel,
+      keywords: nextKwText.split(",").map(k => k.trim()).filter(Boolean),
+    });
+  };
+
   return (
     <div className="bg-secondary/10 rounded-md p-3 space-y-2">
       <div className="flex items-start gap-2">
         <div className="flex-1 space-y-1.5">
           <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Label {idx + 1}</label>
           <input
-            value={kp.label}
-            onChange={e => onChange({ ...kp, label: e.target.value })}
+            value={label}
+            onChange={e => setLabel(e.target.value)}
+            onBlur={() => commit(label, kwText)}
             placeholder="e.g. Step 1 — Identify the hazards"
             className="w-full rounded border border-input bg-background px-2 py-1 text-xs font-mono"
           />
@@ -43,8 +58,9 @@ function KeyPointEditor({
       <div>
         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Keywords (comma-separated)</label>
         <textarea
-          value={kp.keywords.join(", ")}
-          onChange={e => onChange({ ...kp, keywords: e.target.value.split(",").map(k => k.trim()).filter(Boolean) })}
+          value={kwText}
+          onChange={e => setKwText(e.target.value)}
+          onBlur={() => commit(label, kwText)}
           rows={2}
           placeholder="identif, hazard, danger, find the..."
           className="w-full rounded border border-input bg-background px-2 py-1 text-xs font-mono mt-1 resize-none"
@@ -57,13 +73,17 @@ function KeyPointEditor({
 function PromptEditor({
   prompt, idx, onChange, onRemove, canRemove,
 }: { prompt: VocalPrompt; idx: number; onChange: (p: VocalPrompt) => void; onRemove: () => void; canRemove: boolean }) {
+  // Local state for the prompt text so keystrokes don't cascade to the top-level form
+  const [promptText, setPromptText] = useState(prompt.prompt);
+
+  // Always include the latest local promptText when syncing keyPoints changes upward
   const setKp = (i: number, kp: KeyPoint) => {
     const next = [...prompt.keyPoints];
     next[i] = kp;
-    onChange({ ...prompt, keyPoints: next });
+    onChange({ ...prompt, prompt: promptText, keyPoints: next });
   };
-  const removeKp = (i: number) => onChange({ ...prompt, keyPoints: prompt.keyPoints.filter((_, j) => j !== i) });
-  const addKp = () => onChange({ ...prompt, keyPoints: [...prompt.keyPoints, { label: "", keywords: [] }] });
+  const removeKp = (i: number) => onChange({ ...prompt, prompt: promptText, keyPoints: prompt.keyPoints.filter((_, j) => j !== i) });
+  const addKp = () => onChange({ ...prompt, prompt: promptText, keyPoints: [...prompt.keyPoints, { label: "", keywords: [] }] });
 
   return (
     <div className="border border-border rounded-lg p-4 space-y-3">
@@ -78,8 +98,9 @@ function PromptEditor({
       <div>
         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Prompt text</label>
         <textarea
-          value={prompt.prompt}
-          onChange={e => onChange({ ...prompt, prompt: e.target.value })}
+          value={promptText}
+          onChange={e => setPromptText(e.target.value)}
+          onBlur={() => onChange({ ...prompt, prompt: promptText })}
           rows={2}
           className="w-full rounded border border-input bg-background px-2 py-1.5 text-sm mt-1 resize-none"
         />
@@ -183,6 +204,71 @@ function ImageUploader({
   );
 }
 
+function AudioUploader({
+  adminToken, value, onChange,
+}: { adminToken: string; value?: string; onChange: (url: string | undefined) => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("audio", file);
+      const res = await fetch("/api/admin/mock-questions/upload-audio", {
+        method: "POST",
+        headers: { admintoken: adminToken },
+        body: fd,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      onChange(url);
+    } catch {
+      alert("Audio upload failed — please try again.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Question audio (optional)</label>
+      <div className="flex items-center gap-3 flex-wrap">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="font-mono text-xs gap-1.5 h-8"
+        >
+          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+          {uploading ? "Uploading…" : value ? "Replace audio" : "Upload audio"}
+        </Button>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange(undefined)}
+            className="text-xs font-mono text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors"
+          >
+            <X className="w-3 h-3" /> Remove
+          </button>
+        )}
+        <input ref={fileRef} type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac,.mp3,.wav,.ogg,.m4a,.aac" className="hidden" onChange={handleFile} />
+      </div>
+      {value && (
+        <audio controls src={value} className="w-full h-9 mt-1" />
+      )}
+      {!value && (
+        <p className="font-mono text-[10px] text-muted-foreground">MP3, WAV, OGG or M4A · max 20 MB</p>
+      )}
+    </div>
+  );
+}
+
 function QuestionEditor({
   initial, adminToken, onSave, onCancel, saving,
 }: { initial: Omit<MockQuestion, "id"> & { id?: number }; adminToken: string; onSave: (data: Omit<MockQuestion, "id">) => void; onCancel: () => void; saving: boolean }) {
@@ -190,6 +276,7 @@ function QuestionEditor({
     question: initial.question,
     prompts: initial.prompts,
     image: initial.image,
+    audioUrl: initial.audioUrl,
     sortOrder: initial.sortOrder,
     isActive: initial.isActive,
   });
@@ -217,6 +304,11 @@ function QuestionEditor({
         adminToken={adminToken}
         value={form.image}
         onChange={url => setForm(f => ({ ...f, image: url }))}
+      />
+      <AudioUploader
+        adminToken={adminToken}
+        value={form.audioUrl}
+        onChange={url => setForm(f => ({ ...f, audioUrl: url }))}
       />
       <div className="flex items-center gap-3">
         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort order</label>
@@ -476,6 +568,12 @@ export default function MockQuestions() {
                     />
                   ) : (
                     <div className="space-y-3">
+                      {q.audioUrl && (
+                        <div className="space-y-1">
+                          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Audio</p>
+                          <audio controls src={q.audioUrl} className="w-full h-9" />
+                        </div>
+                      )}
                       {q.prompts.map((p, pi) => (
                         <div key={pi} className="space-y-2">
                           <p className="text-sm text-muted-foreground italic">"{p.prompt}"</p>

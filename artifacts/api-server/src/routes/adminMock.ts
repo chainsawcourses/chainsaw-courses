@@ -38,6 +38,9 @@ function getSeedQuestions(): SeedQuestion[] {
 const UPLOAD_DIR = path.join(__dirname, "../../uploads/question-images");
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+const AUDIO_UPLOAD_DIR = path.join(__dirname, "../../uploads/question-audio");
+fs.mkdirSync(AUDIO_UPLOAD_DIR, { recursive: true });
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
@@ -51,6 +54,22 @@ const upload = multer({
   fileFilter: (_req, file, cb) => {
     if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true);
     else cb(new Error("Images only (jpeg/png/webp/gif)"));
+  },
+});
+
+const uploadAudio = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, AUDIO_UPLOAD_DIR),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase() || ".mp3";
+      const name = `q-audio-${Date.now()}${ext}`;
+      cb(null, name);
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  fileFilter: (_req, file, cb) => {
+    if (/^audio\//.test(file.mimetype) || /\.(mp3|wav|ogg|m4a|aac)$/i.test(file.originalname)) cb(null, true);
+    else cb(new Error("Audio files only (mp3/wav/ogg/m4a/aac)"));
   },
 });
 
@@ -69,10 +88,13 @@ async function ensureTable() {
       question TEXT NOT NULL,
       prompts TEXT NOT NULL,
       image TEXT,
+      audio_url TEXT,
       sort_order INTEGER NOT NULL DEFAULT 0,
       is_active BOOLEAN NOT NULL DEFAULT TRUE
     )
   `);
+  // Add audio_url column to existing tables that predate this field
+  await db.execute(sql`ALTER TABLE mock_questions ADD COLUMN IF NOT EXISTS audio_url TEXT`);
 
   // Auto-seed if the table is empty
   const countResult = await db.execute(sql`SELECT COUNT(*)::int AS count FROM mock_questions`);
@@ -100,6 +122,7 @@ function parseRow(row: typeof mockQuestionsTable.$inferSelect) {
     question: row.question,
     prompts: JSON.parse(row.prompts),
     image: row.image ?? undefined,
+    audioUrl: row.audioUrl ?? undefined,
     sortOrder: row.sortOrder,
     isActive: row.isActive,
   };
@@ -112,6 +135,16 @@ router.post("/admin/mock-questions/upload-image", (req, res, next) => {
 }, upload.single("image"), (req, res) => {
   if (!req.file) { res.status(400).json({ error: "No file received" }); return; }
   const url = `/question-images/uploads/${req.file.filename}`;
+  res.json({ url });
+});
+
+// ── Admin: upload audio ──────────────────────────────────────────────────────
+router.post("/admin/mock-questions/upload-audio", (req, res, next) => {
+  if (!verifyAdmin(req as Parameters<typeof verifyAdmin>[0])) { res.status(401).json({ error: "Unauthorized" }); return; }
+  next();
+}, uploadAudio.single("audio"), (req, res) => {
+  if (!req.file) { res.status(400).json({ error: "No file received" }); return; }
+  const url = `/question-audio/uploads/${req.file.filename}`;
   res.json({ url });
 });
 
@@ -130,13 +163,14 @@ router.get("/admin/mock-questions", async (req, res) => {
 // ── Admin: create ────────────────────────────────────────────────────────────
 router.post("/admin/mock-questions", async (req, res) => {
   if (!adminGuard(req, res)) return;
-  const { question, prompts, image, sortOrder, isActive } = req.body;
+  const { question, prompts, image, audioUrl, sortOrder, isActive } = req.body;
   if (!question || !prompts) { res.status(400).json({ error: "question and prompts required" }); return; }
   try {
     const [row] = await db.insert(mockQuestionsTable).values({
       question,
       prompts: JSON.stringify(prompts),
       image: image ?? null,
+      audioUrl: audioUrl ?? null,
       sortOrder: sortOrder ?? 0,
       isActive: isActive ?? true,
     }).returning();
@@ -176,12 +210,13 @@ router.put("/admin/mock-questions/:id", async (req, res) => {
   if (!adminGuard(req, res)) return;
   const id = parseInt(req.params.id);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
-  const { question, prompts, image, sortOrder, isActive } = req.body;
+  const { question, prompts, image, audioUrl, sortOrder, isActive } = req.body;
   try {
     const [row] = await db.update(mockQuestionsTable).set({
       ...(question !== undefined && { question }),
       ...(prompts !== undefined && { prompts: JSON.stringify(prompts) }),
       ...(image !== undefined && { image: image ?? null }),
+      ...(audioUrl !== undefined && { audioUrl: audioUrl ?? null }),
       ...(sortOrder !== undefined && { sortOrder }),
       ...(isActive !== undefined && { isActive }),
     }).where(eq(mockQuestionsTable.id, id)).returning();

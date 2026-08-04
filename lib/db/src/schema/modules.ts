@@ -66,6 +66,7 @@ export const mockQuestionsTable = pgTable("mock_questions", {
   question: text("question").notNull(),
   prompts: text("prompts").notNull(), // JSON: VocalPrompt[]
   image: text("image"),
+  audioUrl: text("audio_url"),
   sortOrder: integer("sort_order").notNull().default(0),
   isActive: boolean("is_active").notNull().default(true),
 });

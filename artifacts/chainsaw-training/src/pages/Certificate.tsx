@@ -3,9 +3,11 @@ import { useUserSession } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Download, Loader2, FileCheck } from "lucide-react";
 
-// iOS Safari cannot render PDFs inline in iframes — it shows a broken "view / Open" picker.
-// The Download button works fine on iOS 13+, so we skip the iframe on iOS entirely.
-const isIOS = typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+// Mobile browsers (iOS and Android) cannot render PDFs cleanly in iframes —
+// iOS shows a broken "view / Open" picker; Android Chrome shows its own PDF toolbar.
+// On any mobile device we skip the iframe and show the download prompt instead.
+const isMobileDevice = typeof navigator !== "undefined" &&
+  /iPad|iPhone|iPod|Android/i.test(navigator.userAgent);
 
 export default function CertificatePage() {
   const { activationCode, deviceId } = useUserSession();
@@ -83,8 +85,8 @@ export default function CertificatePage() {
         </Button>
       </div>
 
-      {isIOS ? (
-        /* iOS can't render PDFs in iframes — show a download prompt instead */
+      {isMobileDevice ? (
+        /* Mobile can't render PDFs cleanly in iframes — show a download prompt instead */
         <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 text-center">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
             <FileCheck className="w-10 h-10 text-primary" />

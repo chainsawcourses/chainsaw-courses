@@ -70,11 +70,8 @@ export default function TrainingList() {
   const { activationCode, deviceId, fullName, clearSession, userId, accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
   void accessExpiresAt; void courseCompletedAt; void accessStatus;
   const [equipmentOpen, setEquipmentOpen] = useState(false);
-  const [equipmentScrolled, setEquipmentScrolled] = useState(false);
-  const [equipmentAcknowledged, setEquipmentAcknowledged] = useState(() =>
-    localStorage.getItem("equipment-acknowledged") === "true"
-  );
-  const equipmentScrollRef = useRef<HTMLDivElement>(null);
+
+
   const activeTriggerRef = useRef<HTMLElement | null>(null);
   const [hazardsOpen, setHazardsOpen] = useState(false);
   const [hazardsViewed, setHazardsViewed] = useState(() =>
@@ -207,37 +204,6 @@ export default function TrainingList() {
   const examPassed = examStatus?.passed ?? false;
   const remainingModules = Math.max(0, (summary?.totalModules ?? 0) - (summary?.completedModules ?? 0));
 
-  const equipmentListModule = useMemo(
-    () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
-    [modules]
-  );
-
-  const equipmentFooterRef = useRef<HTMLDivElement>(null);
-
-  const handleEquipmentScroll = useCallback(() => {
-    const el = equipmentScrollRef.current;
-    if (!el) return;
-    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
-      setEquipmentScrolled(true);
-    }
-  }, []);
-
-
-  const handleEquipmentAcknowledge = useCallback(() => {
-    if (!equipmentListModule || !deviceId || !activationCode) return;
-    completeVideo.mutate(
-      { data: { moduleId: equipmentListModule.id, deviceId, activationCode } },
-      {
-        onSuccess: () => {
-          localStorage.setItem("equipment-acknowledged", "true");
-          setEquipmentAcknowledged(true);
-          setEquipmentOpen(false);
-          queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
-        },
-      }
-    );
-  }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
   const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || preparingOpen || nptcOpen || docsOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
 
@@ -334,21 +300,10 @@ export default function TrainingList() {
     });
   };
 
-  // Course Requirements modules — rendered separately below the equipment collapsible
-  const courseReqModules = useMemo(
-    () => (modules ?? []).filter((m) => m.category === "COURSE REQUIREMENTS" && m.contentType !== "pdf"),
-    [modules]
-  );
-
-  // Group remaining modules by category → sub-category, preserving DB order
-  // Equipment List, Course Requirements and Hazards modules are excluded (shown separately)
+  // Group modules by category → sub-category, preserving DB order
   const grouped = useMemo(() => {
     if (!modules) return [];
-    const filtered = modules.filter((m) =>
-      !m.title.toLowerCase().includes("equipment") &&
-      !m.title.toLowerCase().includes("hazard") &&
-      m.category !== "COURSE REQUIREMENTS"
-    );
+    const filtered = modules.filter((m) => m.category !== "COURSE REQUIREMENTS");
     const categoryOrder: string[] = [];
     const categoryMap = new Map<string, Map<string | null, typeof modules>>();
     filtered.forEach((mod) => {
@@ -931,8 +886,6 @@ export default function TrainingList() {
                 <Card className="border-border bg-card/60 mt-1">
                   {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
                   <div
-                    ref={equipmentScrollRef}
-                    onScroll={handleEquipmentScroll}
                     className="max-h-[70vh] overflow-y-auto"
                   >
                     <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
@@ -1133,60 +1086,6 @@ export default function TrainingList() {
               )}
             </div>
 
-            {courseReqModules.map((module) => {
-              const isPdf = module.contentType === "pdf";
-              return (
-                <Card
-                  key={module.id}
-                  className={`border-border transition-all duration-150 group ${
-                    module.isLocked
-                      ? "opacity-40 bg-card/30"
-                      : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
-                  }`}
-                >
-                  <CardContent className="p-2.5 flex items-center gap-3">
-                    <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
-                      {module.isLocked ? (
-                        <Lock className="w-3 h-3 text-muted-foreground" />
-                      ) : module.isCompleted ? (
-                        <CheckCircle className="w-3 h-3 text-primary" />
-                      ) : isPdf ? (
-                        <FileText className="w-3 h-3 text-muted-foreground" />
-                      ) : (
-                        <PlayCircle className="w-3 h-3 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`font-mono font-bold text-xs uppercase tracking-wide truncate transition-colors ${module.isCompleted && !module.isLocked ? "group-hover:text-primary" : ""}`}>{module.title}</span>
-                        {isPdf && (
-                          <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
-                        )}
-                      </div>
-                      {module.isCompleted && (
-                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
-                      )}
-                    </div>
-                    {!module.isLocked && (
-                      <div className="shrink-0">
-                        <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
-                          <Link href={`/training/${module.id}`}>
-                            {isPdf ? (
-                              <><FileText className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "VIEW" : "OPEN"}</>
-                            ) : (
-                              <><PlayCircle className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "REWATCH" : "START"}</>
-                            )}
-                          </Link>
-                        </Button>
-                      </div>
-                    )}
-                    {module.isLocked && (
-                      <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
         </div>
 
         {/* Grouped Module List */}

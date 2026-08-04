@@ -84,6 +84,32 @@ router.post("/admin/news/fetch-now", async (req, res) => {
   }
 });
 
+// Admin: retag all approved articles that have no LO/AC assigned
+router.post("/admin/news/retag-all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const untagged = await db
+      .select({ id: newsItemsTable.id, title: newsItemsTable.title, excerpt: newsItemsTable.excerpt })
+      .from(newsItemsTable)
+      .where(and(eq(newsItemsTable.status, "approved"), isNull(newsItemsTable.learningOutcome)));
+
+    const total = untagged.length;
+    let tagged = 0;
+    let errors = 0;
+    for (const article of untagged) {
+      const outcome: TagOutcome = await tagNewsArticle(article.id, article.title, article.excerpt)
+        .catch((): TagOutcome => "failed");
+      if (outcome !== "failed") tagged++;
+      else errors++;
+    }
+
+    res.json({ total, tagged, errors });
+  } catch (err) {
+    logger.error({ err }, "Failed to retag news items");
+    res.status(500).json({ error: "Failed to retag news items" });
+  }
+});
+
 // Admin: approve a pending item
 router.post("/admin/news/:id/approve", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }

@@ -9,14 +9,15 @@ async function main() {
   fs.writeFileSync("/tmp/prod_exam_qs.json", JSON.stringify(examQs.rows));
 
   const mockQs = await pool.query(
-    `SELECT id, question, prompts FROM mock_questions WHERE is_active = true ORDER BY sort_order`
+    `SELECT id, sort_order, question, prompts FROM mock_questions WHERE is_active = true ORDER BY sort_order`
   );
-  const simple = mockQs.rows.map((r: any) => ({
-    id: r.id, question: r.question,
-    keyPoints: Array.isArray(r.prompts) ? r.prompts
+  const simple = mockQs.rows.map((r: any) => {
+    const prompts: Array<{ prompt: string; keyPoints: Array<{ label: string; keywords: string[] }>; threshold: number }> =
+      Array.isArray(r.prompts) ? r.prompts
       : typeof r.prompts === "string" ? JSON.parse(r.prompts)
-      : [],
-  }));
+      : [];
+    return { id: r.id, sort_order: r.sort_order as number, question: r.question, prompts };
+  });
   fs.writeFileSync("/tmp/prod_mock_simple.json", JSON.stringify(simple));
 
   const modules = await pool.query(
