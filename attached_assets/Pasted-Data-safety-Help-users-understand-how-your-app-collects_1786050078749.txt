@@ -1,0 +1,37 @@
+Data safety
+Help users understand how your app collects and shares their data
+To help users better understand your app's privacy, security, and data handling practices before they download it, provide information about your app's safety. The information you provide is shown on your store listing so that users can learn how you collect and share their data.
+
+ 
+1
+Overview
+2
+Data collection and security
+3
+Data types
+4
+Data usage and handling
+5
+Preview
+Thank you for helping to keep Google Play a safe and trusted space for users.
+
+In this questionnaire, you'll be asked to provide information about the user data collected or shared by your app. The information you provide will be shown on your store listing to help users better understand your app's privacy, security, and data handling practices before they download it.
+
+Before you start, read the following information about the questions you'll be asked, and the information you'll need to provide. The information you provide will be reviewed by Google as part of the app review process.
+
+Definitions
+On the next screen, you'll be asked whether your app collects or shares any of the required user data types. View required data types
+
+'Collected' means data that is transmitted off the user's device, either to you or a third party. Some types of data collection are exempt. View exemptions
+
+Processing data "ephemerally" means accessing and using data while it is only stored in memory, and is retained for no longer than necessary to service the specific request in real-time. Data collected in this way must still be disclosed, but will not be shown to users on your store listing. Learn more
+
+'Shared' means data that is transferred to a third party, either on or off the user's device. Some types of data transfers are exempt. View exemptions
+
+What you need to disclose
+You must disclose:
+
+Any of the required user data types that are collected and/or shared. Learn more
+Any user data sent off the user's device by libraries or SDKs used in your app, regardless of whether this information is transmitted to you (the developer) or a third party. Learn more
+Any user data transferred from your server to a third party, or transferred to another third party app on the same device. Learn more
+Any user data collected or transferred through a webview which can be opened from your app - unless users are navigating the open web. Learn more
