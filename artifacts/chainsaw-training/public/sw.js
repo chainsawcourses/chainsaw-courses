@@ -1,4 +1,4 @@
-const CACHE_NAME = "chainsaw-shell-v5";
+const CACHE_NAME = "chainsaw-shell-v6";
 const OFFLINE_URL = "/offline.html";
 
 const PRECACHE_ASSETS = [
@@ -53,7 +53,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// ─── Activate — clean up old caches, then reload all open windows ────────────
+// ─── Activate — clean up old caches, then tell all windows to hard-reload ────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
@@ -62,10 +62,11 @@ self.addEventListener("activate", (event) => {
       )
       .then(() => self.clients.claim())
       .then(() =>
-        // Reload every open window so the new version shows immediately —
-        // no need for users to close and reopen the app.
+        // Post a message to every open window — the app listens and calls
+        // window.location.reload(true) which bypasses the HTTP cache.
+        // This works on iOS and Android where client.navigate() is unreliable.
         self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) =>
-          Promise.all(list.map((client) => client.navigate(client.url)))
+          list.forEach((client) => client.postMessage({ type: "SW_UPDATED" }))
         )
       )
   );

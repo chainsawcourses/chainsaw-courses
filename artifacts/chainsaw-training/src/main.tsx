@@ -9,11 +9,19 @@ if ("serviceWorker" in navigator) {
   const swPath = `${import.meta.env.BASE_URL}sw.js`;
   const swScope = import.meta.env.BASE_URL;
 
+  // When the SW activates a new version it posts SW_UPDATED — hard-reload to
+  // pick up fresh assets on every device without any manual user action.
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "SW_UPDATED") {
+      window.location.reload();
+    }
+  });
+
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register(swPath, { scope: swScope })
       .then(async (reg) => {
-        // Check for updates in the background
+        // Check for updates on every page load so installs never wait 24 h
         reg.update().catch(() => {});
 
         // ── Periodic Background Sync ──────────────────────────────────────────

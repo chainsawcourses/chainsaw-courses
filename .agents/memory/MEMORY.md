@@ -1,4 +1,5 @@
 - [Vite dual React instance fix](vite-dual-react-fix.md) — after pnpm installs, clear .vite/.vitecache, include react-dom/client in optimizeDeps, bump SW cache version.
+- [PWA SW update mechanism](pwa-sw-update-mechanism.md) — use postMessage SW_UPDATED + window.location.reload(); client.navigate() doesn't work on iOS; bump cache version (currently v6) on every deploy.
 - [Firebase audio files](audio-files.md) — 75 WAV voice recordings in `chainsaw-courses.firebasestorage.app`, public via `?alt=media` URL pattern, no download token required.
 - [SpeechRecognition types](speech-recognition-types.md) — Browser Web Speech API types not in TypeScript lib; declare via `.d.ts` in `src/types/` with `SpeechRecognition`, `SpeechRecognitionEvent`, `SpeechRecognitionErrorEvent`.
 - [Gemini rate limits](gemini-rate-limits.md) — Free tier hits `RESOURCE_EXHAUSTED` (429) on `gemini-2.0-flash` with per-minute and per-day caps. AI grading falls back to keyword matching when quota exceeded.
