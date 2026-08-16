@@ -211,13 +211,19 @@ export async function generateHazardsPdf(): Promise<Uint8Array> {
     const rating = riskRating(h.likelihood, h.severity);
     const band   = riskBand(rating);
 
-    // Pre-calculate label lines and control measure lines
-    const labelLines   = wrap(h.label, bold, LABEL_SZ, LEFT_W - CELL_PAD * 2);
-    const controlLines = wrap(h.controlMeasures, reg, TXT_SZ, RIGHT_W - CELL_PAD * 2);
+    // Pre-calculate label lines and control measure lines.
+    // Label available width: LEFT_W minus both cell pads minus the 18px number badge.
+    const LABEL_WRAP_W   = LEFT_W - CELL_PAD * 2 - 18;
+    // Control available width: RIGHT_W minus both cell pads minus a small safety margin.
+    const CONTROL_WRAP_W = RIGHT_W - CELL_PAD * 2 - 6;
+    const labelLines   = wrap(h.label,           bold, LABEL_SZ, LABEL_WRAP_W);
+    const controlLines = wrap(h.controlMeasures, reg,  TXT_SZ,   CONTROL_WRAP_W);
 
-    const leftContentH  = labelLines.length * (LABEL_SZ + 2) + 22; // lines + risk badge row
-    const rightContentH = controlLines.length * LINE_H + CELL_PAD * 2;
-    const rowH = Math.max(leftContentH + CELL_PAD * 2, rightContentH) + 4;
+    // Left height: label lines + risk badge (badge takes ~18px below last label line)
+    const leftContentH  = labelLines.length * (LABEL_SZ + 2) + 22;
+    // Right height: "CONTROL MEASURES" header (19px) + body lines + bottom pad
+    const rightContentH = 19 + controlLines.length * LINE_H + CELL_PAD;
+    const rowH = Math.max(leftContentH + CELL_PAD * 2, rightContentH + CELL_PAD) + 4;
 
     ensureSpace(ctx, rowH + 4);
 
