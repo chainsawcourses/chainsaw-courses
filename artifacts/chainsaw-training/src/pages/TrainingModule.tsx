@@ -245,9 +245,9 @@ export default function TrainingModule() {
 
             {module.pdfUrl ? (
               <Button size="lg" className="font-mono tracking-widest gap-2" asChild>
-                <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
+                <Link href={`/pdf-viewer?url=${encodeURIComponent(module.pdfUrl)}&title=${encodeURIComponent(module.title)}&back=/training`}>
                   <ExternalLink className="w-4 h-4" /> VIEW DOCUMENT
-                </a>
+                </Link>
               </Button>
             ) : (
               <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">

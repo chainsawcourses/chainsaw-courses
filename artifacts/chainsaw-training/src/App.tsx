@@ -28,6 +28,7 @@ import StudentFeedback from "@/pages/StudentFeedback";
 import Glossary from "@/pages/Glossary";
 import Resources from "@/pages/Resources";
 import ManualFlipbook from "@/pages/ManualFlipbook";
+import PdfViewer from "@/pages/PdfViewer";
 
 import SpeciesGuide from "@/pages/SpeciesGuide";
 import AdminLogin from "@/pages/admin/AdminLogin";
@@ -230,6 +231,7 @@ function Router() {
       <Route path="/resources" component={Resources} />
       <Route path="/feedback" component={StudentFeedback} />
       <Route path="/manual" component={ManualFlipbook} />
+      <Route path="/pdf-viewer" component={PdfViewer} />
       <Route path="/qr/:moduleId" component={QrLanding} />
       <Route path="/gateway" component={PracticalGateway} />
       <Route path="/expired" component={AccessExpired} />
