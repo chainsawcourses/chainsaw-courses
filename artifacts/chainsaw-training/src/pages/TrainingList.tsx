@@ -1127,7 +1127,13 @@ export default function TrainingList() {
                                 ? "opacity-40 bg-card/30"
                                 : "cursor-pointer hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
-                            onClick={!effectiveLocked ? () => setLocation(`/training/${module.id}`) : undefined}
+                            onClick={!effectiveLocked ? () => {
+                              if (isPdf && module.pdfUrl) {
+                                window.open(module.pdfUrl, "_blank", "noopener,noreferrer");
+                              } else {
+                                setLocation(`/training/${module.id}`);
+                              }
+                            } : undefined}
                           >
                             <CardContent className="p-2.5 flex items-center gap-3">
                               <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
@@ -1157,15 +1163,23 @@ export default function TrainingList() {
 
                               {!effectiveLocked && (
                                 <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
-                                    <Link href={`/training/${module.id}`}>
-                                      {isPdf ? (
-                                        <><FileText className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
-                                      ) : (
-                                        <><PlayCircle className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "REWATCH" : "START"}</>
-                                      )}
-                                    </Link>
-                                  </Button>
+                                  {isPdf && module.pdfUrl ? (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="w-2.5 h-2.5 mr-1" /> VIEW
+                                      </a>
+                                    </Button>
+                                  ) : (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <Link href={`/training/${module.id}`}>
+                                        {isPdf ? (
+                                          <><FileText className="w-2.5 h-2.5 mr-1" /> OPEN</>
+                                        ) : (
+                                          <><PlayCircle className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "REWATCH" : "START"}</>
+                                        )}
+                                      </Link>
+                                    </Button>
+                                  )}
                                 </div>
                               )}
                               {effectiveLocked && (

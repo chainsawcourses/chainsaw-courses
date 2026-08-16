@@ -49,6 +49,7 @@ router.get("/modules", async (req, res) => {
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       };
@@ -73,6 +74,7 @@ router.get("/modules", async (req, res) => {
       duration: mod.duration,
       thumbnailUrl: mod.thumbnailUrl ?? null,
       isHighRisk: mod.isHighRisk,
+      pdfUrl: mod.pdfUrl ?? null,
       learningOutcome: mod.learningOutcome ?? null,
       assessmentCriteria: mod.assessmentCriteria ?? null,
     })));
@@ -142,6 +144,7 @@ router.get("/modules", async (req, res) => {
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       };

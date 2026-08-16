@@ -23,6 +23,8 @@ export interface Module {
   thumbnailUrl?: string | null;
   isHighRisk?: boolean;
   /** @nullable */
+  pdfUrl?: string | null;
+  /** @nullable */
   learningOutcome?: string | null;
   /** @nullable */
   assessmentCriteria?: string | null;

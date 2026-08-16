@@ -89,6 +89,7 @@ export const ListModulesResponseItem = zod.object({
   "duration": zod.number(),
   "thumbnailUrl": zod.string().nullish(),
   "isHighRisk": zod.boolean().optional(),
+  "pdfUrl": zod.string().nullish(),
   "learningOutcome": zod.string().nullish(),
   "assessmentCriteria": zod.string().nullish()
 })
