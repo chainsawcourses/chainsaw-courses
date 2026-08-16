@@ -53,14 +53,22 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// ─── Activate — clean up old caches ──────────────────────────────────────────
+// ─── Activate — clean up old caches, then reload all open windows ────────────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys()
+      .then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      )
+      .then(() => self.clients.claim())
+      .then(() =>
+        // Reload every open window so the new version shows immediately —
+        // no need for users to close and reopen the app.
+        self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) =>
+          Promise.all(list.map((client) => client.navigate(client.url)))
+        )
+      )
   );
-  self.clients.claim();
 });
 
 // ─── Fetch — network-first with offline fallback ──────────────────────────────
