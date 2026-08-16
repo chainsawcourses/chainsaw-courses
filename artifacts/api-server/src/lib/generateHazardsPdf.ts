@@ -41,7 +41,7 @@ const HAZARDS = [
     likelihood: 3,
     severity: 3,
     controlMeasures:
-      "Use a timber cant hook, log tongs or mechanical assistance where available. Break work into smaller lifts; bend the knees and keep the load close to the body. Brief co-workers before moving large sections.",
+      "Use a timber cant hook, timber tongs or mechanical assistance where available. Break work into smaller lifts; bend the knees and keep the load close to the body. Brief co-workers before moving large sections.",
   },
   {
     label: "Trips and falls over brash, logs, uneven or wet ground",
@@ -394,7 +394,7 @@ export async function generateHazardsPdf(): Promise<Uint8Array> {
 
   // ── Manual handling guidance ─────────────────────────────────────────────────
   const mhPoints = [
-    "Never attempt to lift logs over 20 kg alone - use mechanical aids (cant hook, log tongs, timber jack) or work with a second person.",
+    "Never attempt to lift logs over 20 kg alone - use mechanical aids (cant hook, timber tongs, timber jack) or work with a second person.",
     "Keep back straight and bend at the knees; hold the load close to the body and avoid twisting at the waist.",
     "Cut timber into manageable sections before attempting to move it - smaller rounds are far safer than rolling or dragging full-length stems.",
     "Clear the path before lifting - remove brash, check footing and identify the destination before the load leaves the ground.",
