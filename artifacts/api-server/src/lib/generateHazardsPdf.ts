@@ -20,7 +20,7 @@ const AMBER   = rgb(0.80,  0.50,  0.05);
 const RED     = rgb(0.72,  0.12,  0.12);
 const GREEN   = rgb(0.09,  0.53,  0.27);
 
-// ── Hazard data (mirrors DEFAULT_HAZARDS in RiskAssessment.tsx) ───────────────
+// ── Hazard data (mirrors DEFAULT_HAZARDS in RiskAssessment.tsx + additional) ──
 const HAZARDS = [
   {
     label: "Chainsaw kickback / loss of control",
@@ -98,6 +98,77 @@ const HAZARDS = [
     severity: 5,
     controlMeasures:
       "Never operate a chainsaw alone - a second competent person trained in emergency first aid must be present, within sight and sound, with access to a trauma kit and a means of calling emergency services. Confirm phone signal before starting work.",
+  },
+  // ── Additional hazards ───────────────────────────────────────────────────────
+  {
+    label: "Falling limbs and overhead deadwood (widow makers)",
+    likelihood: 3,
+    severity: 5,
+    controlMeasures:
+      "Inspect the canopy overhead before starting work and identify any dead, hanging or partially attached limbs. Do not work beneath identified hazards - remove them first or relocate the work area. Wear a certified chainsaw helmet at all times.",
+  },
+  {
+    label: "Hidden embedded objects in timber (wire, nails, fencing stakes, stone)",
+    likelihood: 3,
+    severity: 4,
+    controlMeasures:
+      "Visually inspect timber before cutting and probe with a bar or metal detector where risk is high (hedgerow trees, old gateposts, farm woodland). Reduce chain speed on first cuts into unknown timber. Use eye protection rated for high-velocity projectiles.",
+  },
+  {
+    label: "Working on slopes - operator, saw or cut logs sliding downhill",
+    likelihood: 3,
+    severity: 4,
+    controlMeasures:
+      "Work across the slope rather than up and down where possible. Stand on the uphill side of the timber. Chock logs before cutting. Wear footwear with aggressive grip; use a ground anchor or rope if the gradient exceeds safe standing limits.",
+  },
+  {
+    label: "Proximity to overhead electricity lines",
+    likelihood: 1,
+    severity: 5,
+    controlMeasures:
+      "Identify all overhead lines before work begins using a site plan or site walk. Maintain a minimum 9 m horizontal clearance from distribution lines and 15 m from high-voltage transmission lines. Contact the line owner to de-energise if work must be conducted closer. Never touch or approach a fallen power line.",
+  },
+  {
+    label: "Insect nests, tick bites or wildlife encounter on site",
+    likelihood: 3,
+    severity: 2,
+    controlMeasures:
+      "Inspect the work area and disturb potential nesting sites (log piles, soil banks, hollow trees) with a long tool before approaching closely. Wear insect-repellent clothing and tuck trousers into socks in tick-risk areas. Carry an antihistamine; note the location of the nearest hospital for serious allergic reactions.",
+  },
+  {
+    label: "Chainsaw chain break or sudden ejection from bar",
+    likelihood: 1,
+    severity: 4,
+    controlMeasures:
+      "Check chain tension and condition before each use; replace worn or damaged chain links immediately. Never operate with a loose chain. Ensure the chain catcher is present and undamaged. Wear cut-resistant gloves, leg protection and a helmet with full visor.",
+  },
+  {
+    label: "Exhaust fumes and carbon monoxide in poorly ventilated areas",
+    likelihood: 2,
+    severity: 3,
+    controlMeasures:
+      "Never run a petrol chainsaw in an enclosed space such as a barn, container or undercover storage area. Ensure adequate natural airflow when working in hollows or dense canopy. Take regular breaks in fresh air; if dizziness or headache develop, stop work immediately and move to open air.",
+  },
+  {
+    label: "Operator fatigue reducing concentration and reaction time",
+    likelihood: 3,
+    severity: 3,
+    controlMeasures:
+      "Limit continuous chainsaw use to 30-minute intervals with regular rest breaks. Do not operate a chainsaw when ill, on sedating medication or after less than 6 hours of sleep. Plan the most demanding cuts early in the session when alertness is highest. Rotate operators where possible on longer jobs.",
+  },
+  {
+    label: "Dust, fine debris and sawdust causing eye or respiratory irritation",
+    likelihood: 4,
+    severity: 2,
+    controlMeasures:
+      "Wear a full-face visor or safety spectacles rated to EN166 at all times when cutting. Use a dust/mist respirator (FFP2 minimum) when cutting dry, resinous or treated timber for extended periods. Work upwind of the cutting zone where possible.",
+  },
+  {
+    label: "Manual handling of the chainsaw during transport and repositioning",
+    likelihood: 3,
+    severity: 2,
+    controlMeasures:
+      "Always fit the bar scabbard and ensure the chain brake is engaged before carrying the saw. Carry with bar pointing rearward and engine off. Use a dedicated chainsaw carry bag or case for transport in a vehicle. Do not carry the saw with the engine running.",
   },
 ];
 
@@ -321,30 +392,35 @@ export async function generateHazardsPdf(): Promise<Uint8Array> {
   });
   ctx.y -= 48;
 
-  // ── PPE reminder ────────────────────────────────────────────────────────────
-  ensureSpace(ctx, 62);
-  ctx.page.drawRectangle({ x: ML, y: ctx.y - 58, width: CW, height: 58, color: rgb(0.97, 0.97, 0.97) });
-  ctx.page.drawRectangle({ x: ML, y: ctx.y - 58, width: 3,  height: 58, color: ORANGE });
-  ctx.page.drawText("MINIMUM PPE FOR CHAINSAW OPERATIONS", {
+  // ── Manual handling guidance ─────────────────────────────────────────────────
+  const mhPoints = [
+    "Never attempt to lift logs over 20 kg alone - use mechanical aids (cant hook, log tongs, timber jack) or work with a second person.",
+    "Keep back straight and bend at the knees; hold the load close to the body and avoid twisting at the waist.",
+    "Cut timber into manageable sections before attempting to move it - smaller rounds are far safer than rolling or dragging full-length stems.",
+    "Clear the path before lifting - remove brash, check footing and identify the destination before the load leaves the ground.",
+    "Be aware of pinch points between logs and between logs and fixed objects (stumps, vehicles, machines).",
+    "Use a log trolley or timber buggy for repeated short-distance moves; avoid carrying chainsaw and timber at the same time.",
+  ];
+  // Calculate height: title + each point wrapped
+  const mhWrapped = mhPoints.map((pt) => wrap(pt, reg, 7.5, CW - 28));
+  const mhTotalLines = mhWrapped.reduce((s, ls) => s + ls.length, 0);
+  const mhH = 18 + mhTotalLines * 11 + 10;
+  ensureSpace(ctx, mhH);
+  ctx.page.drawRectangle({ x: ML, y: ctx.y - mhH, width: CW, height: mhH, color: rgb(0.97, 0.97, 0.97) });
+  ctx.page.drawRectangle({ x: ML, y: ctx.y - mhH, width: 3,  height: mhH, color: ORANGE });
+  ctx.page.drawText("MANUAL HANDLING - HEAVY LOGS & TIMBER", {
     x: ML + 12, y: ctx.y - 11, size: 7.5, font: bold, color: BLACK,
   });
-  const ppeItems = [
-    "Chainsaw helmet with integrated visor and ear defenders",
-    "Chainsaw-resistant jacket or upper-body protection",
-    "Chainsaw trousers or chaps (EN 381 Class 1 minimum)",
-    "Chainsaw-resistant gloves",
-    "Steel-capped chainsaw boots (EN 381-3)",
-  ];
-  ppeItems.forEach((item, i) => {
-    const col = i < 3 ? 0 : 1;
-    const row = i < 3 ? i : i - 3;
-    ctx.page.drawText(`- ${item}`, {
-      x: ML + 12 + col * 250,
-      y: ctx.y - 24 - row * 11,
-      size: 7.5, font: reg, color: BLACK,
+  let mhY = ctx.y - 22;
+  mhWrapped.forEach((lines) => {
+    lines.forEach((line, li) => {
+      ctx.page.drawText(li === 0 ? `- ${line}` : `  ${line}`, {
+        x: ML + 12, y: mhY, size: 7.5, font: reg, color: BLACK,
+      });
+      mhY -= 11;
     });
   });
-  ctx.y -= 68;
+  ctx.y -= mhH + 10;
 
   drawFooters(ctx);
 
