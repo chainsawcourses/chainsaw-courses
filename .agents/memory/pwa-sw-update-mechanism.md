@@ -5,37 +5,34 @@ description: How to make the Chainsaw Courses PWA auto-reload on all devices aft
 
 # PWA Service Worker Update Mechanism
 
-## The approach that works
+## The correct approach (v7+)
 
-**SW → app postMessage + `window.location.reload()`**
+**Never cache HTML (index.html / navigation requests).** Vite content-hashes all JS/CSS bundles, so old bundle files in cache are always valid. Only the HTML entry point ever becomes "stale". By refusing to cache it, every app open fetches fresh HTML from the server — updates reach all devices on next open, no cache-busting tricks needed.
 
-In `public/sw.js` activate event:
+In `public/sw.js` fetch handler:
 ```js
-self.clients.matchAll({ type: "window", includeUncontrolled: true })
-  .then((list) => list.forEach((c) => c.postMessage({ type: "SW_UPDATED" })))
+// Navigation (HTML) — network only, never cached
+if (event.request.mode === "navigate") {
+  event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));
+  return;
+}
+// Static assets — network-first, cache on success (content-hashed = never stale)
 ```
 
-In `src/main.tsx` (before the register call):
-```js
-navigator.serviceWorker.addEventListener("message", (event) => {
-  if (event.data?.type === "SW_UPDATED") window.location.reload();
-});
-```
+Also keep `postMessage({ type: "SW_UPDATED" })` in activate for belt-and-suspenders (reloads open tabs when SW activates).
 
-**Why:** `client.navigate(client.url)` is unreliable on iOS and some Android configurations. The postMessage approach works everywhere.
+Also keep SW_UPDATED listener in `main.tsx` → `window.location.reload()`.
 
-## Cache version bumping
+## Cache version
 
-`CACHE_NAME = "chainsaw-shell-vN"` — bump N on every deploy that changes assets. Currently at v6. The activate event deletes all caches where key !== CACHE_NAME, then postMessages all clients to reload.
+Currently at v7. Only bump if changing SW logic itself — no longer needed to force asset refreshes since HTML is never cached.
 
-**Why:** Without a version bump, the old cache persists and the new bundle is never loaded from network.
+## Do NOT cache "/" in PRECACHE_ASSETS
 
-## Bootstrap problem
-
-The first publish after adding the postMessage listener does NOT auto-reload, because the old cached app has no listener. User must manually close the app from the app switcher and reopen once. After that, all future publishes auto-reload.
+Removed `"/"` from precache. Offline fallback goes to `/offline.html` directly.
 
 ## What NOT to do
 
-- `client.navigate(client.url)` — not supported on iOS SW, unreliable on Android
-- Relying on cache version bump alone without postMessage — doesn't force a reload of open windows
-- Not bumping cache version — old files serve indefinitely from SW cache
+- Caching HTML/index.html in the SW — makes updates invisible until cache is manually busted
+- `client.navigate(client.url)` — not supported on iOS SW
+- Bumping cache version as the sole update mechanism — has a bootstrap problem on first deploy
