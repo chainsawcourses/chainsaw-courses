@@ -234,37 +234,42 @@ export default function TrainingModule() {
 
         {/* ── PDF MODULE ── */}
         {isPdf && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-6 py-12 text-center">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-              <FileText className="w-12 h-12 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black font-mono uppercase tracking-wider mb-2">{module.title}</h2>
-              <p className="text-muted-foreground max-w-md">{module.description}</p>
-            </div>
-
+          <div className="flex-1 flex flex-col gap-4">
             {module.pdfUrl ? (
-              <Button size="lg" className="font-mono tracking-widest gap-2" asChild>
-                <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" /> OPEN PDF DOCUMENT
-                </a>
-              </Button>
+              <>
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-black font-mono uppercase tracking-wider truncate">{module.title}</h2>
+                    {module.description && <p className="text-muted-foreground text-sm">{module.description}</p>}
+                  </div>
+                </div>
+                <iframe
+                  src={module.pdfUrl}
+                  className="w-full flex-1 rounded-lg border border-border"
+                  style={{ minHeight: "75vh" }}
+                  title={module.title}
+                />
+              </>
             ) : (
-              <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">
-                PDF document coming soon — admin can upload via the dashboard.
+              <div className="flex-1 flex flex-col items-center justify-center gap-6 py-12 text-center">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-12 h-12 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black font-mono uppercase tracking-wider mb-2">{module.title}</h2>
+                  <p className="text-muted-foreground max-w-md">{module.description}</p>
+                </div>
+                <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">
+                  PDF document coming soon — admin can upload via the dashboard.
+                </div>
+                <Button variant="outline" className="font-mono tracking-widest gap-1" asChild>
+                  <Link href="/training">
+                    BACK TO COURSE <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </Button>
               </div>
             )}
-
-            <div className="flex items-center gap-2 mt-2">
-              <CheckCircle2 className="w-4 h-4 text-primary" />
-              <span className="font-mono text-sm text-primary uppercase tracking-wider">Module automatically marked complete</span>
-            </div>
-
-            <Button variant="outline" className="font-mono tracking-widest gap-1" asChild>
-              <Link href="/training">
-                BACK TO COURSE <ChevronRight className="w-4 h-4" />
-              </Link>
-            </Button>
           </div>
         )}
 
