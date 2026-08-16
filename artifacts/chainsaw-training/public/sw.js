@@ -1,4 +1,4 @@
-const CACHE_NAME = "chainsaw-shell-v7";
+const CACHE_NAME = "chainsaw-shell-v8";
 const OFFLINE_URL = "/offline.html";
 
 // Do NOT include "/" (index.html) here — we never cache the HTML entry point

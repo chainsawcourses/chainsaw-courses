@@ -727,6 +727,41 @@ export default function ManualFlipbook() {
                   <div className="absolute inset-x-0 top-0 h-px bg-stone-300/60 pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 h-px bg-stone-400/40 pointer-events-none" />
 
+                  {/* ── Page 1 how-to overlay ──────────────────────────────── */}
+                  {currentPage === 1 && !isAnimating && (
+                    <div
+                      className="absolute inset-0 flex flex-col items-center justify-end pointer-events-none"
+                      style={{ zIndex:28, paddingBottom:"10%" }}
+                    >
+                      <div style={{
+                        background:"rgba(255,255,255,0.82)",
+                        backdropFilter:"blur(6px)",
+                        borderRadius:10,
+                        border:"1px solid rgba(226,114,38,0.18)",
+                        padding:"10px 14px",
+                        display:"flex",
+                        flexDirection:"column",
+                        gap:7,
+                        maxWidth:"82%",
+                        boxShadow:"0 2px 16px rgba(0,0,0,0.10)",
+                      }}>
+                        <p style={{ fontFamily:"monospace", fontSize:"0.58rem", fontWeight:700, letterSpacing:"0.13em", textTransform:"uppercase", color:"#e27226", textAlign:"center", marginBottom:2 }}>
+                          How to use this manual
+                        </p>
+                        {[
+                          { icon: <><ChevronLeft style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} /><ChevronRight style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} /></>, label: "Swipe left / right or use the arrow buttons to turn pages" },
+                          { icon: <ZoomIn style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} />, label: "Tap the page to zoom in — pinch or drag to move around" },
+                          { icon: <Search style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} />, label: "Use the search bar above to find content and jump to any page" },
+                        ].map(({ icon, label }, i) => (
+                          <div key={i} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <span style={{ display:"inline-flex", alignItems:"center", gap:1, flexShrink:0, width:24, justifyContent:"center" }}>{icon}</span>
+                            <span style={{ fontFamily:"monospace", fontSize:"0.6rem", color:"#57534e", lineHeight:1.4 }}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* ── Watermark ──────────────────────────────────────────── */}
                   <canvas ref={wmRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden style={{ zIndex:30 }} />
 
