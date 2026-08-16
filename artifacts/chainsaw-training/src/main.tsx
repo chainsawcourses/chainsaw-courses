@@ -17,6 +17,15 @@ if ("serviceWorker" in navigator) {
     }
   });
 
+  // iOS PWA bfcache fix: when the OS restores a frozen page snapshot instead
+  // of doing a fresh load (persisted === true), force a reload so the SW
+  // update check runs and the latest published code is always served.
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
+
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register(swPath, { scope: swScope })
