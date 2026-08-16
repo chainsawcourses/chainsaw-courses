@@ -7,32 +7,41 @@ description: How to make the Chainsaw Courses PWA auto-reload on all devices aft
 
 ## The correct approach (v7+)
 
-**Never cache HTML (index.html / navigation requests).** Vite content-hashes all JS/CSS bundles, so old bundle files in cache are always valid. Only the HTML entry point ever becomes "stale". By refusing to cache it, every app open fetches fresh HTML from the server — updates reach all devices on next open, no cache-busting tricks needed.
+**Two-part strategy:**
+
+### 1. Never cache HTML in the SW
+Vite content-hashes all JS/CSS bundles — they never go stale. Only the HTML entry point becomes stale. By refusing to cache it, every app open fetches fresh HTML from the server.
 
 In `public/sw.js` fetch handler:
 ```js
-// Navigation (HTML) — network only, never cached
 if (event.request.mode === "navigate") {
   event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));
   return;
 }
-// Static assets — network-first, cache on success (content-hashed = never stale)
 ```
 
-Also keep `postMessage({ type: "SW_UPDATED" })` in activate for belt-and-suspenders (reloads open tabs when SW activates).
+Do NOT include `"/"` in PRECACHE_ASSETS.
 
-Also keep SW_UPDATED listener in `main.tsx` → `window.location.reload()`.
+### 2. controllerchange listener in main.tsx (standard pattern)
+```js
+let swRefreshing = false;
+navigator.serviceWorker.addEventListener("controllerchange", () => {
+  if (!swRefreshing) { swRefreshing = true; window.location.reload(); }
+});
+```
+This fires the moment `skipWaiting` + `claim()` runs — **no message listener required in the old cached app**. This is the correct standard pattern. Also keep `SW_UPDATED` postMessage as belt-and-suspenders, and `pageshow` persisted handler for iOS bfcache.
 
 ## Cache version
-
 Currently at v7. Only bump if changing SW logic itself — no longer needed to force asset refreshes since HTML is never cached.
 
-## Do NOT cache "/" in PRECACHE_ASSETS
+## Bootstrap problem (one-time)
+The old installed PWA on a device won't auto-update until it loads the new code at least once. For users stuck with a very old cached version: open the site in Safari/Chrome browser directly (not the PWA icon) — gets the latest version immediately. After that the installed PWA self-updates.
 
-Removed `"/"` from precache. Offline fallback goes to `/offline.html` directly.
+## Production server note
+Replit sets `cache-control: private` on sw.js responses. Browsers still revalidate SW scripts per spec, so this is not the blocker.
 
 ## What NOT to do
-
-- Caching HTML/index.html in the SW — makes updates invisible until cache is manually busted
+- Caching HTML/index.html in the SW — makes updates invisible
 - `client.navigate(client.url)` — not supported on iOS SW
-- Bumping cache version as the sole update mechanism — has a bootstrap problem on first deploy
+- postMessage SW_UPDATED as the ONLY mechanism — bootstrap problem (old app has no listener)
+- Relying solely on cache version bumps

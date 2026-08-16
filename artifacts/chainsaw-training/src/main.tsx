@@ -9,17 +9,25 @@ if ("serviceWorker" in navigator) {
   const swPath = `${import.meta.env.BASE_URL}sw.js`;
   const swScope = import.meta.env.BASE_URL;
 
-  // When the SW activates a new version it posts SW_UPDATED — hard-reload to
-  // pick up fresh assets on every device without any manual user action.
+  // Standard PWA update pattern: reload as soon as a new SW takes control.
+  // controllerchange fires on the page the moment skipWaiting + claim() runs —
+  // no message listener required in the old cached app.
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!swRefreshing) {
+      swRefreshing = true;
+      window.location.reload();
+    }
+  });
+
+  // Fallback: also handle the SW_UPDATED postMessage for belt-and-suspenders.
   navigator.serviceWorker.addEventListener("message", (event) => {
     if (event.data?.type === "SW_UPDATED") {
       window.location.reload();
     }
   });
 
-  // iOS PWA bfcache fix: when the OS restores a frozen page snapshot instead
-  // of doing a fresh load (persisted === true), force a reload so the SW
-  // update check runs and the latest published code is always served.
+  // iOS bfcache fix: if the OS restores a frozen snapshot, force a fresh load.
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
       window.location.reload();
