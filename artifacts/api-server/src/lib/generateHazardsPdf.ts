@@ -90,7 +90,7 @@ const HAZARDS = [
     likelihood: 2,
     severity: 4,
     controlMeasures:
-      "Establish a minimum exclusion zone of at least two tree lengths (or 50 m minimum). Use barrier tape, cones or a banksperson on public paths. Brief all workers on the exclusion zone boundaries before work begins. Engage chain brake and cease cutting if anyone enters the zone.",
+      "Establish an working zone of at least two times the length of product or minimum of 5m from other operators. Use barrier tape, cones or a banksperson on public paths. Brief all workers on the exclusion zone boundaries before work begins. Engage chain brake and cease cutting if anyone enters the zone.",
   },
   {
     label: "Lone working with no means of summoning help",
