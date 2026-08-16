@@ -1284,9 +1284,44 @@ export default function TrainingList() {
         </div>
       </main>
 
-      <div className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest pointer-events-none">
-        COURSE CONTENT v{COURSE_CONTENT_VERSION}
-      </div>
+      <ForceUpdateTrigger version={COURSE_CONTENT_VERSION} />
+    </div>
+  );
+}
+
+// ── Hidden force-update trigger ───────────────────────────────────────────────
+// Tap the version label 5 times to unregister the service worker and reload.
+// Useful when the installed PWA is stuck on a stale cached version.
+// Firebase auth (IndexedDB) is NOT cleared — user stays logged in.
+function ForceUpdateTrigger({ version }: { version: string }) {
+  const [taps, setTaps] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTap = () => {
+    const next = taps + 1;
+    setTaps(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (next >= 5) {
+      // Force update: unregister all SWs then reload fresh from network
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+          .then(() => window.location.reload());
+      } else {
+        window.location.reload();
+      }
+      return;
+    }
+    // Reset tap count after 2 seconds of inactivity
+    timerRef.current = setTimeout(() => setTaps(0), 2000);
+  };
+
+  return (
+    <div
+      className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest cursor-default select-none"
+      onClick={handleTap}
+    >
+      COURSE CONTENT v{version}{taps > 0 && taps < 5 ? ` · · · · ·`.slice(0, taps * 2 + 1) : ""}
     </div>
   );
 }
