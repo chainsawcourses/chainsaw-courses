@@ -242,9 +242,17 @@ export default function TrainingModule() {
               <h2 className="text-2xl font-black font-mono uppercase tracking-wider mb-2">{module.title}</h2>
               {module.description && <p className="text-muted-foreground max-w-md">{module.description}</p>}
             </div>
-            <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">
-              Content coming soon.
-            </div>
+            {module.pdfUrl ? (
+              <Button className="font-mono tracking-widest gap-2" asChild>
+                <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-4 h-4" /> VIEW DOCUMENT
+                </a>
+              </Button>
+            ) : (
+              <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">
+                Content coming soon.
+              </div>
+            )}
             <Button variant="outline" className="font-mono tracking-widest gap-1" asChild>
               <Link href="/training">
                 <ArrowLeft className="w-4 h-4" /> BACK TO COURSE
