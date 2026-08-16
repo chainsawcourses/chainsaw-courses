@@ -90,7 +90,7 @@ const HAZARDS = [
     likelihood: 2,
     severity: 4,
     controlMeasures:
-      "Establish an working zone of at least two times the length of product or minimum of 5m from other operators. Use barrier tape, cones or a banksperson on public paths. Brief all workers on the exclusion zone boundaries before work begins. Engage chain brake and cease cutting if anyone enters the zone.",
+      "Establish a working zone of at least two times the length of product or 5m minimum from other operators. Use barrier tape, cones or a banksperson on public paths. Brief all workers on the exclusion zone boundaries before work begins. Engage chain brake and cease cutting if anyone enters the zone.",
   },
   {
     label: "Lone working with no means of summoning help",
