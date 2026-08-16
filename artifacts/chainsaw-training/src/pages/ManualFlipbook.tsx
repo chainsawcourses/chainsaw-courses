@@ -730,8 +730,8 @@ export default function ManualFlipbook() {
                   {/* ── Page 1 how-to overlay ──────────────────────────────── */}
                   {currentPage === 1 && !isAnimating && (
                     <div
-                      className="absolute inset-0 flex flex-col items-center justify-end pointer-events-none"
-                      style={{ zIndex:28, paddingBottom:"10%" }}
+                      className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+                      style={{ zIndex:28 }}
                     >
                       <div style={{
                         background:"rgba(255,255,255,0.82)",
