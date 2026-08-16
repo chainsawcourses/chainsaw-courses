@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { logger } from "../lib/logger";
+import { generateHazardsPdf } from "../lib/generateHazardsPdf";
 
 const router = Router();
 
@@ -28,6 +29,23 @@ router.get("/documents/legislation", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching legislation PDF");
     res.status(500).json({ error: "Failed to serve document" });
+  }
+});
+
+/**
+ * GET /api/documents/hazards
+ * Generates and serves the Hazards & Risks PDF reference sheet.
+ * Only authenticated users can access it.
+ */
+router.get("/documents/hazards", async (_req, res) => {
+  try {
+    const pdfBytes = await generateHazardsPdf();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'inline; filename="Hazards and Risks Reference.pdf"');
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    logger.error({ err }, "Error generating hazards PDF");
+    res.status(500).json({ error: "Failed to generate document" });
   }
 });
 
