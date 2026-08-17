@@ -1,0 +1,159 @@
+{
+  "id": "com.chainsawcourses.uk",
+  "name": "Chainsaw Courses",
+  "short_name": "Chainsaw Courses",
+  "description": "IIRSM-approved chainsaw safety theory training — gateway to NPTC practical assessment.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#e27226",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  "scope_extensions": [
+    { "origin": "https://app.chainsawcourses.com" }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.chainsawcourses.uk",
+      "id": "com.chainsawcourses.uk"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Biosecurity Map",
+      "short_name": "Bio Map",
+      "description": "View UK pest and disease hazard zones",
+      "url": "/biosecurity-map",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Industry News",
+      "short_name": "News",
+      "description": "Latest chainsaw safety and forestry news",
+      "url": "/news",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Glossary",
+      "short_name": "Glossary",
+      "description": "175-term chainsaw and H&S reference",
+      "url": "/glossary",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inspection Checklist",
+      "short_name": "Inspection",
+      "description": "Pre-start chainsaw safety checklist",
+      "url": "/inspection",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screen-mobile-1.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Secure activation — enter your purchase code to unlock training"
+    },
+    {
+      "src": "/screenshots/screen-mobile-2.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Biosecurity & Hazard Map — UK pest, disease and health hazard zones"
+    },
+    {
+      "src": "/screenshots/screen-mobile-6.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Industry news — hand-picked forestry & chainsaw safety articles"
+    },
+    {
+      "src": "/screenshots/screen-mobile-7.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Timber characteristics — field reference for 30 UK tree species"
+    },
+    {
+      "src": "/screenshots/screen-mobile-8.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Glossary — 175 chainsaw, arboricultural and H&S terms"
+    },
+    {
+      "src": "/screenshots/screen-desktop-1.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Chainsaw Courses — desktop view"
+    }
+  ],
+  "categories": ["education", "health", "productivity"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "widgets": [
+    {
+      "name": "Training Progress",
+      "short_name": "Progress",
+      "description": "Your Chainsaw Courses module progress at a glance",
+      "tag": "training-progress",
+      "url": "/training",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }],
+      "backgrounds": [{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }],
+      "ms_ac_template": "AdaptiveCard",
+      "data": "/api/widget/progress",
+      "type": "application/json",
+      "auth": false,
+      "update": 3600
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+chainsawcourses",
+      "url": "/%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
