@@ -53,6 +53,11 @@ app.use("/question-audio/uploads", express.static(path.join(__dirname, "../uploa
 
 app.use("/api", router);
 
+// Temporary: serve pre-built iOS dist as a download
+app.get("/download-ios-dist", (_req, res) => {
+  res.download(path.join(__dirname, "../dist-public.zip"), "dist-public.zip");
+});
+
 // Pre-load AI reference resources (manual + Q&A) on startup
 loadAllAiResources();
 
