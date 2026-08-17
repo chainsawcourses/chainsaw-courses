@@ -202,3 +202,10 @@ uri = "file://artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf"
 type = "pdf"
 title = "Chainsaw Courses — Course Materials PDF"
 description = "Updated with 16 new video transcripts (modules 21–36)."
+
+[[outputs]]
+id = "Y-mgPVYBkSxzgk9c6og85"
+uri = "file://attached_assets/chainsaw_preview_886x1920.mp4"
+type = "video"
+title = "App Store Preview Video"
+description = "Resized to 886×1920px for App Store upload"
