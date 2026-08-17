@@ -209,3 +209,10 @@ uri = "file://attached_assets/chainsaw_preview_886x1920.mp4"
 type = "video"
 title = "App Store Preview Video"
 description = "Resized to 886×1920px for App Store upload"
+
+[[outputs]]
+id = "DBrIWJttgPUF3H7b3ndRc"
+uri = "file://attached_assets/chainsaw_ipad_preview_1600x2048.mp4"
+type = "video"
+title = "iPad App Store Preview Video"
+description = "Resized to 1600×2048px for App Store upload"

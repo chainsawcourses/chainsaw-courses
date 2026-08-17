@@ -11,3 +11,4 @@ attached_assets/ChainsawCoursesV1.1_1785821541592.pdf filter=lfs diff=lfs merge=
 artifacts/api-server/dist-public.zip filter=lfs diff=lfs merge=lfs -text
 attached_assets/.Simulator_Screen_Recording_-_iPhone_17_Pro_Max_-_2026-08-17_at_1787001399647.mov.Ygurxc-3_IwcuDWqbc9zF~ filter=lfs diff=lfs merge=lfs -text
 attached_assets/Simulator_Screen_Recording_-_iPhone_17_Pro_Max_-_2026-08-17_at_1787001399647.mov filter=lfs diff=lfs merge=lfs -text
+attached_assets/Simulator_Screen_Recording_-_iPad_Pro_13-inch_(M5)_-_2026-08-1_1787002143027.mov filter=lfs diff=lfs merge=lfs -text
