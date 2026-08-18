@@ -63,6 +63,11 @@ app.get("/download-ipad-preview", (_req, res) => {
   res.download(path.join(__dirname, "../chainsaw_ipad_preview.mp4"), "chainsaw_ipad_preview.mp4");
 });
 
+// Temporary: iPhone preview video download
+app.get("/download-iphone-preview", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_iphone_preview.mp4"), "chainsaw_iphone_preview.mp4");
+});
+
 // Pre-load AI reference resources (manual + Q&A) on startup
 loadAllAiResources();
 
