@@ -251,3 +251,10 @@ uri = "file://attached_assets/chainsaw_iphone_v2_886x1920.mp4"
 type = "video"
 title = "iPhone Preview Video (886×1920)"
 description = "App Store Connect compatible — H.264, 30fps, AAC stereo"
+
+[[outputs]]
+id = "ILbUr5sC8BOKG7anfUpIv"
+uri = "file://attached_assets/chainsaw_iphone_1320x2868.mp4"
+type = "video"
+title = "iPhone Preview Video (1320×2868)"
+description = "App Store Connect compatible — H.264, 30fps, silent AAC audio"
