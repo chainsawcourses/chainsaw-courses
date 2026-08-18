@@ -1,3 +1,4 @@
+- [App Store Submission Status](app-store-status.md) — full iOS/Android submission status, bundle IDs, TestFlight link, privacy policy URL, Google Play checklist answers. CHECK THIS FIRST before any app store question.
 - [Vite dual React instance fix](vite-dual-react-fix.md) — after pnpm installs, clear .vite/.vitecache, include react-dom/client in optimizeDeps, bump SW cache version.
 - [PWA SW update mechanism](pwa-sw-update-mechanism.md) — use postMessage SW_UPDATED + window.location.reload(); client.navigate() doesn't work on iOS; bump cache version (currently v6) on every deploy.
 - [Firebase audio files](audio-files.md) — 75 WAV voice recordings in `chainsaw-courses.firebasestorage.app`, public via `?alt=media` URL pattern, no download token required.
