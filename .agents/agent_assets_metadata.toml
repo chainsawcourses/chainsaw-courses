@@ -237,3 +237,10 @@ uri = "file://attached_assets/chainsaw_iphone_886x1920.mp4"
 type = "video"
 title = "iPhone Preview Video (886×1920)"
 description = "App Store Connect compatible — H.264, 30fps, AAC stereo"
+
+[[outputs]]
+id = "GgnqL7VrzGvcF2rgr_WrT"
+uri = "file://attached_assets/chainsaw_appicon_1024.png"
+type = "image"
+title = "Chainsaw Courses App Icon (1024×1024)"
+description = "Drag into AppIcon slot in Xcode Assets.xcassets"
