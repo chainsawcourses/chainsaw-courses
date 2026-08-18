@@ -223,3 +223,10 @@ uri = "file://attached_assets/chainsaw_ipad_1200x1600.mp4"
 type = "video"
 title = "iPad Preview Video (1200×1600)"
 description = "Ready to upload to App Store Connect"
+
+[[outputs]]
+id = "lcHOTQPEzfOofXm18HaOG"
+uri = "file://attached_assets/chainsaw_ipad_1200x1600_v2.mp4"
+type = "video"
+title = "iPad Preview Video (1200×1600)"
+description = "Ready to upload to App Store Connect"
