@@ -66,6 +66,7 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 ## User preferences
 
 - **Before marking any task done:** re-test all related code paths and review the surrounding logic end-to-end to ensure things work correctly the first time, without the user having to report failures.
+- **Always reference all previous chats from the very beginning before answering any question.** The user is non-technical and context from earlier in the session is critical to giving accurate, complete answers.
 
 ## Gotchas
 

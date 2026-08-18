@@ -78,6 +78,11 @@ app.get("/download-app-icon", (_req, res) => {
   res.download(path.join(__dirname, "../chainsaw_appicon_1024.png"), "chainsaw_appicon_1024.png");
 });
 
+// Privacy policy page
+app.get("/privacy-policy", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../privacy-policy.html"));
+});
+
 // Pre-load AI reference resources (manual + Q&A) on startup
 loadAllAiResources();
 
