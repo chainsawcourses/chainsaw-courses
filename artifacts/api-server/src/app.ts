@@ -68,6 +68,11 @@ app.get("/download-iphone-preview", (_req, res) => {
   res.download(path.join(__dirname, "../chainsaw_iphone_preview.mp4"), "chainsaw_iphone_preview.mp4");
 });
 
+// Temporary: iPhone preview video v2 download
+app.get("/download-iphone-preview-v2", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_iphone_v2_preview.mp4"), "chainsaw_iphone_preview.mp4");
+});
+
 // Temporary: App icon download
 app.get("/download-app-icon", (_req, res) => {
   res.download(path.join(__dirname, "../chainsaw_appicon_1024.png"), "chainsaw_appicon_1024.png");
