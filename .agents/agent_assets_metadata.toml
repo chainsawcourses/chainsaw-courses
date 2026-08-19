@@ -265,3 +265,10 @@ uri = "file://attached_assets/chainsaw_iphone_v3_886x1920.mp4"
 type = "video"
 title = "iPhone Preview Video (886×1920)"
 description = "App Store preview video 886x1920"
+
+[[outputs]]
+id = "Bg_6x4HFAH0pi5tWBO2rS"
+uri = "file://attached_assets/generated_images/chainsaw-courses-feature-graphic.png"
+type = "image"
+title = "Chainsaw Courses Google Play feature graphic"
+description = "Upload-ready 1024 × 500 PNG feature graphic for the Google Play store listing."
