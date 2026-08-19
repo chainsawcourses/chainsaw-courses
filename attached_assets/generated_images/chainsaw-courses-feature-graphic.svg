@@ -1,58 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#101514"/>
-      <stop offset="58%" stop-color="#18211f"/>
-      <stop offset="100%" stop-color="#0d1211"/>
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="58%" stop-color="#fffdfa"/>
+      <stop offset="100%" stop-color="#f1eee8"/>
     </linearGradient>
     <linearGradient id="orangePanel" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#ffb132"/>
-      <stop offset="45%" stop-color="#f58b19"/>
-      <stop offset="100%" stop-color="#b94710"/>
+      <stop offset="0%" stop-color="#f59a24"/>
+      <stop offset="45%" stop-color="#e27226"/>
+      <stop offset="100%" stop-color="#b84a16"/>
     </linearGradient>
     <linearGradient id="orangeRule" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#ffb132"/>
-      <stop offset="100%" stop-color="#ef7318"/>
+      <stop offset="0%" stop-color="#e27226"/>
+      <stop offset="100%" stop-color="#b84a16"/>
     </linearGradient>
     <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%">
       <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#000000" flood-opacity=".34"/>
     </filter>
     <pattern id="grain" width="92" height="92" patternUnits="userSpaceOnUse">
-      <path d="M-7 20 C19 5 54 13 102 -1 M-10 54 C28 43 53 63 100 47 M13 92 C39 76 63 89 94 75" fill="none" stroke="#d9e4d4" stroke-opacity=".055" stroke-width="1.5"/>
+      <path d="M-7 20 C19 5 54 13 102 -1 M-10 54 C28 43 53 63 100 47 M13 92 C39 76 63 89 94 75" fill="none" stroke="#a96d43" stroke-opacity=".08" stroke-width="1.5"/>
     </pattern>
   </defs>
 
   <rect width="1024" height="500" fill="url(#background)"/>
   <rect width="1024" height="500" fill="url(#grain)"/>
 
-  <path d="M0 0 H1024 V58 C885 105 801 191 770 315 C738 426 674 476 548 500 H0 Z" fill="#f5971f" opacity=".08"/>
-  <circle cx="880" cy="102" r="205" fill="#f38b1b" opacity=".07"/>
-  <circle cx="888" cy="102" r="161" fill="none" stroke="#f8b84b" stroke-opacity=".15" stroke-width="2"/>
-  <circle cx="888" cy="102" r="126" fill="none" stroke="#f8b84b" stroke-opacity=".10" stroke-width="2"/>
+  <path d="M0 0 H1024 V58 C885 105 801 191 770 315 C738 426 674 476 548 500 H0 Z" fill="#e27226" opacity=".055"/>
+  <circle cx="880" cy="102" r="205" fill="#e27226" opacity=".045"/>
+  <circle cx="888" cy="102" r="161" fill="none" stroke="#e27226" stroke-opacity=".16" stroke-width="2"/>
+  <circle cx="888" cy="102" r="126" fill="none" stroke="#e27226" stroke-opacity=".10" stroke-width="2"/>
 
   <g transform="translate(64 74)">
-    <rect width="202" height="31" rx="15.5" fill="#f79520"/>
-    <text x="101" y="21.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.4" fill="#111514">ONLINE SAFETY TRAINING</text>
+    <rect width="202" height="31" rx="15.5" fill="#e27226"/>
+    <text x="101" y="21.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="1.4" fill="#ffffff">ONLINE SAFETY TRAINING</text>
   </g>
 
   <g transform="translate(62 157)">
-    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#ffffff">CHAINSAW</text>
-    <text x="0" y="69" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#ff9e22">COURSES</text>
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#151817">CHAINSAW</text>
+    <text x="0" y="69" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#e27226">COURSES</text>
     <rect x="1" y="98" width="336" height="6" rx="3" fill="url(#orangeRule)"/>
-    <text x="0" y="151" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="#edf4ef">Chainsaw Maintenance &amp; Cross Cutting Course</text>
-    <text x="0" y="187" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#aebeb5">Learn with structured modules, quizzes and mock assessments.</text>
+    <text x="0" y="151" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600" fill="#2b302d">Chainsaw Maintenance &amp; Cross Cutting Course</text>
+    <text x="0" y="187" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#68716b">Learn with structured modules, quizzes and mock assessments.</text>
   </g>
 
   <g filter="url(#shadow)">
     <path d="M695 74 H955 Q980 74 980 99 V386 Q980 414 952 414 H693 Q672 414 672 393 V103 Q672 74 695 74Z" fill="url(#orangePanel)"/>
-    <path d="M672 295 C748 274 813 282 980 242 V386 Q980 414 952 414 H693 Q672 414 672 393Z" fill="#802806" opacity=".16"/>
-    <rect x="692" y="94" width="268" height="300" rx="19" fill="#101615" opacity=".17"/>
+    <path d="M672 295 C748 274 813 282 980 242 V386 Q980 414 952 414 H693 Q672 414 672 393Z" fill="#7e2f10" opacity=".14"/>
+    <rect x="692" y="94" width="268" height="300" rx="19" fill="#ffffff" opacity=".14"/>
     <image href="chainsaw-courses-logo-trim.png" x="704" y="108" width="244" height="244" preserveAspectRatio="xMidYMid meet"/>
-    <text x="826" y="371" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1b1d19">STAY SAFE &amp; STAY SHARP</text>
+    <text x="826" y="371" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#251b16">STAY SAFE &amp; STAY SHARP</text>
   </g>
 
   <g opacity=".75">
     <rect x="62" y="424" width="7" height="7" rx="1.5" fill="#ff9e22"/>
-    <text x="80" y="431" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" letter-spacing=".6" fill="#d9e6dd">DESIGNED FOR PROFESSIONAL LEARNERS</text>
+    <text x="80" y="431" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="600" letter-spacing=".6" fill="#59635c">DESIGNED FOR PROFESSIONAL LEARNERS</text>
   </g>
 </svg>
