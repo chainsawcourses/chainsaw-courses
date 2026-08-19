@@ -23,6 +23,11 @@ description: Full status of iOS (Apple) and Android (Google Play) submissions fo
 - Still needed: age rating, category, pricing, complete App Review Info, submit for review
 - Privacy policy URL: use the hosted one in the app (see below)
 
+### Important status distinction
+- “Waiting for Review” on TestFlight → External Testing refers to Apple’s beta-app review for the external group.
+- The App Store version itself was still “Prepare for Submission” in the last recorded state; it is not in App Store review until “Add for Review” is submitted.
+- External testers cannot install until the beta review approves the build; the public TestFlight link does not bypass that review.
+
 ## Android — Google Play
 - Two apps exist — use ONLY com.chainsawcourses.app (created Jul 28). Ignore com.chainsawcourses.uk (created by mistake Aug 17)
 - 2 builds uploaded (version 1 and 2), internal testing active
