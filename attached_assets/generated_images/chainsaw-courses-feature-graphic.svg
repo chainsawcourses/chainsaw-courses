@@ -39,7 +39,7 @@
     <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#ffffff">CHAINSAW</text>
     <text x="0" y="69" font-family="Arial, Helvetica, sans-serif" font-size="67" font-weight="800" letter-spacing="-2" fill="#ff9e22">COURSES</text>
     <rect x="1" y="98" width="336" height="6" rx="3" fill="url(#orangeRule)"/>
-    <text x="0" y="151" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="#edf4ef">Safety • Maintenance • Cross-cutting</text>
+    <text x="0" y="151" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="#edf4ef">Chainsaw Maintenance &amp; Cross Cutting Course</text>
     <text x="0" y="187" font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#aebeb5">Learn with structured modules, quizzes and mock assessments.</text>
   </g>
 
@@ -48,7 +48,7 @@
     <path d="M672 295 C748 274 813 282 980 242 V386 Q980 414 952 414 H693 Q672 414 672 393Z" fill="#802806" opacity=".16"/>
     <rect x="692" y="94" width="268" height="300" rx="19" fill="#101615" opacity=".17"/>
     <image href="chainsaw-courses-logo-trim.png" x="704" y="108" width="244" height="244" preserveAspectRatio="xMidYMid meet"/>
-    <text x="826" y="371" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1b1d19">TRAIN SMARTER. WORK SAFER.</text>
+    <text x="826" y="371" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#1b1d19">STAY SAFE &amp; STAY SHARP</text>
   </g>
 
   <g opacity=".75">
