@@ -22,6 +22,7 @@ description: Full status of iOS (Apple) and Android (Google Play) submissions fo
 - Store version release: set to MANUAL release
 - Still needed: age rating, category, pricing, complete App Review Info, submit for review
 - Privacy policy URL: use the hosted one in the app (see below)
+- Agreements: Free Apps Agreement is active; Paid Apps Agreement is pending user information. The app is free and uses external course activation, so no Apple bank account or paid-app tax form is needed unless Apple payments or In-App Purchases are introduced.
 
 ### Important status distinction
 - “Waiting for Review” on TestFlight → External Testing refers to Apple’s beta-app review for the external group.
