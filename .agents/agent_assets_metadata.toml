@@ -300,3 +300,10 @@ uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_com.chainsawcourses.
 type = "unspecified"
 title = "UPLOAD THIS: Chainsaw Courses Android v1.0.1 (code 3)"
 description = "Newly built native Android App Bundle. Verified package: com.chainsawcourses.app; version code: 3; target API: 36; Google Play upload certificate matches the expected fingerprint. This is the only bundle to upload to Closed testing > Alpha1."
+
+[[outputs]]
+id = "H9aT9QsgwinrfhWcLERu8"
+uri = "file://exports/Chainsaw_Courses_iOS_Update_Build_4_Source.zip"
+type = "unspecified"
+title = "Chainsaw Courses — iPhone Update Source (Build 4)"
+description = "Latest safe source package for the TestFlight fix, with a plain-English START-HERE guide. It excludes private Apple signing files and leaves your existing Mac iOS folder intact."
