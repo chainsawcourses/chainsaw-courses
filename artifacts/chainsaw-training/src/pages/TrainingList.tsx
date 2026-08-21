@@ -169,7 +169,7 @@ export default function TrainingList() {
   const queryClient = useQueryClient();
   const completeVideo = useCompleteVideo();
 
-  const { data: modules, isLoading: isLoadingModules } = useListModules({
+  const { data: modulesResponse, isLoading: isLoadingModules, isError: hasModulesError } = useListModules({
     query: {
       queryKey: getListModulesQueryKey(),
       enabled: !!activationCode && !!deviceId,
@@ -177,6 +177,9 @@ export default function TrainingList() {
       refetchOnMount: "always",
     }
   });
+  const hasInvalidModulesResponse =
+    modulesResponse !== undefined && !Array.isArray(modulesResponse);
+  const modules = Array.isArray(modulesResponse) ? modulesResponse : [];
 
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
     query: {
@@ -332,6 +335,24 @@ export default function TrainingList() {
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
           Loading Modules...
         </div>
+      </div>
+    );
+  }
+
+  if (hasModulesError || hasInvalidModulesResponse) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-5 p-6 text-center">
+        <div className="max-w-sm space-y-2">
+          <h1 className="font-mono text-lg font-bold uppercase tracking-wide text-foreground">
+            Couldn&apos;t load your training
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Please check your connection and reload the app. Your progress is still saved.
+          </p>
+        </div>
+        <Button onClick={() => window.location.reload()}>
+          Reload app
+        </Button>
       </div>
     );
   }
