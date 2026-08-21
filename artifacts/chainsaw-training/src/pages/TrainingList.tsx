@@ -168,6 +168,13 @@ export default function TrainingList() {
 
   const queryClient = useQueryClient();
   const completeVideo = useCompleteVideo();
+  const handleSignInAgain = () => {
+    // Keep the device ID so a returning learner can be matched to their
+    // existing progress, but clear stale login details before reactivation.
+    queryClient.clear();
+    clearSession();
+    setLocation("/");
+  };
 
   const { data: modulesResponse, isLoading: isLoadingModules, isError: hasModulesError } = useListModules({
     query: {
@@ -347,12 +354,17 @@ export default function TrainingList() {
             Couldn&apos;t load your training
           </h1>
           <p className="text-sm text-muted-foreground">
-            Please check your connection and reload the app. Your progress is still saved.
+            Please check your connection and reload the app. If you have changed devices, sign in again. Your progress is still saved.
           </p>
         </div>
-        <Button onClick={() => window.location.reload()}>
-          Reload app
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => window.location.reload()}>
+            Reload app
+          </Button>
+          <Button variant="outline" onClick={handleSignInAgain}>
+            Sign in again
+          </Button>
+        </div>
       </div>
     );
   }

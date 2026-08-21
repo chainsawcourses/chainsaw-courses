@@ -66,6 +66,16 @@ router.post("/auth/activate", async (req, res) => {
         );
 
         if (existingUser) {
+          // Unlimited codes identify a returning learner by their name and email.
+          // When that learner activates on a replacement device, the successful
+          // activation must update the device bond as well; otherwise every
+          // follow-up request is rejected because it still points at the old device.
+          if (!activation.allModulesUnlocked && existingUser.deviceId !== deviceId) {
+            await tx
+              .update(usersTable)
+              .set({ deviceId })
+              .where(eq(usersTable.id, existingUser.id));
+          }
           const [waiver] = await tx.select().from(waiversTable).where(eq(waiversTable.userId, existingUser.id));
           return {
             success: true,
