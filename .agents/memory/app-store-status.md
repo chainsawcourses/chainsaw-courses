@@ -32,7 +32,7 @@ description: Full status of iOS (Apple) and Android (Google Play) submissions fo
 ## Android — Google Play
 - Two apps exist — use ONLY `com.chainsawcourses.app`; `com.chainsawcourses.uk` was created by mistake and its old Trusted Web Activity bundle opens with browser controls.
 - A signed native Capacitor replacement bundle is ready: version `1.0.1`, version code `3`, package `com.chainsawcourses.app`, targeting Android 16 / API 36. It opens in a full-screen native WebView without browser chrome.
-- Upload that bundle to the `com.chainsawcourses.app` closed-testing track only. Google Play must accept its existing upload certificate and confirm its version code is newer than the highest uploaded bundle.
+- Use the replacement bundle verified with the original Google Play upload certificate; newer locally generated keys and the earlier bundle signed with one of them are rejected by Play. Upload only the corrected bundle to the `com.chainsawcourses.app` closed-testing track, provided version code 3 is newer than the highest uploaded bundle.
 - Google’s Android 16 policy warning applies to the older API 35 build and is addressed by the new API 36 bundle.
 - Testers on the retired `.uk` app must install the correct `.app` listing; Android cannot update one package into the other.
 - Closed testing (Alpha1) is in progress. Testers must opt in with the Google account on the tester email list and remain opted in for the required testing period before a production access request.

@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 
-def signingInfoFile = new File(rootProject.projectDir, "../../../.local/android-signing/signing-key-info.txt")
+def defaultSigningInfoFile = new File(rootProject.projectDir, "../../../.local/android-signing/signing-key-info.txt")
+def signingInfoFile = project.hasProperty("signingInfoFile")
+        ? new File(project.property("signingInfoFile"))
+        : defaultSigningInfoFile
 def signingInfo = [:]
 
 if (signingInfoFile.exists()) {

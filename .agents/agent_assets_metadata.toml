@@ -279,3 +279,17 @@ uri = "file://artifacts/chainsaw-training/android/app/build/outputs/bundle/relea
 type = "unspecified"
 title = "Chainsaw Courses Android v1.0.1"
 description = "Signed Google Play update bundle — package com.chainsawcourses.app, version code 3, targets Android 16 (API 36)."
+
+[[outputs]]
+id = "a83eUB1SGGkn2H7e1vnZW"
+uri = "file://attached_assets/Chainsaw_Courses_1785245395501.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android release — version 1.0.1 (code 3)"
+description = "Signed native Capacitor Android App Bundle for the com.chainsawcourses.app Google Play listing. Target API 36. Upload this file to Closed testing > Alpha1; do not upload it to the old .uk listing."
+
+[[outputs]]
+id = "TDYF0gVWV8T4EkJpzL2l8"
+uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_correct-key.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android release — correct Google Play signing key"
+description = "Version 1.0.1 (code 3) native Android App Bundle for com.chainsawcourses.app. Its upload certificate has been verified against Google Play's expected SHA-1 fingerprint. Upload this replacement file to Closed testing > Alpha1."
