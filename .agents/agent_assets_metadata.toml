@@ -293,3 +293,10 @@ uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_correct-key.aab"
 type = "unspecified"
 title = "Chainsaw Courses Android release — correct Google Play signing key"
 description = "Version 1.0.1 (code 3) native Android App Bundle for com.chainsawcourses.app. Its upload certificate has been verified against Google Play's expected SHA-1 fingerprint. Upload this replacement file to Closed testing > Alpha1."
+
+[[outputs]]
+id = "cAnyJhDrSThC8tL4TvLdL"
+uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_com.chainsawcourses.app_correct-key.aab"
+type = "unspecified"
+title = "UPLOAD THIS: Chainsaw Courses Android v1.0.1 (code 3)"
+description = "Newly built native Android App Bundle. Verified package: com.chainsawcourses.app; version code: 3; target API: 36; Google Play upload certificate matches the expected fingerprint. This is the only bundle to upload to Closed testing > Alpha1."
