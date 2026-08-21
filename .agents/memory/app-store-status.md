@@ -30,11 +30,12 @@ description: Full status of iOS (Apple) and Android (Google Play) submissions fo
 - External testers cannot install until the beta review approves the build; the public TestFlight link does not bypass that review.
 
 ## Android — Google Play
-- Two apps exist — use ONLY com.chainsawcourses.app (created Jul 28). Ignore com.chainsawcourses.uk (created by mistake Aug 17)
-- 2 builds uploaded (version 1 and 2), internal testing active
-- Closed testing (Alpha1) in progress but blocked by 4 errors on dashboard
-- Need 20 testers for 14 days on closed testing before production is allowed
-- Dashboard checklist still needed: privacy policy URL, sign-in details, ads declaration, content rating, target audience, data safety, financial features, health declaration, category, store listing
+- Two apps exist — use ONLY `com.chainsawcourses.app`; `com.chainsawcourses.uk` was created by mistake and its old Trusted Web Activity bundle opens with browser controls.
+- A signed native Capacitor replacement bundle is ready: version `1.0.1`, version code `3`, package `com.chainsawcourses.app`, targeting Android 16 / API 36. It opens in a full-screen native WebView without browser chrome.
+- Upload that bundle to the `com.chainsawcourses.app` closed-testing track only. Google Play must accept its existing upload certificate and confirm its version code is newer than the highest uploaded bundle.
+- Google’s Android 16 policy warning applies to the older API 35 build and is addressed by the new API 36 bundle.
+- Testers on the retired `.uk` app must install the correct `.app` listing; Android cannot update one package into the other.
+- Closed testing (Alpha1) is in progress. Testers must opt in with the Google account on the tester email list and remain opted in for the required testing period before a production access request.
 
 ## Privacy Policy
 - Already built and live in the app at: /chainsaw-training/privacy

@@ -272,3 +272,10 @@ uri = "file://attached_assets/generated_images/chainsaw-courses-feature-graphic.
 type = "image"
 title = "Updated Chainsaw Courses feature graphic"
 description = "Final 1024 × 500 PNG with the Online Safety Training label moved upward to create more space."
+
+[[outputs]]
+id = "CcmFql3AJyIysc20SQjic"
+uri = "file://artifacts/chainsaw-training/android/app/build/outputs/bundle/release/app-release.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android v1.0.1"
+description = "Signed Google Play update bundle — package com.chainsawcourses.app, version code 3, targets Android 16 (API 36)."
