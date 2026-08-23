@@ -252,7 +252,7 @@ doc.y = 178;
   ["Delivery",  "Fully Online — E-Learning (self-paced)"],
   ["Hours",     "4 hrs GLH  ·  2 hrs Assessment  ·  4 hrs Self-Study  ·  10 hrs TQT"],
   ["CPD",       "5 CPD Points (IIRSM)"],
-  ["Threshold", "80% pass — randomised 45-question summative examination"],
+  ["Threshold", "Module quizzes: 100%  ·  Final exam: 80% (45 questions)"],
   ["Purpose",   "Training presentation & delegate materials"],
 ].forEach(([label, value], i) => {
   const y = doc.y;
@@ -334,8 +334,8 @@ sp(10);
   "Go to  app.chainsawcourses.com  and enter login code:  CHAIN",
   "Enter a name and email address of your choice.",
   "You will be directed to the Liability Waiver — accept to enter the course.",
-  "Each module is locked until the previous video is fully watched and the quiz completed.",
-  "On completion, the 45-question exam unlocks. 80% pass auto-generates the IIRSM certificate.",
+  "Each module is locked until the previous video is fully watched and its quiz is passed at 100%.",
+  "On completion, the 45-question final exam unlocks. An 80% pass auto-generates the IIRSM certificate.",
 ].forEach((s, i) => step(i + 1, s, BLK));
 
 ensurePts(36); sp(14); hrule(); sp(12);
@@ -911,7 +911,7 @@ doc.addPage();
 sectionHead("7","Assessment Bank",
   `${examQs.length} Multiple-Choice Questions  \xb7  Summative Examination Pool`);
 infoBox("How the exam works",
-  `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass. Correct answers are highlighted in orange with ✓. The question bank is continuously reviewed and updated via the admin panel; the version printed here reflects the bank at the time of document generation.`);
+  `The summative examination draws a randomised 45 questions from this ${examQs.length}-question bank. Questions are mapped to their Learning Outcome (LO) and Assessment Criterion (AC). Learners must achieve 80% or above to pass this final examination; every module quiz separately requires 100%. Correct answers are highlighted in orange with ✓. The question bank is continuously reviewed and updated via the admin panel; the version printed here reflects the bank at the time of document generation.`);
 
 examQs.forEach((q, i) => {
   const options: string[] = JSON.parse(q.options);

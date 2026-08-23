@@ -118,7 +118,7 @@ export default function PrivacyPolicy() {
                   </tr>
                   <tr>
                     <td className="border border-border px-3 py-2">Quiz &amp; exam scores</td>
-                    <td className="border border-border px-3 py-2">Assess competency; gate module progression at the required 80% pass threshold</td>
+                    <td className="border border-border px-3 py-2">Assess competency; require 100% for each module quiz and 80% for the final exam</td>
                     <td className="border border-border px-3 py-2">Contract performance</td>
                   </tr>
                   <tr>

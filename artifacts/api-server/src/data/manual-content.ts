@@ -206,11 +206,12 @@ routes and managing root plate movements.
 EVIDENCE OF LEARNING & ASSESSMENT STRATEGY
 This integrated program implements a multi-tiered knowledge verification system:
 Formative Assessment: Learners complete modular self-test quizzes located at the
-conclusion of individual text topics.
+conclusion of individual text topics. Each linked video-module quiz requires a score of
+100% before the learner can progress to the next module.
 Summative Digital Examination: Progression to certification requires a student to input their
 answers via the online course portal. This portal runs a randomized, 45-question multiplechoice examination directly mapped to the NPTC criteria.
-Minimum Performance Threshold: Learners must demonstrate clear cognitive retention by
-scoring an exact 80% or higher score to pass and auto-generate their verifiable certificate of
+Final Examination Threshold: Learners must demonstrate clear cognitive retention by
+scoring 80% or higher on the final examination to auto-generate their verifiable certificate of
 completion.
 The Chainsaw Manual
 
@@ -232,12 +233,13 @@ maintenance theory.
 At certain intervals throughout the book, you will find dedicated QR codes. Scanning
 these codes with a smartphone camera will launch the corresponding online video
 demonstrations in your app. Once the video is watched, this then opens the modular
-multiple-choice knowledge quiz for that specific section.
+multiple-choice knowledge quiz for that specific section. A score of 100% is required on
+each module quiz before you can progress to the next video module.
 The app can be downloaded at www.chainsawcourses.com
 For enrolled students, completing these digital checkpoints is necessary to log
 your required Guided Learning Hours, track your qualification progression, and
-automatically generate your verified CPD and IIRSM certificate of completion upon
-achieving a passing score.
+automatically generate your verified CPD and IIRSM certificate of completion after achieving
+80% or higher on the final examination.
 
 ADVANCED WORKSHOP EXTENSION MODULE
 When you see this next to the title of a page it means the following content is provided

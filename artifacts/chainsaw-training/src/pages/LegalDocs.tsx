@@ -77,7 +77,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Assessment Policy",
-        description: "Assessment design principles, validity, reliability, fairness, the 80% pass threshold, unlimited retries, and marking criteria.",
+        description: "Assessment design principles, validity, reliability, fairness, 100% required for each module quiz, 80% required for the final exam, unlimited retries, and marking criteria.",
         file: "Assessment_Policy.pdf",
         pages: "3 pages",
       },

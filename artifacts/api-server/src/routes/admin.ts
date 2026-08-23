@@ -530,6 +530,33 @@ router.patch("/admin/modules/:moduleId", async (req, res) => {
   }
 });
 
+const LEGACY_WELCOME_MODULE_QUIZ_STEP =
+  "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).";
+const CURRENT_WELCOME_MODULE_QUIZ_STEP =
+  "Work through the 7 training modules in order — watch each video in full and score 100% on its quiz to unlock the next module.";
+const CURRENT_WELCOME_FINAL_EXAM_STEP =
+  "After every video module is complete, the final exam requires 80% to pass.";
+
+function normalizeLegacyWelcomeNote(value: string): string {
+  try {
+    const config = JSON.parse(value) as { steps?: unknown };
+    if (!Array.isArray(config.steps)) return value;
+
+    let changed = false;
+    const steps = config.steps.flatMap((step) => {
+      if (step === LEGACY_WELCOME_MODULE_QUIZ_STEP) {
+        changed = true;
+        return [CURRENT_WELCOME_MODULE_QUIZ_STEP, CURRENT_WELCOME_FINAL_EXAM_STEP];
+      }
+      return [step];
+    });
+
+    return changed ? JSON.stringify({ ...config, steps }) : value;
+  } catch {
+    return value;
+  }
+}
+
 // Public: GET /config/:key
 router.get("/config/:key", async (req, res) => {
   const { key } = req.params;
@@ -539,7 +566,8 @@ router.get("/config/:key", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    res.json({ key: row.key, value: row.value });
+    const value = key === "welcome-note" ? normalizeLegacyWelcomeNote(row.value) : row.value;
+    res.json({ key: row.key, value });
   } catch (err) {
     logger.error({ err }, "Error fetching app config");
     res.status(500).json({ error: "Internal server error" });

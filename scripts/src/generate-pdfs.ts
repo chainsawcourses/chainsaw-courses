@@ -396,7 +396,7 @@ async function genDataProtection(): Promise<void> {
       ["Activation Code", "Verify a valid purchase; prevent unauthorised sharing. Lawful basis: Contract."],
       ["Device identifier", "Bond access to a single device; prevent credential sharing. Lawful basis: Legitimate interests (Art. 6(1)(f))."],
       ["Video watch progress & timestamps", "Enable resume-on-return; enforce sequential module unlocking; verify completion. Lawful basis: Contract."],
-      ["Quiz & exam scores", "Assess competency; gate module progression at 80% pass threshold. Lawful basis: Contract."],
+      ["Quiz & exam scores", "Assess competency; require 100% for each module quiz and 80% for the final exam. Lawful basis: Contract."],
       ["Digital waiver signature", "Record informed consent to safety terms. Lawful basis: Legal obligation / legitimate interests."],
       ["Inspection checklist records", "Personal chainsaw pre-use safety log; duty-of-care records (PUWER/LOLER). Lawful basis: Legitimate interests; legal obligation."],
       ["Risk assessment records", "Dynamic risk assessment log; statutory compliance. Lawful basis: Legitimate interests; legal obligation (MHSWR 1999)."],
@@ -553,7 +553,7 @@ async function genReasonableAdjustments(): Promise<void> {
 
   sectionHeading(doc, "6. Assessment Adjustments");
   body(doc,
-    "Where an adjustment affects the assessment process (quizzes, mock exam), we will ensure that any adjustment does not compromise the validity or integrity of the assessment, or unfairly advantage the student over other learners. Adjustments to the 80% pass threshold are not available, as this threshold is set by the IIRSM course approval framework and reflects the safety-critical nature of the subject matter."
+    "Where an adjustment affects the assessment process (module quizzes or final exam), we will ensure that any adjustment does not compromise the validity or integrity of the assessment, or unfairly advantage the student over other learners. The 100% module-quiz requirement and 80% final-exam pass threshold cannot be adjusted, as they are fixed standards set within the IIRSM course approval framework and reflect the safety-critical nature of the subject matter."
   );
 
   sectionHeading(doc, "7. Review");
@@ -788,7 +788,7 @@ async function genQuality(): Promise<void> {
     ["Learner satisfaction", "≥85% satisfaction score on post-module feedback surveys"],
     ["Prompt learner support", "100% emails acknowledged ≤2 working days; resolved ≤5"],
     ["IIRSM course approval maintained", "Renewal submitted on time; zero unresolved compliance findings"],
-    ["Fair and reliable assessment", "80% pass threshold; zero upheld appeals per year"],
+    ["Fair and reliable assessment", "100% module-quiz requirement; 80% final-exam pass threshold; zero upheld appeals per year"],
     ["Internal audits completed", "100% of planned audits; all findings closed within agreed timescales"],
     ["Controlled document reviews", "100% of controlled documents reviewed within review cycle"],
     ["Supplier approval", "100% of new suppliers approved pre-engagement; annual review of key suppliers"],
@@ -876,10 +876,10 @@ async function genAssessment(): Promise<void> {
   sectionHeading(doc, "3. Assessment Structure");
   twoColTable(doc, ["Assessment Type", "Detail"], [
     ["Module Quizzes (×7)", "Each of the 7 training modules concludes with a multiple-choice quiz. Quizzes are randomly drawn from a bank of questions to reduce repetition across attempts."],
-    ["Mock Examination", "A 45-question randomised examination covering the full course content. Simulates the standard of knowledge required for NPTC practical assessment."],
-    ["Pass Threshold", "80% correct answers required to pass each module quiz and the mock examination. This threshold reflects the safety-critical nature of chainsaw operation."],
-    ["Retries", "Unlimited retries are permitted for module quizzes. The mock examination may be retaken after a cooling-off period."],
-    ["Sequential Locking", "Module quizzes must be passed (≥80%) before the next module unlocks. Learners must also watch the full module video before the quiz becomes available."],
+    ["Final Examination", "A 45-question randomised examination covering the full course content. Simulates the standard of knowledge required for NPTC practical assessment."],
+    ["Pass Thresholds", "100% correct answers are required for every module quiz. The 45-question final examination requires 80% correct answers. These thresholds reflect the safety-critical nature of chainsaw operation."],
+    ["Retries", "Unlimited retries are permitted for module quizzes. The final examination may be retaken after a cooling-off period."],
+    ["Sequential Locking", "Every module quiz must be passed at 100% before the next module unlocks. Learners must also watch the full module video before the quiz becomes available."],
   ], 180);
 
   sectionHeading(doc, "4. Marking and Results");
@@ -899,7 +899,7 @@ async function genAssessment(): Promise<void> {
 
   sectionHeading(doc, "7. Adjustments to Assessment");
   body(doc,
-    "Reasonable adjustments to the assessment process may be available for learners with a disability or learning difficulty. Please refer to the Reasonable Adjustments Policy. The 80% pass threshold cannot be adjusted as it is a fixed standard set within the IIRSM course approval framework."
+    "Reasonable adjustments to the assessment process may be available for learners with a disability or learning difficulty. Please refer to the Reasonable Adjustments Policy. The 100% module-quiz requirement and 80% final-exam pass threshold cannot be adjusted because they are fixed standards set within the IIRSM course approval framework."
   );
 
   sectionHeading(doc, "8. Review");
@@ -1263,7 +1263,7 @@ async function genIIRSMBrief(): Promise<void> {
   infoRow(doc, "Directed Online Assessment", "2 hours — formative module quizzes + 45-question randomised multiple-choice final examination");
   infoRow(doc, "Independent Self-Study", "4 hours — reading The Chainsaw Manual & risk assessment exercises");
   infoRow(doc, "Total Qualification Time (TQT)", "10 hours total");
-  infoRow(doc, "Assessment", "7 module quizzes (80% pass threshold each) + 45-question mock examination");
+  infoRow(doc, "Assessment", "7 module quizzes (100% required each) + 45-question final examination (80% required)");
   infoRow(doc, "Entry Requirements", "No formal prerequisites. Learners must be aged 18 or over. Basic literacy and numeracy required. No prior chainsaw experience necessary — course is suitable for both complete beginners and those refreshing existing knowledge before practical assessment");
   infoRow(doc, "Target Learner", "Arboricultural and forestry professionals seeking NPTC theoretical preparation; landowners; groundworkers; anyone required to demonstrate theoretical chainsaw competence before booking NPTC practical assessment");
   infoRow(doc, "Certification", "IIRSM-approved digital certificate of completion issued automatically on passing all module quizzes and the 45-question mock examination. Certificate confirms theoretical competence to support NPTC assessment centre booking. No expiry — certificate reflects knowledge at date of completion; learners are advised to repeat the course if more than 3 years have elapsed");
@@ -1295,8 +1295,8 @@ async function genIIRSMBrief(): Promise<void> {
   twoColTable(doc, ["Stage", "Description"], [
     ["1 — Purchase & Activate", "Learner purchases via chainsawcourses.com; receives a unique Activation Code bonded to their device on first use. Digital liability waiver signed on activation."],
     ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (approximately 90 minutes of video content in total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
-    ["3 — Pass Module Quizzes", "80% pass threshold on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
-    ["4 — Pass Mock Examination", "45-question randomised mock examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
+    ["3 — Pass Module Quizzes", "100% required on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
+    ["4 — Pass Final Examination", "45-question randomised final examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
     ["5 — Receive IIRSM Certificate", "IIRSM-approved certificate of theoretical competence issued automatically on platform completion. Certificate includes learner name, date, and course reference."],
     ["6 — Book NPTC Practical Assessment", "Learner presents their IIRSM certificate to a NPTC/City & Guilds approved assessment centre to book Unit 0039-20 practical assessment. The eLearning certificate demonstrates theoretical readiness."],
   ], 175);
@@ -1316,7 +1316,7 @@ async function genIIRSMBrief(): Promise<void> {
   drawPageHeader(doc);
   sectionHeading(doc, "Section 4 | Learning Outcomes & Assessment Criteria");
   body(doc,
-    "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification."
+    "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 100% on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions requires a score of 80% or higher for certification."
   );
   doc.moveDown(0.4);
 
@@ -1375,8 +1375,8 @@ async function genIIRSMBrief(): Promise<void> {
       ["Assessment format", "Multiple-choice questions (MCQ) with four answer options per question"],
       ["Question bank size", "Minimum 10 questions per module (70+ module questions total); 45-question mock examination drawn from full bank"],
       ["Randomisation", "Questions and answer option order randomised on each attempt to prevent memorisation of answer sequences"],
-      ["Pass threshold", "80% correct answers required for each module quiz and for the mock examination"],
-      ["Sequential gating", "Each module quiz must be passed (≥80%) before the subsequent module video unlocks. Module video must be watched in full before the quiz is accessible"],
+      ["Pass thresholds", "100% correct answers required for each module quiz; 80% correct answers required for the final examination"],
+      ["Sequential gating", "Each module quiz must be passed at 100% before the subsequent module video unlocks. Module video must be watched in full before the quiz is accessible"],
       ["Retries", "Unlimited retries permitted for all module quizzes and the mock examination. No cooling-off period between attempts"],
       ["Results recording", "All quiz and examination results are recorded automatically to the learner's progress record with timestamp; accessible at any time from the Training Dashboard"],
       ["Anti-malpractice", "Device-locking (one device per Activation Code); dynamic video watermarking (learner name + email, repositioning every 60 seconds); behavioural review for anomalous completion patterns"],

@@ -7,7 +7,8 @@ type Phase = "logo-in" | "expand" | "content" | "leaving";
 
 const DEFAULT_INTRO = "Thank you for purchasing the course. Here's a quick guide to help you get started.";
 const DEFAULT_STEPS = [
-  "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).",
+  "Work through the 7 training modules in order — watch each video in full and score 100% on its quiz to unlock the next module.",
+  "After every video module is complete, the final exam requires 80% to pass.",
   "Use the AI Mock Test when you're ready to practise for the written exam.",
   "The Inspection Checklist and Risk Assessment are standalone tools for your real-world use.",
   "The Biosecurity Map, Chain Chart, Species Guide, and Cross-Cut Simulator are all available from the main menu.",

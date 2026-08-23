@@ -432,7 +432,7 @@ export default function TrainingList() {
                     <div className="px-3 pb-3 space-y-4">
                       {/* Intro */}
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                        Each module is a short training video. Watch it in full, then score 100% on its quiz to unlock the next module. After completing every module, score 80% or higher on the final exam to earn your certificate.
                       </p>
 
                       {/* Device Lock */}
@@ -887,7 +887,7 @@ export default function TrainingList() {
                     <CardContent className="p-4">
                       <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {(() => {
-                          const examInjection = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
+                          const examInjection = "Assessment Requirements:\n\nEach video module ends with a quiz. You must score 100% on every module quiz before the next module unlocks. The final exam is made up of 45 multiple-choice questions drawn from across all training modules. You must score 80% or higher — 36 correct answers out of 45 — on the final exam to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing final-exam result is recorded.\n\n";
                           const gatewayInjection = "\n\nPractical Progression Gateway:\n\nOnce you have passed the final exam and received your Certificate of Theoretical Competency, the Practical Progression Gateway unlocks on your dashboard. This tool helps you find an NPTC-approved assessment centre near you and register your interest directly with the venue.\n\nAfter making initial contact with a venue, allow approximately 4–6 weeks to finalise a confirmed assessment date. Venues vary in availability and some operate on a cohort basis — so contact them as early as possible once your certificate is issued. All assessment fees are paid directly to the venue.";
                           const marker = "Practical Mock Assessment Practice:";
                           const idx = howToUseText!.indexOf(marker);
@@ -1026,7 +1026,7 @@ export default function TrainingList() {
                       <span className="text-foreground font-semibold">Use the practical mock assessment.</span> Once you have completed all seven training modules, a Practical Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or practical mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
+                      <span className="text-foreground font-semibold">Revisit weak areas.</span> A video-module quiz requires 100%, so if any answer is incorrect, rewatch the relevant video before retrying. The final exam requires 80%. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.

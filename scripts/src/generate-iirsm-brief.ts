@@ -240,7 +240,7 @@ async function generate() {
     ["Directed Online Assessment",     "2 Hours — formative module quizzes + 45-question randomised multiple-choice final examination"],
     ["Independent Self-Study",         "4 Hours — reading The Chainsaw Manual & risk assessment exercises"],
     ["Total Qualification Time (TQT)", "10 Hours total"],
-    ["Minimum Pass Threshold",         "80% or higher on the summative examination — unlimited resit attempts permitted"],
+    ["Assessment Thresholds",          "100% required for every module quiz; 80% or higher on the final summative examination — unlimited resit attempts permitted"],
     ["Target Learner Profile",         "Commercial chainsaw operators, forestry workers, arborists, estate and grounds teams, and landscape professionals"],
     ["Course Version",                 "Version 1.4 — submitted for initial IIRSM eLearning Course Approval (1 course)"],
     ["Approval Category",              "New to IIRSM Course Approval — eLearning (no trainer)"],
@@ -285,7 +285,7 @@ async function generate() {
   s = checkPageBreak(s, 120);
   sectionHeading(s, "SECTION 3  |  Learning Outcomes & Assessment Criteria");
   gap(s, 2);
-  drawText(s, "The course is structured across video modules, each mapped to a discrete learning outcome (approximately 90 minutes of video content in total). Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification.", {
+  drawText(s, "The course is structured across video modules, each mapped to a discrete learning outcome (approximately 90 minutes of video content in total). Learners must complete each module video in full and achieve 100% on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions requires 80% or higher for certification.", {
     size: 7.5, color: MID, font: fItal,
   });
   gap(s, 6);

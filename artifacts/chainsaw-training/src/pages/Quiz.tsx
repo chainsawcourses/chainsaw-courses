@@ -173,7 +173,7 @@ export default function Quiz() {
             )}
             {result.passed && (
               <p className="text-sm text-primary font-mono mb-8">
-                You scored above the {result.passingScore}% pass mark. Well done — the next module is now unlocked.
+                You achieved the required {result.passingScore}% pass mark. Well done — the next module is now unlocked.
               </p>
             )}
 
@@ -280,7 +280,7 @@ export default function Quiz() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-4 pb-4">
         <div className="flex flex-col">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">
-            80% required to pass — unlimited retries available
+            100% required to pass — unlimited retries available
           </p>
 
           <h2 className="text-xl sm:text-2xl font-bold font-mono leading-tight mb-4">

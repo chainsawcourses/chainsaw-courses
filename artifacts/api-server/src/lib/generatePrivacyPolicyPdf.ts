@@ -188,7 +188,7 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   tableRow(ctx, ["Activation code", "Verify a valid purchase has been made; prevent unauthorised sharing of access credentials", "Contract performance"], tw2, false);
   tableRow(ctx, ["Device identifier", "Bond access to a single device (platform security; prevention of credential sharing)", "Legitimate interests (Art. 6(1)(f)) — protecting the integrity of a paid vocational qualification"], tw2, false);
   tableRow(ctx, ["Video watch progress & timestamps", "Enable resume-on-return; enforce sequential module unlocking; verify completion", "Contract performance"], tw2, false);
-  tableRow(ctx, ["Quiz & exam scores", "Assess competency; gate module progression at the required 80% pass threshold", "Contract performance"], tw2, false);
+  tableRow(ctx, ["Quiz & exam scores", "Assess competency; require 100% for each module quiz and 80% for the final exam", "Contract performance"], tw2, false);
   tableRow(ctx, ["Digital waiver signature", "Record informed consent to safety terms prior to accessing chainsaw operating instruction", "Legal obligation / legitimate interests"], tw2, false);
   tableRow(ctx, ["Inspection checklist records", "Provide a personal chainsaw pre-use safety log; support duty-of-care records for employers", "Legitimate interests; legal obligation (PUWER, LOLER)"], tw2, false);
   tableRow(ctx, ["Risk assessment records", "Provide a personal dynamic risk assessment log for chainsaw operations; support statutory compliance", "Legitimate interests; legal obligation (Management of Health & Safety at Work Regulations 1999)"], tw2, false);
