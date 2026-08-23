@@ -34,6 +34,12 @@ This fires the moment `skipWaiting` + `claim()` runs — **no message listener r
 ## Cache version
 Currently at v9. Only bump if changing SW logic itself — no longer needed to force asset refreshes since HTML is never cached.
 
+Development preview rule: do not register the production service worker under Vite. If an older preview worker is already registered, unregister it once and reload; otherwise its update/reload lifecycle can fight Vite HMR and make the preview refresh continuously.
+
+**Why:** The installed/PWA worker is designed to claim clients and reload them after production updates, while a Vite preview needs to remain under its own hot-reload lifecycle.
+
+**How to apply:** Guard service-worker registration with `!import.meta.env.DEV`; use the production registration only in built deployments. Keep this separate from production caching and update behavior.
+
 ## Bootstrap problem (one-time)
 The old installed PWA on a device won't auto-update until it loads the new code at least once. For users stuck with a very old cached version: open the site in Safari/Chrome browser directly (not the PWA icon) — gets the latest version immediately. After that the installed PWA self-updates.
 

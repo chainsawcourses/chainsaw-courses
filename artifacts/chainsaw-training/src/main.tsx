@@ -2,10 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Auto-register service worker on every page load.
-// This is required for PWA installability scoring and offline support.
-// The push-notification hook (usePushNotifications) reuses this registration.
-if ("serviceWorker" in navigator) {
+function registerProductionServiceWorker() {
   const swPath = `${import.meta.env.BASE_URL}sw.js`;
   const swScope = import.meta.env.BASE_URL;
 
@@ -78,6 +75,30 @@ if ("serviceWorker" in navigator) {
         console.warn("Service worker registration failed:", err);
       });
   });
+}
+
+// Service workers are useful for the installed/PWA build, but Vite's dev
+// server must stay under the normal HMR lifecycle. A worker left behind from
+// an earlier preview session can otherwise keep claiming the page and trigger
+// the reload listeners above.
+if ("serviceWorker" in navigator) {
+  if (import.meta.env.DEV) {
+    const devCleanupKey = "chainsaw-dev-sw-cleaned";
+    if (!sessionStorage.getItem(devCleanupKey)) {
+      sessionStorage.setItem(devCleanupKey, "true");
+      navigator.serviceWorker
+        .getRegistration(import.meta.env.BASE_URL)
+        .then((registration) => {
+          if (registration) return registration.unregister().then(() => window.location.reload());
+          return undefined;
+        })
+        .catch(() => {});
+    }
+  } else {
+    // Production/PWA builds retain service-worker caching, offline support,
+    // push notifications, and automatic update reloads.
+    registerProductionServiceWorker();
+  }
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
