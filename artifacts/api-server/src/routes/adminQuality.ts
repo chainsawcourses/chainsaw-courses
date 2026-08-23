@@ -258,6 +258,162 @@ router.get("/admin/questions", async (req, res) => {
   }
 });
 
+// ─── Module quiz question bank ─────────────────────────────────────────────
+
+function parseQuizQuestion(row: typeof quizQuestionsTable.$inferSelect) {
+  return {
+    id: row.id,
+    moduleId: row.moduleId,
+    question: row.question,
+    options: JSON.parse(row.options) as string[],
+    correctOption: row.correctOption,
+    order: row.order,
+  };
+}
+
+async function validateQuizQuestionBody(body: unknown, existing?: typeof quizQuestionsTable.$inferSelect) {
+  const input = (body ?? {}) as {
+    moduleId?: unknown;
+    question?: unknown;
+    options?: unknown;
+    correctOption?: unknown;
+    order?: unknown;
+  };
+  const moduleId = input.moduleId == null ? existing?.moduleId : Number(input.moduleId);
+  const question = typeof input.question === "string" ? input.question.trim() : "";
+  const options = Array.isArray(input.options)
+    ? input.options.map((option) => typeof option === "string" ? option.trim() : "")
+    : [];
+  const correctOption = Number(input.correctOption);
+  const order = input.order == null || input.order === "" ? (existing?.order ?? 0) : Number(input.order);
+
+  if (!Number.isInteger(moduleId) || moduleId <= 0) {
+    return { error: "A valid module is required." } as const;
+  }
+  if (!question || options.length < 2 || options.some((option) => !option)) {
+    return { error: "Question text and at least two non-empty options are required." } as const;
+  }
+  if (!Number.isInteger(correctOption) || correctOption < 0 || correctOption >= options.length) {
+    return { error: "The correct answer must match one of the options." } as const;
+  }
+  if (!Number.isInteger(order) || order < 0) {
+    return { error: "Order must be a whole number of 0 or higher." } as const;
+  }
+
+  const [module] = await db.select({ id: modulesTable.id })
+    .from(modulesTable)
+    .where(eq(modulesTable.id, moduleId));
+  if (!module) return { error: "Module not found." } as const;
+
+  return { value: { moduleId, question, options, correctOption, order } } as const;
+}
+
+router.get("/admin/module-quizzes", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const [modules, questions] = await Promise.all([
+      db.select({
+        id: modulesTable.id,
+        title: modulesTable.title,
+        order: modulesTable.order,
+        isActive: modulesTable.isActive,
+      }).from(modulesTable).orderBy(asc(modulesTable.order)),
+      db.select().from(quizQuestionsTable).orderBy(asc(quizQuestionsTable.moduleId), asc(quizQuestionsTable.order), asc(quizQuestionsTable.id)),
+    ]);
+
+    const questionsByModule = new Map<number, ReturnType<typeof parseQuizQuestion>[]>();
+    for (const question of questions) {
+      const moduleQuestions = questionsByModule.get(question.moduleId) ?? [];
+      moduleQuestions.push(parseQuizQuestion(question));
+      questionsByModule.set(question.moduleId, moduleQuestions);
+    }
+
+    res.json({
+      modules: modules.map((module) => ({
+        ...module,
+        questions: questionsByModule.get(module.id) ?? [],
+      })),
+    });
+  } catch (err) {
+    logger.error({ err }, "Error fetching module quiz questions");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/admin/module-quizzes", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const parsed = await validateQuizQuestionBody(req.body);
+    if ("error" in parsed) {
+      res.status(400).json({ error: parsed.error });
+      return;
+    }
+    const [created] = await db.insert(quizQuestionsTable).values({
+      moduleId: parsed.value.moduleId,
+      question: parsed.value.question,
+      options: JSON.stringify(parsed.value.options),
+      correctOption: parsed.value.correctOption,
+      order: parsed.value.order,
+    }).returning();
+    res.json(parseQuizQuestion(created));
+  } catch (err) {
+    logger.error({ err }, "Error creating module quiz question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/admin/module-quizzes/:id", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "Invalid question ID." });
+      return;
+    }
+    const [existing] = await db.select().from(quizQuestionsTable).where(eq(quizQuestionsTable.id, id));
+    if (!existing) {
+      res.status(404).json({ error: "Question not found." });
+      return;
+    }
+    const parsed = await validateQuizQuestionBody(req.body, existing);
+    if ("error" in parsed) {
+      res.status(400).json({ error: parsed.error });
+      return;
+    }
+    const [updated] = await db.update(quizQuestionsTable).set({
+      moduleId: parsed.value.moduleId,
+      question: parsed.value.question,
+      options: JSON.stringify(parsed.value.options),
+      correctOption: parsed.value.correctOption,
+      order: parsed.value.order,
+    }).where(eq(quizQuestionsTable.id, id)).returning();
+    res.json(parseQuizQuestion(updated));
+  } catch (err) {
+    logger.error({ err }, "Error updating module quiz question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/module-quizzes/:id", async (req, res) => {
+  if (!adminGuard(req, res)) return;
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      res.status(400).json({ error: "Invalid question ID." });
+      return;
+    }
+    const deleted = await db.delete(quizQuestionsTable).where(eq(quizQuestionsTable.id, id)).returning({ id: quizQuestionsTable.id });
+    if (deleted.length === 0) {
+      res.status(404).json({ error: "Question not found." });
+      return;
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting module quiz question");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.post("/admin/questions", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {

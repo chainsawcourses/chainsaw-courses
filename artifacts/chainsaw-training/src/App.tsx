@@ -48,6 +48,7 @@ import AdminStats from "@/pages/admin/AdminStats";
 import CertificateRegister from "@/pages/admin/CertificateRegister";
 import ExamLog from "@/pages/admin/ExamLog";
 import AssessmentBank from "@/pages/admin/AssessmentBank";
+import ModuleQuizzes from "@/pages/admin/ModuleQuizzes";
 import IQALog from "@/pages/admin/IQALog";
 import ReasonableAdjustments from "@/pages/admin/ReasonableAdjustments";
 import MalpracticeLog from "@/pages/admin/MalpracticeLog";
@@ -255,6 +256,7 @@ function Router() {
       <Route path="/admin/certificates" component={CertificateRegister} />
       <Route path="/admin/exam-log" component={ExamLog} />
       <Route path="/admin/assessment-bank" component={AssessmentBank} />
+      <Route path="/admin/module-quizzes" component={ModuleQuizzes} />
       <Route path="/admin/mock-questions" component={MockQuestionsAdmin} />
       <Route path="/admin/iqa" component={IQALog} />
       <Route path="/admin/reasonable-adjustments" component={ReasonableAdjustments} />

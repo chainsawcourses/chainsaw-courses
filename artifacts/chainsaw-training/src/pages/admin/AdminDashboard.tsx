@@ -427,6 +427,9 @@ export default function AdminDashboard() {
               <Link href="/admin/assessment-bank"><ClipboardList className="w-3.5 h-3.5 mr-1" /> ASSESSMENT BANK</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/module-quizzes"><ClipboardList className="w-3.5 h-3.5 mr-1" /> MODULE QUIZZES</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/mock-questions"><ClipboardCheck className="w-3.5 h-3.5 mr-1" /> MOCK QUESTIONS</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>

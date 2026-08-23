@@ -8,3 +8,9 @@ Admin-editable questions must be treated as live server content, not release-bou
 **Why:** Installed mobile apps may resume an existing WebView rather than reload it. A short client cache or WebView cache can otherwise show an old question even though the admin portal saved the change successfully.
 
 **How to apply:** Preserve the question set during a learner's active attempt, but refetch the current bank before a new attempt or when returning to an untouched assessment start screen. Do not make an admin edit require a native rebuild or app-store release.
+
+The final Assessment Bank and per-module quiz banks are distinct learning content sets and need clearly labelled controls in the admin portal.
+
+**Why:** Editing a final-exam question cannot change a module quiz question, even when the wording is similar. Ambiguous controls made a successful save look like a failed learner-app update.
+
+**How to apply:** Keep the final Assessment Bank for the summative exam and manage module-specific questions through the Module Quiz Bank. Tell admins which assessment learners need to reopen to see an edit.
