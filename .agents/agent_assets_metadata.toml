@@ -314,3 +314,10 @@ uri = "file://exports/Chainsaw_Courses_iOS_Build_5_White_Screen_Fix.zip"
 type = "unspecified"
 title = "iOS Build 5 white-screen repair"
 description = "Contains the corrected Capacitor configuration and exact Mac/Xcode instructions for a replacement TestFlight build."
+
+[[outputs]]
+id = "qh2boLKcBF_WraIrT6NcW"
+uri = "file://exports/Chainsaw_Courses_Android_v1.0.1_code4_Launcher_Icon_Fix.aab"
+type = "unspecified"
+title = "Android Bundle — Launcher Icon Fix"
+description = "Signed Android App Bundle for com.chainsawcourses.app, version 1.0.1 (version code 4), ready for Google Play Closed testing."
