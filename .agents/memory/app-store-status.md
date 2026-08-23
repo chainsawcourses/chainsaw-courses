@@ -12,7 +12,8 @@ description: Full status of iOS (Apple) and Android (Google Play) submissions fo
 
 ## iOS — Apple App Store
 - Build tool: Capacitor, opened via `cap open ios` from ~/Downloads/chainsaw-training
-- 3 builds uploaded. Build 3 is latest (correct icon, correct bundle ID)
+- Build 4 was archived, uploaded, and added to the existing **First Run** external TestFlight group. A tester reported a blank white screen on launch.
+- A Build 5 repair is prepared: native Capacitor now always loads `https://app.chainsawcourses.com`, matching Android and preserving same-origin API access. The Mac project must be rebuilt, archived, uploaded, and assigned to **First Run**.
 - App icon: 1024×1024px — added to Xcode Assets.xcassets → AppIcon
 - Screenshots: 7 of 10 uploaded for iPhone 6.9" display
 - App preview videos: attempted but had audio/dimension issues. Required size: 886×1920px (iPhone), 1200×1600px (iPad). Must have audio track (even silent AAC).

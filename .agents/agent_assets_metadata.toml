@@ -307,3 +307,10 @@ uri = "file://exports/Chainsaw_Courses_iOS_Update_Build_4_Source.zip"
 type = "unspecified"
 title = "Chainsaw Courses — iPhone Update Source (Build 4)"
 description = "Latest safe source package for the TestFlight fix, with a plain-English START-HERE guide. It excludes private Apple signing files and leaves your existing Mac iOS folder intact."
+
+[[outputs]]
+id = "mLmok7kRWB1UEiSVB78Zw"
+uri = "file://exports/Chainsaw_Courses_iOS_Build_5_White_Screen_Fix.zip"
+type = "unspecified"
+title = "iOS Build 5 white-screen repair"
+description = "Contains the corrected Capacitor configuration and exact Mac/Xcode instructions for a replacement TestFlight build."
