@@ -20,7 +20,7 @@ export default function Quiz() {
   const { activationCode, deviceId } = useUserSession();
   const queryClient = useQueryClient();
 
-  const { data: quiz, isLoading } = useGetQuiz(id, {
+  const { data: quiz, isLoading, refetch: refetchQuiz } = useGetQuiz(id, {
     // Module questions are administered from the live content bank. Always
     // fetch them on entering this page rather than reusing a recent in-memory
     // response after an admin edit.
@@ -230,6 +230,9 @@ export default function Quiz() {
                   </Button>
                   <Button
                     onClick={() => {
+                      // A retry starts a brand-new attempt, so load any
+                      // question edits saved since the learner opened this page.
+                      void refetchQuiz();
                       setResult(null);
                       setCurrentQuestionIdx(0);
                       setAnswers({});

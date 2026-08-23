@@ -32,7 +32,7 @@ navigator.serviceWorker.addEventListener("controllerchange", () => {
 This fires the moment `skipWaiting` + `claim()` runs — **no message listener required in the old cached app**. This is the correct standard pattern. Also keep `SW_UPDATED` postMessage as belt-and-suspenders, and `pageshow` persisted handler for iOS bfcache.
 
 ## Cache version
-Currently at v7. Only bump if changing SW logic itself — no longer needed to force asset refreshes since HTML is never cached.
+Currently at v9. Only bump if changing SW logic itself — no longer needed to force asset refreshes since HTML is never cached.
 
 ## Bootstrap problem (one-time)
 The old installed PWA on a device won't auto-update until it loads the new code at least once. For users stuck with a very old cached version: open the site in Safari/Chrome browser directly (not the PWA icon) — gets the latest version immediately. After that the installed PWA self-updates.

@@ -323,7 +323,7 @@ export default function Exam() {
     query: { queryKey: getGetExamStatusQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
-  const { data: exam, isLoading, error } = useGetExam({
+  const { data: exam, isLoading, error, refetch: refetchExam } = useGetExam({
     // The final assessment is generated from the admin-editable question
     // bank. Request a new bank whenever a learner enters this page instead of
     // reusing a recently cached exam response.
@@ -372,12 +372,15 @@ export default function Exam() {
   }, [result]);
 
   const handleReset = useCallback(() => {
+    // A retake is a new attempt. Reload the live final-exam bank before it
+    // begins so an admin edit is reflected without a native app release.
+    void refetchExam();
     setResult(null);
     setCurrentQuestionIdx(0);
     setAnswers({});
     applausePlayedRef.current = false;
     disappointmentPlayedRef.current = false;
-  }, []);
+  }, [refetchExam]);
 
   if (!activationCode || !deviceId) {
     setLocation("/");

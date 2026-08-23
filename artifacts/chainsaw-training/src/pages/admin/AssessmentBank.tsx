@@ -379,7 +379,7 @@ export default function AssessmentBank() {
     if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "Could not update question." }); return; }
     const updated: Question = await res.json();
     setQuestions(qs => qs.map(q => q.id === id ? updated : q));
-    toast({ title: "Question updated" });
+    toast({ title: "Final-exam question updated" });
   };
 
   const handleDelete = async (id: number) => {
@@ -397,7 +397,7 @@ export default function AssessmentBank() {
     if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "Could not add question." }); return; }
     const created: Question = await res.json();
     setQuestions(qs => [...qs, created]);
-    toast({ title: "Question added" });
+    toast({ title: "Final-exam question added" });
   };
 
   const handleAddNew = async (form: typeof BLANK_FORM) => {
@@ -442,7 +442,7 @@ export default function AssessmentBank() {
             </button>
           </Link>
           <span className="text-muted-foreground/40">·</span>
-          <span className="font-semibold text-sm flex-1">Assessment Bank</span>
+          <span className="font-semibold text-sm flex-1">Final Exam Bank</span>
           <button
             onClick={() => setAddingNew(a => !a)}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium"
@@ -454,6 +454,12 @@ export default function AssessmentBank() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-950">
+          <strong>Final summative exam only.</strong> Changes saved here appear in the randomized final exam when a learner opens or retakes it.
+          {" "}To change the short quiz shown after a training video, use{" "}
+          <Link href="/admin/module-quizzes" className="font-semibold underline underline-offset-2">Module Quizzes</Link>.
+        </div>
+
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-3">
           {[
