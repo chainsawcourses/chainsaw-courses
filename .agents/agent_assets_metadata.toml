@@ -321,3 +321,10 @@ uri = "file://exports/Chainsaw_Courses_Android_v1.0.1_code4_Launcher_Icon_Fix.aa
 type = "unspecified"
 title = "Android Bundle — Launcher Icon Fix"
 description = "Signed Android App Bundle for com.chainsawcourses.app, version 1.0.1 (version code 4), ready for Google Play Closed testing."
+
+[[outputs]]
+id = "NRR9tMqbBU7tti7BEEDdj"
+uri = "file://exports/Chainsaw_Courses_Android_v1.0.1_code5_Correct_Google_Play_Key.aab"
+type = "unspecified"
+title = "Android Bundle — Correct Google Play Key"
+description = "Signed Android App Bundle for com.chainsawcourses.app, version 1.0.1 (version code 5). Its certificate SHA-1 exactly matches the Google Play Console requirement."

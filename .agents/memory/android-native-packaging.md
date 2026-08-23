@@ -9,6 +9,12 @@ Use a standard Capacitor Android bundle for `com.chainsawcourses.app`, never the
 
 **How to apply:** Build releases with the configured native Android project and the original Google Play upload signing material, then upload only to the `.app` Play listing. Verify the generated bundle itself before sharing it: its manifest must name the `.app` package and the intended version code/API target. Do not substitute a newly generated keystore: Play accepts only the certificate registered for the listing unless its upload key is formally reset. The Android WebView deliberately loads the hosted app to keep same-origin API routes working. Browser/PWA storage and native WebView storage are separate, so a learner who previously activated in a browser may need their device bond reset before using the native app.
 
+Before exporting any release, compare the bundle certificate SHA-1 with the upload certificate listed in Google Play Console.
+
+**Why:** A workspace can contain several valid signing keys, and Gradle can successfully produce a bundle signed by the wrong one. Google Play rejects that upload even though the native build itself succeeds.
+
+**How to apply:** Use `keytool -printcert -jarfile <bundle.aab>` to read the bundle certificate and compare it with Play Console’s expected SHA-1 before offering the file for upload.
+
 ## Adaptive launcher icon
 
 Use a transparent foreground asset containing only the Chainsaw Courses mark for Android adaptive icons. Do not use the white square PWA icon as the native foreground layer.
