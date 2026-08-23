@@ -126,9 +126,13 @@ router.get("/modules", async (req, res) => {
         prevMod === null ||   // no gating module (first video, or all prior are PDF-only)
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
-      // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,
-      // not gated behind each other.
-      const isLocked = mod.category !== "COURSE REQUIREMENTS" && !prevComplete && !alreadyStarted;
+      // PDF modules are reference documents and must remain available throughout
+      // the course. COURSE REQUIREMENTS modules are also always accessible.
+      const isLocked =
+        mod.contentType !== "pdf" &&
+        mod.category !== "COURSE REQUIREMENTS" &&
+        !prevComplete &&
+        !alreadyStarted;
 
       return {
         id: mod.id,
@@ -284,8 +288,8 @@ router.get("/modules/:moduleId", async (req, res) => {
         ? prevProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
         : null;
       const prevComplete = !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
-      // COURSE REQUIREMENTS modules are always accessible
-      if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
+      // PDF reference modules and COURSE REQUIREMENTS modules are always accessible.
+      if (mod.contentType !== "pdf" && mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before
         const ownProgressAll = await db
           .select()

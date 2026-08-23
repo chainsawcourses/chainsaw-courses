@@ -1151,7 +1151,9 @@ export default function TrainingList() {
                       // Modules unlock purely based on the backend isLocked flag (quiz + video completion).
                       const needsHazards = riskAssessmentIndex !== -1 && moduleIndex > riskAssessmentIndex && !hazardsViewed;
                       void needsHazards;
-                      const effectiveLocked = module.isLocked;
+                      // PDF reference documents, including Hazards & Risks, are
+                      // available throughout the course and never block progression.
+                      const effectiveLocked = isPdf ? false : module.isLocked;
                       return (
                         <div key={module.id} id={`module-${module.id}`}>
                           <Card
