@@ -21,7 +21,15 @@ export default function Quiz() {
   const queryClient = useQueryClient();
 
   const { data: quiz, isLoading } = useGetQuiz(id, {
-    query: { queryKey: getGetQuizQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
+    // Module questions are administered from the live content bank. Always
+    // fetch them on entering this page rather than reusing a recent in-memory
+    // response after an admin edit.
+    query: {
+      queryKey: getGetQuizQueryKey(id),
+      enabled: !!activationCode && !!deviceId && !!id,
+      staleTime: 0,
+      refetchOnMount: "always",
+    },
   });
 
   const submitQuiz = useSubmitQuiz();

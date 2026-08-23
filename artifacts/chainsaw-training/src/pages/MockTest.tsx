@@ -163,15 +163,44 @@ export default function MockTest() {
   // Hazard reference (Q2/Q3/Q4)
   const { activationCode, deviceId, userId } = useUserSession();
 
-  // Fetch questions from DB (admin-editable); fall back to hardcoded TS data if empty or unavailable
-  useEffect(() => {
+  // Fetch questions from the live, admin-editable bank. We deliberately bypass
+  // the WebView HTTP cache: instructors' edits must appear the next time a
+  // learner opens this assessment, without a new app release.
+  const loadLiveQuestions = useCallback(() => {
     if (!activationCode || !deviceId) return;
-    fetch("/api/mock-questions", { headers: { activationcode: activationCode, deviceid: deviceId } })
+    fetch("/api/mock-questions", {
+      cache: "no-store",
+      headers: {
+        activationcode: activationCode,
+        deviceid: deviceId,
+        "Cache-Control": "no-cache",
+      },
+    })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data?.questions?.length > 0) setDbQuestions(data.questions); })
       .catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activationCode, deviceId]);
+
+  useEffect(() => {
+    loadLiveQuestions();
+  }, [loadLiveQuestions]);
+
+  // Native apps commonly resume an existing WebView instead of fully
+  // reloading it. Refresh the bank when the learner returns to the untouched
+  // intro screen, but never replace questions during an active attempt.
+  useEffect(() => {
+    const refreshWhenSafe = () => {
+      if (document.visibilityState === "visible" && phase === "intro") {
+        loadLiveQuestions();
+      }
+    };
+    document.addEventListener("visibilitychange", refreshWhenSafe);
+    window.addEventListener("focus", refreshWhenSafe);
+    return () => {
+      document.removeEventListener("visibilitychange", refreshWhenSafe);
+      window.removeEventListener("focus", refreshWhenSafe);
+    };
+  }, [loadLiveQuestions, phase]);
 
   const [hazardRefs, setHazardRefs] = useState<HazardRef[]>([]);
   const [hazardRefOpen, setHazardRefOpen] = useState(false);

@@ -59,8 +59,19 @@ export default function WelcomeModal() {
 
   const dismiss = () => {
     if (userId) localStorage.setItem(`welcome_seen_${userId}`, "1");
+    // The focused button is inside the fixed welcome overlay. When it is
+    // removed, browsers and native WebViews may scroll the underlying page to
+    // the nearest focusable item (currently the first video). Clear focus
+    // before removing the overlay and restore the main screen's scroll
+    // position after the fade-out has completed.
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setPhase("leaving");
-    setTimeout(() => setMounted(false), 600);
+    setTimeout(() => {
+      setMounted(false);
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, 600);
   };
 
   if (!mounted) return null;

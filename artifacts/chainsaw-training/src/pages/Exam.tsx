@@ -324,7 +324,15 @@ export default function Exam() {
   });
 
   const { data: exam, isLoading, error } = useGetExam({
-    query: { queryKey: getGetExamQueryKey(), enabled: !!activationCode && !!deviceId && !examStatus?.passed }
+    // The final assessment is generated from the admin-editable question
+    // bank. Request a new bank whenever a learner enters this page instead of
+    // reusing a recently cached exam response.
+    query: {
+      queryKey: getGetExamQueryKey(),
+      enabled: !!activationCode && !!deviceId && !examStatus?.passed,
+      staleTime: 0,
+      refetchOnMount: "always",
+    },
   });
 
   const submitExam = useSubmitExam();

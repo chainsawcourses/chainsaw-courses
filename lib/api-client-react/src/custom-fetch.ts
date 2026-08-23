@@ -373,7 +373,12 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  // Learner-facing course content can be edited from the admin portal. Never
+  // let a browser or native WebView reuse an old GET response for an API call:
+  // the API is the source of truth and serves its own no-store headers too.
+  // Callers can still explicitly opt into another cache policy when needed.
+  const cache = init.cache ?? (method === "GET" || method === "HEAD" ? "no-store" : undefined);
+  const response = await fetch(input, { ...init, method, headers, cache });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);
