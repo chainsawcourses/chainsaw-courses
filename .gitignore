@@ -47,3 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Android release exports are generated deliverables, not source files.
+exports/Chainsaw_Courses_Android_*.aab
+exports/Chainsaw_Courses_Android_*.aab.sha256
