@@ -9,8 +9,10 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm run build:android:aab` — prepare cached standard Java 21 and Android API 36 tooling, build the signed Capacitor release bundle, and export a verified AAB with a SHA-256 sidecar
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Android release builds use the existing `.local/android-signing/signing-key-info.txt` setup without printing its values. If no compatible tools are already available, the release command downloads standard Java 21 and Android command-line tools into the ignored `.cache/android-build/` directory. `ANDROID_BUILD_CACHE`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `ANDROID_JDK_DOWNLOAD_URL`, and `ANDROID_CMDLINE_TOOLS_DOWNLOAD_URL` may be set to use alternate locations or mirrors.
 - Optional env: `ADMIN_PASSWORD` — Admin panel password (default: `chainsaw-admin-2024`)
 - Optional env: `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY` — for AI chat (falls back to keyword-based responses)
 - Optional env: `SMTP_HOST`, `SMTP_PORT` (default 587), `SMTP_SECURE` (`"true"` for port 465), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — for certificate email on exam pass (gracefully skipped if `SMTP_HOST` not set)
