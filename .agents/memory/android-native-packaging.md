@@ -15,10 +15,18 @@ Before exporting any release, compare the bundle certificate SHA-1 with the uplo
 
 **How to apply:** Use `keytool -printcert -jarfile <bundle.aab>` to read the bundle certificate and compare it with Play Console’s expected SHA-1 before offering the file for upload.
 
+## Release signing selection
+
+The default local signing configuration is not the Play upload key. Build releases with the original historical signing material whose certificate SHA-1 is `4F:5C:4C:21:43:74:90:B4:BF:31:55:B9:88:EB:32:69:11:EC:58:05`.
+
+**Why:** A locally valid bundle can be signed with a different certificate and will still build successfully, but Google Play rejects it.
+
+**How to apply:** Compare every new bundle’s SHA-1 with the last accepted Play bundle before exporting it; do not treat a successful Gradle signing step as sufficient.
+
 ## Adaptive launcher icon
 
-Use a transparent foreground asset containing only the Chainsaw Courses mark for Android adaptive icons. Do not use the white square PWA icon as the native foreground layer.
+Use the approved original launcher artwork: density-specific `ic_launcher` images for older Android versions, and a white adaptive background with the smaller `ic_maskable` artwork inset by `8.5dp`. Keep the adaptive foreground transparent.
 
-**Why:** Android supplies the background and circular mask itself. An opaque PWA icon already contains both white background and safe-area padding, so using it as the foreground applies the padding twice and makes the mark appear undersized.
+**Why:** The desired original launcher appearance is a small, centered helmet-and-chainsaw mark inside a white circle. Using the wide transparent mark directly as the adaptive foreground makes it appear oversized and changes the approved design.
 
-**How to apply:** Keep `ic_launcher_background` as the solid background and generate the density-specific `ic_launcher_foreground.png` assets from the cropped transparent brand mark. A launcher-icon visual change requires a new signed bundle with a higher version code; publishing the hosted web app alone cannot change the installed Android launcher icon.
+**How to apply:** Preserve the original resource layout when rebuilding launcher assets. A launcher-icon visual change requires a new signed bundle with a higher version code; publishing the hosted web app alone cannot change the installed Android launcher icon.
