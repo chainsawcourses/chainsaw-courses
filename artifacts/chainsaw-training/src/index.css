@@ -136,14 +136,27 @@
     @apply border-border;
   }
 
+  html {
+    /* Prevent Android WebViews from inflating text independently of the
+       responsive layout. Explicit accessibility adjustments still apply. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     @apply font-sans antialiased text-foreground;
     background: transparent;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   #root {
     position: relative;
     z-index: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 }
 
