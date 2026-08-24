@@ -168,6 +168,17 @@
   animation: page-fade-in 0.18s ease-out both;
 }
 
+/* Android 15+ forces apps that target the current SDK to draw edge-to-edge.
+   Capacitor's hosted WebView may report a zero CSS safe-area inset, so reserve
+   a status-bar gutter only for the installed Android WebView. */
+html[data-android-webview="true"] .page-fade-in {
+  padding-top: max(28px, env(safe-area-inset-top, 0px));
+}
+
+html[data-android-webview="true"] .app-header {
+  top: max(28px, env(safe-area-inset-top, 0px));
+}
+
 @keyframes green-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }

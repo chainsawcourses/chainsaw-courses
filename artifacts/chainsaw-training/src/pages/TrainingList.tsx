@@ -373,7 +373,7 @@ export default function TrainingList() {
   return (
     <div className="min-h-screen pb-20">
       <WelcomeModal />
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
+      <header className="app-header border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
           {/* Left — brand dropdown: logo above title */}
           <div className="relative flex items-center">
@@ -589,23 +589,14 @@ export default function TrainingList() {
                     <span>Privacy Policy</span>
                   </Link>
 
-                  {/* Feedback — only active after exam passed */}
-                  {examPassed ? (
-                    <Link
-                      href="/feedback"
-                      className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                      onClick={() => setBrandMenuOpen(false)}
-                    >
-                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
-                      <span>Feedback</span>
-                    </Link>
-                  ) : (
-                    <div className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm cursor-not-allowed opacity-40 select-none">
-                      <MessageSquarePlus className="w-4 h-4 shrink-0" />
-                      <span>Feedback</span>
-                      <Lock className="w-3 h-3 ml-auto shrink-0" />
-                    </div>
-                  )}
+                  <Link
+                    href="/feedback"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
+                    <span>Feedback</span>
+                  </Link>
                 </div>
 
                 {/* Log Out + Delete Account */}

@@ -153,6 +153,26 @@ function PageFade({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Android 15+ displays target-SDK 35+ apps edge-to-edge. Capacitor's hosted
+// WebView does not consistently expose a CSS safe-area inset, so identify it
+// once and let the shared stylesheet reserve room for the system status bar.
+function AndroidWebViewInsets() {
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    const isAndroidWebView =
+      /Android/i.test(userAgent) &&
+      (/\bwv\b/i.test(userAgent) || /Version\/4\.0/i.test(userAgent) || /Capacitor/i.test(userAgent));
+
+    if (isAndroidWebView) {
+      document.documentElement.setAttribute("data-android-webview", "true");
+    }
+
+    return () => document.documentElement.removeAttribute("data-android-webview");
+  }, []);
+
+  return null;
+}
+
 // Returns true when the app is running as an installed app (no browser chrome)
 function isInstalledApp(): boolean {
   if (typeof window === "undefined") return false;
@@ -286,6 +306,7 @@ function App() {
             </div>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <AppGate>
+                <AndroidWebViewInsets />
                 <GlobalAccessCheck />
                 <Router />
               </AppGate>

@@ -91,7 +91,7 @@ export default function WelcomeModal() {
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        padding: "72px 16px 16px",
+        padding: "max(24px, calc(env(safe-area-inset-top, 0px) + 16px)) 16px 16px",
         background: "rgba(0,0,0,0.72)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
@@ -120,8 +120,8 @@ export default function WelcomeModal() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            paddingTop: isCircle ? 0 : 28,
-            paddingBottom: isCircle ? 0 : 4,
+            paddingTop: isCircle ? 0 : 20,
+            paddingBottom: isCircle ? 0 : 2,
             transition: "height 750ms cubic-bezier(0.34,1.4,0.64,1), padding 750ms ease",
           }}
         >
@@ -129,8 +129,8 @@ export default function WelcomeModal() {
             src={`${BASE}logo.png`}
             alt="Chainsaw Courses"
             style={{
-              width: isCircle ? 100 : 80,
-              height: isCircle ? 100 : 80,
+              width: isCircle ? 100 : 64,
+              height: isCircle ? 100 : 64,
               objectFit: "contain",
               opacity: logoVisible ? 1 : 0,
               transform: logoVisible ? "scale(1)" : "scale(0.85)",
@@ -144,24 +144,25 @@ export default function WelcomeModal() {
         <div
           style={{
             width: "100%",
-            maxHeight: showContent ? 600 : 0,
+            maxHeight: showContent ? "min(520px, calc(100dvh - 132px))" : 0,
             opacity: showContent ? 1 : 0,
-            overflow: "hidden",
+            overflowY: showContent ? "auto" : "hidden",
+            overflowX: "hidden",
             transition: "max-height 600ms ease, opacity 500ms ease",
             transitionDelay: showContent ? "120ms" : "0ms",
           }}
         >
-          <div style={{ padding: "4px 24px 28px", textAlign: "center" }}>
+          <div style={{ padding: "4px 20px 20px", textAlign: "center" }}>
 
             <h2
               style={{
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "1.4rem",
+                fontSize: "1.12rem",
                 fontWeight: 900,
                 textTransform: "uppercase",
                 letterSpacing: "-0.02em",
                 color: "#b45309",
-                margin: "0 0 4px",
+                margin: "0 0 3px",
               }}
             >
               Welcome!
@@ -171,11 +172,11 @@ export default function WelcomeModal() {
               <p
                 style={{
                   fontFamily: "ui-monospace, monospace",
-                  fontSize: "0.72rem",
+                  fontSize: "0.66rem",
                   color: "#b45309",
                   fontWeight: 600,
-                  margin: "0 0 12px",
-                  padding: "5px 10px",
+                  margin: "0 0 9px",
+                  padding: "4px 8px",
                   background: "#fef3c7",
                   borderRadius: 6,
                   border: "1px solid #fde68a",
@@ -188,25 +189,25 @@ export default function WelcomeModal() {
             <p
               style={{
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "0.775rem",
+                fontSize: "0.68rem",
                 color: "#6b7280",
-                lineHeight: 1.65,
-                margin: "0 0 20px",
+                lineHeight: 1.5,
+                margin: "0 0 14px",
               }}
             >
               {config.intro}
             </p>
 
-            <div style={{ textAlign: "left", marginBottom: 22 }}>
+            <div style={{ textAlign: "left", marginBottom: 16 }}>
               {config.steps.map((text, i) => (
                 <p
                   key={i}
                   style={{
                     fontFamily: "ui-monospace, monospace",
-                    fontSize: "0.72rem",
+                    fontSize: "0.65rem",
                     color: "#111827",
-                    lineHeight: 1.65,
-                    margin: "0 0 11px",
+                    lineHeight: 1.48,
+                    margin: "0 0 8px",
                   }}
                 >
                   {text}
@@ -218,13 +219,13 @@ export default function WelcomeModal() {
               onClick={dismiss}
               style={{
                 width: "100%",
-                padding: "11px 0",
+                padding: "9px 0",
                 background: "#b45309",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: 8,
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "0.85rem",
+                fontSize: "0.75rem",
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
