@@ -51,7 +51,7 @@ router.post("/inspections", async (req, res) => {
     return;
   }
 
-  const { deviceId, activationCode, sawIdentifier, items } = parse.data;
+  const { deviceId, activationCode, sawIdentifier, duplicate, items } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -61,6 +61,31 @@ router.post("/inspections", async (req, res) => {
   const hasFailures = items.some((item) => item.status === "fail");
 
   try {
+    const [latest] = duplicate
+      ? []
+      : await db
+          .select({ id: inspectionRecordsTable.id })
+          .from(inspectionRecordsTable)
+          .where(eq(inspectionRecordsTable.userId, user.id))
+          .orderBy(desc(inspectionRecordsTable.createdAt), desc(inspectionRecordsTable.id))
+          .limit(1);
+
+    if (latest) {
+      const [updated] = await db
+        .update(inspectionRecordsTable)
+        .set({
+          sawIdentifier: sawIdentifier ?? null,
+          items: JSON.stringify(items),
+          hasFailures,
+          amendedAt: new Date(),
+        })
+        .where(and(eq(inspectionRecordsTable.id, latest.id), eq(inspectionRecordsTable.userId, user.id)))
+        .returning();
+
+      res.json(serializeRecord(updated));
+      return;
+    }
+
     const [inserted] = await db
       .insert(inspectionRecordsTable)
       .values({

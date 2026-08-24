@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Edit2, X,
+  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Copy, Edit2, X,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
@@ -126,6 +126,7 @@ export default function Inspection() {
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
+  const [duplicateMode, setDuplicateMode] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
   const downloadPdf = async (id: number) => {
@@ -175,6 +176,8 @@ export default function Inspection() {
       onSuccess: (data) => {
         setSubmitted({ hasFailures: data.hasFailures });
         setExportRecord(data);
+        setDuplicateMode(false);
+        setEditingOriginalDate(null);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
@@ -191,6 +194,7 @@ export default function Inspection() {
         setExportRecord(data);
         setEditingId(null);
         setEditingOriginalDate(null);
+        setDuplicateMode(false);
         playBing();
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
@@ -203,11 +207,13 @@ export default function Inspection() {
   const history = useListMyInspections({
     query: {
       queryKey: getListMyInspectionsQueryKey(),
-      enabled: showHistory && !!deviceId && !!activationCode,
+      enabled: !!deviceId && !!activationCode,
     },
   });
 
-  const loadForEdit = (record: NonNullable<typeof history.data>[number]) => {
+  const hasSavedInspection = (history.data?.length ?? 0) > 0;
+
+  const loadForEdit = (record: NonNullable<typeof history.data>[number], duplicate = false) => {
     setSawIdentifier(record.sawIdentifier ?? "");
     const newItems: Record<string, Status> = buildInitialItems();
     const newNotes: Record<string, string> = {};
@@ -219,8 +225,9 @@ export default function Inspection() {
     }
     setItems(newItems);
     setNotes(newNotes);
-    setEditingId(record.id);
+    setEditingId(duplicate ? null : record.id);
     setEditingOriginalDate(record.createdAt);
+    setDuplicateMode(duplicate);
     setSubmitted(null);
     setExportRecord(null);
     setShowHistory(false);
@@ -253,6 +260,7 @@ export default function Inspection() {
           deviceId,
           activationCode,
           sawIdentifier: sawIdentifier.trim() || undefined,
+          duplicate: duplicateMode || undefined,
           items: payload,
         },
       });
@@ -403,6 +411,14 @@ export default function Inspection() {
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => loadForEdit(record, true)}
+                      >
+                        <Copy className="w-3 h-3 mr-1" /> Duplicate
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
                         disabled={isDownloading}
                         onClick={handleDownload}
                       >
@@ -427,13 +443,15 @@ export default function Inspection() {
           </Card>
         ) : (
           <>
-            {editingId !== null && editingOriginalDate && (
+            {(editingId !== null || duplicateMode) && editingOriginalDate && (
               <Card className="border-amber-500 bg-amber-500/10">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Edit2 className="w-4 h-4 text-amber-600 shrink-0" />
                     <p className="font-mono text-xs text-amber-700 truncate">
-                      Editing inspection from {new Date(editingOriginalDate).toLocaleString()} — save to update record.
+                      {duplicateMode
+                        ? `Creating a copy of the inspection from ${new Date(editingOriginalDate).toLocaleString()} — save to create a separate record.`
+                        : `Editing inspection from ${new Date(editingOriginalDate).toLocaleString()} — save to update record.`}
                     </p>
                   </div>
                   <Button
@@ -443,6 +461,7 @@ export default function Inspection() {
                     onClick={() => {
                       setEditingId(null);
                       setEditingOriginalDate(null);
+                      setDuplicateMode(false);
                       setSawIdentifier("");
                       setItems(buildInitialItems());
                       setNotes({});
@@ -555,7 +574,7 @@ export default function Inspection() {
               ) : (
                 <ClipboardCheck className="w-4 h-4 mr-2" />
               )}
-              {editingId !== null ? "Update Inspection" : "Save Inspection"}
+              {duplicateMode ? "Create Duplicate" : editingId !== null || hasSavedInspection ? "Update Inspection" : "Save Inspection"}
             </Button>
           </div>
         </div>

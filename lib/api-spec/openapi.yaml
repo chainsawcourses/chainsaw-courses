@@ -493,7 +493,7 @@ paths:
     post:
       operationId: submitInspection
       tags: [inspections]
-      summary: Submit a completed pre-start/pre-use inspection checklist
+      summary: Save the current inspection checklist, or create an explicit duplicate
       requestBody:
         required: true
         content:
@@ -1630,6 +1630,8 @@ components:
           type: string
         sawIdentifier:
           type: string
+        duplicate:
+          type: boolean
         items:
           type: array
           items:

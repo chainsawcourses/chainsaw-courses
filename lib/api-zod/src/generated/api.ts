@@ -406,12 +406,13 @@ export const ListFeedbackResponse = zod.array(ListFeedbackResponseItem)
 
 
 /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const SubmitInspectionBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "sawIdentifier": zod.string().optional(),
+  "duplicate": zod.boolean().optional(),
   "items": zod.array(zod.object({
   "id": zod.string(),
   "label": zod.string(),

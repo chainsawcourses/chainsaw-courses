@@ -248,6 +248,7 @@ export interface SubmitInspectionInput {
   deviceId: string;
   activationCode: string;
   sawIdentifier?: string;
+  duplicate?: boolean;
   items: InspectionItemInput[];
 }
 

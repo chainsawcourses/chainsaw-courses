@@ -1509,7 +1509,7 @@ export const getSubmitInspectionUrl = () => {
 }
 
 /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const submitInspection = async (submitInspectionInput: SubmitInspectionInput, options?: RequestInit): Promise<InspectionEntry> => {
 
@@ -1558,7 +1558,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SubmitInspectionMutationError = ErrorType<unknown>
 
     /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const useSubmitInspection = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitInspection>>, TError,{data: BodyType<SubmitInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
