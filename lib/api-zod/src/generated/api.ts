@@ -555,7 +555,7 @@ export const DeleteInspectionResponse = zod.object({
 
 
 /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const SubmitRiskAssessmentBody = zod.object({
   "deviceId": zod.string(),
@@ -574,6 +574,7 @@ export const SubmitRiskAssessmentBody = zod.object({
   "firstAidKit": zod.string().optional(),
   "nearestAed": zod.string().optional(),
   "nearestSignal": zod.string().optional(),
+  "duplicate": zod.boolean().optional(),
   "hazards": zod.array(zod.object({
   "id": zod.string(),
   "label": zod.string(),

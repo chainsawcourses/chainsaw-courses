@@ -24,5 +24,6 @@ export interface SubmitRiskAssessmentInput {
   firstAidKit?: string;
   nearestAed?: string;
   nearestSignal?: string;
+  duplicate?: boolean;
   hazards: HazardEntryInput[];
 }

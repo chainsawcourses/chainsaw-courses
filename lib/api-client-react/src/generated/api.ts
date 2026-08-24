@@ -1946,7 +1946,7 @@ export const getSubmitRiskAssessmentUrl = () => {
 }
 
 /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const submitRiskAssessment = async (submitRiskAssessmentInput: SubmitRiskAssessmentInput, options?: RequestInit): Promise<RiskAssessmentEntry> => {
 
@@ -1995,7 +1995,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SubmitRiskAssessmentMutationError = ErrorType<unknown>
 
     /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const useSubmitRiskAssessment = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitRiskAssessment>>, TError,{data: BodyType<SubmitRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}

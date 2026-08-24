@@ -4,26 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardCopy, Edit2, FileDown, History, Loader2, MapPin, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCopy, Copy, Edit2, History, Loader2, MapPin, Plus, Trash2, X } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
-
-const BASE = import.meta.env.BASE_URL as string;
-
-const bingAudio = new Audio("/audio/ding.wav");
-bingAudio.volume = 0.5;
-bingAudio.load();
-
-function playBing() {
-  try {
-    bingAudio.currentTime = 0;
-    bingAudio.play().catch(() => { /* silent fail */ });
-  } catch {
-    // audio not available — silent fail
-  }
-}
 
 interface HazardRow {
   id: string;
@@ -126,7 +111,7 @@ function riskBand(rating: number): { label: string; className: string } {
 
 export default function RiskAssessment() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName, userId } = useUserSession();
+  const { activationCode, deviceId, fullName } = useUserSession();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -154,35 +139,10 @@ export default function RiskAssessment() {
   const [exportRecord, setExportRecord] = useState<RiskAssessmentExportData | null>(null);
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<number | null>(null);
-  const [pdfDownloading, setPdfDownloading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
+  const [duplicateMode, setDuplicateMode] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
-
-  const downloadPdf = async (id: number) => {
-    try {
-      const res = await fetch(`${BASE}api/risk-assessments/${id}/pdf`, {
-        headers: {
-          deviceid: deviceId ?? "",
-          activationcode: activationCode ?? "",
-          ...(userId != null ? { userid: String(userId) } : {}),
-        },
-      });
-      if (!res.ok) throw new Error("PDF generation failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `risk-assessment-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Could not download PDF. Please try again.");
-    }
-  };
 
   const updateHazard = (id: string, patch: Partial<HazardRow>) => {
     setHazards((prev) => prev.map((h) => (h.id === id ? { ...h, ...patch } : h)));
@@ -210,7 +170,8 @@ export default function RiskAssessment() {
       onSuccess: (data) => {
         setSubmitted(true);
         setExportRecord(data);
-        playBing();
+        setDuplicateMode(false);
+        setEditingOriginalDate(null);
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -226,7 +187,7 @@ export default function RiskAssessment() {
         setExportRecord(data);
         setEditingId(null);
         setEditingOriginalDate(null);
-        playBing();
+        setDuplicateMode(false);
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -238,11 +199,13 @@ export default function RiskAssessment() {
   const history = useListMyRiskAssessments({
     query: {
       queryKey: getListMyRiskAssessmentsQueryKey(),
-      enabled: showHistory && !!deviceId && !!activationCode,
+      enabled: !!deviceId && !!activationCode,
     },
   });
 
-  const loadForEdit = (record: NonNullable<typeof history.data>[number]) => {
+  const hasSavedAssessment = (history.data?.length ?? 0) > 0;
+
+  const loadForEdit = (record: NonNullable<typeof history.data>[number], duplicate = false) => {
     setTaskDescription(record.taskDescription);
     setSiteDescription(record.siteDescription ?? "");
     setAddress(record.address ?? "");
@@ -263,8 +226,9 @@ export default function RiskAssessment() {
       controlMeasures: h.controlMeasures ?? "",
       isCustom: h.isCustom ?? false,
     })));
-    setEditingId(record.id);
+    setEditingId(duplicate ? null : record.id);
     setEditingOriginalDate(record.createdAt);
+    setDuplicateMode(duplicate);
     setSubmitted(false);
     setExportRecord(null);
     setShowHistory(false);
@@ -322,6 +286,7 @@ export default function RiskAssessment() {
           firstAidKit: firstAidKit.trim() || undefined,
           nearestAed: nearestAed.trim() || undefined,
           nearestSignal: nearestSignal.trim() || undefined,
+          duplicate: duplicateMode || undefined,
           hazards: hazardPayload,
         },
       });
@@ -364,7 +329,8 @@ export default function RiskAssessment() {
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
             Use this risk assessment framework to record your site location and run through common hazards.
             This is a personal working record — it does not unlock or affect your course progress, and it does not
-            replace a full written method statement or your employer's formal RAMS process.
+            replace a full written method statement or your employer's formal RAMS process. Saving again updates your
+            latest assessment instead of creating another copy.
           </p>
         </div>
 
@@ -384,11 +350,6 @@ export default function RiskAssessment() {
               {history.data?.map((record) => {
                 const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
                 const band = riskBand(maxRisk);
-                const isDownloading = downloadingId === record.id;
-                const handleDownload = () => {
-                  setDownloadingId(record.id);
-                  void downloadPdf(record.id).finally(() => setDownloadingId(null));
-                };
                 return (
                   <div key={record.id} className="border rounded p-3 space-y-1.5 border-border">
                     <div className="flex items-center justify-between">
@@ -427,11 +388,9 @@ export default function RiskAssessment() {
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
-                        disabled={isDownloading}
-                        onClick={handleDownload}
+                        onClick={() => loadForEdit(record, true)}
                       >
-                        {isDownloading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FileDown className="w-3 h-3 mr-1" />}
-                        {isDownloading ? "Downloading…" : "PDF"}
+                        <Copy className="w-3 h-3 mr-1" /> Duplicate
                       </Button>
                       <Button
                         size="sm"
@@ -451,13 +410,15 @@ export default function RiskAssessment() {
           </Card>
         ) : (
           <>
-            {editingId !== null && editingOriginalDate && (
+            {(editingId !== null || duplicateMode) && editingOriginalDate && (
               <Card className="border-amber-500 bg-amber-500/10">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Edit2 className="w-4 h-4 text-amber-600 shrink-0" />
                     <p className="font-mono text-xs text-amber-700 truncate">
-                      Editing assessment from {new Date(editingOriginalDate).toLocaleString()} — save to update record.
+                      {duplicateMode
+                        ? `Creating a copy of the assessment from ${new Date(editingOriginalDate).toLocaleString()} — save to create a separate record.`
+                        : `Editing assessment from ${new Date(editingOriginalDate).toLocaleString()} — save to update record.`}
                     </p>
                   </div>
                   <Button
@@ -467,6 +428,7 @@ export default function RiskAssessment() {
                     onClick={() => {
                       setEditingId(null);
                       setEditingOriginalDate(null);
+                      setDuplicateMode(false);
                       setTaskDescription("Cross-cutting felled/heavy timber into logs");
                       setSiteDescription("");
                       setAddress("");
@@ -653,17 +615,14 @@ export default function RiskAssessment() {
             </Card>
 
             {submitted && (
-              <Card className={highestRisk >= 15 ? "border-destructive bg-destructive/5" : "border-primary bg-primary/5"}>
+              <Card className="border-primary bg-primary/5">
                 <CardContent className="p-4 flex items-start gap-3">
-                  {highestRisk >= 15 ? (
-                    <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-                  ) : (
-                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  )}
+                  <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <p className="font-mono text-xs text-foreground">
+                    <strong>Risk assessment saved successfully.</strong>{" "}
                     {highestRisk >= 15
-                      ? "Risk assessment recorded with one or more high-risk items. Review control measures before starting work and consider stopping if risks cannot be adequately controlled."
-                      : "Risk assessment recorded. Review it on site before starting work and stop immediately if conditions change."}
+                      ? "One or more items are high risk. Review the control measures before starting work and consider stopping if risks cannot be adequately controlled."
+                      : "Review it on site before starting work and stop immediately if conditions change."}
                   </p>
                 </CardContent>
               </Card>
@@ -673,26 +632,9 @@ export default function RiskAssessment() {
               <Card ref={exportCardRef} className="border-primary bg-primary/5 shadow-md">
                 <CardContent className="p-4 space-y-3">
                   <p className="font-mono font-bold uppercase tracking-widest text-xs text-primary">
-                    Export this risk assessment?
+                    Keep a copy of this assessment
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      className={`font-mono text-xs uppercase tracking-wide transition-all duration-150 ${
-                        pdfDownloading
-                          ? "bg-primary text-primary-foreground ring-2 ring-primary/50 shadow-sm"
-                          : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
-                      }`}
-                      onClick={() => {
-                        setPdfDownloading(true);
-                        void downloadPdf(exportRecord.id!).finally(() => setPdfDownloading(false));
-                      }}
-                    >
-                      {pdfDownloading
-                        ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                        : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
-                      {pdfDownloading ? "Downloading…" : "Download PDF"}
-                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -731,7 +673,7 @@ export default function RiskAssessment() {
               ) : (
                 <MapPin className="w-3.5 h-3.5 mr-1.5 inline" />
               )}
-              {editingId !== null ? "Update Assessment" : "Save Assessment"}
+              {duplicateMode ? "Create Duplicate" : editingId !== null || hasSavedAssessment ? "Update Assessment" : "Save Assessment"}
             </Button>
           </div>
         </div>

@@ -83,7 +83,7 @@ router.post("/risk-assessments", async (req, res) => {
     return;
   }
 
-  const { deviceId, activationCode, siteDescription, taskDescription, latitude, longitude, address, gridReference, what3Words, nearestHospital, hospitalPhone, siteAccess, meetingPoint, firstAidKit, nearestAed, nearestSignal, hazards } = parse.data;
+  const { deviceId, activationCode, siteDescription, taskDescription, latitude, longitude, address, gridReference, what3Words, nearestHospital, hospitalPhone, siteAccess, meetingPoint, firstAidKit, nearestAed, nearestSignal, duplicate, hazards } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -91,26 +91,49 @@ router.post("/risk-assessments", async (req, res) => {
   }
 
   try {
+    const values = {
+      siteDescription: siteDescription ?? null,
+      taskDescription,
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      address: address ?? null,
+      gridReference: gridReference ?? null,
+      what3Words: what3Words ?? null,
+      nearestHospital: nearestHospital ?? null,
+      hospitalPhone: hospitalPhone ?? null,
+      siteAccess: siteAccess ?? null,
+      meetingPoint: meetingPoint ?? null,
+      firstAidKit: firstAidKit ?? null,
+      nearestAed: nearestAed ?? null,
+      nearestSignal: nearestSignal ?? null,
+      hazards: JSON.stringify(hazards),
+    };
+
+    // Routine saves update the learner's latest working assessment. An explicit
+    // duplicate request deliberately creates a separate record.
+    const [latest] = duplicate
+      ? []
+      : await db
+          .select({ id: riskAssessmentsTable.id })
+          .from(riskAssessmentsTable)
+          .where(eq(riskAssessmentsTable.userId, user.id))
+          .orderBy(desc(riskAssessmentsTable.createdAt), desc(riskAssessmentsTable.id))
+          .limit(1);
+
+    if (latest) {
+      const [updated] = await db
+        .update(riskAssessmentsTable)
+        .set({ ...values, amendedAt: new Date() })
+        .where(and(eq(riskAssessmentsTable.id, latest.id), eq(riskAssessmentsTable.userId, user.id)))
+        .returning();
+
+      res.json(serializeRecord(updated));
+      return;
+    }
+
     const [inserted] = await db
       .insert(riskAssessmentsTable)
-      .values({
-        userId: user.id,
-        siteDescription: siteDescription ?? null,
-        taskDescription,
-        latitude: latitude ?? null,
-        longitude: longitude ?? null,
-        address: address ?? null,
-        gridReference: gridReference ?? null,
-        what3Words: what3Words ?? null,
-        nearestHospital: nearestHospital ?? null,
-        hospitalPhone: hospitalPhone ?? null,
-        siteAccess: siteAccess ?? null,
-        meetingPoint: meetingPoint ?? null,
-        firstAidKit: firstAidKit ?? null,
-        nearestAed: nearestAed ?? null,
-        nearestSignal: nearestSignal ?? null,
-        hazards: JSON.stringify(hazards),
-      })
+      .values({ userId: user.id, ...values })
       .returning();
 
     res.json(serializeRecord(inserted));

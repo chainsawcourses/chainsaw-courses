@@ -633,7 +633,7 @@ paths:
     post:
       operationId: submitRiskAssessment
       tags: [risk-assessments]
-      summary: Submit a completed dynamic risk assessment
+      summary: Save the current dynamic risk assessment, updating the learner's latest record when one exists
       requestBody:
         required: true
         content:
@@ -1726,6 +1726,8 @@ components:
           type: string
         nearestSignal:
           type: string
+        duplicate:
+          type: boolean
         hazards:
           type: array
           items:
