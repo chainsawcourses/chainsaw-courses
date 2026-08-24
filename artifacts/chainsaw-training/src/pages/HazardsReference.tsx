@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowLeft, Download, FileText, Loader2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, ShieldAlert } from "lucide-react";
 import { useGetHazardsReference } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,11 +56,6 @@ export default function HazardsReference() {
                     <p className="mt-1 font-mono text-xs leading-relaxed text-muted-foreground">{data.intro}</p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" className="font-mono text-xs uppercase tracking-widest" asChild>
-                  <a href="/api/documents/hazards" download="Hazards and Risks Reference.pdf">
-                    <Download className="mr-1.5 h-3.5 w-3.5" /> Download PDF
-                  </a>
-                </Button>
               </CardContent>
             </Card>
 
