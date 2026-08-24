@@ -245,6 +245,13 @@ export default function AdminDashboard() {
 
   const testUserCount = students?.filter((s) => isTestUser(s.email)).length ?? 0;
 
+  const lastBackup = exportHistory.reduce<BackupExport | null>((latest, current) => {
+    if (!latest || new Date(current.exportedAt).getTime() > new Date(latest.exportedAt).getTime()) {
+      return current;
+    }
+    return latest;
+  }, null);
+
   // Global search across all categories
   const q = globalSearch.trim().toLowerCase();
   const searchResults = useMemo<SearchResult[]>(() => {
@@ -565,6 +572,20 @@ export default function AdminDashboard() {
               {dataBackupOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
             </button>
             {dataBackupOpen && <div className="flex gap-2 flex-wrap">
+              <span
+                className="h-9 flex items-center px-1 font-mono text-[10px] uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+                title={lastBackup ? new Date(lastBackup.exportedAt).toLocaleString("en-GB") : "No backup has been created yet"}
+              >
+                Last backed up: {lastBackup
+                  ? new Date(lastBackup.exportedAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Never"}
+              </span>
               <Button
                 size="sm"
                 variant="outline"
