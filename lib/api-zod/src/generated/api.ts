@@ -17,6 +17,27 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+export const getHazardsReferenceResponseHazardsItemLikelihoodMax = 5;
+
+export const getHazardsReferenceResponseHazardsItemSeverityMax = 5;
+
+
+
+export const GetHazardsReferenceResponse = zod.object({
+  "title": zod.string(),
+  "intro": zod.string(),
+  "hazards": zod.array(zod.object({
+  "label": zod.string(),
+  "likelihood": zod.number().min(1).max(getHazardsReferenceResponseHazardsItemLikelihoodMax),
+  "severity": zod.number().min(1).max(getHazardsReferenceResponseHazardsItemSeverityMax),
+  "controlMeasures": zod.string()
+}))
+})
+
+
+/**
  * @summary Activate a Shopify purchase code and bond it to a device
  */
 export const ActivateCodeBody = zod.object({

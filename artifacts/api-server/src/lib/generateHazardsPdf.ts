@@ -21,7 +21,17 @@ const RED     = rgb(0.72,  0.12,  0.12);
 const GREEN   = rgb(0.09,  0.53,  0.27);
 
 // ── Hazard data (mirrors DEFAULT_HAZARDS in RiskAssessment.tsx + additional) ──
-const HAZARDS = [
+export interface HazardReferenceEntry {
+  label: string;
+  likelihood: number;
+  severity: number;
+  controlMeasures: string;
+}
+
+export const HAZARDS_REFERENCE_INTRO =
+  "There are many different hazards involved with chainsaw use. Assume everything wants to hurt you - prepare yourself, the machine and the site to minimise injuries. Use this reference alongside your dynamic site risk assessment before every operation. Risk ratings use Likelihood x Severity (1-5 scale): Low = 1-7, Medium = 8-14, High = 15+";
+
+export const HAZARDS: HazardReferenceEntry[] = [
   {
     label: "Chainsaw kickback / loss of control",
     likelihood: 2,
@@ -260,8 +270,7 @@ export async function generateHazardsPdf(): Promise<Uint8Array> {
   ctx.y -= 58;
 
   // ── Intro ────────────────────────────────────────────────────────────────────
-  const intro = "There are many different hazards involved with chainsaw use. Assume everything wants to hurt you - prepare yourself, the machine and the site to minimise injuries. Use this reference alongside your dynamic site risk assessment before every operation. Risk ratings use Likelihood x Severity (1-5 scale): Low = 1-7, Medium = 8-14, High = 15+";
-  for (const line of wrap(intro, reg, 8.5, CW)) {
+  for (const line of wrap(HAZARDS_REFERENCE_INTRO, reg, 8.5, CW)) {
     ensureSpace(ctx, 13);
     ctx.page.drawText(line, { x: ML, y: ctx.y, size: 8.5, font: reg, color: BLACK });
     ctx.y -= 12;

@@ -18,6 +18,27 @@ export interface SuccessResponse {
   message?: string;
 }
 
+export interface HazardReferenceEntry {
+  label: string;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  likelihood: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  severity: number;
+  controlMeasures: string;
+}
+
+export interface HazardsReference {
+  title: string;
+  intro: string;
+  hazards: HazardReferenceEntry[];
+}
+
 export interface ActivateInput {
   code: string;
   deviceId: string;

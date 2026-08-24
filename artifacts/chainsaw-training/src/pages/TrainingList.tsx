@@ -1137,6 +1137,7 @@ export default function TrainingList() {
                     {mods.map((module) => {
                       const isPdf = module.contentType === "pdf";
                       const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
+                      const isHazardsReference = isPdf && module.title.toLowerCase().includes("hazards");
                       const moduleIndex = modules!.findIndex((m) => m.id === module.id);
                       // needsHazards is only used to show a soft prompt — it no longer gates access.
                       // Modules unlock purely based on the backend isLocked flag (quiz + video completion).
@@ -1154,7 +1155,9 @@ export default function TrainingList() {
                                 : "cursor-pointer hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
                             onClick={!effectiveLocked ? () => {
-                              if (isPdf && module.pdfUrl) {
+                              if (isHazardsReference) {
+                                setLocation("/hazards-reference");
+                              } else if (isPdf && module.pdfUrl) {
                                 window.open(module.pdfUrl, "_blank", "noopener,noreferrer");
                               } else {
                                 setLocation(`/training/${module.id}`);
@@ -1189,7 +1192,13 @@ export default function TrainingList() {
 
                               {!effectiveLocked && (
                                 <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  {isPdf && module.pdfUrl ? (
+                                  {isHazardsReference ? (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <Link href="/hazards-reference">
+                                        <FileText className="w-2.5 h-2.5 mr-1" /> READ
+                                      </Link>
+                                    </Button>
+                                  ) : isPdf && module.pdfUrl ? (
                                     <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                       <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
                                         <ExternalLink className="w-2.5 h-2.5 mr-1" /> VIEW

@@ -33,6 +33,8 @@ tags:
     description: Location-aware dynamic risk assessment tool
   - name: news
     description: Arboriculture and forestry news feed
+  - name: documents
+    description: Course reference documents
 paths:
   /healthz:
     get:
@@ -46,6 +48,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /documents/hazards/reference:
+    get:
+      operationId: getHazardsReference
+      tags: [documents]
+      summary: Get the Hazards and Risks reference content for the in-app reader
+      responses:
+        "200":
+          description: Hazards and Risks reference content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HazardsReference"
+        "500":
+          description: Could not load the reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/activate:
     post:
@@ -1212,6 +1233,36 @@ components:
         message:
           type: string
       required: [success]
+
+    HazardReferenceEntry:
+      type: object
+      required: [label, likelihood, severity, controlMeasures]
+      properties:
+        label:
+          type: string
+        likelihood:
+          type: integer
+          minimum: 1
+          maximum: 5
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 5
+        controlMeasures:
+          type: string
+
+    HazardsReference:
+      type: object
+      required: [title, intro, hazards]
+      properties:
+        title:
+          type: string
+        intro:
+          type: string
+        hazards:
+          type: array
+          items:
+            $ref: "#/components/schemas/HazardReferenceEntry"
 
     ActivateInput:
       type: object

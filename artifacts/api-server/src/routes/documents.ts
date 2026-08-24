@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { logger } from "../lib/logger";
-import { generateHazardsPdf } from "../lib/generateHazardsPdf";
+import {
+  HAZARDS,
+  HAZARDS_REFERENCE_INTRO,
+  generateHazardsPdf,
+} from "../lib/generateHazardsPdf";
+import { GetHazardsReferenceResponse } from "@workspace/api-zod";
 
 const router = Router();
 
@@ -46,6 +51,25 @@ router.get("/documents/hazards", async (_req, res) => {
   } catch (err) {
     logger.error({ err }, "Error generating hazards PDF");
     res.status(500).json({ error: "Failed to generate document" });
+  }
+});
+
+/**
+ * GET /api/documents/hazards/reference
+ * Returns the same reference content in a mobile-safe, in-app format.
+ */
+router.get("/documents/hazards/reference", async (_req, res): Promise<void> => {
+  try {
+    res.json(
+      GetHazardsReferenceResponse.parse({
+        title: "Hazards & Risks",
+        intro: HAZARDS_REFERENCE_INTRO,
+        hazards: HAZARDS,
+      }),
+    );
+  } catch (err) {
+    logger.error({ err }, "Error serving hazards reference");
+    res.status(500).json({ error: "Failed to load hazards reference" });
   }
 });
 

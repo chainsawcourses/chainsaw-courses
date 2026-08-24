@@ -36,6 +36,8 @@ export * from './examSubmission';
 export * from './feedbackEntry';
 export * from './feedbackInput';
 export * from './hazardEntryInput';
+export * from './hazardReferenceEntry';
+export * from './hazardsReference';
 export * from './healthStatus';
 export * from './heartbeatInput';
 export * from './inspectionEntry';

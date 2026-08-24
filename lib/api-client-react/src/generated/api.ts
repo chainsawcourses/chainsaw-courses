@@ -45,6 +45,7 @@ import type {
   ExamSubmission,
   FeedbackEntry,
   FeedbackInput,
+  HazardsReference,
   HealthStatus,
   HeartbeatInput,
   InspectionEntry,
@@ -148,6 +149,83 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHazardsReferenceUrl = () => {
+
+
+
+
+  return `/api/documents/hazards/reference`
+}
+
+/**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+export const getHazardsReference = async ( options?: RequestInit): Promise<HazardsReference> => {
+
+  return customFetch<HazardsReference>(getGetHazardsReferenceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHazardsReferenceQueryKey = () => {
+    return [
+    `/api/documents/hazards/reference`
+    ] as const;
+    }
+
+
+export const getGetHazardsReferenceQueryOptions = <TData = Awaited<ReturnType<typeof getHazardsReference>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHazardsReferenceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHazardsReference>>> = ({ signal }) => getHazardsReference({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHazardsReferenceQueryResult = NonNullable<Awaited<ReturnType<typeof getHazardsReference>>>
+export type GetHazardsReferenceQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+
+export function useGetHazardsReference<TData = Awaited<ReturnType<typeof getHazardsReference>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHazardsReferenceQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

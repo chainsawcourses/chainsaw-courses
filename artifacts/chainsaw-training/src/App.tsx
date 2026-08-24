@@ -25,6 +25,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import LegalDocs from "@/pages/LegalDocs";
 import CrossCutSim from "@/pages/CrossCutSim";
 import StudentFeedback from "@/pages/StudentFeedback";
+import HazardsReference from "@/pages/HazardsReference";
 import Glossary from "@/pages/Glossary";
 import Resources from "@/pages/Resources";
 import ManualFlipbook from "@/pages/ManualFlipbook";
@@ -250,6 +251,7 @@ function Router() {
       <Route path="/glossary" component={Glossary} />
       <Route path="/resources" component={Resources} />
       <Route path="/feedback" component={StudentFeedback} />
+      <Route path="/hazards-reference" component={HazardsReference} />
       <Route path="/manual" component={ManualFlipbook} />
       <Route path="/qr/:moduleId" component={QrLanding} />
       <Route path="/gateway" component={PracticalGateway} />
