@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, FileText, Loader2, ShieldAlert } from "lucide-react";
 import { useGetHazardsReference } from "@workspace/api-client-react";
@@ -13,6 +14,10 @@ function riskBand(likelihood: number, severity: number) {
 
 export default function HazardsReference() {
   const { data, isLoading, isError, refetch } = useGetHazardsReference();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
 
   return (
     <div className="min-h-screen bg-background pb-8">
