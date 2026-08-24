@@ -330,15 +330,7 @@ export default function Inspection() {
             <ClipboardCheck className="w-4 h-4 text-[#e27226]" />
             <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Inspection Checklist</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowHistory((v) => !v)}
-            className="font-mono uppercase tracking-widest text-xs text-muted-foreground hover:text-primary"
-          >
-            <History className="w-3.5 h-3.5 mr-1" />
-            History
-          </Button>
+          <div className="w-20" aria-hidden="true" />
         </div>
       </header>
 
@@ -355,7 +347,17 @@ export default function Inspection() {
         {showHistory ? (
           <Card className="border-border bg-card/60">
             <CardContent className="p-4 space-y-3">
-              <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Inspection History</h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Inspection History</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="font-mono text-[10px] uppercase tracking-wide h-7 px-2 shrink-0"
+                  onClick={() => setShowHistory(false)}
+                >
+                  Back to Checklist
+                </Button>
+              </div>
               {history.isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -443,6 +445,17 @@ export default function Inspection() {
           </Card>
         ) : (
           <>
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Checklist History
+              </Button>
+            </div>
             {(editingId !== null || duplicateMode) && editingOriginalDate && (
               <Card className="border-amber-500 bg-amber-500/10">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
@@ -491,6 +504,17 @@ export default function Inspection() {
             {renderSection("PPE Verification", PPE_ITEMS)}
             {renderSection("Pre-Start Checks", PRE_START_ITEMS)}
             {renderSection("Pre-Use / On-Site Checks", PRE_USE_ITEMS)}
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Checklist History
+              </Button>
+            </div>
 
             {submitted && (
               <Card className={submitted.hasFailures ? "border-destructive bg-destructive/5" : "border-primary bg-primary/5"}>
