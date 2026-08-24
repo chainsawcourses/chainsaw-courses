@@ -867,7 +867,9 @@ export const ListStudentsResponseItem = zod.object({
   "quizzesPassed": zod.number().optional(),
   "waiverSigned": zod.boolean(),
   "lastActivity": zod.string().nullish(),
-  "feedbackCount": zod.number().optional(),
+  "feedbackCount": zod.number(),
+  "moduleFeedbackCount": zod.number(),
+  "courseFeedbackCount": zod.number(),
   "totalQuizAttempts": zod.number().optional()
 })
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem)
@@ -910,6 +912,30 @@ export const GetStudentResponse = zod.object({
   "passed": zod.boolean(),
   "totalQuestions": zod.number(),
   "attemptedAt": zod.string()
+})),
+  "videoProgress": zod.array(zod.object({
+  "moduleId": zod.number(),
+  "moduleTitle": zod.string(),
+  "videoCompleted": zod.boolean(),
+  "quizPassed": zod.boolean(),
+  "lastTimestamp": zod.number(),
+  "updatedAt": zod.string()
+})),
+  "moduleFeedback": zod.array(zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "moduleTitle": zod.string(),
+  "rating": zod.number(),
+  "comment": zod.string().nullable(),
+  "createdAt": zod.string()
+})),
+  "courseFeedback": zod.array(zod.object({
+  "id": zod.number(),
+  "rating": zod.number(),
+  "clarityRating": zod.number().nullable(),
+  "usabilityRating": zod.number().nullable(),
+  "comment": zod.string().nullable(),
+  "createdAt": zod.string()
 })),
   "lastActivity": zod.string().nullish()
 })

@@ -45,6 +45,7 @@ export default function TrainingModule() {
 
   const playerRef = useRef<VimeoPlayerHandle>(null);
   const mainRef = useRef<HTMLElement>(null);
+  const latestPlaybackTimeRef = useRef(0);
 
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -100,12 +101,27 @@ export default function TrainingModule() {
 
   const handleSafetyAcknowledge = () => { setSafetyModalOpen(false); setCanPlay(true); };
 
-  // Heartbeat for video modules
+  useEffect(() => {
+    latestPlaybackTimeRef.current = 0;
+  }, [id]);
+
+  // Record an opening heartbeat immediately, then preserve the most recent
+  // player timestamp while the learner watches. This makes partial viewing
+  // visible to administrators even if a learner leaves before 30 seconds.
   useEffect(() => {
     if (!canPlay || !deviceId || !activationCode || module?.contentType === "pdf") return;
-    const interval = setInterval(() => {
-      saveHeartbeat.mutate({ data: { moduleId: id, timestamp: 0, deviceId, activationCode } });
-    }, 30000);
+    const saveProgress = () => {
+      saveHeartbeat.mutate({
+        data: {
+          moduleId: id,
+          timestamp: Math.floor(latestPlaybackTimeRef.current),
+          deviceId,
+          activationCode,
+        },
+      });
+    };
+    saveProgress();
+    const interval = setInterval(saveProgress, 30000);
     return () => clearInterval(interval);
   }, [canPlay, deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -138,7 +154,9 @@ export default function TrainingModule() {
     playerRef.current?.replay();
   }, []);
 
-  const handleTimeUpdate = useCallback((_t: number) => {}, []);
+  const handleTimeUpdate = useCallback((time: number) => {
+    latestPlaybackTimeRef.current = Math.max(0, time);
+  }, []);
 
   // ── Voice audio helpers ────────────────────────────────────────────────
   const stopAudio = useCallback(() => {

@@ -29,7 +29,8 @@ export default function Feedback() {
     query: { queryKey: getListAppFeedbackQueryKey(), enabled: !!adminToken },
   });
 
-  // Read ?student= param from roster link — pre-fills search and opens by-student tab
+  // Read ?student= param from roster link — pre-fills searches and opens the
+  // learner view, which also surfaces their overall-course feedback.
   const studentParam = useMemo(() => {
     const params = new URLSearchParams(search);
     return params.get("student") ?? "";
@@ -51,6 +52,7 @@ export default function Feedback() {
   useEffect(() => {
     if (studentParam) {
       setStudentSearch(studentParam);
+      setCourseSearch(studentParam);
       setActiveTab("by-student");
     }
   }, [studentParam]);
@@ -367,6 +369,37 @@ export default function Feedback() {
                 </span>
               </CardContent>
             </Card>
+
+            {studentParam && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardHeader className="pb-2">
+                  <CardTitle className="font-mono uppercase tracking-widest text-xs flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-primary" /> Overall Course Feedback
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {loadingCourse ? (
+                    <div className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Loading overall course feedback...</div>
+                  ) : filteredCourse && filteredCourse.length > 0 ? (
+                    filteredCourse.map((feedback) => (
+                      <div key={feedback.id} className="border-t border-primary/20 pt-3 first:border-t-0 first:pt-0">
+                        <div className="flex items-center justify-between gap-3">
+                          <Stars rating={feedback.rating} size="w-3 h-3" />
+                          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                            {new Date(feedback.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm font-mono text-muted-foreground">
+                          {feedback.comment ?? <span className="italic opacity-60">No comment provided</span>}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="font-mono text-xs text-muted-foreground">No overall course feedback from this learner.</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <div className="flex items-center gap-3">
               <div className="relative flex-1">

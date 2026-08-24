@@ -416,7 +416,9 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
-  feedbackCount?: number;
+  feedbackCount: number;
+  moduleFeedbackCount: number;
+  courseFeedbackCount: number;
   totalQuizAttempts?: number;
 }
 
@@ -437,6 +439,37 @@ export interface StudentExamAttempt {
   attemptedAt: string;
 }
 
+export interface StudentVideoProgress {
+  moduleId: number;
+  moduleTitle: string;
+  videoCompleted: boolean;
+  quizPassed: boolean;
+  lastTimestamp: number;
+  updatedAt: string;
+}
+
+export interface StudentModuleFeedback {
+  id: number;
+  moduleId: number;
+  moduleTitle: string;
+  rating: number;
+  /** @nullable */
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface StudentCourseFeedback {
+  id: number;
+  rating: number;
+  /** @nullable */
+  clarityRating: number | null;
+  /** @nullable */
+  usabilityRating: number | null;
+  /** @nullable */
+  comment: string | null;
+  createdAt: string;
+}
+
 export interface StudentDetail {
   id: number;
   fullName: string;
@@ -453,6 +486,9 @@ export interface StudentDetail {
   completedModules: number;
   quizResults: StudentQuizResult[];
   examAttempts: StudentExamAttempt[];
+  videoProgress: StudentVideoProgress[];
+  moduleFeedback: StudentModuleFeedback[];
+  courseFeedback: StudentCourseFeedback[];
   /** @nullable */
   lastActivity?: string | null;
 }

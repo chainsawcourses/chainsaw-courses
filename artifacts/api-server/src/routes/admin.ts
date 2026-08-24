@@ -196,16 +196,20 @@ router.get("/admin/students", async (req, res) => {
       progressMap.set(p.userId, (progressMap.get(p.userId) ?? 0) + 1);
     }
 
-    const [feedbackCounts, quizAttemptCounts] = await Promise.all([
+    const [moduleFeedbackCounts, courseFeedbackCounts, quizAttemptCounts] = await Promise.all([
       db.select({ userId: moduleFeedbackTable.userId, cnt: count() })
         .from(moduleFeedbackTable)
         .groupBy(moduleFeedbackTable.userId),
+      db.select({ userId: appFeedbackTable.userId, cnt: count() })
+        .from(appFeedbackTable)
+        .groupBy(appFeedbackTable.userId),
       db.select({ userId: quizAttemptsTable.userId, cnt: count() })
         .from(quizAttemptsTable)
         .groupBy(quizAttemptsTable.userId),
     ]);
 
-    const feedbackCountMap = new Map(feedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const moduleFeedbackCountMap = new Map(moduleFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const courseFeedbackCountMap = new Map(courseFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
     const quizAttemptCountMap = new Map(quizAttemptCounts.map((r) => [r.userId, Number(r.cnt)]));
 
     const result = users.map((u) => ({
@@ -220,7 +224,9 @@ router.get("/admin/students", async (req, res) => {
       quizzesPassed: progressMap.get(u.id) ?? 0,
       waiverSigned: !!waiverMap.get(u.id),
       lastActivity: u.lastActivityAt?.toISOString() ?? null,
-      feedbackCount: feedbackCountMap.get(u.id) ?? 0,
+      moduleFeedbackCount: moduleFeedbackCountMap.get(u.id) ?? 0,
+      courseFeedbackCount: courseFeedbackCountMap.get(u.id) ?? 0,
+      feedbackCount: (moduleFeedbackCountMap.get(u.id) ?? 0) + (courseFeedbackCountMap.get(u.id) ?? 0),
       totalQuizAttempts: quizAttemptCountMap.get(u.id) ?? 0,
     }));
 
@@ -248,16 +254,26 @@ router.get("/admin/students/:studentId", async (req, res) => {
 
     const [waiver] = await db.select().from(waiversTable).where(eq(waiversTable.userId, studentId));
 
-    const quizAttempts = await db
-      .select()
-      .from(quizAttemptsTable)
-      .where(eq(quizAttemptsTable.userId, studentId));
-
-    const examAttempts = await db
-      .select()
-      .from(examAttemptsTable)
-      .where(eq(examAttemptsTable.userId, studentId))
-      .orderBy(examAttemptsTable.attemptedAt);
+    const [quizAttempts, examAttempts, progressRecords, moduleFeedback, courseFeedback] = await Promise.all([
+      db.select()
+        .from(quizAttemptsTable)
+        .where(eq(quizAttemptsTable.userId, studentId)),
+      db.select()
+        .from(examAttemptsTable)
+        .where(eq(examAttemptsTable.userId, studentId))
+        .orderBy(examAttemptsTable.attemptedAt),
+      db.select()
+        .from(userProgressTable)
+        .where(eq(userProgressTable.userId, studentId)),
+      db.select()
+        .from(moduleFeedbackTable)
+        .where(eq(moduleFeedbackTable.userId, studentId))
+        .orderBy(desc(moduleFeedbackTable.createdAt)),
+      db.select()
+        .from(appFeedbackTable)
+        .where(eq(appFeedbackTable.userId, studentId))
+        .orderBy(desc(appFeedbackTable.createdAt)),
+    ]);
 
     const modules = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true));
     const moduleMap = new Map(modules.map((m) => [m.id, m]));
@@ -268,11 +284,6 @@ router.get("/admin/students/:studentId", async (req, res) => {
         passedAttempts.set(attempt.moduleId, attempt);
       }
     }
-
-    const progressRecords = await db
-      .select()
-      .from(userProgressTable)
-      .where(eq(userProgressTable.userId, studentId));
 
     const completedCount = progressRecords.filter((p) => p.videoCompleted && p.quizPassed).length;
 
@@ -309,6 +320,32 @@ router.get("/admin/students/:studentId", async (req, res) => {
         passed: a.passed,
         totalQuestions: a.totalQuestions,
         attemptedAt: a.attemptedAt.toISOString(),
+      })),
+      videoProgress: progressRecords
+        .map((p) => ({
+          moduleId: p.moduleId,
+          moduleTitle: moduleMap.get(p.moduleId)?.title ?? "Module",
+          videoCompleted: p.videoCompleted,
+          quizPassed: p.quizPassed,
+          lastTimestamp: p.lastTimestamp,
+          updatedAt: p.updatedAt.toISOString(),
+        }))
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+      moduleFeedback: moduleFeedback.map((feedback) => ({
+        id: feedback.id,
+        moduleId: feedback.moduleId,
+        moduleTitle: moduleMap.get(feedback.moduleId)?.title ?? "Module",
+        rating: feedback.rating,
+        comment: feedback.comment,
+        createdAt: feedback.createdAt.toISOString(),
+      })),
+      courseFeedback: courseFeedback.map((feedback) => ({
+        id: feedback.id,
+        rating: feedback.rating,
+        clarityRating: feedback.clarityRating,
+        usabilityRating: feedback.usabilityRating,
+        comment: feedback.comment,
+        createdAt: feedback.createdAt.toISOString(),
       })),
       lastActivity: user.lastActivityAt?.toISOString() ?? null,
     });

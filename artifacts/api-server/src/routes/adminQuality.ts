@@ -287,7 +287,7 @@ async function validateQuizQuestionBody(body: unknown, existing?: typeof quizQue
   const correctOption = Number(input.correctOption);
   const order = input.order == null || input.order === "" ? (existing?.order ?? 0) : Number(input.order);
 
-  if (!Number.isInteger(moduleId) || moduleId <= 0) {
+  if (typeof moduleId !== "number" || !Number.isInteger(moduleId) || moduleId <= 0) {
     return { error: "A valid module is required." } as const;
   }
   if (!question || options.length < 2 || options.some((option) => !option)) {

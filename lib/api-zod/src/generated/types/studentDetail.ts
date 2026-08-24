@@ -5,8 +5,11 @@
  * Chainsaw Manual Training App API
  * OpenAPI spec version: 0.1.0
  */
+import type { StudentCourseFeedback } from './studentCourseFeedback';
 import type { StudentExamAttempt } from './studentExamAttempt';
+import type { StudentModuleFeedback } from './studentModuleFeedback';
 import type { StudentQuizResult } from './studentQuizResult';
+import type { StudentVideoProgress } from './studentVideoProgress';
 
 export interface StudentDetail {
   id: number;
@@ -24,6 +27,9 @@ export interface StudentDetail {
   completedModules: number;
   quizResults: StudentQuizResult[];
   examAttempts: StudentExamAttempt[];
+  videoProgress: StudentVideoProgress[];
+  moduleFeedback: StudentModuleFeedback[];
+  courseFeedback: StudentCourseFeedback[];
   /** @nullable */
   lastActivity?: string | null;
 }

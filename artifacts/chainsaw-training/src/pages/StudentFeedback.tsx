@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubmitAppFeedback } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { useToast } from "@/hooks/use-toast";
 
 const dingAudio = new Audio("/audio/ding.wav");
 dingAudio.volume = 0.5;
@@ -50,6 +51,7 @@ function StarRow({
 export default function StudentFeedback() {
   const { deviceId, activationCode } = useUserSession();
   const submitFeedback = useSubmitAppFeedback();
+  const { toast } = useToast();
 
   const [rating, setRating] = useState(0);
   const [clarityRating, setClarityRating] = useState(0);
@@ -69,8 +71,14 @@ export default function StudentFeedback() {
   }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = () => {
-    if (!rating || !deviceId || !activationCode) return;
-    playDing();
+    if (!rating) {
+      toast({ variant: "destructive", title: "Choose a rating", description: "Please select an overall course rating before submitting." });
+      return;
+    }
+    if (!deviceId || !activationCode) {
+      toast({ variant: "destructive", title: "Feedback not sent", description: "Your course session has expired. Please sign in again and retry." });
+      return;
+    }
     submitFeedback.mutate(
       {
         data: {
@@ -82,7 +90,16 @@ export default function StudentFeedback() {
           comment: comment || undefined,
         },
       },
-      { onSuccess: () => setSubmitted(true) }
+      {
+        onSuccess: () => setSubmitted(true),
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Feedback not sent",
+            description: "We could not save your feedback. Please check your connection and try again.",
+          });
+        },
+      }
     );
   };
 

@@ -1868,7 +1868,7 @@ components:
 
     StudentSummary:
       type: object
-      required: [id, fullName, email, activatedAt, completedModules, totalModules, waiverSigned]
+      required: [id, fullName, email, activatedAt, completedModules, totalModules, waiverSigned, feedbackCount, moduleFeedbackCount, courseFeedbackCount]
       properties:
         id:
           type: integer
@@ -1894,12 +1894,16 @@ components:
           type: ["string", "null"]
         feedbackCount:
           type: integer
+        moduleFeedbackCount:
+          type: integer
+        courseFeedbackCount:
+          type: integer
         totalQuizAttempts:
           type: integer
 
     StudentDetail:
       type: object
-      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned]
+      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned, videoProgress, moduleFeedback, courseFeedback]
       properties:
         id:
           type: integer
@@ -1931,8 +1935,71 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StudentExamAttempt"
+        videoProgress:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentVideoProgress"
+        moduleFeedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentModuleFeedback"
+        courseFeedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentCourseFeedback"
         lastActivity:
           type: ["string", "null"]
+
+    StudentVideoProgress:
+      type: object
+      required: [moduleId, moduleTitle, videoCompleted, quizPassed, lastTimestamp, updatedAt]
+      properties:
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        videoCompleted:
+          type: boolean
+        quizPassed:
+          type: boolean
+        lastTimestamp:
+          type: integer
+        updatedAt:
+          type: string
+
+    StudentModuleFeedback:
+      type: object
+      required: [id, moduleId, moduleTitle, rating, comment, createdAt]
+      properties:
+        id:
+          type: integer
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    StudentCourseFeedback:
+      type: object
+      required: [id, rating, clarityRating, usabilityRating, comment, createdAt]
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+        clarityRating:
+          type: ["integer", "null"]
+        usabilityRating:
+          type: ["integer", "null"]
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
 
     StudentExamAttempt:
       type: object
