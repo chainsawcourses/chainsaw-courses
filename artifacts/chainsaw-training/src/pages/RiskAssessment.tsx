@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, CheckCircle2, ClipboardCopy, Copy, Edit2, History, Loader2, MapPin, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCopy, Copy, Edit2, FileDown, History, Loader2, MapPin, Plus, Trash2, X } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -111,7 +111,7 @@ function riskBand(rating: number): { label: string; className: string } {
 
 export default function RiskAssessment() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName } = useUserSession();
+  const { activationCode, deviceId, fullName, userId } = useUserSession();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -142,7 +142,33 @@ export default function RiskAssessment() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
   const [duplicateMode, setDuplicateMode] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [pdfDownloading, setPdfDownloading] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
+
+  const downloadPdf = async (id: number) => {
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}api/risk-assessments/${id}/pdf`, {
+        headers: {
+          deviceid: deviceId ?? "",
+          activationcode: activationCode ?? "",
+          ...(userId != null ? { userid: String(userId) } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `risk-assessment-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Could not download PDF. Please try again.");
+    }
+  };
 
   const updateHazard = (id: string, patch: Partial<HazardRow>) => {
     setHazards((prev) => prev.map((h) => (h.id === id ? { ...h, ...patch } : h)));
@@ -309,15 +335,7 @@ export default function RiskAssessment() {
             <MapPin className="w-4 h-4 text-[#e27226]" />
             <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowHistory((v) => !v)}
-            className="font-mono uppercase tracking-widest text-xs text-muted-foreground hover:text-primary"
-          >
-            <History className="w-3.5 h-3.5 mr-1" />
-            History
-          </Button>
+          <div className="w-20" aria-hidden="true" />
         </div>
       </header>
 
@@ -337,7 +355,17 @@ export default function RiskAssessment() {
         {showHistory ? (
           <Card className="border-border bg-card/60">
             <CardContent className="p-4 space-y-3">
-              <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Risk Assessment History</h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Risk Assessment History</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="font-mono text-[10px] uppercase tracking-wide h-7 px-2 shrink-0"
+                  onClick={() => setShowHistory(false)}
+                >
+                  Back to Assessment
+                </Button>
+              </div>
               {history.isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -396,6 +424,21 @@ export default function RiskAssessment() {
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        disabled={downloadingId === record.id}
+                        onClick={() => {
+                          setDownloadingId(record.id);
+                          void downloadPdf(record.id).finally(() => setDownloadingId(null));
+                        }}
+                      >
+                        {downloadingId === record.id
+                          ? <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                          : <FileDown className="w-3 h-3 mr-1" />}
+                        {downloadingId === record.id ? "PDF downloading…" : "PDF"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
                         onClick={() => {
                           navigator.clipboard.writeText(copyRiskAssessmentText({ ...record, studentName: record.studentName || fullName || "" }));
                         }}
@@ -410,6 +453,17 @@ export default function RiskAssessment() {
           </Card>
         ) : (
           <>
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Risk Assessment History
+              </Button>
+            </div>
             {(editingId !== null || duplicateMode) && editingOriginalDate && (
               <Card className="border-amber-500 bg-amber-500/10">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
@@ -614,6 +668,18 @@ export default function RiskAssessment() {
               </CardContent>
             </Card>
 
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Risk Assessment History
+              </Button>
+            </div>
+
             {submitted && (
               <Card className="border-primary bg-primary/5">
                 <CardContent className="p-4 flex items-start gap-3">
@@ -635,6 +701,24 @@ export default function RiskAssessment() {
                     Keep a copy of this assessment
                   </p>
                   <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      className={`font-mono text-xs uppercase tracking-wide transition-all duration-150 ${
+                        pdfDownloading
+                          ? "bg-primary text-primary-foreground ring-2 ring-primary/50 shadow-sm"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
+                      }`}
+                      disabled={pdfDownloading}
+                      onClick={() => {
+                        setPdfDownloading(true);
+                        void downloadPdf(exportRecord.id!).finally(() => setPdfDownloading(false));
+                      }}
+                    >
+                      {pdfDownloading
+                        ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
+                      {pdfDownloading ? "PDF downloading…" : "Download PDF"}
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
