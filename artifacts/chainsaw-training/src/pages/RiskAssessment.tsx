@@ -9,6 +9,9 @@ import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
+import { deliverPdf } from "../lib/pdfDownload";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface HazardRow {
   id: string;
@@ -112,6 +115,7 @@ function riskBand(rating: number): { label: string; className: string } {
 export default function RiskAssessment() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, userId } = useUserSession();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -146,7 +150,33 @@ export default function RiskAssessment() {
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
+  const savePreparedPdf = async (blob: Blob, filename: string) => {
+    try {
+      const result = await deliverPdf(blob, filename);
+      if (result === "shared") {
+        toast({ title: "PDF shared or saved" });
+      } else if (result === "downloaded") {
+        toast({
+          title: "PDF download started",
+          description: "The file should appear in your device Downloads folder.",
+        });
+      } else {
+        toast({ title: "PDF download cancelled" });
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not save PDF",
+        description: "Please try again.",
+      });
+    }
+  };
+
   const downloadPdf = async (id: number) => {
+    toast({
+      title: "Preparing PDF",
+      description: "Your risk assessment PDF is being downloaded…",
+    });
     try {
       const res = await fetch(`${import.meta.env.BASE_URL}api/risk-assessments/${id}/pdf`, {
         headers: {
@@ -157,16 +187,22 @@ export default function RiskAssessment() {
       });
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `risk-assessment-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const filename = `risk-assessment-${id}.pdf`;
+      toast({
+        title: "PDF ready",
+        description: "Tap Save PDF to choose where to save it or which PDF app to use.",
+        action: (
+          <ToastAction altText="Choose where to save the PDF" onClick={() => void savePreparedPdf(blob, filename)}>
+            Save PDF
+          </ToastAction>
+        ),
+      });
     } catch {
-      alert("Could not download PDF. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Could not download PDF",
+        description: "Please try again.",
+      });
     }
   };
 
