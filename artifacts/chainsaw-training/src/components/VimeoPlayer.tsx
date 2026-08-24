@@ -177,10 +177,11 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     return () => clearInterval(id);
   }, [sendCommand]);
 
-  // Roaming watermark — 35 s on mobile, 60 s on desktop
+  // Roaming watermark — move frequently enough to discourage cropping,
+  // while keeping the movement subtle and away from pillarbox edges.
   useEffect(() => {
     const isDesktop = window.innerWidth >= 640;
-    const interval = isDesktop ? 60000 : 35000;
+    const interval = isDesktop ? 20000 : 15000;
     const move = () => {
       // On desktop keep watermark away from potential black pillarbox edges.
       const leftMin = isDesktop ? 20 : 15;
@@ -310,11 +311,11 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
               textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
             }}
           >
-            {/* Brand label — much smaller than the user line */}
-            <span style={{ fontSize: "clamp(0.45rem, 1vw, 0.55rem)", letterSpacing: "0.14em", opacity: 0.85 }}>
+            {/* Brand label — secondary to the smaller user line */}
+            <span style={{ fontSize: "clamp(0.4rem, 0.8vw, 0.5rem)", letterSpacing: "0.14em", opacity: 0.85 }}>
               CHAINSAW COURSES
             </span>
-            <span style={{ fontSize: "clamp(1rem, 2.5vw, 1.35rem)" }}>
+            <span style={{ fontSize: "clamp(0.7rem, 1.5vw, 0.95rem)" }}>
               {IS_DEMO ? "DEMO" : `${fullName} · ${email}`}
             </span>
           </div>
