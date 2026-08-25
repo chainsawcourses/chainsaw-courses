@@ -390,12 +390,12 @@ export default function TrainingList() {
             </button>
 
             {brandMenuOpen && (
-              <div
-                className="absolute top-full left-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+               <div
+                 className="brand-dropdown absolute top-full left-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Logo + user identity */}
-                <div className="flex items-center gap-3 px-3 py-3 border-b border-border bg-card/60">
+                 <div className="brand-dropdown-identity flex items-center gap-3 px-3 py-3 border-b border-border bg-card/60">
                   <img
                     src={`${import.meta.env.BASE_URL}logo.png?v=20`}
                     alt="Chainsaw Courses"
@@ -420,10 +420,10 @@ export default function TrainingList() {
                 </div>
 
                 {/* Help — single "How It Works" accordion containing all sub-sections */}
-                <div className="border-b border-border">
-                  <button
+                 <div className="brand-dropdown-help border-b border-border">
+                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-help-trigger w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>How It Works</span>
                     <ChevronDown className={`w-4 h-4 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
@@ -506,11 +506,11 @@ export default function TrainingList() {
                 </div>
 
                 {/* Navigation links */}
-                <div className="border-b border-border">
+                 <div className="brand-dropdown-nav border-b border-border">
                   {/* Community link kept for future use — hidden for now */}
                   <Link
                     href="/manual"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -518,7 +518,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/inspection"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ClipboardCheck className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -526,7 +526,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/risk-assessment"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <MapPin className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -534,7 +534,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/biosecurity-map"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Leaf className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -542,7 +542,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/chain-chart"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Cog className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -550,7 +550,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/news"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Newspaper className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -558,7 +558,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/species-guide"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <LogEndIcon className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -566,7 +566,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/glossary"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ScrollText className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -574,7 +574,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/resources"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Library className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -582,7 +582,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/privacy"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -591,7 +591,7 @@ export default function TrainingList() {
 
                   <Link
                     href="/feedback"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -601,17 +601,17 @@ export default function TrainingList() {
 
                 {/* Log Out + Delete Account */}
                 {!deleteConfirmOpen ? (
-                  <div className="flex border-t border-border">
+                   <div className="brand-dropdown-actions flex border-t border-border">
                     <button
                       onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
-                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
+                       className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
                     >
                       <LogOut className="w-3 h-3" /> Log Out
                     </button>
                     <div className="w-px bg-border shrink-0" />
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(true); }}
-                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                       className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
                     >
                       <Trash2 className="w-3 h-3" /> Delete Account
                     </button>

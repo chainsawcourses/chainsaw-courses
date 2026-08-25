@@ -241,3 +241,44 @@ html[data-screen-reader="true"] *:focus {
   outline-offset: 3px !important;
   border-radius: 3px;
 }
+
+/* Keep first-run surfaces compact on portrait phones. The desktop
+   presentation remains unchanged at the sm breakpoint and above. */
+@media (max-width: 639px) {
+  .welcome-overlay {
+    padding: max(16px, calc(env(safe-area-inset-top, 0px) + 8px)) 12px 12px !important;
+  }
+
+  .welcome-modal-content {
+    padding: 2px 16px 16px !important;
+  }
+
+  .welcome-modal-content h2 {
+    font-size: 1rem !important;
+  }
+
+  .welcome-modal-content button {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .brand-dropdown-identity {
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .brand-dropdown-identity img {
+    height: 2rem;
+  }
+
+  .brand-dropdown-help-trigger,
+  .brand-dropdown-nav-link,
+  .brand-dropdown-action {
+    font-size: 0.75rem !important;
+    line-height: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
