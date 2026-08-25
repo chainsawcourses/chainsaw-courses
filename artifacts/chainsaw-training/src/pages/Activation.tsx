@@ -92,34 +92,34 @@ export default function Activation() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4">
       <div className="w-full max-w-md">
-        <div className="mb-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-1">
+        <div className="mb-3 text-center sm:mb-4">
+          <div className="flex items-center justify-center gap-1.5 mb-1 sm:gap-2">
             <img
               src={`${import.meta.env.BASE_URL}logo.png?v=4`}
               alt="Chainsaw Courses"
-              className="h-14 w-auto object-contain"
+              className="h-10 w-auto object-contain sm:h-14"
             />
-            <h1 className="text-xl font-black tracking-tighter text-primary uppercase leading-none">
+            <h1 className="text-lg font-black tracking-tighter text-primary uppercase leading-none sm:text-xl">
               Chainsaw Courses
             </h1>
           </div>
-          <p className="uppercase tracking-widest text-xs mt-1 text-muted-foreground font-bold leading-tight text-center">
+          <p className="uppercase tracking-widest text-[10px] mt-1 text-muted-foreground font-bold leading-tight text-center sm:text-xs">
             Chainsaw Maintenance &amp; Cross Cutting
           </p>
         </div>
         
         <Card className="border-border bg-card/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1 text-center border-b border-border mb-4 pb-4">
-            <CardTitle className="text-xl font-mono uppercase tracking-wide">System Activation</CardTitle>
+          <CardHeader className="space-y-1 text-center border-b border-border p-4 mb-3 pb-3 sm:p-6 sm:mb-4 sm:pb-4">
+            <CardTitle className="text-lg font-mono uppercase tracking-wide sm:text-xl">System Activation</CardTitle>
             <CardDescription className="font-mono text-xs">
               Enter your access credentials to unlock the training modules.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                 <FormField
                   control={form.control}
                   name="code"
@@ -131,7 +131,7 @@ export default function Activation() {
                           placeholder="e.g. CHT-XYZ-123" 
                           {...field}
                           onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                          className="font-mono bg-secondary/50 border-input h-12" 
+                           className="font-mono bg-secondary/50 border-input h-10 sm:h-12" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -148,7 +148,7 @@ export default function Activation() {
                         <Input 
                           placeholder="John Doe" 
                           {...field} 
-                          className="bg-secondary/50 border-input h-12" 
+                           className="bg-secondary/50 border-input h-10 sm:h-12" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -166,7 +166,7 @@ export default function Activation() {
                           placeholder="john@example.com" 
                           type="email"
                           {...field} 
-                          className="bg-secondary/50 border-input h-12" 
+                           className="bg-secondary/50 border-input h-10 sm:h-12" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -175,7 +175,7 @@ export default function Activation() {
                 />
                 <Button 
                   type="submit" 
-                  className="w-full h-14 font-mono font-bold tracking-widest text-sm"
+                   className="w-full h-12 font-mono font-bold tracking-widest text-sm sm:h-14"
                   disabled={activateCode.isPending}
                 >
                   {activateCode.isPending ? "ACTIVATING..." : "ACTIVATE"}
@@ -185,7 +185,7 @@ export default function Activation() {
           </CardContent>
         </Card>
         
-        <div className="mt-8 text-center text-xs text-muted-foreground font-mono">
+        <div className="mt-5 text-center text-xs text-muted-foreground font-mono sm:mt-8">
           <p className="opacity-50">DEVICE ID: {deviceId || "INITIALIZING..."}</p>
           <p className="mt-1 opacity-50">AUTHORIZATION REQUIRED</p>
           <Link href="/admin" className="mt-4 inline-block text-primary hover:underline opacity-70 hover:opacity-100 transition-opacity">

@@ -98,6 +98,7 @@ export default function WelcomeModal() {
         opacity: isLeaving ? 0 : 1,
         transition: "opacity 600ms ease",
       }}
+      className="welcome-overlay"
     >
       {/* Card */}
       <div
@@ -112,6 +113,7 @@ export default function WelcomeModal() {
           boxShadow: "0 25px 60px -10px rgba(0,0,0,0.5)",
           transition: "width 750ms cubic-bezier(0.34,1.4,0.64,1), border-radius 750ms cubic-bezier(0.34,1.4,0.64,1)",
         }}
+        className="welcome-modal-card"
       >
         {/* Logo area — fixed 164px height while circular so we get a perfect circle */}
         <div
@@ -152,7 +154,7 @@ export default function WelcomeModal() {
             transitionDelay: showContent ? "120ms" : "0ms",
           }}
         >
-          <div style={{ padding: "4px 20px 20px", textAlign: "center" }}>
+          <div style={{ padding: "4px 20px 20px", textAlign: "center" }} className="welcome-modal-content">
 
             <h2
               style={{
