@@ -114,6 +114,7 @@ export default function WelcomeModal() {
           transition: "width 750ms cubic-bezier(0.34,1.4,0.64,1), border-radius 750ms cubic-bezier(0.34,1.4,0.64,1)",
         }}
         className="welcome-modal-card"
+        data-phase={phase}
       >
         {/* Logo area — fixed 164px height while circular so we get a perfect circle */}
         <div
@@ -126,6 +127,7 @@ export default function WelcomeModal() {
             paddingBottom: isCircle ? 0 : 2,
             transition: "height 750ms cubic-bezier(0.34,1.4,0.64,1), padding 750ms ease",
           }}
+          className="welcome-modal-logo-area"
         >
           <img
             src={`${BASE}logo.png`}
@@ -139,6 +141,7 @@ export default function WelcomeModal() {
               transition: "opacity 700ms ease, transform 700ms ease, width 750ms ease, height 750ms ease",
               transitionDelay: phase === "logo-in" ? "100ms" : "0ms",
             }}
+            className="welcome-modal-logo"
           />
         </div>
 
@@ -183,6 +186,7 @@ export default function WelcomeModal() {
                   borderRadius: 6,
                   border: "1px solid #fde68a",
                 }}
+                className="welcome-modal-assigned"
               >
                 This course was arranged for you by <strong>{assignedTo}</strong>
               </p>
@@ -196,6 +200,7 @@ export default function WelcomeModal() {
                 lineHeight: 1.5,
                 margin: "0 0 14px",
               }}
+                className="welcome-modal-intro"
             >
               {config.intro}
             </p>
@@ -211,6 +216,7 @@ export default function WelcomeModal() {
                     lineHeight: 1.48,
                     margin: "0 0 8px",
                   }}
+                  className="welcome-modal-step"
                 >
                   {text}
                 </p>

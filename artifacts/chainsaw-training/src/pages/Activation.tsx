@@ -92,7 +92,7 @@ export default function Activation() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-3 sm:p-4">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center overflow-y-auto px-3 py-4 sm:min-h-screen sm:p-4">
       <div className="w-full max-w-md">
         <div className="mb-3 text-center sm:mb-4">
           <div className="flex items-center justify-center gap-1.5 mb-1 sm:gap-2">
@@ -185,8 +185,8 @@ export default function Activation() {
           </CardContent>
         </Card>
         
-        <div className="mt-5 text-center text-xs text-muted-foreground font-mono sm:mt-8">
-          <p className="opacity-50">DEVICE ID: {deviceId || "INITIALIZING..."}</p>
+        <div className="mt-5 shrink-0 text-center text-xs text-muted-foreground font-mono sm:mt-8">
+          <p className="break-all opacity-50">DEVICE ID: {deviceId || "INITIALIZING..."}</p>
           <p className="mt-1 opacity-50">AUTHORIZATION REQUIRED</p>
           <Link href="/admin" className="mt-4 inline-block text-primary hover:underline opacity-70 hover:opacity-100 transition-opacity">
             → Admin Panel

@@ -58,7 +58,7 @@ export default function CertificatePage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="relative flex min-h-[100dvh] flex-col bg-background">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0 bg-background">
         <button

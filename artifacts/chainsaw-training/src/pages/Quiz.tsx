@@ -266,11 +266,11 @@ export default function Quiz() {
   return (
     <div className="min-h-screen flex flex-col pt-[68px]">
       <header className="border-b-2 border-primary/40 bg-card fixed top-0 left-0 right-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+        <div className="max-w-3xl mx-auto flex h-16 items-center gap-3 px-4">
+          <div className="min-w-0 flex-1 truncate font-mono text-xs uppercase tracking-wide text-muted-foreground sm:text-sm sm:tracking-widest">
             {quiz.moduleTitle}
           </div>
-          <div className="font-mono text-primary font-bold">
+          <div className="shrink-0 whitespace-nowrap font-mono font-bold text-primary">
             {currentQuestionIdx + 1} / {questions.length}
           </div>
         </div>

@@ -464,21 +464,21 @@ export default function ManualFlipbook() {
         .page-canvas { display:block; width:100%; height:100%; object-fit:contain; }
       `}</style>
 
-      <div className="h-screen flex flex-col select-none overflow-hidden" onContextMenu={e => e.preventDefault()}>
+      <div className="flex min-h-[100dvh] flex-col select-none overflow-x-hidden" onContextMenu={e => e.preventDefault()}>
 
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
-          <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
+          <div className="max-w-5xl mx-auto grid h-14 grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-2 px-4">
             <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
               <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" />Back</Link>
             </Button>
-            <BookOpen className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Digital Chainsaw Manual</span>
+            <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
+            <span className="min-w-0 truncate font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">Digital Chainsaw Manual</span>
           </div>
         </header>
 
         {/* ── Main ──────────────────────────────────────────────────────────── */}
-        <main className="flex-1 flex flex-col items-center justify-center px-2 py-2 gap-2 bg-stone-100 dark:bg-stone-900 min-h-0 overflow-hidden">
+        <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-y-auto bg-stone-100 px-2 py-2 dark:bg-stone-900">
 
           {loadState === "loading" && (
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
@@ -568,7 +568,7 @@ export default function ManualFlipbook() {
                   </div>
                 )}
               </div>
-              <form onSubmit={handleJump} className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm shrink-0">
+              <form onSubmit={handleJump} className="flex w-full items-center gap-2 rounded-md border border-border bg-card px-3 py-2 shadow-sm sm:w-auto sm:shrink-0">
                 <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">Go to</span>
                 <input value={jumpInput} onChange={e => setJumpInput(e.target.value)} placeholder={`1–${numPages}`} className="w-14 text-sm text-center bg-transparent outline-none placeholder:text-muted-foreground/40" type="number" min={1} max={numPages} />
                 <button type="submit" className="text-muted-foreground hover:text-[#e27226] transition-colors" aria-label="Jump to page"><CornerDownLeft className="w-4 h-4" /></button>

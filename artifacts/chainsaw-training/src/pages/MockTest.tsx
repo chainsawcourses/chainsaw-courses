@@ -564,19 +564,19 @@ export default function MockTest() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10 shrink-0">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" className="font-mono text-xs" asChild>
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-2" />EXIT
             </Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase tracking-widest">TAKE ASSESSMENT QUIZ</div>
+          <div className="min-w-0 truncate text-center font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">TAKE ASSESSMENT QUIZ</div>
           {(phase === "prompt" || phase === "prompt-review") ? (
-            <div className="font-mono text-xs text-muted-foreground tabular-nums">
+            <div className="shrink-0 whitespace-nowrap font-mono text-xs tabular-nums text-muted-foreground">
               Q{overallProgress}/{TOTAL}
             </div>
           ) : (
-            <div className="w-[48px]" />
+            <div className="w-0 sm:w-12" />
           )}
         </div>
         {(phase === "prompt" || phase === "prompt-review") && (

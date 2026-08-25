@@ -455,12 +455,12 @@ export default function CrossCutSim() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/training" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-black uppercase tracking-widest">
+        <div className="max-w-lg mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
+          <Link href="/training" className="flex items-center gap-1 text-xs font-black uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground sm:gap-2 sm:text-sm sm:tracking-widest">
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
-          <span className="font-mono font-bold uppercase tracking-widest text-sm">Cross-Cut Simulator</span>
-          <span className="font-mono text-xs text-muted-foreground">
+          <span className="min-w-0 truncate text-center font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">Cross-Cut Simulator</span>
+          <span className="justify-self-end whitespace-nowrap font-mono text-xs text-muted-foreground">
             {score.total > 0 ? `${score.correct}/${score.total}` : ""}
           </span>
         </div>
@@ -478,10 +478,10 @@ export default function CrossCutSim() {
         </div>
 
         {/* Scenario selector */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-1 gap-1.5 min-[380px]:grid-cols-3">
           {ORDER.map(sid => (
             <button key={sid} onClick={() => { setScenarioId(sid); reset(); }}
-              className={`px-2 py-2 rounded text-[10px] font-black uppercase tracking-widest transition-colors border leading-tight ${
+              className={`min-w-0 whitespace-pre-line break-words rounded border px-2 py-2 text-[10px] font-black uppercase leading-tight tracking-widest transition-colors ${
                 scenarioId === sid
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"

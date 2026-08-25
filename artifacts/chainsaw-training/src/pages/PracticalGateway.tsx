@@ -277,15 +277,15 @@ export default function PracticalGateway() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Link>
           </Button>
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex min-w-0 items-center justify-self-center gap-1.5 sm:gap-2">
             <MapPin className="w-4 h-4 text-[#e27226] shrink-0" />
-            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Practical Progression Gateway</span>
+            <span className="truncate font-mono text-[11px] font-bold uppercase tracking-wide sm:text-xs">Practical Progression Gateway</span>
           </div>
-          <div className="w-20" />
+          <div className="w-0 sm:w-20" />
         </div>
       </header>
 

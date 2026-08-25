@@ -391,7 +391,7 @@ export default function TrainingList() {
 
             {brandMenuOpen && (
                <div
-                 className="brand-dropdown absolute top-full left-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+                 className="brand-dropdown absolute top-full left-0 mt-1 z-50 max-h-[calc(100dvh-5rem)] w-[75vw] max-w-[280px] overflow-x-hidden overflow-y-auto overscroll-contain rounded-md border border-border bg-popover font-mono text-xs shadow-md"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Logo + user identity */}
@@ -608,7 +608,7 @@ export default function TrainingList() {
                     >
                       <LogOut className="w-3 h-3" /> Log Out
                     </button>
-                    <div className="w-px bg-border shrink-0" />
+                    <div className="hidden w-px shrink-0 bg-border sm:block" />
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(true); }}
                        className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"

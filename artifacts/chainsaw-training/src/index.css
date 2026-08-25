@@ -251,6 +251,7 @@ html[data-screen-reader="true"] *:focus {
 
   .welcome-modal-content {
     padding: 2px 16px 16px !important;
+    max-height: calc(100dvh - 118px) !important;
   }
 
   .welcome-modal-content h2 {
@@ -280,5 +281,56 @@ html[data-screen-reader="true"] *:focus {
     line-height: 1rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  .welcome-overlay {
+    overflow-y: auto;
+  }
+
+  .welcome-modal-card {
+    width: min(360px, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 28px);
+  }
+
+  .welcome-modal-card[data-phase="logo-in"],
+  .welcome-modal-card[data-phase="expand"] {
+    width: 128px !important;
+  }
+
+  .welcome-modal-card[data-phase="logo-in"] .welcome-modal-logo-area,
+  .welcome-modal-card[data-phase="expand"] .welcome-modal-logo-area {
+    height: 128px !important;
+  }
+
+  .welcome-modal-logo-area {
+    padding-top: 12px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .welcome-modal-logo {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .welcome-modal-card[data-phase="logo-in"] .welcome-modal-logo,
+  .welcome-modal-card[data-phase="expand"] .welcome-modal-logo {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .welcome-modal-assigned,
+  .welcome-modal-intro,
+  .welcome-modal-step,
+  .brand-dropdown-nav-link,
+  .brand-dropdown-action {
+    overflow-wrap: anywhere;
+  }
+
+  .brand-dropdown-actions {
+    flex-direction: column;
+  }
+
+  .brand-dropdown-action {
+    width: 100%;
   }
 }

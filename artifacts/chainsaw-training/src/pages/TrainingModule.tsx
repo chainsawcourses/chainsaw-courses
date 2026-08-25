@@ -239,12 +239,12 @@ export default function TrainingModule() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50 shrink-0">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" className="font-mono text-xs" asChild>
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-2" /> BACK</Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase truncate max-w-[50vw]">{module.title}</div>
-          <div className="w-[80px]" />
+          <div className="min-w-0 truncate text-center font-mono text-xs font-bold uppercase sm:text-sm">{module.title}</div>
+          <div className="w-0 sm:w-20" />
         </div>
       </header>
 
