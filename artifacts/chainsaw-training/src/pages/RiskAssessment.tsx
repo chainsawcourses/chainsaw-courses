@@ -146,6 +146,7 @@ export default function RiskAssessment() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
   const [duplicateMode, setDuplicateMode] = useState(false);
+  const [newRecordMode, setNewRecordMode] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
@@ -233,7 +234,18 @@ export default function RiskAssessment() {
         setSubmitted(true);
         setExportRecord(data);
         setDuplicateMode(false);
+        setNewRecordMode(false);
         setEditingOriginalDate(null);
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyRiskAssessmentsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -250,6 +262,17 @@ export default function RiskAssessment() {
         setEditingId(null);
         setEditingOriginalDate(null);
         setDuplicateMode(false);
+        setNewRecordMode(false);
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyRiskAssessmentsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyRiskAssessmentsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -291,6 +314,30 @@ export default function RiskAssessment() {
     setEditingId(duplicate ? null : record.id);
     setEditingOriginalDate(record.createdAt);
     setDuplicateMode(duplicate);
+    setNewRecordMode(false);
+    setSubmitted(false);
+    setExportRecord(null);
+    setShowHistory(false);
+  };
+
+  const startNewAssessment = () => {
+    setTaskDescription("Cross-cutting felled/heavy timber into logs");
+    setSiteDescription("");
+    setAddress("");
+    setGridReference("");
+    setWhat3Words("");
+    setNearestHospital("");
+    setHospitalPhone("");
+    setSiteAccess("");
+    setMeetingPoint("");
+    setFirstAidKit("");
+    setNearestAed("");
+    setNearestSignal("");
+    setHazards(DEFAULT_HAZARDS);
+    setEditingId(null);
+    setEditingOriginalDate(null);
+    setDuplicateMode(false);
+    setNewRecordMode(true);
     setSubmitted(false);
     setExportRecord(null);
     setShowHistory(false);
@@ -348,7 +395,7 @@ export default function RiskAssessment() {
           firstAidKit: firstAidKit.trim() || undefined,
           nearestAed: nearestAed.trim() || undefined,
           nearestSignal: nearestSignal.trim() || undefined,
-          duplicate: duplicateMode || undefined,
+          duplicate: duplicateMode || newRecordMode || undefined,
           hazards: hazardPayload,
         },
       });
@@ -519,6 +566,7 @@ export default function RiskAssessment() {
                       setEditingId(null);
                       setEditingOriginalDate(null);
                       setDuplicateMode(false);
+                      setNewRecordMode(false);
                       setTaskDescription("Cross-cutting felled/heavy timber into logs");
                       setSiteDescription("");
                       setAddress("");
@@ -782,19 +830,38 @@ export default function RiskAssessment() {
             <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest shrink-0">
               {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
             </span>
-            <Button
-              size="sm"
-              onClick={handleSubmit}
-              disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending || !taskDescription.trim()}
-              className="font-mono text-xs uppercase tracking-widest px-4 shrink-0"
-            >
-              {(submitRiskAssessment.isPending || patchRiskAssessment.isPending) ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-              ) : (
-                <MapPin className="w-3.5 h-3.5 mr-1.5 inline" />
+            <div className="flex items-center gap-2 shrink-0">
+              {(hasSavedAssessment || exportRecord !== null || newRecordMode) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={startNewAssessment}
+                  disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending}
+                  className="font-mono text-xs uppercase tracking-widest px-3"
+                >
+                  New Assessment
+                </Button>
               )}
-              {duplicateMode ? "Create Duplicate" : editingId !== null || hasSavedAssessment ? "Update Assessment" : "Save Assessment"}
-            </Button>
+              <Button
+                size="sm"
+                onClick={handleSubmit}
+                disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending || !taskDescription.trim()}
+                className="font-mono text-xs uppercase tracking-widest px-4"
+              >
+                {(submitRiskAssessment.isPending || patchRiskAssessment.isPending) ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                ) : (
+                  <MapPin className="w-3.5 h-3.5 mr-1.5 inline" />
+                )}
+                {newRecordMode
+                  ? "Save New Assessment"
+                  : duplicateMode
+                    ? "Create Duplicate"
+                    : editingId !== null || hasSavedAssessment
+                      ? "Update Assessment"
+                      : "Save Assessment"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

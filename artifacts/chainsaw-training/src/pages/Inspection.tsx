@@ -131,6 +131,7 @@ export default function Inspection() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
   const [duplicateMode, setDuplicateMode] = useState(false);
+  const [newRecordMode, setNewRecordMode] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
   const savePreparedPdf = async (blob: Blob, filename: string) => {
@@ -213,8 +214,19 @@ export default function Inspection() {
         setSubmitted({ hasFailures: data.hasFailures });
         setExportRecord(data);
         setDuplicateMode(false);
+        setNewRecordMode(false);
         setEditingOriginalDate(null);
         playBing();
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyInspectionsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -231,7 +243,18 @@ export default function Inspection() {
         setEditingId(null);
         setEditingOriginalDate(null);
         setDuplicateMode(false);
+        setNewRecordMode(false);
         playBing();
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyInspectionsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -264,6 +287,20 @@ export default function Inspection() {
     setEditingId(duplicate ? null : record.id);
     setEditingOriginalDate(record.createdAt);
     setDuplicateMode(duplicate);
+    setNewRecordMode(false);
+    setSubmitted(null);
+    setExportRecord(null);
+    setShowHistory(false);
+  };
+
+  const startNewChecklist = () => {
+    setSawIdentifier("");
+    setItems(buildInitialItems());
+    setNotes({});
+    setEditingId(null);
+    setEditingOriginalDate(null);
+    setDuplicateMode(false);
+    setNewRecordMode(true);
     setSubmitted(null);
     setExportRecord(null);
     setShowHistory(false);
@@ -296,7 +333,7 @@ export default function Inspection() {
           deviceId,
           activationCode,
           sawIdentifier: sawIdentifier.trim() || undefined,
-          duplicate: duplicateMode || undefined,
+          duplicate: duplicateMode || newRecordMode || undefined,
           items: payload,
         },
       });
@@ -625,18 +662,37 @@ export default function Inspection() {
                   ? `${uncheckedCount} not checked`
                   : "All items checked"}
             </span>
-            <Button
-              onClick={handleSubmit}
-              disabled={submitInspection.isPending || patchInspection.isPending}
-              className="font-mono text-sm uppercase tracking-widest px-6"
-            >
-              {(submitInspection.isPending || patchInspection.isPending) ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <ClipboardCheck className="w-4 h-4 mr-2" />
+            <div className="flex items-center gap-2 shrink-0">
+              {(hasSavedInspection || exportRecord !== null || newRecordMode) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={startNewChecklist}
+                  disabled={submitInspection.isPending || patchInspection.isPending}
+                  className="font-mono text-xs uppercase tracking-widest px-3"
+                >
+                  New Checklist
+                </Button>
               )}
-              {duplicateMode ? "Create Duplicate" : editingId !== null || hasSavedInspection ? "Update Inspection" : "Save Inspection"}
-            </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitInspection.isPending || patchInspection.isPending}
+                className="font-mono text-sm uppercase tracking-widest px-5"
+              >
+                {(submitInspection.isPending || patchInspection.isPending) ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <ClipboardCheck className="w-4 h-4 mr-2" />
+                )}
+                {newRecordMode
+                  ? "Save New Checklist"
+                  : duplicateMode
+                    ? "Create Duplicate"
+                    : editingId !== null || hasSavedInspection
+                      ? "Update Checklist"
+                      : "Save Checklist"}
+              </Button>
+            </div>
           </div>
         </div>
       )}
