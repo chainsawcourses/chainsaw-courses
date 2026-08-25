@@ -10,7 +10,7 @@ import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessm
 import { useQueryClient } from "@tanstack/react-query";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
 import { deliverPdf } from "../lib/pdfDownload";
-import { playCompletionDing } from "../lib/completionSound";
+import { playCompletionDing, primeCompletionDing } from "../lib/completionSound";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
@@ -348,6 +348,7 @@ export default function RiskAssessment() {
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode || !taskDescription.trim()) return;
+    primeCompletionDing();
     const hazardPayload = hazards
       .filter((h) => h.label.trim())
       .map((h) => ({

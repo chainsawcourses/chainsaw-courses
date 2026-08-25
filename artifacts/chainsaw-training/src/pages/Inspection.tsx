@@ -10,7 +10,7 @@ import {
 import { useUserSession } from "../contexts/UserContext";
 import { copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
 import { deliverPdf } from "../lib/pdfDownload";
-import { playCompletionDing } from "../lib/completionSound";
+import { playCompletionDing, primeCompletionDing } from "../lib/completionSound";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
@@ -296,6 +296,7 @@ export default function Inspection() {
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode) return;
+    primeCompletionDing();
     const payload = [...PPE_ITEMS, ...PRE_START_ITEMS, ...PRE_USE_ITEMS].map((item) => ({
       id: item.id,
       label: item.label,
