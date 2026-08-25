@@ -10,6 +10,7 @@ import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessm
 import { useQueryClient } from "@tanstack/react-query";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
 import { deliverPdf } from "../lib/pdfDownload";
+import { playCompletionDing } from "../lib/completionSound";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
@@ -236,6 +237,7 @@ export default function RiskAssessment() {
         setDuplicateMode(false);
         setNewRecordMode(false);
         setEditingOriginalDate(null);
+        playCompletionDing();
         queryClient.setQueryData<Array<typeof data> | undefined>(
           getListMyRiskAssessmentsQueryKey(),
           (current) => {
@@ -263,6 +265,7 @@ export default function RiskAssessment() {
         setEditingOriginalDate(null);
         setDuplicateMode(false);
         setNewRecordMode(false);
+        playCompletionDing();
         queryClient.setQueryData<Array<typeof data> | undefined>(
           getListMyRiskAssessmentsQueryKey(),
           (current) => {
@@ -407,22 +410,22 @@ export default function RiskAssessment() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 min-h-14 py-2 flex items-center justify-between gap-2">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Link>
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-center">
             <MapPin className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Risk Assessment</span>
+            <span className="font-mono font-bold uppercase tracking-widest text-sm leading-tight break-words">Risk Assessment</span>
           </div>
-          <div className="w-20" aria-hidden="true" />
+          <div className="w-16 sm:w-20 shrink-0" aria-hidden="true" />
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-28">
+      <main className="flex-1 min-w-0 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-36 sm:pb-28">
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
             Dynamic Site Risk Assessment
@@ -438,12 +441,12 @@ export default function RiskAssessment() {
         {showHistory ? (
           <Card className="border-border bg-card/60">
             <CardContent className="p-4 space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Risk Assessment History</h2>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h2 className="min-w-0 flex-1 font-mono font-bold uppercase tracking-widest text-xs text-primary break-words">Your Risk Assessment History</h2>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="font-mono text-[10px] uppercase tracking-wide h-7 px-2 shrink-0"
+                   className="font-mono text-[10px] uppercase tracking-wide h-auto min-h-7 max-w-full px-2 shrink-0 whitespace-normal text-center"
                   onClick={() => setShowHistory(false)}
                 >
                   Back to Assessment
@@ -462,12 +465,12 @@ export default function RiskAssessment() {
                 const maxRisk = Math.max(0, ...record.hazards.map((h) => h.riskRating));
                 const band = riskBand(maxRisk);
                 return (
-                  <div key={record.id} className="border rounded p-3 space-y-1.5 border-border">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[11px] text-muted-foreground">
+                  <div key={record.id} className="min-w-0 border rounded p-3 space-y-1.5 border-border">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <span className="min-w-0 font-mono text-[11px] text-muted-foreground break-words">
                         {new Date(record.createdAt).toLocaleString()}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex max-w-full flex-wrap items-center justify-end gap-2">
                         {record.amendedAt && (
                           <span className="font-mono text-[10px] uppercase tracking-widest text-amber-600 border border-amber-400 rounded px-1.5 py-0.5">amended</span>
                         )}
@@ -476,12 +479,16 @@ export default function RiskAssessment() {
                         </span>
                       </div>
                     </div>
-                    <p className="font-mono text-[11px] text-foreground">{record.taskDescription}</p>
+                    <h3 className="flex min-w-0 items-start gap-1.5 font-mono font-bold text-xs uppercase tracking-wide text-primary break-words">
+                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>{record.siteDescription?.trim() || record.address?.trim() || record.gridReference?.trim() || "Site location not recorded"}</span>
+                    </h3>
+                    <p className="font-mono text-[11px] text-foreground break-words">{record.taskDescription}</p>
                     {record.address && (
-                      <p className="font-mono text-[10px] text-muted-foreground">{record.address}</p>
+                      <p className="font-mono text-[10px] text-muted-foreground break-words">{record.address}</p>
                     )}
                     {record.gridReference && (
-                      <p className="font-mono text-[10px] text-muted-foreground">Grid ref: {record.gridReference}</p>
+                      <p className="font-mono text-[10px] text-muted-foreground break-words">Grid ref: {record.gridReference}</p>
                     )}
                     {record.amendedAt && (
                       <p className="font-mono text-[10px] text-amber-600">Amended: {new Date(record.amendedAt).toLocaleString()}</p>
@@ -826,18 +833,18 @@ export default function RiskAssessment() {
 
       {!showHistory && (
         <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
-          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest shrink-0">
+          <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span className="min-w-0 font-mono text-[10px] text-muted-foreground uppercase tracking-widest break-words sm:w-auto">
               {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
             </span>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
               {(hasSavedAssessment || exportRecord !== null || newRecordMode) && (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={startNewAssessment}
                   disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending}
-                  className="font-mono text-xs uppercase tracking-widest px-3"
+                  className="w-full justify-center font-mono text-xs uppercase tracking-widest px-3 sm:w-auto"
                 >
                   New Assessment
                 </Button>
@@ -846,7 +853,7 @@ export default function RiskAssessment() {
                 size="sm"
                 onClick={handleSubmit}
                 disabled={submitRiskAssessment.isPending || patchRiskAssessment.isPending || !taskDescription.trim()}
-                className="font-mono text-xs uppercase tracking-widest px-4"
+                className="w-full justify-center font-mono text-xs uppercase tracking-widest px-4 sm:w-auto"
               >
                 {(submitRiskAssessment.isPending || patchRiskAssessment.isPending) ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
