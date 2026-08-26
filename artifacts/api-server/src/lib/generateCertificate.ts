@@ -65,6 +65,7 @@ export async function generateCertificatePdf(
   const BI = 14;
   const BW = 2.2;
   const ML = 52;
+  const UPPER_CONTENT_SHIFT = 8;
 
   try {
     const bgBytes = fs.readFileSync(BG_PATH);
@@ -166,12 +167,12 @@ export async function generateCertificatePdf(
 
   page.drawText("CERTIFICATE OF COMPLETION", {
     x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
-    y: 650, size: 20, font: fBold, color: black,
+    y: 650 - UPPER_CONTENT_SHIFT, size: 20, font: fBold, color: black,
   });
 
-  page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 615, size: 10, font: fItalic, color: mid });
-  page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 570, size: 34, font: fBold, color: black });
-  page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 540, size: 9.5, font: fReg, color: lgrey });
+  page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 615 - UPPER_CONTENT_SHIFT, size: 10, font: fItalic, color: mid });
+  page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 570 - UPPER_CONTENT_SHIFT, size: 34, font: fBold, color: black });
+  page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 540 - UPPER_CONTENT_SHIFT, size: 9.5, font: fReg, color: lgrey });
   page.drawText("has successfully completed the following IIRSM Approved Course:", {
     x: cx("has successfully completed the following IIRSM Approved Course:", 9.5, fItalic, W),
     y: CERTIFICATE_LAYOUT.completionSentence.bottom, size: 9.5, font: fItalic, color: mid,
@@ -179,14 +180,14 @@ export async function generateCertificatePdf(
 
   // ── HEADER ─────────────────────────────────────────────────────────────────
   const header = "CHAINSAW COURSES  |  IIRSM Approved Course";
-  page.drawText(header, { x: cx(header, 11, fBold, W), y: 804, size: 11, font: fBold, color: mid });
-  page.drawRectangle({ x: ML, y: 786, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
+  page.drawText(header, { x: cx(header, 11, fBold, W), y: 804 - UPPER_CONTENT_SHIFT, size: 11, font: fBold, color: mid });
+  page.drawRectangle({ x: ML, y: 786 - UPPER_CONTENT_SHIFT, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
 
   try {
     const iirHeaderBytes = fs.readFileSync(IIRSM_ROSETTE_PATH);
     const iirHeaderImg   = await pdfDoc.embedPng(iirHeaderBytes);
     const d               = iirHeaderImg.scaleToFit(72, 72);
-    page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 700, width: d.width, height: d.height });
+    page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 700 - UPPER_CONTENT_SHIFT, width: d.width, height: d.height });
   } catch { /* no approval mark */ }
 
   // ── BORDER ────────────────────────────────────────────────────────────────
