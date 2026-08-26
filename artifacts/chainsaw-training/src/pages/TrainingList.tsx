@@ -1331,6 +1331,14 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
+
+        <div className="flex justify-center pt-2 pb-8" aria-label="IIRSM Approved Course">
+          <img
+            src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png`}
+            alt="IIRSM Approved Course"
+            className="h-auto w-52 max-w-full object-contain"
+          />
+        </div>
       </main>
 
       <ForceUpdateTrigger version={COURSE_CONTENT_VERSION} />
