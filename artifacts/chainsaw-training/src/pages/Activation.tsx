@@ -191,6 +191,11 @@ export default function Activation() {
           <Link href="/admin" className="mt-4 inline-block text-primary hover:underline opacity-70 hover:opacity-100 transition-opacity">
             → Admin Panel
           </Link>
+          <img
+            src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png?v=1`}
+            alt="IIRSM Approved Course"
+            className="mx-auto mt-5 h-auto w-48 max-w-full object-contain opacity-90 sm:w-56"
+          />
         </div>
       </div>
     </div>
