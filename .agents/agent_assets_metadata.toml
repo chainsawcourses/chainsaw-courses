@@ -335,3 +335,10 @@ uri = "file://exports/Chainsaw_Courses_Android_v1.0.2_code6_Original_Launcher_Ic
 type = "unspecified"
 title = "Android App Bundle — Original Launcher Icon (Code 6)"
 description = "Signed Google Play upload bundle for com.chainsawcourses.app, version 1.0.2 (version code 6), restored to the original small logo-in-white-circle launcher design."
+
+[[outputs]]
+id = "L3TGETzDjzyIlaHo1Q-ph"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Completion_Certificate_Sample_IIRSM_Approved_Course.pdf"
+type = "pdf"
+title = "Sample Completion Certificate — IIRSM Approved Course"
+description = "A representative Chainsaw Courses completion certificate showing the updated IIRSM Approved Course wording."
