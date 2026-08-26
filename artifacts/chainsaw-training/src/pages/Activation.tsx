@@ -194,7 +194,7 @@ export default function Activation() {
           <img
             src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png?v=1`}
             alt="IIRSM Approved Course"
-            className="mx-auto mt-5 h-auto w-48 max-w-full object-contain opacity-90 sm:w-56"
+            className="mx-auto mt-5 h-auto w-36 max-w-full object-contain opacity-90 sm:w-44"
           />
         </div>
       </div>
