@@ -117,30 +117,30 @@ export async function generateCertificatePdf(
   // ── MAIN CONTENT ZONE ─────────────────────────────────────────────────────
   const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
   const dateLine = `Date of Award:  ${dateStr}`;
-  page.drawText(dateLine, { x: cx(dateLine, 10, fReg, W), y: 224, size: 10, font: fReg, color: mid });
+  page.drawText(dateLine, { x: cx(dateLine, 10, fReg, W), y: 230, size: 10, font: fReg, color: mid });
 
   const validityLine = "It is recommended to refresh your certificate every 3-5 years";
-  page.drawText(validityLine, { x: cx(validityLine, 8, fItalic, W), y: 206, size: 8, font: fItalic, color: lgrey });
+  page.drawText(validityLine, { x: cx(validityLine, 8, fItalic, W), y: 212, size: 8, font: fItalic, color: lgrey });
 
-  rule(243, 0.28);
+  rule(249, 0.28);
 
   const glhLine = "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Course";
-  page.drawText(glhLine, { x: cx(glhLine, 9.5, fBold, W), y: 318, size: 9.5, font: fBold, color: black });
+  page.drawText(glhLine, { x: cx(glhLine, 9.5, fBold, W), y: 326, size: 9.5, font: fBold, color: black });
 
   const unitLine = "Unit Ref: 0039-20  \u00B7  Module Quizzes: 100%  \u00B7  Final Exam Pass Mark: 80%";
-  page.drawText(unitLine, { x: cx(unitLine, 8.5, fReg, W), y: 300, size: 8.5, font: fReg, color: mid });
+  page.drawText(unitLine, { x: cx(unitLine, 8.5, fReg, W), y: 307, size: 8.5, font: fReg, color: mid });
 
   const courseVersion = "Course Version 1.1 \u00B7 July 2026";
   if (passedScore !== null) {
     const scoreLine = `Assessment Score: ${passedScore}%  \u00B7  ${courseVersion}`;
-    page.drawText(scoreLine, { x: cx(scoreLine, 9, fReg, W), y: 282, size: 9, font: fReg, color: mid });
+    page.drawText(scoreLine, { x: cx(scoreLine, 9, fReg, W), y: 288, size: 9, font: fReg, color: mid });
   } else {
-    page.drawText(courseVersion, { x: cx(courseVersion, 9, fReg, W), y: 282, size: 9, font: fReg, color: mid });
+    page.drawText(courseVersion, { x: cx(courseVersion, 9, fReg, W), y: 288, size: 9, font: fReg, color: mid });
   }
 
   page.drawText("International Institute of Risk and Safety Management", {
     x: cx("International Institute of Risk and Safety Management", 8.5, fItalic, W),
-    y: 264, size: 8.5, font: fItalic, color: lgrey,
+    y: 269, size: 8.5, font: fItalic, color: lgrey,
   });
 
   let ccImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
@@ -166,12 +166,12 @@ export async function generateCertificatePdf(
 
   page.drawText("CERTIFICATE OF COMPLETION", {
     x: cx("CERTIFICATE OF COMPLETION", 20, fBold, W),
-    y: 610, size: 20, font: fBold, color: black,
+    y: 650, size: 20, font: fBold, color: black,
   });
 
-  page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 576, size: 10, font: fItalic, color: mid });
-  page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 530, size: 34, font: fBold, color: black });
-  page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 500, size: 9.5, font: fReg, color: lgrey });
+  page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 615, size: 10, font: fItalic, color: mid });
+  page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 570, size: 34, font: fBold, color: black });
+  page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 540, size: 9.5, font: fReg, color: lgrey });
   page.drawText("has successfully completed the following IIRSM Approved Course:", {
     x: cx("has successfully completed the following IIRSM Approved Course:", 9.5, fItalic, W),
     y: CERTIFICATE_LAYOUT.completionSentence.bottom, size: 9.5, font: fItalic, color: mid,
@@ -185,8 +185,8 @@ export async function generateCertificatePdf(
   try {
     const iirHeaderBytes = fs.readFileSync(IIRSM_ROSETTE_PATH);
     const iirHeaderImg   = await pdfDoc.embedPng(iirHeaderBytes);
-    const d               = iirHeaderImg.scaleToFit(62, 62);
-    page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 710, width: d.width, height: d.height });
+    const d               = iirHeaderImg.scaleToFit(72, 72);
+    page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 700, width: d.width, height: d.height });
   } catch { /* no approval mark */ }
 
   // ── BORDER ────────────────────────────────────────────────────────────────
