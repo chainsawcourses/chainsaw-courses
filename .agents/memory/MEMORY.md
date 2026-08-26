@@ -12,3 +12,4 @@
 - [Mobile PDF references](mobile-pdf-references.md) — Android WebViews cannot reliably open course PDFs in a new tab; provide an in-app readable reference for critical documents.
 - [Assessment and checklist saving](risk-assessment-saving.md) — routine learner saves update the latest record; History offers an explicit Duplicate action when a new copy is wanted.
 - [Mobile completion audio](mobile-completion-audio.md) — prime a save-completion sound during the user gesture, then play it only after a successful async save.
+- [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.
