@@ -14,6 +14,8 @@ const __dirname  = path.dirname(__filename);
 
 const OUT    = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/pdfs/David_Daniel_CV.pdf");
 const PUBLIC = path.resolve(__dirname, "../../artifacts/chainsaw-training/public");
+const IIRSM_HORIZONTAL_LOGO_PATH = path.join(PUBLIC, "iirsm-horizontal-logo.png");
+const IIRSM_ROSETTE_LOGO_PATH = path.join(PUBLIC, "iirsm-rosette-logo.png");
 
 // ── Colours ───────────────────────────────────────────────────────────────────
 const BRAND   = rgb(0.918, 0.361, 0.047); // #ea5c0c
@@ -40,8 +42,8 @@ async function generate() {
 
   const bgBytes   = fs.readFileSync(path.join(PUBLIC, "bg.jpg"));
   const bgImage   = await doc.embedJpg(bgBytes);
-  const iconBytes = fs.readFileSync(path.join(PUBLIC, "icon-192.png"));
-  const iconImage = await doc.embedPng(iconBytes);
+  const iirsmHorizontalLogo = await doc.embedPng(fs.readFileSync(IIRSM_HORIZONTAL_LOGO_PATH));
+  const iirsmRosetteLogo = await doc.embedPng(fs.readFileSync(IIRSM_ROSETTE_LOGO_PATH));
 
   // ── State & helpers ──────────────────────────────────────────────────────────
   type State = { page: ReturnType<typeof doc.addPage>; y: number };
@@ -137,6 +139,9 @@ async function generate() {
     s.page.drawText("Curriculum Vitae — continued", {
       x: M, y: PAGE_H - 37, size: 7.5, font: fItal, color: rgb(1, 0.88, 0.75),
     });
+    s.page.drawImage(iirsmHorizontalLogo, {
+      x: PAGE_W - M - 78, y: PAGE_H - 36, width: 78, height: 34,
+    });
   }
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -168,13 +173,14 @@ async function generate() {
     xScale: CIRCLE_INNER, yScale: CIRCLE_INNER,
     color: WHITE,
   });
-  // Icon centred in the circle
-  const ICON_SIZE = CIRCLE_INNER * 1.4;
-  s.page.drawImage(iconImage, {
-    x: circleCX - ICON_SIZE / 2,
-    y: circleCY - ICON_SIZE / 2,
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+  // Compact IIRSM approval rosette centred in the badge.
+  const ROSETTE_W = CIRCLE_INNER * 1.25;
+  const ROSETTE_H = ROSETTE_W * (3036 / 2218);
+  s.page.drawImage(iirsmRosetteLogo, {
+    x: circleCX - ROSETTE_W / 2,
+    y: circleCY - ROSETTE_H / 2,
+    width: ROSETTE_W,
+    height: ROSETTE_H,
   });
 
   // ── Name & titles ──────────────────────────────────────────────────────────

@@ -16,6 +16,10 @@ const OUT = path.resolve(
   __dirname,
   "../../artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 );
+const IIRSM_ROSETTE_PATH = path.resolve(
+  __dirname,
+  "../../artifacts/chainsaw-training/public/iirsm-rosette-logo.png"
+);
 
 const BRAND   = rgb(0.918, 0.361, 0.047); // #ea5c0c
 const BLACK   = rgb(0, 0, 0);
@@ -35,6 +39,7 @@ async function generate() {
   const fReg  = await doc.embedFont(StandardFonts.Helvetica);
   const fBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const fItal = await doc.embedFont(StandardFonts.HelveticaOblique);
+  const iirsmRosette = await doc.embedPng(fs.readFileSync(IIRSM_ROSETTE_PATH));
 
   type State = {
     page: ReturnType<typeof doc.addPage>;
@@ -208,6 +213,9 @@ async function generate() {
   });
   s.page.drawText("eLearning (No Trainer) Application  |  Overleaf Publishers Ltd  |  chainsawcourses.com", {
     x: M, y: PAGE_H - 46, size: 8, font: fItal, color: rgb(1, 0.9, 0.85),
+  });
+  s.page.drawImage(iirsmRosette, {
+    x: PAGE_W - M - 32, y: PAGE_H - 70, width: 32, height: 44,
   });
 
   s.y = PAGE_H - 100;

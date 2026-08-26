@@ -3,8 +3,7 @@
  * Used by both the admin HTTP download endpoint and the Drive upload flow.
  */
 import PDFDocument from "pdfkit";
-import fs from "fs";
-import path from "path";
+import { drawApprovedPdfKitHeader } from "./pdfBranding";
 
 export type HazardEntry = {
   id: string;
@@ -62,19 +61,7 @@ export function generateRiskAssessmentPdf(record: RiskAssessmentRecord): Promise
     const dateStr = record.createdAt.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
     const timeStr = record.createdAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
-    // Header
-    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
-    const logoSize = 52;
-    const headerY = 40;
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, L, headerY, { width: logoSize, height: logoSize });
-    }
-    const textX = fs.existsSync(logoPath) ? L + logoSize + 12 : L;
-    doc.fontSize(20).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 4, { lineBreak: false });
-    doc.fontSize(9).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 30, { lineBreak: false });
-    doc.text("", L, headerY + logoSize + 10);
-    doc.moveTo(L, doc.y).lineTo(R, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
-    doc.moveDown(0.8);
+    drawApprovedPdfKitHeader(doc, { left: L, right: R, y: 40 });
 
     doc.fontSize(14).fillColor(dark).font("Helvetica-Bold").text("DYNAMIC SITE RISK ASSESSMENT", L, doc.y, { align: "left" });
     doc.moveDown(0.6);

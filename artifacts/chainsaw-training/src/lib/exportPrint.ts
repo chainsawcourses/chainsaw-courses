@@ -41,9 +41,21 @@ export interface InspectionExportData {
   createdAt?: string;
 }
 
-/** No-op — kept so existing callers don't break. Logo is embedded inline. */
-export async function preloadLogoBase64(_logoUrl: string): Promise<string | null> {
-  return null;
+/** Preload an approval logo so it remains available in the print window. */
+export async function preloadLogoBase64(logoUrl: string): Promise<string | null> {
+  try {
+    const response = await fetch(logoUrl, { cache: "force-cache" });
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return await new Promise<string | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 function riskBand(rating: number) {
@@ -77,6 +89,9 @@ const SHARED_CSS = `
   .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea5c0c; padding-bottom: 10px; margin-bottom: 14px; }
   .brand-name { font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #ea5c0c; }
   .brand-sub  { font-size: 8px; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .approval-logo { width: 132px; height: auto; display: block; object-fit: contain; }
+  .approval-text { width: 132px; font-size: 7px; color: #777; line-height: 1.35; text-align: center; text-transform: uppercase; }
   .doc-title  { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
   .doc-date   { font-size: 9px; color: #888; margin-top: 3px; text-align: right; }
   .student-bar { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 6px 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -105,7 +120,14 @@ const SHARED_CSS = `
   }
 `;
 
-function branded(title: string, subtitle: string, studentName: string, date: string, body: string) {
+function branded(
+  title: string,
+  subtitle: string,
+  studentName: string,
+  date: string,
+  body: string,
+  approvalLogoB64: string | null,
+) {
   const guideText = navigator.userAgent.includes("Mobile") || navigator.userAgent.includes("Android") || navigator.userAgent.includes("iPhone")
     ? "Tap <strong>Share → Print</strong>, then choose <strong>Save as PDF</strong>"
     : "Click <strong>Save as PDF</strong> button below — or press <strong>Ctrl+P</strong> (⌘P on Mac) and choose <strong>Save as PDF</strong> as the printer";
@@ -133,9 +155,16 @@ function branded(title: string, subtitle: string, studentName: string, date: str
       <div class="brand-name">Chainsaw Courses</div>
       <div class="brand-sub">Chainsaw Maintenance &amp; Cross Cutting</div>
     </div>
-    <div>
-      <div class="doc-title">${title}</div>
-      <div class="doc-date">${subtitle}</div>
+    <div class="header-right">
+      <div>
+        <div class="doc-title">${title}</div>
+        <div class="doc-date">${subtitle}</div>
+      </div>
+      ${
+        approvalLogoB64
+          ? `<img class="approval-logo" src="${approvalLogoB64}" alt="IIRSM Approved Course">`
+          : `<div class="approval-text">IIRSM Approved Course<br>September 2026 – March 2028</div>`
+      }
     </div>
   </div>
 
@@ -172,7 +201,7 @@ function openPrintWindow(html: string) {
   win.document.close();
 }
 
-export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, _logoB64: string | null) {
+export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, logoB64: string | null) {
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
@@ -227,10 +256,10 @@ export function downloadRiskAssessmentPdf(data: RiskAssessmentExportData, _logoB
     </table>
   `;
 
-  openPrintWindow(branded("Dynamic Site Risk Assessment", "Chainsaw Courses · Site Safety Record", data.studentName || "", date, body));
+  openPrintWindow(branded("Dynamic Site Risk Assessment", "Chainsaw Courses · Site Safety Record", data.studentName || "", date, body, logoB64));
 }
 
-export function downloadInspectionPdf(data: InspectionExportData, _logoB64: string | null) {
+export function downloadInspectionPdf(data: InspectionExportData, logoB64: string | null) {
   const date = data.createdAt
     ? new Date(data.createdAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" })
     : new Date().toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
@@ -284,7 +313,7 @@ export function downloadInspectionPdf(data: InspectionExportData, _logoB64: stri
     </table>
   `;
 
-  openPrintWindow(branded("Pre-Start &amp; Pre-Use Inspection Checklist", "Chainsaw Courses · Equipment Safety Record", data.studentName || "", date, body));
+  openPrintWindow(branded("Pre-Start &amp; Pre-Use Inspection Checklist", "Chainsaw Courses · Equipment Safety Record", data.studentName || "", date, body, logoB64));
 }
 
 export function copyRiskAssessmentText(data: RiskAssessmentExportData): string {

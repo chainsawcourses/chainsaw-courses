@@ -12,7 +12,7 @@ const _candidates = [
 const PUBLIC = _candidates.find(p => { try { return fs.statSync(p).isDirectory(); } catch { return false; } }) ?? _candidates[0];
 
 const LOGO_PATH  = path.join(PUBLIC, "logo.png");
-const IIRSM_PATH = path.join(PUBLIC, "iirsm-logo.png");
+const IIRSM_PATH = path.join(PUBLIC, "iirsm-rosette-logo.png");
 const BG_PATH    = path.join(PUBLIC, "bg.jpg");
 const SIG_PATH   = path.join(PUBLIC, "signature_director.png");
 
@@ -79,7 +79,7 @@ export async function generateCertificatePdf(
 
   // ── BOTTOM ZONE ───────────────────────────────────────────────────────────
   page.drawRectangle({ x: ML, y: 44, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.6 });
-  const footerTxt = "chainsawcourses.com  |  IIRSM Approved Training Provider";
+  const footerTxt = "chainsawcourses.com  |  IIRSM Approved Course";
   page.drawText(footerTxt, { x: cx(footerTxt, 7.5, fReg, W), y: 30, size: 7.5, font: fReg, color: lgrey });
 
   const ref    = certRef(user.id, passedAt);
@@ -119,7 +119,7 @@ export async function generateCertificatePdf(
 
   rule(243, 0.28);
 
-  const glhLine = "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Learning";
+  const glhLine = "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Course";
   page.drawText(glhLine, { x: cx(glhLine, 9.5, fBold, W), y: 318, size: 9.5, font: fBold, color: black });
 
   const unitLine = "Unit Ref: 0039-20  \u00B7  Module Quizzes: 100%  \u00B7  Final Exam Pass Mark: 80%";
@@ -155,8 +155,8 @@ export async function generateCertificatePdf(
   page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 576, size: 10, font: fItalic, color: mid });
   page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 530, size: 34, font: fBold, color: black });
   page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 500, size: 9.5, font: fReg, color: lgrey });
-  page.drawText("has successfully completed the following IIRSM approved course:", {
-    x: cx("has successfully completed the following IIRSM approved course:", 9.5, fItalic, W),
+  page.drawText("has successfully completed the following IIRSM Approved Course:", {
+    x: cx("has successfully completed the following IIRSM Approved Course:", 9.5, fItalic, W),
     y: 476, size: 9.5, font: fItalic, color: mid,
   });
 
@@ -177,7 +177,7 @@ export async function generateCertificatePdf(
   if (iirImg) { const d = iirImg.scaleToFit(LOGO_H, LOGO_H);      page.drawImage(iirImg, { x: pairX + ccW + 52, y: logoBottom + (LOGO_H - d.height) / 2, width: d.width, height: d.height }); }
 
   page.drawRectangle({ x: ML, y: 708, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
-  const strap = "CHAINSAW COURSES  |  IIRSM Approved Training Provider";
+  const strap = "CHAINSAW COURSES  |  IIRSM Approved Course";
   page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 692, size: 7.5, font: fBold, color: mid });
   page.drawRectangle({ x: ML, y: 682, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.5 });
 

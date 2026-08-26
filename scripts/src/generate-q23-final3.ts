@@ -25,7 +25,7 @@ const RUL = "#dedede";
 const WHT = "#ffffff";
 
 const LOGO  = "/home/runner/workspace/artifacts/chainsaw-training/public/logo.png";
-const IIRSM = "/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-logo.png";
+const IIRSM_ROSETTE = "/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-rosette-logo.png";
 const OUT   = "/home/runner/workspace/artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf";
 const OPTS  = ["A","B","C","D"];
 
@@ -234,7 +234,7 @@ doc.font("Helvetica-Bold").fontSize(21).fillColor(OGD)
   .text("CHAINSAW COURSES", ML + 78, 18, { lineBreak: false });
 doc.font("Helvetica").fontSize(8.5).fillColor(MGY)
   .text("chainsawcourses.com  ·  app.chainsawcourses.com", ML + 78, 46, { lineBreak: false });
-doc.image(IIRSM, PW - MR - 54, 12, { height: 58 });
+doc.image(IIRSM_ROSETTE, PW - MR - 54, 12, { height: 58 });
 doc.font("Helvetica").fontSize(6.5).fillColor(MGY)
   .text("IIRSM Course Approval", PW - MR - 60, 74, { width: 66, align: "center", lineBreak: false });
 

@@ -207,9 +207,9 @@ doc.fontSize(8).fillColor(LIGHT).font('Helvetica').text(
 );
 
 // ─── POST-PROCESSING: stamp header + page numbers on every buffered page ────
-const logoPath = path.resolve('/home/runner/workspace/artifacts/chainsaw-training/public/logo.png');
-const logoExists = fs.existsSync(logoPath);
-const logoBuffer = logoExists ? fs.readFileSync(logoPath) : null;
+const iirsmHorizontalLogoPath = path.resolve('/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-horizontal-logo.png');
+const iirsmHorizontalLogoExists = fs.existsSync(iirsmHorizontalLogoPath);
+const iirsmHorizontalLogoBuffer = iirsmHorizontalLogoExists ? fs.readFileSync(iirsmHorizontalLogoPath) : null;
 
 const range = doc.bufferedPageRange();
 const totalPages = range.count;
@@ -225,12 +225,12 @@ for (let i = 0; i < totalPages; i++) {
   // ── Page header (all pages) ────────────────────────────────────────────
   const HY = 28; // top of header zone
 
-  if (logoBuffer) {
-    doc.image(logoBuffer, MARGIN_SIDE, HY, { width: 34, height: 34 });
+  if (iirsmHorizontalLogoBuffer) {
+    doc.image(iirsmHorizontalLogoBuffer, MARGIN_SIDE, HY, { width: 78, height: 34 });
     doc.fontSize(13).fillColor(ORANGE).font('Helvetica-Bold')
-       .text('Chainsaw Courses', MARGIN_SIDE + 42, HY + 3, { lineBreak: false });
+       .text('Chainsaw Courses', MARGIN_SIDE + 86, HY + 3, { lineBreak: false });
     doc.fontSize(7.5).fillColor(LIGHT).font('Helvetica')
-       .text('OVERLEAF PUBLISHERS LTD  ·  chainsawcourses.com', MARGIN_SIDE + 42, HY + 21, { lineBreak: false });
+       .text('OVERLEAF PUBLISHERS LTD  ·  chainsawcourses.com', MARGIN_SIDE + 86, HY + 21, { lineBreak: false });
   } else {
     doc.fontSize(13).fillColor(ORANGE).font('Helvetica-Bold')
        .text('Chainsaw Courses', MARGIN_SIDE, HY + 3, { lineBreak: false });

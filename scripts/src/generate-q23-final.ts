@@ -20,7 +20,7 @@ const RUL  = "#e0e0e0";   // rule colour
 const WHT  = "#ffffff";
 
 const LOGO  = "/home/runner/workspace/artifacts/chainsaw-training/public/logo.png";
-const IIRSM = "/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-logo.png";
+const IIRSM = "/home/runner/workspace/artifacts/chainsaw-training/public/iirsm-rosette-logo.png";
 const OUT   = "/home/runner/workspace/artifacts/chainsaw-training/public/pdfs/Q23_Course_Materials_Pack.pdf";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────

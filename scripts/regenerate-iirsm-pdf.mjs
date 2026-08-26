@@ -3,9 +3,10 @@
  * Uses pdf-lib to create a clean, professional replacement document.
  */
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 const OUT = "artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf";
+const IIRSM_HORIZONTAL_LOGO = "artifacts/chainsaw-training/public/iirsm-horizontal-logo.png";
 
 const BLACK  = rgb(0.05, 0.05, 0.05);
 const ORANGE = rgb(0.886, 0.447, 0.149);   // #e27226
@@ -18,6 +19,7 @@ async function build() {
   const bold  = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg   = await doc.embedFont(StandardFonts.Helvetica);
   const obl   = await doc.embedFont(StandardFonts.HelveticaOblique);
+  const iirsmHorizontalLogo = await doc.embedPng(readFileSync(IIRSM_HORIZONTAL_LOGO));
 
   const W = 595.28, H = 841.89; // A4
 
@@ -31,6 +33,9 @@ async function build() {
     });
     p.drawText("eLearning (No Trainer) Application  |  Overleaf Publishers Ltd  |  chainsawcourses.com", {
       x: 28, y: H - 42, size: 7, font: reg, color: rgb(1,1,0.8),
+    });
+    p.drawImage(iirsmHorizontalLogo, {
+      x: W - 112, y: H - 42, width: 84, height: 36,
     });
     // footer bar
     p.drawRectangle({ x: 0, y: 0, width: W, height: 28, color: rgb(0.15,0.15,0.15) });

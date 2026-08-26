@@ -16,7 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 const OUT_DIR   = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/pdfs");
-const LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/logo.png");
+const IIRSM_HORIZONTAL_LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/iirsm-horizontal-logo.png");
 const SIG_PATH  = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/signature_director.png");
 const OUT       = path.join(OUT_DIR, "IIRSM_Competency_Framework_Mapping.pdf");
 
@@ -38,19 +38,20 @@ function newDoc(title: string): PDFKit.PDFDocument {
 }
 
 function drawPageHeader(doc: PDFKit.PDFDocument): void {
-  const logoSize = 52;
+  const logoWidth = 120;
+  const logoHeight = 52;
   const hY = 60;
-  if (fs.existsSync(LOGO_PATH)) {
-    doc.image(LOGO_PATH, 60, hY, { width: logoSize, height: logoSize });
+  if (fs.existsSync(IIRSM_HORIZONTAL_LOGO_PATH)) {
+    doc.image(IIRSM_HORIZONTAL_LOGO_PATH, 60, hY, { width: logoWidth, height: logoHeight });
   }
-  const tX = fs.existsSync(LOGO_PATH) ? 60 + logoSize + 12 : 60;
+  const tX = fs.existsSync(IIRSM_HORIZONTAL_LOGO_PATH) ? 60 + logoWidth + 12 : 60;
   doc
     .fontSize(13).fillColor(ORANGE).font("Helvetica-Bold")
     .text("Chainsaw Courses", tX, hY + 4, { lineBreak: false });
   doc
     .fontSize(9).fillColor(MID).font("Helvetica")
     .text("CHAINSAW MAINTENANCE & CROSS CUTTING  ·  OVERLEAF PUBLISHERS LTD", tX, hY + 30, { lineBreak: false });
-  doc.text("", 60, hY + logoSize + 8);
+  doc.text("", 60, hY + logoHeight + 8);
   doc
     .moveTo(60, doc.y).lineTo(535, doc.y)
     .strokeColor(ORANGE).lineWidth(1.5).stroke();

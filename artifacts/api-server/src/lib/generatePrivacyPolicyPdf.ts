@@ -1,10 +1,19 @@
-import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
+import fs from "fs";
+import {
+  PDFDocument,
+  rgb,
+  StandardFonts,
+  type PDFFont,
+  type PDFImage,
+  type PDFPage,
+} from "pdf-lib";
+import { publicAssetPath } from "./pdfBranding";
 
 const PW = 595;
 const PH = 842;
 const ML = 52;
 const MR = 52;
-const MT = 72;
+const MT = 78;
 const MB = 52;
 const CW = PW - ML - MR;
 
@@ -38,6 +47,7 @@ interface Ctx {
   doc: PDFDocument;
   bold: PDFFont;
   reg: PDFFont;
+  approvalLogo?: PDFImage;
   pages: PDFPage[];
   page: PDFPage;
   y: number;
@@ -57,14 +67,20 @@ function ensureSpace(ctx: Ctx, needed: number): void {
 
 function drawPageHeader(ctx: Ctx): void {
   const p = ctx.page;
-  p.drawLine({ start: { x: ML, y: PH - MT + 14 }, end: { x: PW - MR, y: PH - MT + 14 }, thickness: 0.5, color: LGREY });
+  const lineY = PH - MT + 2;
+  p.drawLine({ start: { x: ML, y: lineY }, end: { x: PW - MR, y: lineY }, thickness: 0.5, color: LGREY });
   p.drawText("CHAINSAW COURSES — PRIVACY POLICY", {
-    x: ML, y: PH - MT + 4, size: 7, font: ctx.reg, color: GREY,
+    x: ML, y: lineY + 8, size: 7, font: ctx.reg, color: GREY,
   });
-  p.drawText("chainsawcourses.com", {
-    x: PW - MR - ctx.reg.widthOfTextAtSize("chainsawcourses.com", 7),
-    y: PH - MT + 4, size: 7, font: ctx.reg, color: GREY,
-  });
+  if (ctx.approvalLogo) {
+    const scaled = ctx.approvalLogo.scaleToFit(110, 48);
+    p.drawImage(ctx.approvalLogo, {
+      x: PW - MR - scaled.width,
+      y: lineY + 7,
+      width: scaled.width,
+      height: scaled.height,
+    });
+  }
 }
 
 function drawFooters(ctx: Ctx): void {
@@ -150,9 +166,21 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   const reg  = await doc.embedFont(StandardFonts.Helvetica);
+  const approvalPath = publicAssetPath("iirsm-horizontal-logo.png");
+  const approvalLogo = fs.existsSync(approvalPath)
+    ? await doc.embedPng(fs.readFileSync(approvalPath))
+    : undefined;
 
   const firstPage = doc.addPage([PW, PH]);
-  const ctx: Ctx = { doc, bold, reg, pages: [firstPage], page: firstPage, y: PH - MT };
+  const ctx: Ctx = {
+    doc,
+    bold,
+    reg,
+    approvalLogo,
+    pages: [firstPage],
+    page: firstPage,
+    y: PH - MT,
+  };
   drawPageHeader(ctx);
 
   // ── Cover ──────────────────────────────────────────────────────────────────

@@ -8,9 +8,8 @@ import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
-import fs from "fs";
-import path from "path";
 import { generateRiskAssessmentPdf } from "../lib/generateRiskAssessmentPdf";
+import { drawApprovedPdfKitHeader } from "../lib/pdfBranding";
 import { getOrCreateDriveFolder, uploadPdfToDrive, BACKUP_FOLDER } from "../lib/driveCertificates";
 import { ReplitConnectors } from "@replit/connectors-sdk";
 
@@ -219,18 +218,7 @@ router.get("/risk-assessments/:id/pdf", async (req, res) => {
     const R = 545;
     const W = R - L;
 
-    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
-    const logoSize = 52;
-    const headerY = 40;
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, L, headerY, { width: logoSize, height: logoSize });
-    }
-    const textX = fs.existsSync(logoPath) ? L + logoSize + 12 : L;
-    doc.fontSize(20).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 4, { lineBreak: false });
-    doc.fontSize(9).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 30, { lineBreak: false });
-    doc.text("", L, headerY + logoSize + 10);
-    doc.moveTo(L, doc.y).lineTo(R, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
-    doc.moveDown(0.8);
+    drawApprovedPdfKitHeader(doc, { left: L, right: R, y: 40 });
 
     doc.fontSize(14).fillColor(dark).font("Helvetica-Bold").text("DYNAMIC SITE RISK ASSESSMENT", L, doc.y, { align: "left" });
     doc.moveDown(0.6);
