@@ -340,5 +340,5 @@ description = "Signed Google Play upload bundle for com.chainsawcourses.app, ver
 id = "L3TGETzDjzyIlaHo1Q-ph"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Completion_Certificate_Sample_IIRSM_Approved_Course.pdf"
 type = "pdf"
-title = "Sample Completion Certificate — IIRSM Approved Course"
-description = "A representative Chainsaw Courses completion certificate showing the updated IIRSM Approved Course wording."
+title = "Updated Completion Certificate — IIRSM Approved Course"
+description = "Corrected revision with transparent approval artwork, non-overlapping smaller Chainsaw Courses logo, and centered Course Director signature block."

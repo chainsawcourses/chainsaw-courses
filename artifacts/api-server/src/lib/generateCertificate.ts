@@ -2,6 +2,7 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { CERTIFICATE_LAYOUT } from "./certificateLayout";
 
 // Resolve public asset dir from either the workspace root (production) or
 // from artifacts/api-server/ (dev via pnpm).  Try both and use whichever exists.
@@ -11,8 +12,8 @@ const _candidates = [
 ];
 const PUBLIC = _candidates.find(p => { try { return fs.statSync(p).isDirectory(); } catch { return false; } }) ?? _candidates[0];
 
-const LOGO_PATH  = path.join(PUBLIC, "logo.png");
-const IIRSM_PATH = path.join(PUBLIC, "iirsm-rosette-logo.png");
+const LOGO_PATH  = path.join(PUBLIC, "logo-transparent.png");
+const IIRSM_PATH = path.join(PUBLIC, "iirsm-horizontal-logo-transparent.png");
 const BG_PATH    = path.join(PUBLIC, "bg.jpg");
 const SIG_PATH   = path.join(PUBLIC, "signature_director.png");
 
@@ -86,28 +87,31 @@ export async function generateCertificatePdf(
   const refStr = `Certificate Ref: ${ref}`;
   page.drawText(refStr, { x: cx(refStr, 7, fReg, W), y: 58, size: 7, font: fReg, color: lgrey });
 
-  const SIG_LINE_Y  = 104;
-  const SIG_IMAGE_Y = SIG_LINE_Y + 2;
-  const SIG_MAX_H   = 36;
+  const SIG_LINE_Y  = 140;
+  const SIG_IMAGE_Y = SIG_LINE_Y + 4;
+  const SIG_MAX_H   = 42;
   const SIG_LABEL_Y = SIG_LINE_Y - 16;
-  const sigZoneW    = 175;
-  const sigL        = ML;
-  const sigR        = W - ML - sigZoneW;
+  const sigZoneW    = 190;
+  const sigX        = (W - sigZoneW) / 2;
 
   try {
     const sigBytes = fs.readFileSync(SIG_PATH);
     const sigImg   = await pdfDoc.embedPng(sigBytes);
     const d        = sigImg.scaleToFit(sigZoneW - 20, SIG_MAX_H);
-    page.drawImage(sigImg, { x: sigR + (sigZoneW - d.width) / 2, y: SIG_IMAGE_Y, width: d.width, height: d.height });
+    page.drawImage(sigImg, { x: (W - d.width) / 2, y: SIG_IMAGE_Y, width: d.width, height: d.height });
   } catch { /* no sig */ }
 
-  page.drawRectangle({ x: sigL, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
-  page.drawRectangle({ x: sigR, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
+  page.drawRectangle({ x: sigX, y: SIG_LINE_Y, width: sigZoneW, height: 0.8, color: lgrey });
 
-  const lbl1 = "Authorised Signatory";
-  const lbl2 = "Course Director";
-  page.drawText(lbl1, { x: sigL + (sigZoneW - fReg.widthOfTextAtSize(lbl1, 7.5)) / 2, y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey });
-  page.drawText(lbl2, { x: sigR + (sigZoneW - fReg.widthOfTextAtSize(lbl2, 7.5)) / 2, y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey });
+  const lbl = "Course Director";
+  page.drawText(lbl, { x: cx(lbl, 7.5, fReg, W), y: SIG_LABEL_Y, size: 7.5, font: fReg, color: lgrey });
+
+  try {
+    const iirBottomBytes = fs.readFileSync(IIRSM_PATH);
+    const iirBottomImg   = await pdfDoc.embedPng(iirBottomBytes);
+    const d               = iirBottomImg.scaleToFit(116, 48);
+    page.drawImage(iirBottomImg, { x: (W - d.width) / 2, y: 72, width: d.width, height: d.height });
+  } catch { /* no approval mark */ }
 
   // ── MAIN CONTENT ZONE ─────────────────────────────────────────────────────
   const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -138,13 +142,25 @@ export async function generateCertificatePdf(
     y: 264, size: 8.5, font: fItalic, color: lgrey,
   });
 
+  let ccImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
+  try {
+    ccImg = await pdfDoc.embedPng(fs.readFileSync(LOGO_PATH));
+    const d = ccImg.scaleToFit(CERTIFICATE_LAYOUT.chainsawLogo.maxWidth, CERTIFICATE_LAYOUT.chainsawLogo.height);
+    page.drawImage(ccImg, {
+      x: (W - d.width) / 2,
+      y: CERTIFICATE_LAYOUT.chainsawLogo.bottom,
+      width: d.width,
+      height: d.height,
+    });
+  } catch { /* no Chainsaw Courses mark */ }
+
   page.drawText("Chainsaw Maintenance & Cross Cutting", {
     x: cx("Chainsaw Maintenance & Cross Cutting", 22, fBold, W),
-    y: 416, size: 22, font: fBold, color: black,
+    y: CERTIFICATE_LAYOUT.courseTitle.bottom, size: 22, font: fBold, color: black,
   });
   page.drawText("Professional Training Course  \u00B7  Theory & Knowledge Assessment", {
     x: cx("Professional Training Course  \u00B7  Theory & Knowledge Assessment", 9, fReg, W),
-    y: 368, size: 9, font: fReg, color: lgrey,
+    y: 364, size: 9, font: fReg, color: lgrey,
   });
 
   page.drawText("CERTIFICATE OF COMPLETION", {
@@ -157,29 +173,20 @@ export async function generateCertificatePdf(
   page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 500, size: 9.5, font: fReg, color: lgrey });
   page.drawText("has successfully completed the following IIRSM Approved Course:", {
     x: cx("has successfully completed the following IIRSM Approved Course:", 9.5, fItalic, W),
-    y: 476, size: 9.5, font: fItalic, color: mid,
+    y: CERTIFICATE_LAYOUT.completionSentence.bottom, size: 9.5, font: fItalic, color: mid,
   });
 
-  // ── LOGOS ─────────────────────────────────────────────────────────────────
-  const LOGO_H     = 68;
-  const logoBottom = 718;
-  let ccImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null  = null;
-  let iirImg: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
-  let ccW = LOGO_H, iirW = LOGO_H;
+  // ── HEADER ─────────────────────────────────────────────────────────────────
+  const header = "CHAINSAW COURSES  |  IIRSM Approved Course";
+  page.drawText(header, { x: cx(header, 11, fBold, W), y: 804, size: 11, font: fBold, color: mid });
+  page.drawRectangle({ x: ML, y: 786, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
 
-  try { ccImg  = await pdfDoc.embedPng(fs.readFileSync(LOGO_PATH));  ccW  = ccImg.scaleToFit(LOGO_H * 2.8, LOGO_H).width; }  catch { /* skip */ }
-  try { iirImg = await pdfDoc.embedPng(fs.readFileSync(IIRSM_PATH)); iirW = iirImg.scaleToFit(LOGO_H, LOGO_H).width; }        catch { /* skip */ }
-
-  const pairW = ccW + 52 + iirW;
-  const pairX = (W - pairW) / 2;
-
-  if (ccImg)  { const d = ccImg.scaleToFit(LOGO_H * 2.8, LOGO_H); page.drawImage(ccImg,  { x: pairX,           y: logoBottom + (LOGO_H - d.height) / 2, width: d.width, height: d.height }); }
-  if (iirImg) { const d = iirImg.scaleToFit(LOGO_H, LOGO_H);      page.drawImage(iirImg, { x: pairX + ccW + 52, y: logoBottom + (LOGO_H - d.height) / 2, width: d.width, height: d.height }); }
-
-  page.drawRectangle({ x: ML, y: 708, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
-  const strap = "CHAINSAW COURSES  |  IIRSM Approved Course";
-  page.drawText(strap, { x: cx(strap, 7.5, fBold, W), y: 692, size: 7.5, font: fBold, color: mid });
-  page.drawRectangle({ x: ML, y: 682, width: W - ML * 2, height: 0.5, color: silver, opacity: 0.5 });
+  try {
+    const iirHeaderBytes = fs.readFileSync(IIRSM_PATH);
+    const iirHeaderImg   = await pdfDoc.embedPng(iirHeaderBytes);
+    const d               = iirHeaderImg.scaleToFit(150, 66);
+    page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 710, width: d.width, height: d.height });
+  } catch { /* no approval mark */ }
 
   // ── BORDER ────────────────────────────────────────────────────────────────
   page.drawRectangle({ x: BI, y: BI, width: W - BI * 2, height: H - BI * 2, borderColor: orange, borderWidth: BW });

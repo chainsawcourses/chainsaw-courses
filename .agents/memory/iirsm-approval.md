@@ -9,7 +9,7 @@ The Chainsaw Courses training app received IIRSM approval in August 2026.
 
 **How to apply:** Treat the approval as confirmed project context, but do not infer the scope, expiry, approval number, or permitted use of the IIRSM name without verified documentation.
 
-For Chainsaw Courses-authored documents, use the official horizontal Approved Course artwork in wide headers and the rosette artwork in compact badge placements. The supplied artwork is dated September 2026–March 2028.
+For Chainsaw Courses-authored documents, use the official horizontal Approved Course artwork in wide headers and on the completion certificate; reserve the rosette for compact badges elsewhere. The supplied artwork is dated September 2026–March 2028.
 
 **Why:** The supplied approval artwork has a defined validity window and distinct layouts intended for different document placements.
 
