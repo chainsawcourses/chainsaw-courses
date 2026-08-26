@@ -14,6 +14,7 @@ const PUBLIC = _candidates.find(p => { try { return fs.statSync(p).isDirectory()
 
 const LOGO_PATH  = path.join(PUBLIC, "logo-transparent.png");
 const IIRSM_PATH = path.join(PUBLIC, "iirsm-horizontal-logo-transparent.png");
+const IIRSM_ROSETTE_PATH = path.join(PUBLIC, "iirsm-rosette-logo-transparent.png");
 const BG_PATH    = path.join(PUBLIC, "bg.jpg");
 const SIG_PATH   = path.join(PUBLIC, "signature_director.png");
 
@@ -182,9 +183,9 @@ export async function generateCertificatePdf(
   page.drawRectangle({ x: ML, y: 786, width: W - ML * 2, height: 0.8, color: dark, opacity: 0.45 });
 
   try {
-    const iirHeaderBytes = fs.readFileSync(IIRSM_PATH);
+    const iirHeaderBytes = fs.readFileSync(IIRSM_ROSETTE_PATH);
     const iirHeaderImg   = await pdfDoc.embedPng(iirHeaderBytes);
-    const d               = iirHeaderImg.scaleToFit(150, 66);
+    const d               = iirHeaderImg.scaleToFit(62, 62);
     page.drawImage(iirHeaderImg, { x: (W - d.width) / 2, y: 710, width: d.width, height: d.height });
   } catch { /* no approval mark */ }
 
