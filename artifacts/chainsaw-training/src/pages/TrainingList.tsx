@@ -1336,7 +1336,7 @@ export default function TrainingList() {
           <img
             src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png`}
             alt="IIRSM Approved Course"
-            className="h-auto w-40 max-w-full object-contain sm:w-44"
+            className="h-auto w-32 max-w-full object-contain sm:w-36"
           />
         </div>
       </main>
