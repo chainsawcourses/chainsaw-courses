@@ -20,6 +20,7 @@ JDK_DOWNLOAD_URL="${ANDROID_JDK_DOWNLOAD_URL:-https://api.adoptium.net/v3/binary
 CMDLINE_TOOLS_DOWNLOAD_URL="${ANDROID_CMDLINE_TOOLS_DOWNLOAD_URL:-https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip}"
 ANDROID_API="android-36"
 ANDROID_BUILD_TOOLS="36.0.0"
+EXPECTED_SIGNING_SHA1="4F:5C:4C:21:43:74:90:B4:BF:31:55:B9:88:EB:32:69:11:EC:58:05"
 
 TEMP_DIR=""
 
@@ -204,10 +205,25 @@ validate_release_manifest() {
         || die "bundle manifest version name did not match $expected_version_name"
 }
 
+validate_release_certificate() {
+    local bundle_file="$1"
+    local actual_sha1
+
+    actual_sha1="$(
+        keytool -printcert -jarfile "$bundle_file" 2>/dev/null \
+            | sed -n 's/^[[:space:]]*SHA1:[[:space:]]*//p' \
+            | head -n 1
+    )"
+    [[ -n "$actual_sha1" ]] || die "could not read the signed bundle certificate"
+    [[ "${actual_sha1^^}" == "${EXPECTED_SIGNING_SHA1^^}" ]] \
+        || die "bundle certificate does not match the Google Play upload certificate"
+}
+
 require_command pnpm
 require_command node
 require_command sha256sum
 require_command unzip
+require_command keytool
 
 [[ -d "$ANDROID_DIR" && -f "$APP_BUILD_FILE" ]] \
     || die "Capacitor Android project was not found at $ANDROID_DIR"
@@ -275,6 +291,7 @@ validate_release_manifest \
     "$APPLICATION_ID" \
     "$VERSION_CODE" \
     "$VERSION_NAME"
+validate_release_certificate "$SOURCE_AAB"
 unzip -tqq "$SOURCE_AAB"
 
 EXPORT_DIR="$ROOT_DIR/exports"

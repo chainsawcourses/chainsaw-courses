@@ -342,3 +342,10 @@ uri = "file://artifacts/chainsaw-training/public/pdfs/Completion_Certificate_Sam
 type = "pdf"
 title = "Completion Certificate — Balanced Logo Spacing"
 description = "Latest sample with the Chainsaw Courses logo and course title moved upward together for more even spacing above and below."
+
+[[outputs]]
+id = "x1aMMkeXbW-nJwwXE7szA"
+uri = "file://exports/Chainsaw_Courses_Android_com.chainsawcourses.app_v1.0.3_code7.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android v1.0.3 (code 7)"
+description = "Google Play App Bundle targeting Android 16 / API 36, signed with the registered Play upload certificate."
