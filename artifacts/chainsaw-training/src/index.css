@@ -179,6 +179,35 @@ html[data-android-webview="true"] .app-header {
   top: max(28px, env(safe-area-inset-top, 0px));
 }
 
+/* Reserve space for fixed checklist action bars above the phone's system
+   navigation area. Android WebViews can report a zero bottom safe-area inset
+   while still drawing the system controls over the page. */
+.mobile-bottom-action-bar {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+
+html[data-android-webview="true"] .mobile-bottom-action-bar {
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+}
+
+.mobile-bottom-action-main {
+  padding-bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+}
+
+html[data-android-webview="true"] .mobile-bottom-action-main {
+  padding-bottom: calc(9rem + max(28px, env(safe-area-inset-bottom, 0px)));
+}
+
+@media (min-width: 640px) {
+  .mobile-bottom-action-main {
+    padding-bottom: 7rem;
+  }
+
+  html[data-android-webview="true"] .mobile-bottom-action-main {
+    padding-bottom: 7rem;
+  }
+}
+
 @keyframes green-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }

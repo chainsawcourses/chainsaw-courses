@@ -1,4 +1,22 @@
-export type PdfDeliveryResult = "shared" | "downloaded" | "cancelled";
+export type PdfDeliveryResult = "saved" | "shared" | "downloaded" | "cancelled";
+
+type SaveFilePicker = (options: {
+  suggestedName: string;
+  types: Array<{
+    description: string;
+    accept: Record<string, string[]>;
+  }>;
+}) => Promise<{
+  createWritable: () => Promise<{
+    write: (data: Blob) => Promise<void>;
+    close: () => Promise<void>;
+  }>;
+}>;
+
+function getSaveFilePicker(): SaveFilePicker | null {
+  if (typeof window === "undefined") return null;
+  return (window as Window & { showSaveFilePicker?: SaveFilePicker }).showSaveFilePicker ?? null;
+}
 
 /**
  * Lets the device choose how/where to receive a generated PDF.
@@ -8,6 +26,26 @@ export type PdfDeliveryResult = "shared" | "downloaded" | "cancelled";
  * Downloads-folder fallback.
  */
 export async function deliverPdf(blob: Blob, filename: string): Promise<PdfDeliveryResult> {
+  const saveFilePicker = getSaveFilePicker();
+  if (saveFilePicker) {
+    try {
+      const fileHandle = await saveFilePicker({
+        suggestedName: filename,
+        types: [{ description: "PDF document", accept: { "application/pdf": [".pdf"] } }],
+      });
+      const writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return "saved";
+    } catch (error) {
+      // Closing the native picker is a deliberate cancellation. Other picker
+      // failures fall through to the share sheet/download fallback.
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return "cancelled";
+      }
+    }
+  }
+
   if (typeof navigator !== "undefined" && typeof navigator.share === "function" && typeof File !== "undefined") {
     const file = new File([blob], filename, { type: "application/pdf" });
     let canShareFile = true;

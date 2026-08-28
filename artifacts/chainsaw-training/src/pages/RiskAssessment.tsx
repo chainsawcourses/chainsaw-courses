@@ -9,10 +9,9 @@ import { useUserSession } from "../contexts/UserContext";
 import { useSubmitRiskAssessment, useListMyRiskAssessments, getListMyRiskAssessmentsQueryKey, usePatchRiskAssessment } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { copyRiskAssessmentText, type RiskAssessmentExportData } from "../lib/exportPrint";
-import { deliverPdf } from "../lib/pdfDownload";
 import { playCompletionDing, primeCompletionDing } from "../lib/completionSound";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import PdfSaveDialog from "../components/PdfSaveDialog";
 
 interface HazardRow {
   id: string;
@@ -150,29 +149,8 @@ export default function RiskAssessment() {
   const [newRecordMode, setNewRecordMode] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [pdfToSave, setPdfToSave] = useState<{ blob: Blob; filename: string } | null>(null);
   const exportCardRef = useRef<HTMLDivElement>(null);
-
-  const savePreparedPdf = async (blob: Blob, filename: string) => {
-    try {
-      const result = await deliverPdf(blob, filename);
-      if (result === "shared") {
-        toast({ title: "PDF shared or saved" });
-      } else if (result === "downloaded") {
-        toast({
-          title: "PDF download started",
-          description: "The file should appear in your device Downloads folder.",
-        });
-      } else {
-        toast({ title: "PDF download cancelled" });
-      }
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Could not save PDF",
-        description: "Please try again.",
-      });
-    }
-  };
 
   const downloadPdf = async (id: number) => {
     toast({
@@ -190,15 +168,7 @@ export default function RiskAssessment() {
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
       const filename = `risk-assessment-${id}.pdf`;
-      toast({
-        title: "PDF ready",
-        description: "Tap Save PDF to choose where to save it or which PDF app to use.",
-        action: (
-          <ToastAction altText="Choose where to save the PDF" onClick={() => void savePreparedPdf(blob, filename)}>
-            Save PDF
-          </ToastAction>
-        ),
-      });
+      setPdfToSave({ blob, filename });
     } catch {
       toast({
         variant: "destructive",
@@ -410,6 +380,15 @@ export default function RiskAssessment() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PdfSaveDialog
+        open={pdfToSave !== null}
+        onOpenChange={(open) => {
+          if (!open) setPdfToSave(null);
+        }}
+        blob={pdfToSave?.blob ?? null}
+        defaultFilename={pdfToSave?.filename ?? "risk-assessment.pdf"}
+        documentLabel="risk assessment"
+      />
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 min-h-14 py-2 flex items-center justify-between gap-2">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
@@ -426,7 +405,7 @@ export default function RiskAssessment() {
         </div>
       </header>
 
-      <main className="flex-1 min-w-0 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-36 sm:pb-28">
+      <main className="mobile-bottom-action-main flex-1 min-w-0 max-w-3xl w-full mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
             Dynamic Site Risk Assessment
@@ -833,7 +812,7 @@ export default function RiskAssessment() {
       </main>
 
       {!showHistory && (
-        <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
+        <div className="mobile-bottom-action-bar fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
           <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="min-w-0 font-mono text-[10px] text-muted-foreground uppercase tracking-widest break-words sm:w-auto">
               {hazards.length} hazard{hazards.length === 1 ? "" : "s"} listed
