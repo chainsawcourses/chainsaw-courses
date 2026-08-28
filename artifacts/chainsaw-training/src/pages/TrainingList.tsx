@@ -1191,7 +1191,7 @@ export default function TrainingList() {
                               </div>
 
                               {!effectiveLocked && (
-                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                                <div className={`shrink-0 ${!isPdf && module.quizPassed ? "flex flex-col items-end gap-1" : ""}`} onClick={(e) => e.stopPropagation()}>
                                   {isHazardsReference ? (
                                     <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                       <Link href="/hazards-reference">
@@ -1214,6 +1214,11 @@ export default function TrainingList() {
                                         )}
                                       </Link>
                                     </Button>
+                                  )}
+                                  {!isPdf && module.quizPassed && (
+                                    <span className="font-mono text-[9px] font-semibold text-green-600 whitespace-nowrap">
+                                      Quiz Passed
+                                    </span>
                                   )}
                                 </div>
                               )}
