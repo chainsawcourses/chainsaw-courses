@@ -184,11 +184,11 @@ html[data-android-webview="true"] .app-header {
    navigation area. Android WebViews can report a zero bottom safe-area inset
    while still drawing the system controls over the page. */
 .mobile-bottom-action-bar {
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
 }
 
 html[data-android-webview="true"] .mobile-bottom-action-bar {
-  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px));
+  padding-bottom: max(36px, env(safe-area-inset-bottom, 0px));
 }
 
 .mobile-bottom-action-main {
