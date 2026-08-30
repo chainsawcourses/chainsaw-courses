@@ -9,7 +9,8 @@
     "build": "vite build --config vite.config.ts",
     "build:demo": "VITE_DEMO_MODE=true vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check:uk-english": "node scripts/check-uk-english.mjs"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
