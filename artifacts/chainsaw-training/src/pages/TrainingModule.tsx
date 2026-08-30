@@ -331,10 +331,10 @@ export default function TrainingModule() {
                   <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
                     <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs space-y-1">
                       {safetyModalOpen
-                        ? <span>SAFETY ACKNOWLEDGMENT REQUIRED</span>
+                        ? <span>SAFETY ACKNOWLEDGEMENT REQUIRED</span>
                         : !hasRealVideo
                           ? <><span>VIDEO NOT YET UPLOADED</span><br /><span className="text-[10px] opacity-60 normal-case tracking-normal">Admin: add this video in Video Settings</span></>
-                          : <span>INITIALIZING PLAYER...</span>}
+                          : <span>INITIALISING PLAYER...</span>}
                     </div>
                   </div>
                 );

@@ -186,8 +186,8 @@ export default function Activation() {
         </Card>
         
         <div className="mt-5 shrink-0 text-center text-xs text-muted-foreground font-mono sm:mt-8">
-          <p className="break-all opacity-50">DEVICE ID: {deviceId || "INITIALIZING..."}</p>
-          <p className="mt-1 opacity-50">AUTHORIZATION REQUIRED</p>
+          <p className="break-all opacity-50">DEVICE ID: {deviceId || "INITIALISING..."}</p>
+          <p className="mt-1 opacity-50">AUTHORISATION REQUIRED</p>
           <Link href="/admin" className="mt-4 inline-block text-primary hover:underline opacity-70 hover:opacity-100 transition-opacity">
             → Admin Panel
           </Link>

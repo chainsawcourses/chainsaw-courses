@@ -1267,7 +1267,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     id: 74,
     question: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts.",
     prompts: [{
-      prompt: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts, all whilst maintaining a good, safe work position — keep your head out the way!",
+      prompt: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts, all whilst maintaining a good, safe work position — keep your head out of the way!",
       threshold: 0,
       isAction: true,
       keyPoints: [],

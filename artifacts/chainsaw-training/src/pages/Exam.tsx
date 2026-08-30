@@ -506,7 +506,7 @@ export default function Exam() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
         <div className="flex-1 flex flex-col justify-center">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
-            {exam.passingScore}% required to pass — {exam.totalQuestions} randomized questions
+            {exam.passingScore}% required to pass — {exam.totalQuestions} randomised questions
           </p>
 
           <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">

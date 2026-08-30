@@ -139,6 +139,7 @@
   html {
     /* Prevent Android WebViews from inflating text independently of the
        responsive layout. Explicit accessibility adjustments still apply. */
+    font-size: 106.25%;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }

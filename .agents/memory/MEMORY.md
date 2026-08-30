@@ -14,3 +14,4 @@
 - [Mobile completion audio](mobile-completion-audio.md) — prime a save-completion sound during the user gesture, then play it only after a successful async save.
 - [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.
 - [Deployment uptime health path](deployment-uptime-health.md) — keep the API artifact preview path healthy as well as its canonical startup health endpoint.
+- [UK English copy](uk-english-copy.md) — use UK English in authored UI while preserving third-party, legal, PDF, scoring, and spoken-source wording.

@@ -455,7 +455,7 @@ export default function AssessmentBank() {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-5">
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-950">
-          <strong>Final summative exam only.</strong> Changes saved here appear in the randomized final exam when a learner opens or retakes it.
+          <strong>Final summative exam only.</strong> Changes saved here appear in the randomised final exam when a learner opens or retakes it.
           {" "}To change the short quiz shown after a training video, use{" "}
           <Link href="/admin/module-quizzes" className="font-semibold underline underline-offset-2">Module Quizzes</Link>.
         </div>
