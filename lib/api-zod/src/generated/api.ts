@@ -322,6 +322,23 @@ export const GetExamStatusResponse = zod.object({
 
 
 /**
+ * @summary Get the current user's certificate display details
+ */
+export const GetCertificateDetailsHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const GetCertificateDetailsResponse = zod.object({
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "passedAt": zod.coerce.date(),
+  "passedScore": zod.number().nullable(),
+  "certificateReference": zod.string()
+})
+
+
+/**
  * @summary Submit overall app feedback after passing the final exam
  */
 export const submitAppFeedbackBodyRatingMax = 5;

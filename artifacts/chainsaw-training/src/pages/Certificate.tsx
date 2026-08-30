@@ -4,18 +4,25 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Download, Loader2 } from "lucide-react";
 import { deliverPdf } from "../lib/pdfDownload";
 import { useToast } from "@/hooks/use-toast";
+import { getGetCertificateDetailsQueryKey, useGetCertificateDetails } from "@workspace/api-client-react";
+import { CertificateSheet } from "../components/CertificateSheet";
 
 export default function CertificatePage() {
   const { activationCode, deviceId } = useUserSession();
   const { toast } = useToast();
-  const [iframeLoaded, setIframeLoaded] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // Direct URL usable as iframe src — credentials in query params so iOS Safari
-  // can load it without needing blob/data URIs (which iOS cannot render in iframes)
-  const viewUrl = activationCode && deviceId
-    ? `/api/certificate/view?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}`
-    : null;
+  const {
+    data: certificate,
+    isLoading,
+    isError,
+  } = useGetCertificateDetails({
+    query: {
+      queryKey: getGetCertificateDetailsQueryKey(),
+      enabled: !!activationCode && !!deviceId,
+      staleTime: 5 * 60 * 1000,
+    },
+  });
 
   const handleDownload = async () => {
     if (!activationCode || !deviceId || downloading) return;
@@ -40,9 +47,9 @@ export default function CertificatePage() {
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] flex-col bg-background">
+    <div className="relative flex min-h-[100dvh] flex-col bg-muted/30">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0 bg-background">
+      <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-border shrink-0 bg-background">
         <button
           onClick={() => window.history.back()}
           className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
@@ -67,25 +74,33 @@ export default function CertificatePage() {
         </Button>
       </div>
 
-      {/* Loading overlay — shown until iframe fires onLoad */}
-      {!iframeLoaded && (
-        <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
-            Generating certificate…
-          </p>
-        </div>
-      )}
+      <main className="flex flex-1 items-start justify-center overflow-auto p-3 sm:p-6">
+        {isLoading && (
+          <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+              Generating certificate…
+            </p>
+          </div>
+        )}
 
-      {/* The certificate is shown directly in the page on every device. */}
-      {viewUrl && (
-        <iframe
-          src={viewUrl}
-          className="flex-1 w-full border-none"
-          title="Your Certificate"
-          onLoad={() => setIframeLoaded(true)}
-        />
-      )}
+        {isError && (
+          <div className="flex min-h-[60dvh] max-w-sm flex-col items-center justify-center gap-3 text-center">
+            <p className="font-mono text-sm font-bold uppercase tracking-widest text-foreground">
+              Certificate unavailable
+            </p>
+            <p className="text-sm text-muted-foreground">
+              We could not load your certificate. Please go back and try again.
+            </p>
+          </div>
+        )}
+
+        {certificate && (
+          <div className="w-full max-w-[595px]">
+            <CertificateSheet certificate={certificate} />
+          </div>
+        )}
+      </main>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { eq, and, desc, isNotNull } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
-import { generateCertificatePdf } from "../lib/generateCertificate";
+import { certRef, generateCertificatePdf } from "../lib/generateCertificate";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
 import { saveCertificateToDrive, getCertsFolderId, uploadPdfToDrive } from "../lib/driveCertificates";
 
@@ -24,6 +24,36 @@ async function getCertData(activationCode: string, deviceId: string) {
   const passedScore = passedAttempts.length > 0 ? passedAttempts[0].score : null;
   return { user, passedAt, passedScore };
 }
+
+// GET /api/certificate/details — data for the responsive in-app certificate.
+router.get("/certificate/details", async (req, res) => {
+  const deviceId = req.headers["deviceid"] as string;
+  const activationCode = req.headers["activationcode"] as string;
+  if (!deviceId || !activationCode) {
+    res.status(401).json({ error: "Missing credentials" });
+    return;
+  }
+
+  try {
+    const data = await getCertData(activationCode, deviceId);
+    if (!data) {
+      res.status(401).json({ error: "Unauthorised" });
+      return;
+    }
+
+    const { user, passedAt, passedScore } = data;
+    res.json({
+      fullName: user.fullName,
+      email: user.email,
+      passedAt: passedAt.toISOString(),
+      passedScore,
+      certificateReference: certRef(user.id, passedAt),
+    });
+  } catch (err) {
+    logger.error({ err }, "Error fetching certificate details");
+    res.status(500).json({ error: "Could not load certificate" });
+  }
+});
 
 // GET /api/certificate/view — iframe-friendly: accepts creds as query params so the URL
 // can be used directly as an <iframe src> (iOS Safari cannot render blob/data URIs in iframes)

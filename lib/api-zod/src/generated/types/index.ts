@@ -20,6 +20,7 @@ export * from './aiChatInputMode';
 export * from './aiChatResponse';
 export * from './appFeedbackInput';
 export * from './appFeedbackItem';
+export * from './certificateDetails';
 export * from './chatMessage';
 export * from './completeVideoInput';
 export * from './createNewsItemInput';

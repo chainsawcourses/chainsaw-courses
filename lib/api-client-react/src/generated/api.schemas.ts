@@ -220,6 +220,15 @@ export interface ExamStatus {
   passingScore?: number;
 }
 
+export interface CertificateDetails {
+  fullName: string;
+  email: string;
+  passedAt: string;
+  /** @nullable */
+  passedScore: number | null;
+  certificateReference: string;
+}
+
 export interface FeedbackInput {
   deviceId: string;
   activationCode: string;
