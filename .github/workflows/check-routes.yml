@@ -26,5 +26,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run release validation
+        run: pnpm run check:release
+
       - name: Check routes against OpenAPI spec
         run: pnpm --filter @workspace/api-spec run check-routes

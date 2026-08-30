@@ -7,7 +7,8 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
 - `pnpm --filter @workspace/chainsaw-training run dev` — run the training app frontend
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
+- `pnpm run check:release` — run the release validation used before building or deploying (UK English check + full typecheck)
+- `pnpm run build` — run release validation + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm run build:android:aab` — prepare cached standard Java 21 and Android API 36 tooling, build the signed Capacitor release bundle, and export a verified AAB with a SHA-256 sidecar
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
