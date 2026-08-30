@@ -10,6 +10,7 @@
 - [PDF generator data scripts](pdf-generator-scripts.md) — fetch-prod-data.ts must run before generator when /tmp files are cleared; mock_questions table uses column `prompts` not `key_points`.
 - [Dynamic course content](dynamic-course-content.md) — admin-edited questions must bypass WebView caches and refresh before a new learner attempt.
 - [Mobile PDF references](mobile-pdf-references.md) — Android WebViews cannot reliably open course PDFs in a new tab; provide an in-app readable reference for critical documents.
+- [Native file delivery](native-file-delivery.md) — Capacitor downloads must use native Filesystem + Share; hidden browser download links can silently fail in Android WebViews.
 - [Assessment and checklist saving](risk-assessment-saving.md) — routine learner saves update the latest record; History offers an explicit Duplicate action when a new copy is wanted.
 - [Mobile completion audio](mobile-completion-audio.md) — prime a save-completion sound during the user gesture, then play it only after a successful async save.
 - [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.

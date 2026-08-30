@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, Download, ExternalLink, FolderOpen, Loader2 } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { downloadPdf } from "../../lib/downloadPdf";
 
 interface CertRecord {
   id: number; fullName: string; email: string; activationCode: string;
@@ -15,6 +16,7 @@ export default function CertificateRegister() {
   const [certs, setCerts] = useState<CertRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   // Per-row Drive save state
   const [savingId, setSavingId] = useState<number | null>(null);
@@ -56,6 +58,26 @@ export default function CertificateRegister() {
       setSaveErrors(prev => ({ ...prev, [userId]: e instanceof Error ? e.message : "Save failed" }));
     } finally {
       setSavingId(null);
+    }
+  };
+
+  const handleDownload = async (certificate: CertRecord) => {
+    if (!adminToken || downloadingId !== null) return;
+    setDownloadingId(certificate.id);
+    try {
+      const safeName = certificate.fullName.replace(/[^a-z0-9]+/gi, "_");
+      await downloadPdf(
+        `/api/admin/certificate/${certificate.id}`,
+        `Certificate_${safeName}.pdf`,
+        { headers: { admintoken: adminToken } },
+      );
+    } catch (error) {
+      setSaveErrors(prev => ({
+        ...prev,
+        [certificate.id]: error instanceof Error ? error.message : "Download failed",
+      }));
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -193,6 +215,17 @@ export default function CertificateRegister() {
                   View
                 </a>
                 <button
+                  onClick={() => void handleDownload(c)}
+                  disabled={downloadingId !== null}
+                  className="flex items-center gap-1 text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors disabled:opacity-50"
+                  title="Download certificate PDF"
+                >
+                  {downloadingId === c.id
+                    ? <Loader2 className="w-3 h-3 animate-spin" />
+                    : <Download className="w-3 h-3" />}
+                  {downloadingId === c.id ? "Saving…" : "Download"}
+                </button>
+                <button
                   onClick={() => handleSaveToDrive(c.id)}
                   disabled={savingId !== null}
                   className="flex items-center gap-1 text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors disabled:opacity-50"
@@ -200,8 +233,8 @@ export default function CertificateRegister() {
                 >
                   {savingId === c.id
                     ? <Loader2 className="w-3 h-3 animate-spin" />
-                    : <Download className="w-3 h-3" />}
-                  {savingId === c.id ? "Saving…" : "Download"}
+                    : <FolderOpen className="w-3 h-3" />}
+                  {savingId === c.id ? "Saving…" : "Drive"}
                 </button>
               </div>
             </div>

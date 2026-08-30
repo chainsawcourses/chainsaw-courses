@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { deliverPdf } from "../lib/pdfDownload";
+import { Capacitor } from "@capacitor/core";
 
 interface PdfSaveDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ function normaliseFilename(value: string, fallback: string): string {
 
 function canChooseFolder(): boolean {
   return typeof window !== "undefined"
+    && !Capacitor.isNativePlatform()
     && typeof (window as Window & { showSaveFilePicker?: unknown }).showSaveFilePicker === "function";
 }
 

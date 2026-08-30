@@ -25,6 +25,7 @@ import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
 import { eq, isNull, gte, count, and, ne, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
+import { fetchPublicPdf } from "../lib/remotePdf";
 
 const router = Router();
 
@@ -529,6 +530,44 @@ router.get("/admin/modules", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching modules");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/admin/modules/:moduleId/pdf", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const moduleId = Number.parseInt(req.params.moduleId, 10);
+  if (!Number.isInteger(moduleId)) {
+    res.status(400).json({ error: "Invalid module ID" });
+    return;
+  }
+
+  try {
+    const [module] = await db
+      .select({ title: modulesTable.title, pdfUrl: modulesTable.pdfUrl })
+      .from(modulesTable)
+      .where(eq(modulesTable.id, moduleId))
+      .limit(1);
+    if (!module?.pdfUrl) {
+      res.status(404).json({ error: "PDF not found" });
+      return;
+    }
+    if (module.pdfUrl.startsWith("/") || new URL(module.pdfUrl).origin === `${req.protocol}://${req.get("host")}`) {
+      res.status(400).json({ error: "Local PDFs should be downloaded directly" });
+      return;
+    }
+
+    const { bytes, contentType } = await fetchPublicPdf(module.pdfUrl);
+    const safeName = module.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || `module-${moduleId}`;
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, no-store");
+    res.send(bytes);
+  } catch (err) {
+    logger.warn({ err, moduleId }, "Could not fetch external module PDF");
+    res.status(502).json({ error: "Could not fetch external PDF" });
   }
 });
 

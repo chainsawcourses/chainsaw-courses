@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, Chevron
 import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey, useDeleteRiskAssessment, useDeleteAllRiskAssessments } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { deliverPdf } from "../../lib/pdfDownload";
 
 function riskBand(rating: number): { label: string; className: string } {
   if (rating >= 15) return { label: "High", className: "text-destructive border-destructive bg-destructive/10" };
@@ -78,10 +79,7 @@ export default function RiskAssessments() {
       const res = await fetch(`/api/admin/risk-assessments/${id}/pdf`, { headers: { admintoken: adminToken } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `risk-assessment-${studentName.replace(/\s+/g, "-")}-${id}.pdf`; a.click();
-      URL.revokeObjectURL(url);
+      await deliverPdf(blob, `risk-assessment-${studentName.replace(/\s+/g, "-")}-${id}.pdf`);
       setDlState((prev) => new Map(prev).set(id, "done"));
     } catch {
       setDlState((prev) => new Map(prev).set(id, "error"));

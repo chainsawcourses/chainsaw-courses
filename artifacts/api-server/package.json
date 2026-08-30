@@ -8,7 +8,8 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "check:certificate-layout": "node --test tests/certificate-layout.test.ts"
+    "check:certificate-layout": "node --test tests/certificate-layout.test.ts",
+    "check:remote-pdf": "node --test tests/remote-pdf.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.8.0",

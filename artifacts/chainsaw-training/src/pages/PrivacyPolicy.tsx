@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, FileDown, Loader2 } from "lucide-react";
+import { downloadPdf } from "../lib/downloadPdf";
 
 export default function PrivacyPolicy() {
   const [downloading, setDownloading] = useState(false);
@@ -14,15 +15,7 @@ export default function PrivacyPolicy() {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const res = await fetch("/api/privacy-policy-pdf");
-      if (!res.ok) throw new Error("Failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw-Courses-Privacy-Policy.pdf";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      await downloadPdf("/api/privacy-policy-pdf", "Chainsaw-Courses-Privacy-Policy.pdf");
     } catch {
       alert("Could not download the PDF. Please try again.");
     } finally {

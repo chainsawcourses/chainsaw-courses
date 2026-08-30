@@ -100,6 +100,7 @@ export default function TrainingList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [certResending, setCertResending] = useState(false);
+  const [waiverDownloading, setWaiverDownloading] = useState(false);
   const { toast } = useToast();
 
   const { disclaimerText } = useRemoteConfig();
@@ -109,6 +110,24 @@ export default function TrainingList() {
 
   const handleViewCertificate = () => {
     setLocation("/certificate");
+  };
+
+  const handleDownloadWaiver = async () => {
+    if (!activationCode || !deviceId || waiverDownloading) return;
+    setWaiverDownloading(true);
+    try {
+      const url = waiverStatus?.pdfUrl
+        ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}&uid=${userId ?? ""}`;
+      await downloadPdf(url, "Chainsaw-Courses-Signed-Waiver.pdf");
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not download waiver",
+        description: "Please try again.",
+      });
+    } finally {
+      setWaiverDownloading(false);
+    }
   };
 
   const handleResendCertificate = async () => {
@@ -385,16 +404,20 @@ export default function TrainingList() {
                     <p className="font-black tracking-tighter text-xs uppercase text-primary leading-tight">Chainsaw Courses</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       <p className="font-mono text-[11px] text-foreground font-semibold truncate">{fullName}</p>
-                      <a
-                        href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
                         className="text-muted-foreground hover:text-primary shrink-0"
-                        title="Your Signed Waiver"
-                        onClick={(e) => e.stopPropagation()}
+                        title="Download your signed waiver"
+                        disabled={waiverDownloading}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handleDownloadWaiver();
+                        }}
                       >
-                        <FileText className="w-3.5 h-3.5" />
-                      </a>
+                        {waiverDownloading
+                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          : <FileText className="w-3.5 h-3.5" />}
+                      </button>
                     </div>
                   </div>
                 </div>

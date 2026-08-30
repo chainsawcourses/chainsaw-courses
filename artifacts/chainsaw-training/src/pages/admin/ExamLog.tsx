@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { deliverFile } from "../../lib/pdfDownload";
+import { useToast } from "@/hooks/use-toast";
 
 interface ExamAttempt {
   id: number; userId: number; fullName: string; email: string;
@@ -18,6 +20,7 @@ interface StudentRow {
 export default function ExamLog() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady } = useAdminSession();
+  const { toast } = useToast();
   const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pass" | "fail">("all");
@@ -69,7 +72,11 @@ export default function ExamLog() {
   const expandAll = () => setExpanded(new Set(filtered.map(s => s.userId)));
   const collapseAll = () => setExpanded(new Set());
 
-  const exportCsv = () => {
+  const [exporting, setExporting] = useState(false);
+
+  const exportCsv = async () => {
+    if (exporting) return;
+    setExporting(true);
     const header = ["Student", "Email", "Date", "Score", "Result", "Attempt #", "Total Questions"];
     const rows = attempts
       .sort((a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime())
@@ -81,10 +88,21 @@ export default function ExamLog() {
       ]);
     const csv = [header, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
-    const el = document.createElement("a");
-    el.href = URL.createObjectURL(blob);
-    el.download = `final-exam-log-${new Date().toISOString().slice(0, 10)}.csv`;
-    el.click();
+    try {
+      await deliverFile(
+        blob,
+        `final-exam-log-${new Date().toISOString().slice(0, 10)}.csv`,
+        "text/csv",
+      );
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not export CSV",
+        description: "Please try again.",
+      });
+    } finally {
+      setExporting(false);
+    }
   };
 
   const totalAttempts = filtered.reduce((n, s) => n + s.attempts.length, 0);
@@ -100,8 +118,8 @@ export default function ExamLog() {
           </Link>
           <span className="text-muted-foreground/40">·</span>
           <span className="font-semibold text-sm flex-1">Final Exam Log</span>
-          <button onClick={exportCsv} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium" style={{ background: "#e27226" }}>
-            <Download className="w-3.5 h-3.5" />Export CSV
+          <button disabled={exporting} onClick={() => void exportCsv()} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60" style={{ background: "#e27226" }}>
+            <Download className="w-3.5 h-3.5" />{exporting ? "Exporting…" : "Export CSV"}
           </button>
         </div>
       </header>

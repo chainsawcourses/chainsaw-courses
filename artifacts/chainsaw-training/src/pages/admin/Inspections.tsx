@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, Chevron
 import { useListAllInspections, getListAllInspectionsQueryKey, useDeleteInspection, useDeleteAllInspections } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { deliverPdf } from "../../lib/pdfDownload";
 
 export default function Inspections() {
   const [, setLocation] = useLocation();
@@ -72,10 +73,7 @@ export default function Inspections() {
       const res = await fetch(`/api/admin/inspections/${id}/pdf`, { headers: { admintoken: adminToken } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `inspection-${studentName.replace(/\s+/g, "-")}-${id}.pdf`; a.click();
-      URL.revokeObjectURL(url);
+      await deliverPdf(blob, `inspection-${studentName.replace(/\s+/g, "-")}-${id}.pdf`);
       setDlState((prev) => new Map(prev).set(id, "done"));
     } catch {
       setDlState((prev) => new Map(prev).set(id, "error"));

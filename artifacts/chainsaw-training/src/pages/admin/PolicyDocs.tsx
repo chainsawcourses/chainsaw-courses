@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowLeft, Download, ExternalLink, FileText } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { downloadPdf } from "../../lib/downloadPdf";
+import { useToast } from "@/hooks/use-toast";
 
 interface PolicyDoc {
   label: string;
@@ -90,12 +92,30 @@ const CATEGORIES: Category[] = [
 export default function PolicyDocs() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady } = useAdminSession();
+  const { toast } = useToast();
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
 
   useEffect(() => {
     if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
   const base = import.meta.env.BASE_URL;
+
+  const handleDownload = async (doc: PolicyDoc) => {
+    if (downloadingFile) return;
+    setDownloadingFile(doc.file);
+    try {
+      await downloadPdf(`${base}pdfs/${doc.file}`, doc.file);
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not download PDF",
+        description: "Please try again.",
+      });
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,15 +166,16 @@ export default function PolicyDocs() {
                       <ExternalLink className="w-3 h-3" />
                       View
                     </a>
-                    <a
-                      href={`${base}pdfs/${doc.file}`}
-                      download={doc.file}
+                    <button
+                      type="button"
+                      onClick={() => void handleDownload(doc)}
+                      disabled={downloadingFile !== null}
                       className="flex items-center gap-1 text-xs px-2.5 py-1 rounded border border-transparent text-white transition-colors"
                       style={{ background: "#e27226" }}
                     >
                       <Download className="w-3 h-3" />
-                      Download
-                    </a>
+                      {downloadingFile === doc.file ? "Saving…" : "Download"}
+                    </button>
                   </div>
                 </div>
               ))}

@@ -38,6 +38,8 @@ export default function CertificatePage() {
         toast({ title: "Certificate saved", description: "Your certificate was saved to the selected location." });
       } else if (result === "shared") {
         toast({ title: "Certificate ready", description: "Choose a location or app from the share sheet." });
+      } else if (result === "downloaded") {
+        toast({ title: "Certificate download started", description: "Your certificate should appear in Downloads." });
       }
     } catch {
       toast({ variant: "destructive", title: "Could not download certificate", description: "Please try again." });
