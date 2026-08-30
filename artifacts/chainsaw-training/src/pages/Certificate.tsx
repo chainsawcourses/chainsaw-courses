@@ -1,19 +1,15 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useUserSession } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Download, Loader2, FileCheck } from "lucide-react";
-
-// Mobile browsers (iOS and Android) cannot render PDFs cleanly in iframes —
-// iOS shows a broken "view / Open" picker; Android Chrome shows its own PDF toolbar.
-// On any mobile device we skip the iframe and show the download prompt instead.
-const isMobileDevice = typeof navigator !== "undefined" &&
-  /iPad|iPhone|iPod|Android/i.test(navigator.userAgent);
+import { ChevronLeft, Download, Loader2 } from "lucide-react";
+import { deliverPdf } from "../lib/pdfDownload";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CertificatePage() {
   const { activationCode, deviceId } = useUserSession();
+  const { toast } = useToast();
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const blobUrlRef = useRef<string | null>(null);
 
   // Direct URL usable as iframe src — credentials in query params so iOS Safari
   // can load it without needing blob/data URIs (which iOS cannot render in iframes)
@@ -25,33 +21,19 @@ export default function CertificatePage() {
     if (!activationCode || !deviceId || downloading) return;
     setDownloading(true);
     try {
-      // Revoke any previous blob to avoid leaks
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current);
-        blobUrlRef.current = null;
-      }
       const res = await fetch("/api/certificate?download=1", {
         headers: { activationcode: activationCode, deviceid: deviceId },
       });
       if (!res.ok) throw new Error("Failed");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      blobUrlRef.current = url;
-      // Appended-anchor pattern — triggers real download on desktop, Android, iOS 13+
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => {
-        if (blobUrlRef.current) {
-          URL.revokeObjectURL(blobUrlRef.current);
-          blobUrlRef.current = null;
-        }
-      }, 30000);
+      const result = await deliverPdf(blob, "Chainsaw_Certificate.pdf");
+      if (result === "saved") {
+        toast({ title: "Certificate saved", description: "Your certificate was saved to the selected location." });
+      } else if (result === "shared") {
+        toast({ title: "Certificate ready", description: "Choose a location or app from the share sheet." });
+      }
     } catch {
-      alert("Could not download certificate — please try again.");
+      toast({ variant: "destructive", title: "Could not download certificate", description: "Please try again." });
     } finally {
       setDownloading(false);
     }
@@ -85,43 +67,24 @@ export default function CertificatePage() {
         </Button>
       </div>
 
-      {isMobileDevice ? (
-        /* Mobile can't render PDFs cleanly in iframes — show a download prompt instead */
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-8 text-center">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <FileCheck className="w-10 h-10 text-primary" />
-          </div>
-          <div className="space-y-2">
-            <p className="font-mono font-bold text-sm uppercase tracking-widest text-foreground">
-              Certificate Ready
-            </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Tap <strong>Download</strong> above to save your certificate as a PDF.
-            </p>
-          </div>
+      {/* Loading overlay — shown until iframe fires onLoad */}
+      {!iframeLoaded && (
+        <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+            Generating certificate…
+          </p>
         </div>
-      ) : (
-        <>
-          {/* Loading overlay — shown until iframe fires onLoad */}
-          {!iframeLoaded && (
-            <div className="absolute inset-0 top-[53px] flex flex-col items-center justify-center gap-3 bg-background z-10 pointer-events-none">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
-                Generating certificate…
-              </p>
-            </div>
-          )}
+      )}
 
-          {/* PDF iframe — real HTTP URL works on non-iOS browsers */}
-          {viewUrl && (
-            <iframe
-              src={viewUrl}
-              className="flex-1 w-full border-none"
-              title="Your Certificate"
-              onLoad={() => setIframeLoaded(true)}
-            />
-          )}
-        </>
+      {/* The certificate is shown directly in the page on every device. */}
+      {viewUrl && (
+        <iframe
+          src={viewUrl}
+          className="flex-1 w-full border-none"
+          title="Your Certificate"
+          onLoad={() => setIframeLoaded(true)}
+        />
       )}
     </div>
   );

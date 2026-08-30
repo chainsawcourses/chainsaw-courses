@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -99,7 +99,6 @@ export default function TrainingList() {
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [certDownloading, setCertDownloading] = useState(false);
   const [certResending, setCertResending] = useState(false);
   const { toast } = useToast();
 
@@ -110,25 +109,6 @@ export default function TrainingList() {
 
   const handleViewCertificate = () => {
     setLocation("/certificate");
-  };
-
-  const handleDownloadCertificate = async () => {
-    if (!activationCode || !deviceId || certDownloading) return;
-    setCertDownloading(true);
-    try {
-      const res = await fetch("/api/certificate?download=1", { headers: certHeaders });
-      if (!res.ok) { toast({ variant: "destructive", title: "Could not download certificate", description: "Please try again." }); return; }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      // Appended-anchor pattern — triggers real download on desktop, Android, and iOS 13+
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
-    } finally { setCertDownloading(false); }
   };
 
   const handleResendCertificate = async () => {
@@ -765,16 +745,6 @@ export default function TrainingList() {
                     title="View certificate"
                   >
                     View
-                  </button>
-                  <span className="text-muted-foreground/30 text-[10px]">·</span>
-                  <button
-                    onClick={handleDownloadCertificate}
-                    disabled={certDownloading}
-                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
-                    title="Download certificate as PDF"
-                  >
-                    {certDownloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileDown className="w-3 h-3" />}
-                    <span>Download</span>
                   </button>
                   <span className="text-muted-foreground/30 text-[10px]">·</span>
                   <button
