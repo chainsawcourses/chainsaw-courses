@@ -139,7 +139,7 @@
   html {
     /* Prevent Android WebViews from inflating text independently of the
        responsive layout. Explicit accessibility adjustments still apply. */
-    font-size: 106.25%;
+    font-size: 100%;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -195,13 +195,25 @@ html[data-android-webview="true"] .mobile-bottom-action-bar {
   padding-bottom: calc(12rem + env(safe-area-inset-bottom, 0px));
 }
 
+.mobile-bottom-action-spacer {
+  height: 3rem;
+}
+
 html[data-android-webview="true"] .mobile-bottom-action-main {
   padding-bottom: calc(12rem + max(40px, env(safe-area-inset-bottom, 0px)));
+}
+
+html[data-android-webview="true"] .mobile-bottom-action-spacer {
+  height: 4.5rem;
 }
 
 @media (min-width: 640px) {
   .mobile-bottom-action-main {
     padding-bottom: 9rem;
+  }
+
+  .mobile-bottom-action-spacer {
+    height: 2rem;
   }
 
   html[data-android-webview="true"] .mobile-bottom-action-main {

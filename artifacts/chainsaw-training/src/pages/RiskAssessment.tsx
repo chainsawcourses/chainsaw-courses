@@ -807,6 +807,7 @@ export default function RiskAssessment() {
                 </CardContent>
               </Card>
             )}
+            {!showHistory && <div className="mobile-bottom-action-spacer" aria-hidden="true" />}
           </>
         )}
       </main>

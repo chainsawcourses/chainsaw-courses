@@ -1177,14 +1177,23 @@ export default function TrainingList() {
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
                                 </div>
-                                {module.isCompleted && (
-                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
+                                {(module.quizPassed || module.isCompleted) && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`font-mono text-[9px] rounded-none py-0 mt-0.5 w-fit ${
+                                      module.quizPassed
+                                        ? "text-green-700 border-green-600"
+                                        : "text-primary border-primary"
+                                    }`}
+                                  >
+                                    {module.quizPassed ? "Quiz Completed" : "Video Completed"}
+                                  </Badge>
                                 )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
                               {!effectiveLocked && (
-                                <div className={`shrink-0 ${!isPdf && module.quizPassed ? "flex flex-col items-end gap-1" : ""}`} onClick={(e) => e.stopPropagation()}>
+                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                                   {isHazardsReference ? (
                                     <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                       <Link href="/hazards-reference">
@@ -1207,11 +1216,6 @@ export default function TrainingList() {
                                         )}
                                       </Link>
                                     </Button>
-                                  )}
-                                  {!isPdf && module.quizPassed && (
-                                    <span className="font-mono text-[9px] font-semibold text-green-600 whitespace-nowrap">
-                                      Quiz Passed
-                                    </span>
                                   )}
                                 </div>
                               )}

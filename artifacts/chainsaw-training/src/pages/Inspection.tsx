@@ -616,6 +616,7 @@ export default function Inspection() {
                 </CardContent>
               </Card>
             )}
+            {!showHistory && <div className="mobile-bottom-action-spacer" aria-hidden="true" />}
           </>
         )}
       </main>
