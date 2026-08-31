@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 
-const PREVIEW_CODE   = "ADMIN-PREVIEW";
-const PREVIEW_DEVICE = "admin-preview-device-001"; // device-agnostic code — server ignores this value
-const PREVIEW_NAME   = "Admin Preview";
-const PREVIEW_EMAIL  = "admin@chainsawcourses.com";
+const PREVIEW_CODE = "ADMIN-PREVIEW";
 
 /** Persist credentials to both localStorage and cookies so all auth paths are covered. */
 function storeCredentials(activationCode: string, deviceId: string, fullName: string, email: string, userId: number) {
@@ -29,55 +26,47 @@ export default function AdminPreviewLogin() {
   useEffect(() => {
     const setup = async () => {
       try {
-        // Step 1: activate / look up the preview user to get the correct userId
-        // for this environment (dev vs production may have different user IDs).
+        // The admin dashboard passes its short-lived admin token in the URL.
+        // Fall back to localStorage so a same-origin preview still works if the
+        // browser strips the query string while opening a new tab.
+        const queryToken = new URLSearchParams(window.location.search).get("token");
+        const adminToken = queryToken || localStorage.getItem("adminToken");
+        if (!adminToken) {
+          throw new Error("Admin session missing. Return to the admin portal and try again.");
+        }
+
+        // Remove the admin token from browser history as soon as it has been
+        // captured. The server still authenticates the binding request below.
+        window.history.replaceState({}, "", `${import.meta.env.BASE_URL}admin-preview`);
+
         setStatus("Authenticating preview user...");
-        const activateRes = await fetch("/api/auth/activate", {
+        const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
+        localStorage.setItem("deviceId", deviceId);
+
+        const bindRes = await fetch("/api/admin/bind-preview", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            admintoken: adminToken,
+          },
           body: JSON.stringify({
-            code:     PREVIEW_CODE,
-            deviceId: PREVIEW_DEVICE,
-            fullName: PREVIEW_NAME,
-            email:    PREVIEW_EMAIL,
+            deviceId,
           }),
         });
 
-        if (!activateRes.ok) {
-          const err = await activateRes.json().catch(() => ({}));
-          throw new Error(`activate failed (${activateRes.status}): ${err?.error ?? "unknown"}`);
+        if (!bindRes.ok) {
+          const err = await bindRes.json().catch(() => ({}));
+          throw new Error(`preview setup failed (${bindRes.status}): ${err?.error ?? "unknown"}`);
         }
 
-        const { userId, fullName, email, waiverRequired } = await activateRes.json() as {
+        const { userId, fullName, email } = await bindRes.json() as {
           userId: number;
           fullName: string;
           email: string;
-          waiverRequired: boolean;
         };
 
-        // Store credentials immediately so the waiver call below is authenticated.
-        storeCredentials(PREVIEW_CODE, PREVIEW_DEVICE, fullName, email, userId);
-
-        // Step 2: auto-sign the waiver if needed (preview shouldn't block on it).
-        if (waiverRequired) {
-          setStatus("Auto-signing preview waiver...");
-          await fetch("/api/waiver", {
-            method: "POST",
-            headers: {
-              "Content-Type":  "application/json",
-              activationcode:  PREVIEW_CODE,
-              deviceid:        PREVIEW_DEVICE,
-              userid:          String(userId),
-            },
-            body: JSON.stringify({
-              activationCode:  PREVIEW_CODE,
-              deviceId:        PREVIEW_DEVICE,
-              signatureData:   "ADMIN-PREVIEW-AUTO",
-              agreedToTerms:   true,
-            }),
-          });
-          // Waiver failure is non-fatal — the waiver page will handle it if necessary.
-        }
+        // bind-preview signs the waiver server-side before returning.
+        storeCredentials(PREVIEW_CODE, deviceId, fullName, email, userId);
 
         setStatus("Launching preview...");
         window.location.href = `${import.meta.env.BASE_URL}training`;
