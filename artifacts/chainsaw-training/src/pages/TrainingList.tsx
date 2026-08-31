@@ -1177,21 +1177,11 @@ export default function TrainingList() {
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
                                 </div>
-                                {!isPdf && (
-                                  <div
-                                    className={`mt-1 flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wide ${
-                                      module.quizPassed ? "text-green-700" : "text-muted-foreground"
-                                    }`}
-                                  >
-                                    <CheckCircle className="h-3 w-3 shrink-0" />
-                                    <span>{module.quizPassed ? "Quiz Passed" : "Quiz Pending"}</span>
-                                  </div>
-                                )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
                               {!effectiveLocked && (
-                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                                 <div className="shrink-0 flex flex-col items-end gap-1" onClick={(e) => e.stopPropagation()}>
                                   {isHazardsReference ? (
                                     <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
                                       <Link href="/hazards-reference">
@@ -1215,10 +1205,28 @@ export default function TrainingList() {
                                       </Link>
                                     </Button>
                                   )}
+                                     {!isPdf && !isHazardsReference && (
+                                       <div
+                                         className={`flex items-center gap-1 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wide ${
+                                           module.quizPassed ? "text-green-700" : "text-muted-foreground"
+                                         }`}
+                                       >
+                                         <CheckCircle className="h-3 w-3 shrink-0" />
+                                         <span>{module.quizPassed ? "Quiz Passed" : "Quiz Pending"}</span>
+                                       </div>
+                                     )}
                                 </div>
                               )}
                               {effectiveLocked && (
-                                <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                                 <div className="shrink-0 flex flex-col items-end gap-1">
+                                   <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none">LOCKED</Button>
+                                   {!isPdf && (
+                                     <div className="flex items-center gap-1 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                                       <CheckCircle className="h-3 w-3 shrink-0" />
+                                       <span>Quiz Pending</span>
+                                     </div>
+                                   )}
+                                 </div>
                               )}
                             </CardContent>
                           </Card>
