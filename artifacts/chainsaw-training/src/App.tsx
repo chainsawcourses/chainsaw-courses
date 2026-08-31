@@ -187,7 +187,7 @@ function isInstalledApp(): boolean {
 function isDevEnvironment(): boolean {
   if (typeof window === "undefined") return false;
   const h = window.location.hostname;
-  return h === "localhost" || h.includes(".replit.dev") || h.includes(".repl.co");
+  return h === "localhost" || h === "127.0.0.1" || h === "0.0.0.0" || h.includes(".replit.dev") || h.includes(".repl.co");
 }
 
 // Returns true if the user has already activated (code stored in localStorage or cookie)
