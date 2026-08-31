@@ -846,7 +846,7 @@ export default function RiskAssessment() {
                   : duplicateMode
                     ? "Create Duplicate"
                     : editingId !== null || hasSavedAssessment
-                      ? "Update Assessment"
+                      ? "Save Risk Assessment"
                       : "Save Assessment"}
               </Button>
             </div>

@@ -658,7 +658,7 @@ export default function Inspection() {
                   : duplicateMode
                     ? "Create Duplicate"
                     : editingId !== null || hasSavedInspection
-                      ? "Update Inspection"
+                      ? "Save Inspection"
                       : "Save Inspection"}
               </Button>
             </div>
