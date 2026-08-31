@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { appPath } from "../lib/routing";
 
 const PREVIEW_CODE = "ADMIN-PREVIEW";
 
@@ -37,7 +38,7 @@ export default function AdminPreviewLogin() {
 
         // Remove the admin token from browser history as soon as it has been
         // captured. The server still authenticates the binding request below.
-        window.history.replaceState({}, "", `${import.meta.env.BASE_URL}admin-preview`);
+        window.history.replaceState({}, "", window.location.pathname);
 
         setStatus("Authenticating preview user...");
         const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
@@ -69,7 +70,7 @@ export default function AdminPreviewLogin() {
         storeCredentials(PREVIEW_CODE, deviceId, fullName, email, userId);
 
         setStatus("Launching preview...");
-        window.location.href = `${import.meta.env.BASE_URL}training`;
+        window.location.href = appPath("training");
       } catch (err) {
         console.error("AdminPreviewLogin error:", err);
         setFailed(true);
@@ -90,7 +91,7 @@ export default function AdminPreviewLogin() {
       </p>
       {failed && (
         <a
-          href={`${import.meta.env.BASE_URL}admin`}
+          href={appPath("admin")}
           className="font-mono text-xs underline text-primary uppercase tracking-widest"
         >
           Go to Admin Login

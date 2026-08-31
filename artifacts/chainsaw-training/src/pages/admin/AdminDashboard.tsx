@@ -21,6 +21,7 @@ import {
   getListAllRiskAssessmentsQueryKey,
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { appPath } from "../../lib/routing";
 
 type SearchCategory = "students" | "inspections" | "risk" | "news";
 
@@ -372,7 +373,7 @@ export default function AdminDashboard() {
             <Button
               size="sm"
               className="font-mono text-xs bg-primary text-primary-foreground"
-              onClick={() => window.open(`${import.meta.env.BASE_URL}admin-preview?token=${encodeURIComponent(adminToken ?? "")}`, "_blank")}
+              onClick={() => window.open(`${appPath("admin-preview")}?token=${encodeURIComponent(adminToken ?? "")}`, "_blank")}
             >
               <ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW
             </Button>

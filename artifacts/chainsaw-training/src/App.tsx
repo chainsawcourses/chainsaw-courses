@@ -63,6 +63,7 @@ import Install from "@/pages/Install";
 import DownloadApp from "@/pages/DownloadApp";
 import InstallPrompt from "@/components/InstallPrompt";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { getAppBasePath } from "./lib/routing";
 import { useEffect } from "react";
 import { useUserSession } from "./contexts/UserContext";
 import { IS_DEMO } from "./lib/demo";
@@ -306,7 +307,7 @@ function App() {
               />
               <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.88)" }} />
             </div>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <WouterRouter base={getAppBasePath()}>
               <AppGate>
                 <AndroidWebViewInsets />
                 <GlobalAccessCheck />
