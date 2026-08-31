@@ -653,12 +653,12 @@ export default function Inspection() {
                   <ClipboardCheck className="w-4 h-4 mr-2" />
                 )}
                 {newRecordMode
-                  ? "Save New Checklist"
+                  ? "Save New Inspection"
                   : duplicateMode
                     ? "Create Duplicate"
                     : editingId !== null || hasSavedInspection
-                      ? "Update Checklist"
-                      : "Save Checklist"}
+                      ? "Update Inspection"
+                      : "Save Inspection"}
               </Button>
             </div>
           </div>
