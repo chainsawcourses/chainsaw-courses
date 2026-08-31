@@ -1177,17 +1177,15 @@ export default function TrainingList() {
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
                                 </div>
-                                {(module.quizPassed || module.isCompleted) && (
-                                  <Badge
-                                    variant="outline"
-                                    className={`font-mono text-[9px] rounded-none py-0 mt-0.5 w-fit ${
-                                      module.quizPassed
-                                        ? "text-green-700 border-green-600"
-                                        : "text-primary border-primary"
+                                {!isPdf && (
+                                  <div
+                                    className={`mt-1 flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-wide ${
+                                      module.quizPassed ? "text-green-700" : "text-muted-foreground"
                                     }`}
                                   >
-                                    {module.quizPassed ? "Quiz Passed" : "Video Completed"}
-                                  </Badge>
+                                    <CheckCircle className="h-3 w-3 shrink-0" />
+                                    <span>{module.quizPassed ? "Quiz Passed" : "Quiz Pending"}</span>
+                                  </div>
                                 )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
