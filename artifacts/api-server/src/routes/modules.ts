@@ -59,25 +59,40 @@ router.get("/modules", async (req, res) => {
 
   // Reviewer / all-modules-unlocked codes: every module accessible, no sequential gating
   if (allUnlocked) {
-    const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
-    res.json(allMods.map((mod) => ({
-      id: mod.id,
-      title: mod.title,
-      description: mod.description,
-      order: mod.order,
-      category: mod.category,
-      subCategory: mod.subCategory ?? null,
-      contentType: mod.contentType,
-      isLocked: false,
-      isCompleted: false,
-      quizPassed: false,
-      duration: mod.duration,
-      thumbnailUrl: mod.thumbnailUrl ?? null,
-      isHighRisk: mod.isHighRisk,
-      pdfUrl: mod.pdfUrl ?? null,
-      learningOutcome: mod.learningOutcome ?? null,
-      assessmentCriteria: mod.assessmentCriteria ?? null,
-    })));
+    const [allMods, progressRecords] = await Promise.all([
+      db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
+      db.select().from(userProgressTable).where(eq(userProgressTable.userId, user.id)),
+    ]);
+    const progressMap = new Map<number, (typeof progressRecords)[number]>();
+    for (const progress of progressRecords) {
+      const existing = progressMap.get(progress.moduleId);
+      if (!existing || (progress.updatedAt ?? progress.id) > (existing.updatedAt ?? existing.id)) {
+        progressMap.set(progress.moduleId, progress);
+      }
+    }
+    res.json(allMods.map((mod) => {
+      // Reviewer codes bypass locking, but must still see the signed-in user's
+      // actual completion state when they have completed a module or quiz.
+      const progress = progressMap.get(mod.id);
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: false,
+        isCompleted: !!progress?.videoCompleted,
+        quizPassed: !!progress?.quizPassed,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+      };
+    }));
     return;
   }
 

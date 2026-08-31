@@ -83,17 +83,20 @@ function registerProductionServiceWorker() {
 // the reload listeners above.
 if ("serviceWorker" in navigator) {
   if (import.meta.env.DEV) {
-    const devCleanupKey = "chainsaw-dev-sw-cleaned";
-    if (!sessionStorage.getItem(devCleanupKey)) {
-      sessionStorage.setItem(devCleanupKey, "true");
-      navigator.serviceWorker
-        .getRegistration(import.meta.env.BASE_URL)
-        .then((registration) => {
-          if (registration) return registration.unregister().then(() => window.location.reload());
-          return undefined;
-        })
-        .catch(() => {});
-    }
+    // Never let a worker from an earlier production/PWA preview mask Vite
+    // changes. The old sessionStorage guard only cleaned it once per tab, so
+    // a stale worker could survive subsequent code updates.
+    navigator.serviceWorker
+      .getRegistration(import.meta.env.BASE_URL)
+      .then((registration) => {
+        if (!registration) return;
+        return registration.unregister().then((unregistered) => {
+          if (unregistered && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      })
+      .catch(() => {});
   } else {
     // Production/PWA builds retain service-worker caching, offline support,
     // push notifications, and automatic update reloads.

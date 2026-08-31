@@ -1186,7 +1186,7 @@ export default function TrainingList() {
                                         : "text-primary border-primary"
                                     }`}
                                   >
-                                    {module.quizPassed ? "Quiz Completed" : "Video Completed"}
+                                    {module.quizPassed ? "Quiz Passed" : "Video Completed"}
                                   </Badge>
                                 )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
