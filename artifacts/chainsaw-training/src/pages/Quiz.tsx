@@ -246,6 +246,13 @@ export default function Quiz() {
                   >
                     <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
                   </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleBackToTraining}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <ArrowLeft className="mr-2 w-4 h-4" /> BACK TO MAIN MENU
+                  </Button>
                 </>
               ) : (
                 <Button
