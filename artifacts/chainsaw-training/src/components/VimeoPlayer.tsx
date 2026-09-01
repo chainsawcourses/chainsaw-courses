@@ -64,6 +64,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   // iOS Safari cannot start video playback via postMessage from an overlay div —
   // it requires a direct user gesture on the media element itself.
@@ -96,6 +97,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   // Reset state when video changes
   useEffect(() => {
     setLoadError(null);
+    setIframeLoaded(false);
     setIsPaused(true);
     setCurrentTime(0);
     setDuration(0);
@@ -111,7 +113,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     }, 14000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vimeoId]);
+  }, [vimeoId, retryNonce]);
 
   // Vimeo postMessage listener
   useEffect(() => {
@@ -263,11 +265,12 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
       <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isFullscreen ? "flex-1 rounded-none" : "aspect-video rounded-t-lg"}`}>
         <iframe
           ref={iframeRef}
-          key={vimeoId}
+          key={`${vimeoId}-${retryNonce}`}
           src={src}
           className="vimeo-iframe"
           frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
+          referrerPolicy="origin"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
           title="Training Video"
           onLoad={() => setIframeLoaded(true)}
@@ -327,7 +330,11 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
             <div className="text-destructive font-mono font-bold text-sm uppercase tracking-widest">⚠ VIDEO UNAVAILABLE</div>
             <p className="text-white/80 text-xs font-mono leading-relaxed max-w-sm">{loadError}</p>
             <button
-              onClick={() => { setLoadError(null); isReadyRef.current = false; if (iframeRef.current) iframeRef.current.src = src; }}
+              onClick={() => {
+                setLoadError(null);
+                isReadyRef.current = false;
+                setRetryNonce((nonce) => nonce + 1);
+              }}
               className="mt-2 text-xs font-mono text-primary underline underline-offset-2"
             >Retry</button>
           </div>
