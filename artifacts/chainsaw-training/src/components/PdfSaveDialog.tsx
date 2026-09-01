@@ -80,11 +80,12 @@ export default function PdfSaveDialog({
         });
         onOpenChange(false);
       }
-    } catch {
+    } catch (error) {
+      console.error("PDF delivery failed", error);
       toast({
         variant: "destructive",
         title: "Could not save PDF",
-        description: "Please try again.",
+        description: "The PDF was created, but your device could not open its save or share options. Please try again.",
       });
     } finally {
       setSaving(false);

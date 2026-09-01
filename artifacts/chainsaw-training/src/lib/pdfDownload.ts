@@ -69,13 +69,26 @@ async function deliverNativeFile(
     await Share.share({
       title: safeName,
       text: "Choose Files, Drive, or another location to save this file.",
-      url: uri,
+      files: [uri],
       dialogTitle: "Save or share file",
     });
     return "shared";
   } catch (error) {
     if (isCancellation(error)) return "cancelled";
-    throw error;
+    // Compatibility fallback for older native plugin implementations that
+    // accepted a single local URI through `url` before `files` was supported.
+    try {
+      await Share.share({
+        title: safeName,
+        text: "Choose Files, Drive, or another location to save this file.",
+        url: uri,
+        dialogTitle: "Save or share file",
+      });
+      return "shared";
+    } catch (fallbackError) {
+      if (isCancellation(fallbackError)) return "cancelled";
+      throw fallbackError;
+    }
   }
 }
 
