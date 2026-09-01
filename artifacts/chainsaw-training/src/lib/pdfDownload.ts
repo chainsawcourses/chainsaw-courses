@@ -1,4 +1,4 @@
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 
@@ -17,6 +17,19 @@ type SaveFilePicker = (options: {
     close: () => Promise<void>;
   }>;
 }>;
+
+interface PdfSaverPlugin {
+  save(options: {
+    data: string;
+    filename: string;
+  }): Promise<{
+    uri: string;
+    filename: string;
+    folder: string;
+  }>;
+}
+
+const PdfSaver = registerPlugin<PdfSaverPlugin>("PdfSaver");
 
 function getSaveFilePicker(): SaveFilePicker | null {
   if (typeof window === "undefined") return null;
@@ -55,8 +68,21 @@ async function deliverNativeFile(
   filename: string,
 ): Promise<FileDeliveryResult> {
   const safeName = filename.replace(/[\\/:*?"<>|]+/g, "-");
-  const path = `shared-files/${Date.now()}-${safeName}`;
   const data = await blobToBase64(blob);
+
+  // Android 10+ supports writing directly into the public Downloads
+  // collection without storage permissions. This avoids relying on the share
+  // chooser, which is missing or blocked on some Android devices/WebViews.
+  if (Capacitor.getPlatform() === "android") {
+    try {
+      await PdfSaver.save({ data, filename: safeName });
+      return "saved";
+    } catch (error) {
+      console.warn("Direct Android PDF save failed; trying Share fallback", error);
+    }
+  }
+
+  const path = `shared-files/${Date.now()}-${safeName}`;
   await Filesystem.writeFile({
     path,
     data,

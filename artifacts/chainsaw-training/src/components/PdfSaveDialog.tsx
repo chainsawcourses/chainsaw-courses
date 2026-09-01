@@ -67,7 +67,9 @@ export default function PdfSaveDialog({
       if (result === "saved") {
         toast({
           title: "PDF saved",
-          description: `Saved as ${safeFilename}`,
+          description: Capacitor.getPlatform() === "android"
+            ? `Saved to Downloads/Chainsaw Courses as ${safeFilename}`
+            : `Saved as ${safeFilename}`,
         });
         onOpenChange(false);
       } else if (result === "shared") {
@@ -104,6 +106,8 @@ export default function PdfSaveDialog({
           <DialogDescription className="font-mono text-xs leading-relaxed">
             Choose a filename for this {documentLabel}. {chooseFolder
               ? "The next step will let you choose the folder."
+              : Capacitor.getPlatform() === "android"
+                ? "The PDF will be saved directly to Downloads/Chainsaw Courses."
               : "Your device will open its save or share options."}
           </DialogDescription>
         </DialogHeader>
@@ -152,7 +156,13 @@ export default function PdfSaveDialog({
             ) : (
               <FileDown className="w-3.5 h-3.5 mr-1.5" />
             )}
-            {saving ? "Saving…" : chooseFolder ? "Choose location & save" : "Save / share PDF"}
+            {saving
+              ? "Saving…"
+              : chooseFolder
+                ? "Choose location & save"
+                : Capacitor.getPlatform() === "android"
+                  ? "Save PDF"
+                  : "Save / share PDF"}
           </Button>
         </DialogFooter>
       </DialogContent>
