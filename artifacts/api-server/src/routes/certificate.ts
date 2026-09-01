@@ -107,7 +107,7 @@ router.post("/certificate/resend", async (req, res) => {
     const data = await getCertData(activationCode, deviceId);
     if (!data) { res.status(401).json({ error: "Unauthorised" }); return; }
     const { user, passedAt, passedScore } = data;
-    await sendCertificateEmail(user, passedAt, passedScore ?? 0);
+    await sendCertificateEmail(user, passedAt, passedScore);
     logger.info({ userId: user.id }, "Certificate resent on request");
     res.json({ ok: true });
   } catch (err) {

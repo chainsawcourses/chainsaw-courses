@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star, PlayCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, ArrowRight, RotateCcw, Star, PlayCircle } from "lucide-react";
 import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
@@ -147,6 +147,11 @@ export default function Quiz() {
     );
   };
 
+  const handleBackToTraining = () => {
+    sessionStorage.setItem("scrollAfterModule", String(id));
+    setLocation("/training");
+  };
+
   if (result) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -267,6 +272,15 @@ export default function Quiz() {
     <div className="min-h-screen flex flex-col pt-[68px]">
       <header className="border-b-2 border-primary/40 bg-card fixed top-0 left-0 right-0 z-10">
         <div className="max-w-3xl mx-auto flex h-16 items-center gap-3 px-4">
+          <button
+            type="button"
+            onClick={handleBackToTraining}
+            className="flex shrink-0 items-center gap-1 font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Back to training"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden min-[360px]:inline">Back</span>
+          </button>
           <div className="min-w-0 flex-1 truncate font-mono text-xs uppercase tracking-wide text-muted-foreground sm:text-sm sm:tracking-widest">
             {quiz.moduleTitle}
           </div>

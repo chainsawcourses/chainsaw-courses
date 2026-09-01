@@ -140,6 +140,9 @@ export default function TrainingList() {
       } else {
         toast({ variant: "destructive", title: "Could not send", description: "Please try again or contact support." });
       }
+    } catch (error) {
+      console.error("Certificate email request failed", error);
+      toast({ variant: "destructive", title: "Could not send", description: "Please check your connection and try again." });
     } finally { setCertResending(false); }
   };
 

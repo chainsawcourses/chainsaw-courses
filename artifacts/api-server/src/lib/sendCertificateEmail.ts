@@ -10,7 +10,7 @@ export async function sendCertificateEmail(
   const host = process.env.SMTP_HOST?.trim();
   if (!host) {
     logger.warn({ userId: user.id }, "SMTP not configured — certificate email skipped");
-    return;
+    throw new Error("SMTP is not configured");
   }
 
   try {
@@ -66,5 +66,6 @@ export async function sendCertificateEmail(
     logger.info({ userId: user.id, email: user.email }, "Certificate email sent");
   } catch (err) {
     logger.error({ err, userId: user.id }, "Failed to send certificate email");
+    throw err;
   }
 }
