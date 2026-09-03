@@ -409,3 +409,17 @@ type = "unspecified"
 title = "Chainsaw Courses Android v1.0.3 (code 7)"
 description = "Google Play App Bundle targeting Android 16 / API 36, signed with the registered Play upload certificate."
 logical_id = "d3484392-cfaf-4334-9422-37689b4b43f0"
+
+[[outputs]]
+id = "up25VeXHeqcZxR99Zp4r3"
+uri = "file://exports/Chainsaw_Courses_iOS_1.0.4_Build_6_Release_Source.zip"
+type = "unspecified"
+title = "Chainsaw Courses iOS 1.0.4 — Build 6"
+description = "Prepared Xcode release source with direct PDF saving to Files/Chainsaw Courses, the existing Apple bundle ID, approved app icon, and START-HERE archive/upload instructions."
+logical_id = "a8e788cf-102c-4052-a7da-99bdacafbf7e"
+content_hash = "sha256:bbce044b871f7959eb5554009a5892c7f2a387565de015b8f400480a1a765a3a"
+size = 334570
+mtime_ms = 1788435634271
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/a8e788cf-102c-4052-a7da-99bdacafbf7e/bde2f491-018e-471f-955a-5d23ab9f4d32"
+storage_version_token = "1788435665314382"
+content_type = "application/octet-stream"
