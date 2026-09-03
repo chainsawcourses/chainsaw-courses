@@ -437,3 +437,17 @@ mtime_ms = 1788446529111
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/e2ab3408-cecb-493d-a545-9dcea7a21d0a/5052d478-e402-4506-a8a8-d102f8f9ef1a"
 storage_version_token = "1788446537438761"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "cwS81Pgw2Df7zjhsjLiKv"
+uri = "file://exports/Chainsaw_Courses_iOS_Build_6_PdfSaver_Fix.zip"
+type = "unspecified"
+title = "Chainsaw Courses — one-file iOS build fix"
+description = "Contains only the corrected PdfSaverPlugin.swift file and a short copy instruction. Replace the matching file in the Mac project, then build again in Xcode."
+logical_id = "bd0a3850-729e-4ad1-90ca-78d5364e92af"
+content_hash = "sha256:bb41966aea77ebc88936b9342b52810cfa73c2e9dba2a3cb28fcc14dba65dcc8"
+size = 1773
+mtime_ms = 1788456748165
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/bd0a3850-729e-4ad1-90ca-78d5364e92af/3c92f90d-e6d3-43f3-8a28-fcaa8fd7f972"
+storage_version_token = "1788456755954651"
+content_type = "application/octet-stream"
