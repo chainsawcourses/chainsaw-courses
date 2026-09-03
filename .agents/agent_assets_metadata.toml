@@ -423,3 +423,17 @@ mtime_ms = 1788435634271
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/a8e788cf-102c-4052-a7da-99bdacafbf7e/bde2f491-018e-471f-955a-5d23ab9f4d32"
 storage_version_token = "1788435665314382"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "heiqH5ncXS_tFHqnDWX7J"
+uri = "file://exports/Chainsaw_Courses_iOS_1.0.4_Build_6_Release_Source_FIXED.zip"
+type = "unspecified"
+title = "Chainsaw Courses iOS Build 6 — corrected Swift source"
+description = "Updated release package with the PdfSaverPlugin.swift compile fix. Use this package if you want to replace the old file rather than edit it manually."
+logical_id = "e2ab3408-cecb-493d-a545-9dcea7a21d0a"
+content_hash = "sha256:7c893032f0cb6272bcb96f6d3164d66c6a1b01afc1f79d3212839f6cdea4bd6f"
+size = 334590
+mtime_ms = 1788446529111
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/e2ab3408-cecb-493d-a545-9dcea7a21d0a/5052d478-e402-4506-a8a8-d102f8f9ef1a"
+storage_version_token = "1788446537438761"
+content_type = "application/octet-stream"
