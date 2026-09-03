@@ -1,0 +1,18 @@
+CHAINSAW COURSES — iOS 1.0.4 BUILD 6
+
+This is the complete prepared Xcode project. Do not copy or replace individual files.
+
+1. Open the App folder.
+2. Double-click App.xcodeproj.
+3. In Xcode, select the App target.
+4. Under Signing & Capabilities, select Overleaf Publishers Ltd as the Team.
+5. Confirm:
+   Bundle Identifier: com.overleafpublishers.chainsawcourses
+   Version: 1.0.4
+   Build: 6
+6. Select Any iOS Device (arm64).
+7. Choose Product > Archive.
+8. In Organizer, choose Distribute App > App Store Connect > Upload.
+
+The duplicate PdfSaverPlugin.swift file is not included. The Xcode target compiles
+the clean PdfSaverPluginFixed.swift file instead.

@@ -13,6 +13,7 @@
 - [Native file delivery](native-file-delivery.md) — Capacitor downloads must use native Filesystem + Share; hidden browser download links can silently fail in Android WebViews.
 - [Android PDF saving](android-pdf-saving.md) — generated PDFs save directly to the public Downloads collection; the Android share chooser is fallback-only.
 - [iOS PDF saving](ios-pdf-saving.md) — native Apple releases save generated PDFs into the app's Files folder; the share sheet is fallback-only.
+- [iOS Xcode handoffs](ios-xcode-handoffs.md) — provide one complete project ZIP; avoid manual Swift-file merging because active editors can concatenate copies.
 - [Assessment and checklist saving](risk-assessment-saving.md) — routine learner saves update the latest record; History offers an explicit Duplicate action when a new copy is wanted.
 - [Mobile completion audio](mobile-completion-audio.md) — prime a save-completion sound during the user gesture, then play it only after a successful async save.
 - [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.
