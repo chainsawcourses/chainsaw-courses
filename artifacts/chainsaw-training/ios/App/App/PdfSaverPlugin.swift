@@ -48,7 +48,9 @@ public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
                 "folder": "Files/Chainsaw Courses"
             ])
         } catch {
-            call.reject("Could not save the PDF to the Files app", error)
+            call.reject(
+                "Could not save the PDF to the Files app: \(error.localizedDescription)"
+            )
         }
     }
 
