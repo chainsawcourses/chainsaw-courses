@@ -472,3 +472,17 @@ mtime_ms = 1788459056693
 storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/72398c12-72a1-41cc-8c65-3cb6674f3779/d67abf9d-1920-4240-bd54-e2353ea9341f"
 storage_version_token = "1788459065237549"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "Xtv2U6gOMLr9tGLi1a81j"
+uri = "file://attached_assets/Terms_and_Conditions_Liability_Waiver_1788506748404.pdf"
+type = "pdf"
+title = "Terms & Conditions — Selected Copy"
+description = "This is the exact PDF you attached. Use this file when transferring the Terms & Conditions to the other Replit project."
+logical_id = "08735f9a-ff69-4950-a7c7-d382cf9695f3"
+content_hash = "sha256:1c0738bd3eee3ff596e55916fec9c281accc07f229f67349c580be33c959e0ef"
+size = 181077
+mtime_ms = 1788506748935
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/08735f9a-ff69-4950-a7c7-d382cf9695f3/97aee83b-faf9-42cc-9eb9-f9148e4f235e"
+storage_version_token = "1788506784295999"
+content_type = "application/pdf"
