@@ -258,4 +258,264 @@ public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
         let fallback = safe.isEmpty ? "Chainsaw-Courses-Document.pdf" : safe
         return fallback.lowercased().hasSuffix(".pdf") ? fallback : "\(fallback).pdf"
     }
+}import Capacitor
+import Foundation
+
+@objc(PdfSaverPlugin)
+public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "PdfSaverPlugin"
+    public let jsName = "PdfSaver"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func save(_ call: CAPPluginCall) {
+        guard let encodedData = call.getString("data"),
+              let pdfData = Data(base64Encoded: encodedData, options: .ignoreUnknownCharacters) else {
+            call.reject("No valid PDF data was supplied")
+            return
+        }
+
+        let filename = sanitiseFilename(
+            call.getString("filename") ?? "Chainsaw-Courses-Document.pdf"
+        )
+        let fileManager = FileManager.default
+        guard let documentsDirectory = fileManager.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first else {
+            call.reject("Could not access the iOS Files folder")
+            return
+        }
+
+        let folder = documentsDirectory.appendingPathComponent(
+            "Chainsaw Courses",
+            isDirectory: true
+        )
+        let fileURL = folder.appendingPathComponent(filename, isDirectory: false)
+
+        do {
+            try fileManager.createDirectory(
+                at: folder,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            try pdfData.write(to: fileURL, options: .atomic)
+
+            call.resolve([
+                "uri": fileURL.absoluteString,
+                "filename": filename,
+                "folder": "Files/Chainsaw Courses"
+            ])
+        } catch {
+            call.reject(
+                "Could not save the PDF to the Files app: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    private func sanitiseFilename(_ value: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "\\/:*?\"<>|")
+        let safe = value.unicodeScalars
+            .map { invalidCharacters.contains($0) ? "-" : String($0) }
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = safe.isEmpty ? "Chainsaw-Courses-Document.pdf" : safe
+        return fallback.lowercased().hasSuffix(".pdf") ? fallback : "\(fallback).pdf"
+    }
+}import Capacitor
+import Foundation
+
+@objc(PdfSaverPlugin)
+public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "PdfSaverPlugin"
+    public let jsName = "PdfSaver"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func save(_ call: CAPPluginCall) {
+        guard let encodedData = call.getString("data"),
+              let pdfData = Data(base64Encoded: encodedData, options: .ignoreUnknownCharacters) else {
+            call.reject("No valid PDF data was supplied")
+            return
+        }
+
+        let filename = sanitiseFilename(
+            call.getString("filename") ?? "Chainsaw-Courses-Document.pdf"
+        )
+        let fileManager = FileManager.default
+        guard let documentsDirectory = fileManager.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first else {
+            call.reject("Could not access the iOS Files folder")
+            return
+        }
+
+        let folder = documentsDirectory.appendingPathComponent(
+            "Chainsaw Courses",
+            isDirectory: true
+        )
+        let fileURL = folder.appendingPathComponent(filename, isDirectory: false)
+
+        do {
+            try fileManager.createDirectory(
+                at: folder,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            try pdfData.write(to: fileURL, options: .atomic)
+
+            call.resolve([
+                "uri": fileURL.absoluteString,
+                "filename": filename,
+                "folder": "Files/Chainsaw Courses"
+            ])
+        } catch {
+            call.reject(
+                "Could not save the PDF to the Files app: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    private func sanitiseFilename(_ value: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "\\/:*?\"<>|")
+        let safe = value.unicodeScalars
+            .map { invalidCharacters.contains($0) ? "-" : String($0) }
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = safe.isEmpty ? "Chainsaw-Courses-Document.pdf" : safe
+        return fallback.lowercased().hasSuffix(".pdf") ? fallback : "\(fallback).pdf"
+    }
+}import Capacitor
+import Foundation
+
+@objc(PdfSaverPlugin)
+public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "PdfSaverPlugin"
+    public let jsName = "PdfSaver"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func save(_ call: CAPPluginCall) {
+        guard let encodedData = call.getString("data"),
+              let pdfData = Data(base64Encoded: encodedData, options: .ignoreUnknownCharacters) else {
+            call.reject("No valid PDF data was supplied")
+            return
+        }
+
+        let filename = sanitiseFilename(
+            call.getString("filename") ?? "Chainsaw-Courses-Document.pdf"
+        )
+        let fileManager = FileManager.default
+        guard let documentsDirectory = fileManager.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first else {
+            call.reject("Could not access the iOS Files folder")
+            return
+        }
+
+        let folder = documentsDirectory.appendingPathComponent(
+            "Chainsaw Courses",
+            isDirectory: true
+        )
+        let fileURL = folder.appendingPathComponent(filename, isDirectory: false)
+
+        do {
+            try fileManager.createDirectory(
+                at: folder,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            try pdfData.write(to: fileURL, options: .atomic)
+
+            call.resolve([
+                "uri": fileURL.absoluteString,
+                "filename": filename,
+                "folder": "Files/Chainsaw Courses"
+            ])
+        } catch {
+            call.reject(
+                "Could not save the PDF to the Files app: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    private func sanitiseFilename(_ value: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "\\/:*?\"<>|")
+        let safe = value.unicodeScalars
+            .map { invalidCharacters.contains($0) ? "-" : String($0) }
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = safe.isEmpty ? "Chainsaw-Courses-Document.pdf" : safe
+        return fallback.lowercased().hasSuffix(".pdf") ? fallback : "\(fallback).pdf"
+    }
+}import Capacitor
+import Foundation
+
+@objc(PdfSaverPlugin)
+public class PdfSaverPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "PdfSaverPlugin"
+    public let jsName = "PdfSaver"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "save", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func save(_ call: CAPPluginCall) {
+        guard let encodedData = call.getString("data"),
+              let pdfData = Data(base64Encoded: encodedData, options: .ignoreUnknownCharacters) else {
+            call.reject("No valid PDF data was supplied")
+            return
+        }
+
+        let filename = sanitiseFilename(
+            call.getString("filename") ?? "Chainsaw-Courses-Document.pdf"
+        )
+        let fileManager = FileManager.default
+        guard let documentsDirectory = fileManager.urls(
+            for: .documentDirectory,
+            in: .userDomainMask
+        ).first else {
+            call.reject("Could not access the iOS Files folder")
+            return
+        }
+
+        let folder = documentsDirectory.appendingPathComponent(
+            "Chainsaw Courses",
+            isDirectory: true
+        )
+        let fileURL = folder.appendingPathComponent(filename, isDirectory: false)
+
+        do {
+            try fileManager.createDirectory(
+                at: folder,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            try pdfData.write(to: fileURL, options: .atomic)
+
+            call.resolve([
+                "uri": fileURL.absoluteString,
+                "filename": filename,
+                "folder": "Files/Chainsaw Courses"
+            ])
+        } catch {
+            call.reject(
+                "Could not save the PDF to the Files app: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    private func sanitiseFilename(_ value: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "\\/:*?\"<>|")
+        let safe = value.unicodeScalars
+            .map { invalidCharacters.contains($0) ? "-" : String($0) }
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = safe.isEmpty ? "Chainsaw-Courses-Document.pdf" : safe
+        return fallback.lowercased().hasSuffix(".pdf") ? fallback : "\(fallback).pdf"
+    }
 }

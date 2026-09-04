@@ -19,8 +19,15 @@ logical_id = "1f83e701-a211-48f5-af59-3c92248d77a3"
 id = "iw93YlzKUoPZHjslZZ2Qy"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Terms_and_Conditions_Liability_Waiver.pdf"
 type = "pdf"
-title = "Terms & Conditions and Liability Waiver"
+title = "Latest Terms & Conditions and Liability Waiver"
+description = "Authoritative Chainsaw Courses copy — Version 1.0, July 2026. Download this PDF and upload it into the other Replit project."
 logical_id = "01ee49c7-06e2-4d47-8d4a-aadc919809d4"
+content_hash = "sha256:1c0738bd3eee3ff596e55916fec9c281accc07f229f67349c580be33c959e0ef"
+size = 181077
+mtime_ms = 1787749816068
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/01ee49c7-06e2-4d47-8d4a-aadc919809d4/a460d493-bc9e-4e65-b41c-7f65fe628a31"
+storage_version_token = "1788506576115276"
+content_type = "application/pdf"
 
 [[outputs]]
 id = "2FTq5pVKhUVQwan7Z0leu"
