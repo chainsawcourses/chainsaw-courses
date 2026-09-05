@@ -10,7 +10,7 @@ import { SignatureCanvas, SignaturePadRef } from "@/components/SignaturePad";
 import { IS_DEMO } from "../lib/demo";
 import { CheckCircle2, Circle } from "lucide-react";
 
-const CLAUSES = [
+export const WAIVER_CLAUSES = [
   {
     id: "c1",
     number: "1",
@@ -66,7 +66,7 @@ export default function Waiver() {
   const [finalAgreed, setFinalAgreed] = useState(false);
   const signatureRef = useRef<SignaturePadRef>(null);
 
-  const allClausesChecked = CLAUSES.every((c) => checked[c.id]);
+  const allClausesChecked = WAIVER_CLAUSES.every((c) => checked[c.id]);
   const canSign = allClausesChecked && finalAgreed;
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function Waiver() {
 
     const signatureData = signatureRef.current?.toDataURL("image/png") || "";
     const clausesSnapshot = JSON.stringify(
-      CLAUSES.map((c) => ({ number: c.number, title: c.title, text: c.text }))
+      WAIVER_CLAUSES.map((c) => ({ number: c.number, title: c.title, text: c.text }))
     );
 
     signWaiver.mutate(
@@ -154,9 +154,9 @@ export default function Waiver() {
 
         {/* Clauses */}
         <div className="space-y-3 mb-4">
-          {CLAUSES.map((clause, index) => {
+          {WAIVER_CLAUSES.map((clause, index) => {
             const isChecked = !!checked[clause.id];
-            const prevChecked = index === 0 || !!checked[CLAUSES[index - 1].id];
+            const prevChecked = index === 0 || !!checked[WAIVER_CLAUSES[index - 1].id];
             const isLocked = !prevChecked;
             return (
               <Card

@@ -1890,6 +1890,14 @@ components:
           type: ["string", "null"]
         pdfUrl:
           type: ["string", "null"]
+        fullName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        signatureData:
+          type: ["string", "null"]
+        clausesSnapshot:
+          type: ["string", "null"]
 
     WaiverInput:
       type: object

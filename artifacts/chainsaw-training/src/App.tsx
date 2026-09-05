@@ -11,6 +11,7 @@ import NotFound from "@/pages/not-found";
 import ShareTarget from "@/pages/ShareTarget";
 import Activation from "@/pages/Activation";
 import Waiver from "@/pages/Waiver";
+import SignedWaiver from "@/pages/SignedWaiver";
 import TrainingList from "@/pages/TrainingList";
 import TrainingModule from "@/pages/TrainingModule";
 import Quiz from "@/pages/Quiz";
@@ -234,6 +235,7 @@ function Router() {
         : <Route path="/" component={Activation} />
       }
       <Route path="/waiver" component={Waiver} />
+      <Route path="/signed-waiver" component={SignedWaiver} />
       <Route path="/training" component={TrainingList} />
       <Route path="/training/:moduleId" component={TrainingModule} />
       <Route path="/quiz/:moduleId" component={Quiz} />

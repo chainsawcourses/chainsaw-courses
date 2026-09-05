@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { downloadPdf } from "../lib/downloadPdf";
 import WelcomeModal from "../components/WelcomeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -13,7 +12,7 @@ import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, Cl
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
-import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { IS_DEMO } from "../lib/demo";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
@@ -100,7 +99,6 @@ export default function TrainingList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [certResending, setCertResending] = useState(false);
-  const [waiverDownloading, setWaiverDownloading] = useState(false);
   const { toast } = useToast();
 
   const { disclaimerText } = useRemoteConfig();
@@ -110,24 +108,6 @@ export default function TrainingList() {
 
   const handleViewCertificate = () => {
     setLocation("/certificate");
-  };
-
-  const handleDownloadWaiver = async () => {
-    if (!activationCode || !deviceId || waiverDownloading) return;
-    setWaiverDownloading(true);
-    try {
-      const url = waiverStatus?.pdfUrl
-        ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}&uid=${userId ?? ""}`;
-      await downloadPdf(url, "Chainsaw-Courses-Signed-Waiver.pdf");
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Could not download waiver",
-        description: "Please try again.",
-      });
-    } finally {
-      setWaiverDownloading(false);
-    }
   };
 
   const handleResendCertificate = async () => {
@@ -197,10 +177,6 @@ export default function TrainingList() {
       staleTime: 0,
       refetchOnMount: "always",
     }
-  });
-
-  const { data: waiverStatus } = useGetWaiver({
-    query: { queryKey: getGetWaiverQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
   const { data: examStatus } = useGetExamStatus({
@@ -410,16 +386,14 @@ export default function TrainingList() {
                       <button
                         type="button"
                         className="text-muted-foreground hover:text-primary shrink-0"
-                        title="Download your signed waiver"
-                        disabled={waiverDownloading}
+                        title="View your signed waiver"
                         onClick={(e) => {
                           e.stopPropagation();
-                          void handleDownloadWaiver();
+                          setBrandMenuOpen(false);
+                          setLocation("/signed-waiver");
                         }}
                       >
-                        {waiverDownloading
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          : <FileText className="w-3.5 h-3.5" />}
+                        <FileText className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>

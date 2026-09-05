@@ -384,6 +384,14 @@ export interface WaiverStatus {
   signedAt?: string | null;
   /** @nullable */
   pdfUrl?: string | null;
+  /** @nullable */
+  fullName?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  signatureData?: string | null;
+  /** @nullable */
+  clausesSnapshot?: string | null;
 }
 
 export interface WaiverInput {

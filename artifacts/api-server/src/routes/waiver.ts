@@ -32,7 +32,15 @@ router.get("/waiver", async (req, res) => {
       .where(eq(waiversTable.userId, user.id));
 
     if (!waiver) {
-      res.json({ signed: false, signedAt: null, pdfUrl: null });
+      res.json({
+        signed: false,
+        signedAt: null,
+        pdfUrl: null,
+        fullName: user.fullName ?? null,
+        email: user.email ?? null,
+        signatureData: null,
+        clausesSnapshot: null,
+      });
       return;
     }
 
@@ -40,6 +48,10 @@ router.get("/waiver", async (req, res) => {
       signed: true,
       signedAt: waiver.signedAt.toISOString(),
       pdfUrl: `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}&uid=${user.id}`,
+      fullName: user.fullName ?? null,
+      email: user.email ?? null,
+      signatureData: waiver.signatureData ?? null,
+      clausesSnapshot: waiver.clausesSnapshot ?? null,
     });
   } catch (err) {
     logger.error({ err }, "Error getting waiver status");

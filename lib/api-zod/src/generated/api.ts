@@ -819,7 +819,11 @@ export const GetWaiverHeader = zod.object({
 export const GetWaiverResponse = zod.object({
   "signed": zod.boolean(),
   "signedAt": zod.string().nullish(),
-  "pdfUrl": zod.string().nullish()
+  "pdfUrl": zod.string().nullish(),
+  "fullName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "signatureData": zod.string().nullish(),
+  "clausesSnapshot": zod.string().nullish()
 })
 
 
