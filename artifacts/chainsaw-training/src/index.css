@@ -60,6 +60,29 @@
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
+  /* Site-wide readable type scale. This raises typography without scaling
+     layout spacing, controls, or media along with it. */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1.125rem;
+  --text-base--line-height: 1.75rem;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.375rem;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 2.875rem;
+  --text-5xl: 3.25rem;
+  --text-5xl--line-height: 1;
+  --text-6xl: 4rem;
+  --text-6xl--line-height: 1;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -158,6 +181,30 @@
     width: 100%;
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+@layer utilities {
+  /* A small number of dense dashboards and badges use fixed pixel sizes
+     instead of the shared scale. Keep every one of those readable too. */
+  .text-\[9px\] {
+    font-size: 0.6875rem;
+    line-height: 0.875rem;
+  }
+
+  .text-\[10px\] {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .text-\[11px\] {
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+  }
+
+  .text-\[15px\] {
+    font-size: 1.0625rem;
+    line-height: 1.375rem;
   }
 }
 
@@ -297,13 +344,13 @@ html[data-screen-reader="true"] *:focus {
   }
 
   .welcome-modal-content h2 {
-    font-size: 1rem !important;
+    font-size: 1.125rem !important;
   }
 
   .welcome-modal-content button {
     padding-top: 8px !important;
     padding-bottom: 8px !important;
-    font-size: 0.7rem !important;
+    font-size: 0.8rem !important;
   }
 
   .brand-dropdown-identity {
@@ -319,8 +366,8 @@ html[data-screen-reader="true"] *:focus {
   .brand-dropdown-help-trigger,
   .brand-dropdown-nav-link,
   .brand-dropdown-action {
-    font-size: 0.75rem !important;
-    line-height: 1rem;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
