@@ -155,7 +155,7 @@ export default function AdminGateway() {
                     ] as [keyof Venue, string][]).map(([field, label]) => (
                       <div key={field}>
                         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
-                          {label}{field === "name" ? " *" : ""}
+                          {label}{field === "name" || field === "postcode" ? " *" : ""}
                         </label>
                         <input
                           value={(editingVenue[field] as string) ?? ""}
@@ -179,10 +179,14 @@ export default function AdminGateway() {
                         <option value="silver">Silver — Directory</option>
                       </select>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
-                      <label className="font-mono text-xs">Active (visible on map)</label>
-                    </div>
+                    {editingVenue.id ? (
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
+                        <label className="font-mono text-xs">Active (visible on map)</label>
+                      </div>
+                    ) : (
+                      <p className="self-center text-xs font-semibold text-[#e27226]">New venues are added to the map immediately.</p>
+                    )}
                   </div>
                   <div>
                     <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Internal Notes</label>

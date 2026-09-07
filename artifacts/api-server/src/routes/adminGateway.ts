@@ -57,12 +57,18 @@ router.post("/admin/gateway/venues", async (req, res) => {
       res.status(400).json({ error: "Please enter a venue name." }); return;
     }
     const coordinates = await resolveVenueCoordinates(postcode, lat, lng);
+    if (!coordinates.resolved) {
+      res.status(422).json({
+        error: "Enter a valid UK postcode or latitude and longitude so this venue can be added to the map.",
+      });
+      return;
+    }
     const [venue] = await db.insert(assessmentVenuesTable).values({
       name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
       postcode: postcode?.trim().toUpperCase() || "", lat: coordinates.lat, lng: coordinates.lng,
       email: email?.trim() || "", phone: phone?.trim() || "",
       website: website?.trim() || null, tier: tier ?? "silver", notes: notes?.trim() || null,
-      active: coordinates.resolved ? (active ?? true) : false,
+      active: true,
     }).returning();
     res.json(venue);
   } catch (err) {
@@ -85,12 +91,18 @@ router.put("/admin/gateway/venues/:id", async (req, res) => {
       res.status(400).json({ error: "Please enter a venue name." }); return;
     }
     const coordinates = await resolveVenueCoordinates(postcode, lat, lng);
+    if (!coordinates.resolved) {
+      res.status(422).json({
+        error: "Enter a valid UK postcode or latitude and longitude so this venue can be shown on the map.",
+      });
+      return;
+    }
     const [updated] = await db.update(assessmentVenuesTable)
       .set({
         name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
         postcode: postcode?.trim().toUpperCase() || "", lat: coordinates.lat, lng: coordinates.lng,
         email: email?.trim() || "", phone: phone?.trim() || "", website: website?.trim() || null,
-        tier: tier ?? "silver", active: coordinates.resolved ? active : false, notes: notes?.trim() || null,
+        tier: tier ?? "silver", active, notes: notes?.trim() || null,
       })
       .where(eq(assessmentVenuesTable.id, id))
       .returning();
