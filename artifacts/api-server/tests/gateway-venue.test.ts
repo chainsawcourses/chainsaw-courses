@@ -89,7 +89,53 @@ test("a temporary postcode service failure is retried", async () => {
   assert.deepEqual(coordinates, { lat: 51.501009, lng: -0.141588 });
 });
 
-test("a persistent postcode service outage is reported separately from invalid input", async () => {
+test("the secondary provider is used only after primary retries are exhausted", async () => {
+  const urls: string[] = [];
+  const fallbackFetch: typeof fetch = async (input) => {
+    const url = String(input);
+    urls.push(url);
+    if (url.includes("postcodes.io")) {
+      return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    }
+    return new Response(JSON.stringify({
+      status: "match",
+      data: { latitude: "51.501009", longitude: "-0.141588" },
+    }), { status: 200 });
+  };
+
+  const coordinates = await resolveVenueCoordinates(
+    { postcode: "SW1A 1AA", lat: 0, lng: 0 },
+    fallbackFetch,
+  );
+
+  assert.deepEqual(coordinates, { lat: 51.501009, lng: -0.141588 });
+  assert.equal(urls.length, 3);
+  assert.ok(urls[0].includes("postcodes.io"));
+  assert.ok(urls[1].includes("postcodes.io"));
+  assert.ok(urls[2].includes("getthedata.com"));
+});
+
+test("an invalid postcode from the secondary provider remains an input error", async () => {
+  let attempts = 0;
+  const invalidFallbackFetch: typeof fetch = async (input) => {
+    attempts += 1;
+    if (String(input).includes("postcodes.io")) {
+      return new Response(null, { status: 503 });
+    }
+    return new Response(JSON.stringify({ status: "no_match", data: {} }), { status: 200 });
+  };
+
+  assert.equal(
+    await resolveVenueCoordinates(
+      { postcode: "NOT A POSTCODE", lat: 0, lng: 0 },
+      invalidFallbackFetch,
+    ),
+    null,
+  );
+  assert.equal(attempts, 3);
+});
+
+test("failures from both postcode providers are reported as a service error", async () => {
   let attempts = 0;
   const unavailableFetch = async () => {
     attempts += 1;
@@ -103,7 +149,7 @@ test("a persistent postcode service outage is reported separately from invalid i
     ),
     VenueMappingServiceError,
   );
-  assert.equal(attempts, 2);
+  assert.equal(attempts, 3);
 });
 
 test("zero coordinates returned by the postcode service are rejected", async () => {
@@ -115,6 +161,26 @@ test("zero coordinates returned by the postcode service are rejected", async () 
     await resolveVenueCoordinates(
       { postcode: "SW1A 1AA", lat: 0, lng: 0 },
       zeroFetch,
+    ),
+    null,
+  );
+});
+
+test("invalid coordinates returned by the secondary provider are rejected", async () => {
+  const fallbackFetch: typeof fetch = async (input) => {
+    if (String(input).includes("postcodes.io")) {
+      return new Response(null, { status: 503 });
+    }
+    return new Response(JSON.stringify({
+      status: "match",
+      data: { latitude: "0", longitude: "0" },
+    }), { status: 200 });
+  };
+
+  assert.equal(
+    await resolveVenueCoordinates(
+      { postcode: "SW1A 1AA", lat: 0, lng: 0 },
+      fallbackFetch,
     ),
     null,
   );

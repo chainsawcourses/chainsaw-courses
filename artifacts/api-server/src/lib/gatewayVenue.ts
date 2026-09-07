@@ -19,7 +19,19 @@ type CoordinateInput = {
 type FetchLike = typeof fetch;
 const POSTCODE_LOOKUP_ATTEMPTS = 2;
 
-function isValidCoordinatePair(lat: number | undefined, lng: number | undefined): boolean {
+function normaliseCoordinate(value: unknown): number | undefined {
+  if (typeof value === "number") return value;
+  if (typeof value === "string" && value.trim() !== "") return Number(value);
+  return undefined;
+}
+
+function validCoordinatePair(
+  latitude: unknown,
+  longitude: unknown,
+): { lat: number; lng: number } | null {
+  const lat = normaliseCoordinate(latitude);
+  const lng = normaliseCoordinate(longitude);
+
   return (
     Number.isFinite(lat) &&
     Number.isFinite(lng) &&
@@ -28,16 +40,40 @@ function isValidCoordinatePair(lat: number | undefined, lng: number | undefined)
     lng! >= -180 &&
     lng! <= 180 &&
     !(lat === 0 && lng === 0)
-  );
+  ) ? { lat: lat!, lng: lng! } : null;
+}
+
+async function lookupSecondaryPostcode(
+  compactPostcode: string,
+  fetchImpl: FetchLike,
+): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const response = await fetchImpl(
+      `https://api.getthedata.com/postcode/${encodeURIComponent(compactPostcode)}`,
+    );
+    if (response.status === 400 || response.status === 404) return null;
+    if (!response.ok) throw new VenueMappingServiceError();
+
+    const data = await response.json() as {
+      status?: string;
+      data?: { latitude?: number | string; longitude?: number | string };
+    };
+    if (data.status === "no_match" || data.status === "no match") return null;
+    if (data.status !== "match") throw new VenueMappingServiceError();
+
+    return validCoordinatePair(data.data?.latitude, data.data?.longitude);
+  } catch (error) {
+    if (error instanceof VenueMappingServiceError) throw error;
+    throw new VenueMappingServiceError();
+  }
 }
 
 export async function resolveVenueCoordinates(
   { postcode, lat, lng }: CoordinateInput,
   fetchImpl: FetchLike = fetch,
 ): Promise<{ lat: number; lng: number } | null> {
-  if (isValidCoordinatePair(lat, lng)) {
-    return { lat: lat!, lng: lng! };
-  }
+  const manualCoordinates = validCoordinatePair(lat, lng);
+  if (manualCoordinates) return manualCoordinates;
 
   const compactPostcode = postcode?.replace(/\s+/g, "").toUpperCase();
   if (!compactPostcode) return null;
@@ -50,23 +86,17 @@ export async function resolveVenueCoordinates(
       if (response.status === 400 || response.status === 404) return null;
       if (!response.ok) {
         if (attempt < POSTCODE_LOOKUP_ATTEMPTS) continue;
-        throw new VenueMappingServiceError();
+        return lookupSecondaryPostcode(compactPostcode, fetchImpl);
       }
 
       const data = await response.json() as {
         result?: { latitude?: number; longitude?: number };
       };
-      const resolvedLat = data.result?.latitude;
-      const resolvedLng = data.result?.longitude;
-      if (!isValidCoordinatePair(resolvedLat, resolvedLng)) {
-        return null;
-      }
-
-      return { lat: resolvedLat!, lng: resolvedLng! };
+      return validCoordinatePair(data.result?.latitude, data.result?.longitude);
     } catch (error) {
       if (error instanceof VenueMappingServiceError) throw error;
       if (attempt === POSTCODE_LOOKUP_ATTEMPTS) {
-        throw new VenueMappingServiceError();
+        return lookupSecondaryPostcode(compactPostcode, fetchImpl);
       }
     }
   }
