@@ -21,3 +21,4 @@
 - [UK English copy](uk-english-copy.md) — use UK English in authored UI while preserving third-party, legal, PDF, scoring, and spoken-source wording.
 - [API route integration tests](api-route-integration-tests.md) — test the built server; direct Node imports cannot resolve this API source tree's extensionless ESM route imports.
 - [React-Leaflet marker selectors](react-leaflet-marker-selectors.md) — pass marker className directly; nesting it in pathOptions does not render a selectable SVG class.
+- [Demo branch synchronization](demo-branch-sync.md) — merge GitHub main into demo with LFS smudging disabled, then reapply and verify the small demo-only override set.
