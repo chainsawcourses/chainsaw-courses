@@ -9,7 +9,8 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:certificate-layout": "node --test tests/certificate-layout.test.ts",
-    "check:remote-pdf": "node --test tests/remote-pdf.test.ts"
+    "check:remote-pdf": "node --test tests/remote-pdf.test.ts",
+    "check:gateway-venue": "pnpm run build && node --test tests/gateway-venue.test.ts tests/gateway-venue-routes.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.8.0",

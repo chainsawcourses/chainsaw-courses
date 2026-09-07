@@ -11,6 +11,7 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:uk-english": "node scripts/check-uk-english.mjs",
+    "check:admin-api-error": "node --test tests/admin-api-error.test.ts",
     "android:sync": "cap sync android",
     "android:bundle:release": "cap sync android && cd android && ./gradlew bundleRelease"
   },

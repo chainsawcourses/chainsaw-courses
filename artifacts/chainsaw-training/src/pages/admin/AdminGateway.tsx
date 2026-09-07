@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { getAdminApiError } from "../../lib/adminApiError";
 
 interface Venue {
   id: number;
@@ -91,8 +92,7 @@ export default function AdminGateway() {
         await loadVenues();
         return;
       }
-      const payload = await r.json().catch(() => null) as { error?: string } | null;
-      setSaveError(payload?.error ?? `The venue could not be saved (error ${r.status}).`);
+      setSaveError(await getAdminApiError(r));
     } catch {
       setSaveError("The venue could not be saved. Please check your connection and try again.");
     } finally { setSaving(false); }

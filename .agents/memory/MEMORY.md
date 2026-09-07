@@ -19,3 +19,4 @@
 - [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.
 - [Deployment uptime health path](deployment-uptime-health.md) — keep the API artifact preview path healthy as well as its canonical startup health endpoint.
 - [UK English copy](uk-english-copy.md) — use UK English in authored UI while preserving third-party, legal, PDF, scoring, and spoken-source wording.
+- [API route integration tests](api-route-integration-tests.md) — test the built server; direct Node imports cannot resolve this API source tree's extensionless ESM route imports.
