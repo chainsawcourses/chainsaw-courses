@@ -323,6 +323,7 @@ export default function PracticalGateway() {
                     key={venue.id}
                     center={[venue.lat, venue.lng]}
                     radius={8}
+                    className={`gateway-venue-marker-${venue.id}`}
                     pathOptions={{
                       color: "#c9621f",
                       fillColor: "#e27226",

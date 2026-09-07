@@ -154,10 +154,11 @@ export default function AdminGateway() {
                       ["phone", "Phone"], ["website", "Website (optional)"],
                     ] as [keyof Venue, string][]).map(([field, label]) => (
                       <div key={field}>
-                        <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
+                        <label htmlFor={`gateway-venue-${field}`} className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
                           {label}{field === "name" || field === "postcode" ? " *" : ""}
                         </label>
                         <input
+                          id={`gateway-venue-${field}`}
                           value={(editingVenue[field] as string) ?? ""}
                           onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, [field]: e.target.value })); }}
                           className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono"
@@ -165,12 +166,12 @@ export default function AdminGateway() {
                       </div>
                     ))}
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional — found from postcode)</label>
-                      <input type="number" step="0.0001" value={editingVenue.lat || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lat: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label htmlFor="gateway-venue-lat" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional — found from postcode)</label>
+                      <input id="gateway-venue-lat" type="number" step="0.0001" value={editingVenue.lat || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lat: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional — found from postcode)</label>
-                      <input type="number" step="0.0001" value={editingVenue.lng || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lng: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label htmlFor="gateway-venue-lng" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional — found from postcode)</label>
+                      <input id="gateway-venue-lng" type="number" step="0.0001" value={editingVenue.lng || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lng: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
                       <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Tier</label>

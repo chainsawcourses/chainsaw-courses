@@ -19,6 +19,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH;
+const apiOrigin = process.env.API_ORIGIN;
 
 if (!basePath) {
   throw new Error(
@@ -74,6 +75,14 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    ...(apiOrigin ? {
+      proxy: {
+        "/api": {
+          target: apiOrigin,
+          changeOrigin: true,
+        },
+      },
+    } : {}),
   },
   preview: {
     port,
