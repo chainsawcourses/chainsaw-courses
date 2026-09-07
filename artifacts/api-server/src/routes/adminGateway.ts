@@ -7,6 +7,8 @@ import {
   prepareNewGatewayVenue,
   resolveVenueCoordinates,
   VENUE_MAPPING_ERROR,
+  VENUE_MAPPING_SERVICE_ERROR,
+  VenueMappingServiceError,
 } from "../lib/gatewayVenue";
 
 const router = Router();
@@ -40,7 +42,11 @@ router.post("/admin/gateway/venues", async (req, res) => {
       prepared = await prepareNewGatewayVenue({ name, postcode, lat, lng });
     } catch (err) {
       req.log.warn({ err, postcode }, "Failed to geocode gateway venue postcode");
-      prepared = null;
+      if (err instanceof VenueMappingServiceError) {
+        res.status(503).json({ error: VENUE_MAPPING_SERVICE_ERROR });
+        return;
+      }
+      throw err;
     }
     if (!prepared) {
       res.status(422).json({ error: VENUE_MAPPING_ERROR });
@@ -78,7 +84,11 @@ router.put("/admin/gateway/venues/:id", async (req, res) => {
       coordinates = await resolveVenueCoordinates({ postcode, lat, lng });
     } catch (err) {
       req.log.warn({ err, postcode }, "Failed to geocode gateway venue postcode");
-      coordinates = null;
+      if (err instanceof VenueMappingServiceError) {
+        res.status(503).json({ error: VENUE_MAPPING_SERVICE_ERROR });
+        return;
+      }
+      throw err;
     }
     if (!coordinates) {
       res.status(422).json({

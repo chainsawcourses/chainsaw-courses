@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   prepareNewGatewayVenue,
   resolveVenueCoordinates,
+  VenueMappingServiceError,
 } from "../src/lib/gatewayVenue.ts";
 
 const mappedFetch = async () => new Response(JSON.stringify({
@@ -67,4 +68,54 @@ test("an unmappable venue is rejected before it can be inserted", async () => {
 
   assert.equal(venue, null);
   assert.equal(insertions.length, 0);
+});
+
+test("a temporary postcode service failure is retried", async () => {
+  let attempts = 0;
+  const recoveringFetch = async () => {
+    attempts += 1;
+    if (attempts === 1) {
+      return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+    }
+    return mappedFetch();
+  };
+
+  const coordinates = await resolveVenueCoordinates(
+    { postcode: "SW1A 1AA", lat: 0, lng: 0 },
+    recoveringFetch,
+  );
+
+  assert.equal(attempts, 2);
+  assert.deepEqual(coordinates, { lat: 51.501009, lng: -0.141588 });
+});
+
+test("a persistent postcode service outage is reported separately from invalid input", async () => {
+  let attempts = 0;
+  const unavailableFetch = async () => {
+    attempts += 1;
+    return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
+  };
+
+  await assert.rejects(
+    resolveVenueCoordinates(
+      { postcode: "SW1A 1AA", lat: 0, lng: 0 },
+      unavailableFetch,
+    ),
+    VenueMappingServiceError,
+  );
+  assert.equal(attempts, 2);
+});
+
+test("zero coordinates returned by the postcode service are rejected", async () => {
+  const zeroFetch = async () => new Response(JSON.stringify({
+    result: { latitude: 0, longitude: 0 },
+  }), { status: 200 });
+
+  assert.equal(
+    await resolveVenueCoordinates(
+      { postcode: "SW1A 1AA", lat: 0, lng: 0 },
+      zeroFetch,
+    ),
+    null,
+  );
 });
