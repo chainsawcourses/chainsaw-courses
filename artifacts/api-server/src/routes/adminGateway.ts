@@ -6,6 +6,32 @@ import { logger } from "../lib/logger";
 
 const router = Router();
 
+async function resolveVenueCoordinates(
+  postcode: string | undefined,
+  lat: number | undefined,
+  lng: number | undefined,
+): Promise<{ lat: number; lng: number; resolved: boolean }> {
+  if (Number.isFinite(lat) && lat !== 0 && Number.isFinite(lng) && lng !== 0) {
+    return { lat: lat!, lng: lng!, resolved: true };
+  }
+  const compactPostcode = postcode?.replace(/\s+/g, "").toUpperCase();
+  if (!compactPostcode) return { lat: 0, lng: 0, resolved: false };
+
+  try {
+    const response = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(compactPostcode)}`);
+    if (!response.ok) return { lat: 0, lng: 0, resolved: false };
+    const data = await response.json() as { result?: { latitude?: number; longitude?: number } };
+    const resolvedLat = data.result?.latitude;
+    const resolvedLng = data.result?.longitude;
+    if (Number.isFinite(resolvedLat) && Number.isFinite(resolvedLng)) {
+      return { lat: resolvedLat!, lng: resolvedLng!, resolved: true };
+    }
+  } catch (err) {
+    logger.warn({ err, postcode: compactPostcode }, "Failed to geocode gateway venue postcode");
+  }
+  return { lat: 0, lng: 0, resolved: false };
+}
+
 // GET /api/admin/gateway/venues
 router.get("/admin/gateway/venues", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorised" }); return; }
@@ -30,13 +56,13 @@ router.post("/admin/gateway/venues", async (req, res) => {
     if (!String(name ?? "").trim()) {
       res.status(400).json({ error: "Please enter a venue name." }); return;
     }
-    const hasCoordinates = Number.isFinite(lat) && lat !== 0 && Number.isFinite(lng) && lng !== 0;
+    const coordinates = await resolveVenueCoordinates(postcode, lat, lng);
     const [venue] = await db.insert(assessmentVenuesTable).values({
       name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
-      postcode: postcode?.trim() || "", lat: hasCoordinates ? lat : 0, lng: hasCoordinates ? lng : 0,
+      postcode: postcode?.trim().toUpperCase() || "", lat: coordinates.lat, lng: coordinates.lng,
       email: email?.trim() || "", phone: phone?.trim() || "",
       website: website?.trim() || null, tier: tier ?? "silver", notes: notes?.trim() || null,
-      active: hasCoordinates ? (active ?? true) : false,
+      active: coordinates.resolved ? (active ?? true) : false,
     }).returning();
     res.json(venue);
   } catch (err) {
@@ -55,8 +81,17 @@ router.put("/admin/gateway/venues/:id", async (req, res) => {
       lat: number; lng: number; email: string; phone: string;
       website?: string; tier: string; active: boolean; notes?: string;
     };
+    if (!String(name ?? "").trim()) {
+      res.status(400).json({ error: "Please enter a venue name." }); return;
+    }
+    const coordinates = await resolveVenueCoordinates(postcode, lat, lng);
     const [updated] = await db.update(assessmentVenuesTable)
-      .set({ name, address, town, county, postcode, lat, lng, email, phone, website: website ?? null, tier, active, notes: notes ?? null })
+      .set({
+        name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
+        postcode: postcode?.trim().toUpperCase() || "", lat: coordinates.lat, lng: coordinates.lng,
+        email: email?.trim() || "", phone: phone?.trim() || "", website: website?.trim() || null,
+        tier: tier ?? "silver", active: coordinates.resolved ? active : false, notes: notes?.trim() || null,
+      })
       .where(eq(assessmentVenuesTable.id, id))
       .returning();
     if (!updated) { res.status(404).json({ error: "Venue not found" }); return; }

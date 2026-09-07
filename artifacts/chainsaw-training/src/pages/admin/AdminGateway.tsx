@@ -165,11 +165,11 @@ export default function AdminGateway() {
                       </div>
                     ))}
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional)</label>
+                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional — found from postcode)</label>
                       <input type="number" step="0.0001" value={editingVenue.lat || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lat: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional)</label>
+                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional — found from postcode)</label>
                       <input type="number" step="0.0001" value={editingVenue.lng || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lng: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
