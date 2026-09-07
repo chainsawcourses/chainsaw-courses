@@ -22,17 +22,21 @@ router.get("/admin/gateway/venues", async (req, res) => {
 router.post("/admin/gateway/venues", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorised" }); return; }
   try {
-    const { name, address, town, county, postcode, lat, lng, email, phone, website, tier, notes } = req.body as {
+    const { name, address, town, county, postcode, lat, lng, email, phone, website, tier, active, notes } = req.body as {
       name: string; address: string; town: string; county: string; postcode: string;
       lat: number; lng: number; email: string; phone: string;
-      website?: string; tier: string; notes?: string;
+      website?: string; tier: string; active?: boolean; notes?: string;
     };
-    if (!name || !address || !town || !county || !postcode || !lat || !lng || !email || !phone) {
-      res.status(400).json({ error: "Missing required fields" }); return;
+    if (!String(name ?? "").trim()) {
+      res.status(400).json({ error: "Please enter a venue name." }); return;
     }
+    const hasCoordinates = Number.isFinite(lat) && lat !== 0 && Number.isFinite(lng) && lng !== 0;
     const [venue] = await db.insert(assessmentVenuesTable).values({
-      name, address, town, county, postcode, lat, lng, email, phone,
-      website: website ?? null, tier: tier ?? "silver", notes: notes ?? null, active: true,
+      name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
+      postcode: postcode?.trim() || "", lat: hasCoordinates ? lat : 0, lng: hasCoordinates ? lng : 0,
+      email: email?.trim() || "", phone: phone?.trim() || "",
+      website: website?.trim() || null, tier: tier ?? "silver", notes: notes?.trim() || null,
+      active: hasCoordinates ? (active ?? true) : false,
     }).returning();
     res.json(venue);
   } catch (err) {

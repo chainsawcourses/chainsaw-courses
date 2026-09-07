@@ -50,6 +50,7 @@ export default function AdminGateway() {
   const [loading, setLoading] = useState(true);
   const [editingVenue, setEditingVenue] = useState<Partial<Venue> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const headers = { admintoken: adminToken ?? "", "Content-Type": "application/json" };
 
@@ -72,13 +73,28 @@ export default function AdminGateway() {
 
   const saveVenue = async () => {
     if (!editingVenue) return;
+    if (!String(editingVenue.name ?? "").trim()) {
+      setSaveError("Please enter a venue name.");
+      return;
+    }
+
+    setSaveError("");
     setSaving(true);
     try {
       const isNew = !editingVenue.id;
       const url = isNew ? "/api/admin/gateway/venues" : `/api/admin/gateway/venues/${editingVenue.id}`;
       const method = isNew ? "POST" : "PUT";
       const r = await fetch(url, { method, headers, body: JSON.stringify(editingVenue) });
-      if (r.ok) { setEditingVenue(null); await loadVenues(); }
+      if (r.ok) {
+        setEditingVenue(null);
+        setSaveError("");
+        await loadVenues();
+        return;
+      }
+      const payload = await r.json().catch(() => null) as { error?: string } | null;
+      setSaveError(payload?.error ?? `The venue could not be saved (error ${r.status}).`);
+    } catch {
+      setSaveError("The venue could not be saved. Please check your connection and try again.");
     } finally { setSaving(false); }
   };
 
@@ -122,7 +138,7 @@ export default function AdminGateway() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <h2 className="font-mono font-bold uppercase tracking-widest text-sm">Assessment Venues</h2>
-              <Button size="sm" className="font-mono tracking-widest text-xs gap-1.5" onClick={() => setEditingVenue({ ...EMPTY_VENUE })}>
+              <Button size="sm" className="font-mono tracking-widest text-xs gap-1.5" onClick={() => { setSaveError(""); setEditingVenue({ ...EMPTY_VENUE }); }}>
                 <Plus className="w-3.5 h-3.5" /> Add Venue
               </Button>
             </div>
@@ -138,21 +154,23 @@ export default function AdminGateway() {
                       ["phone", "Phone"], ["website", "Website (optional)"],
                     ] as [keyof Venue, string][]).map(([field, label]) => (
                       <div key={field}>
-                        <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">{label}</label>
+                        <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
+                          {label}{field === "name" ? " *" : ""}
+                        </label>
                         <input
                           value={(editingVenue[field] as string) ?? ""}
-                          onChange={e => setEditingVenue(prev => ({ ...prev!, [field]: e.target.value }))}
+                          onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, [field]: e.target.value })); }}
                           className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono"
                         />
                       </div>
                     ))}
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude</label>
-                      <input type="number" step="0.0001" value={editingVenue.lat ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, lat: parseFloat(e.target.value) }))} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional)</label>
+                      <input type="number" step="0.0001" value={editingVenue.lat || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lat: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude</label>
-                      <input type="number" step="0.0001" value={editingVenue.lng ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, lng: parseFloat(e.target.value) }))} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional)</label>
+                      <input type="number" step="0.0001" value={editingVenue.lng || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lng: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
                       <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Tier</label>
@@ -170,8 +188,13 @@ export default function AdminGateway() {
                     <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Internal Notes</label>
                     <textarea value={editingVenue.notes ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, notes: e.target.value }))} rows={2} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm resize-none" />
                   </div>
+                  {saveError && (
+                    <p role="alert" className="rounded border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
+                      {saveError}
+                    </p>
+                  )}
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="font-mono tracking-widest text-xs" onClick={() => setEditingVenue(null)}>Cancel</Button>
+                    <Button variant="outline" size="sm" className="font-mono tracking-widest text-xs" onClick={() => { setSaveError(""); setEditingVenue(null); }}>Cancel</Button>
                     <Button size="sm" className="font-mono tracking-widest text-xs" disabled={saving} onClick={saveVenue}>
                       {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null} Save Venue
                     </Button>
