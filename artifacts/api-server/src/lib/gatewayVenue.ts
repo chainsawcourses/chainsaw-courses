@@ -18,6 +18,10 @@ type CoordinateInput = {
 
 type FetchLike = typeof fetch;
 const POSTCODE_LOOKUP_ATTEMPTS = 2;
+const PRIMARY_POSTCODE_API_URL =
+  process.env["POSTCODE_PRIMARY_API_URL"] ?? "https://api.postcodes.io/postcodes";
+const SECONDARY_POSTCODE_API_URL =
+  process.env["POSTCODE_SECONDARY_API_URL"] ?? "https://api.getthedata.com/postcode";
 
 function normaliseCoordinate(value: unknown): number | undefined {
   if (typeof value === "number") return value;
@@ -49,7 +53,7 @@ async function lookupSecondaryPostcode(
 ): Promise<{ lat: number; lng: number } | null> {
   try {
     const response = await fetchImpl(
-      `https://api.getthedata.com/postcode/${encodeURIComponent(compactPostcode)}`,
+      `${SECONDARY_POSTCODE_API_URL}/${encodeURIComponent(compactPostcode)}`,
     );
     if (response.status === 400 || response.status === 404) return null;
     if (!response.ok) throw new VenueMappingServiceError();
@@ -81,7 +85,7 @@ export async function resolveVenueCoordinates(
   for (let attempt = 1; attempt <= POSTCODE_LOOKUP_ATTEMPTS; attempt += 1) {
     try {
       const response = await fetchImpl(
-        `https://api.postcodes.io/postcodes/${encodeURIComponent(compactPostcode)}`,
+        `${PRIMARY_POSTCODE_API_URL}/${encodeURIComponent(compactPostcode)}`,
       );
       if (response.status === 400 || response.status === 404) return null;
       if (!response.ok) {
