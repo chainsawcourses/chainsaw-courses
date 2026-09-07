@@ -381,21 +381,25 @@ export default function TrainingList() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="font-black tracking-tighter text-xs uppercase text-primary leading-tight">Chainsaw Courses</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="font-mono text-[11px] text-foreground font-semibold truncate">{fullName}</p>
-                      <button
-                        type="button"
-                        className="text-muted-foreground hover:text-primary shrink-0"
-                        title="View your signed waiver"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setBrandMenuOpen(false);
-                          setLocation("/signed-waiver");
-                        }}
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="mt-0.5 flex w-full min-w-0 items-start gap-2 text-left text-foreground hover:text-primary"
+                      title="View your signed waiver"
+                      aria-label={`View signed waiver for ${fullName ?? "current user"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBrandMenuOpen(false);
+                        setLocation("/signed-waiver");
+                      }}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-mono text-[11px] font-semibold leading-tight">{fullName}</span>
+                        <span className="mt-0.5 block font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                          View waiver
+                        </span>
+                      </span>
+                      <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    </button>
                   </div>
                 </div>
 
