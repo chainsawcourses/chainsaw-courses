@@ -61,6 +61,16 @@ export const chatMessagesTable = pgTable("chat_messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const mockQuestionsTable = pgTable("mock_questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  prompts: text("prompts").notNull(), // JSON: VocalPrompt[]
+  image: text("image"),
+  audioUrl: text("audio_url"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
 export const hazardReferenceTable = pgTable("hazard_reference", {
   id: serial("id").primaryKey(),
   category: text("category").notNull(), // 'site' | 'chainsaw' | 'job'
@@ -170,6 +180,8 @@ export const newsItemsTable = pgTable("news_items", {
   status: text("status").notNull().default("approved"),
   guid: text("guid").unique(),
   feedSource: text("feed_source"),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
 }, (t) => [index("news_items_published_at_idx").on(t.publishedAt)]);
 
 export const insertNewsItemSchema = createInsertSchema(newsItemsTable).omit({ id: true, createdAt: true });
@@ -187,6 +199,8 @@ export const appFeedbackTable = pgTable("app_feedback", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   rating: integer("rating").notNull(),
+  clarityRating: integer("clarity_rating"),
+  usabilityRating: integer("usability_rating"),
   comment: text("comment"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -259,3 +273,19 @@ export const reasonableAdjustmentsTable = pgTable("reasonable_adjustments", {
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Stores full timecoded transcripts for video modules.
+// segments JSON: Array<{ timecodeStart: string; timecodeEnd: string; text: string }>
+export const videoTranscriptsTable = pgTable("video_transcripts", {
+  id: serial("id").primaryKey(),
+  moduleOrder: integer("module_order").notNull().unique(),
+  moduleTitle: text("module_title").notNull(),
+  learningOutcome: text("learning_outcome"),
+  assessmentCriteria: text("assessment_criteria"),
+  segments: text("segments").notNull().default("[]"), // JSON array
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type VideoTranscript = typeof videoTranscriptsTable.$inferSelect;
+export type InsertVideoTranscript = typeof videoTranscriptsTable.$inferInsert;

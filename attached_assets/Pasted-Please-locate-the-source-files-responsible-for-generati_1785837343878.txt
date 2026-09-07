@@ -1,0 +1,30 @@
+Please locate the source files responsible for generating the course materials document/PDF (e.g., HTML/CSS templates, Python PDF generation scripts, Markdown files, or JSON question banks) and apply the following audited corrections across Sections 4, 6, and 7:
+
+---
+
+### 1. Section 4: Syllabus Mapping Table Updates
+- **Module 2 (5 Steps To Risk Assessment):** Update the AC column to include `AC 2.3` alongside `AC 2.1` (Result: `AC 2.1, AC 2.3`).
+- **Module 4 (Law & Legislation):** Update the AC column to include `AC 1.3` alongside `AC 1.1, AC 1.2` (Result: `AC 1.1, AC 1.2, AC 1.3`).
+- **Add Missing Advanced Extension Rows:** Add rows for the following 3 criteria:
+  - `AC 4.2`: Explain safe carburettor adjusting rules using factory Idle (LA/T), Low (L), and High (H) screws. (Module: Advanced Workshop Extension / Manual pp. 40–41).
+  - `AC 6.5`: Evaluate specialised branch removal, snedding, and de-limbing sequences. (Module: Advanced Workshop Extension / Manual pp. 118–119).
+  - `AC 6.6`: Identify severe site threats from windblown windfalls, escape routes, and root plates. (Module: Advanced Workshop Extension / Manual pp. 122–127).
+
+---
+
+### 2. Section 6: Video Transcripts Corrections
+- **Module 11 Header:** Update the header tag to reflect both criteria covered: `LO4 AC 4.1 / LO3 AC 3.1`.
+- **Module 20 Transcript:** At timecode 1:32, correct the spelling typo from `"Sithl"` to `"Stihl"`.
+- **Module 28 Header:** Fix the header code typo from `LOG AC 6.1` to `LO6 AC 6.1`.
+
+---
+
+### 3. Section 7: Assessment Bank Re-Tagging (151 MCQs)
+- **Q129 & Q130 (Helmet & Hearing Protection Standards):** Change tag from `LO1 AC 1.2` to `LO1 AC 1.4`.
+- **Q139 & Q140 (Depth Gauges / Rakers):** Change tag from `LO3 AC 3.2` to `LO4 AC 4.4`.
+- **Q141–Q144 (Chain Tension, Drive Links, Bar Grooves, Chain Direction):** Change tag from `LO4 AC 4.1` to `LO4 AC 4.4`.
+- **Q149 & Q150 (Tension & Compression Logs):** Correct typo tag from `LO6 AC 8.2` to `LO6 AC 6.2`.
+
+---
+
+After applying these edits, build/recompile the PDF and confirm that all table mappings and question tags reflect these updates cleanly.

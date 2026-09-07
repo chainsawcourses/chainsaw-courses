@@ -1,8 +1,10 @@
-const CACHE_NAME = "chainsaw-shell-v3";
+const CACHE_NAME = "chainsaw-shell-v20";
 const OFFLINE_URL = "/offline.html";
 
+// Do NOT include "/" (index.html) here — we never cache the HTML entry point
+// so that every app open always fetches fresh HTML from the server.
+// Vite's JS/CSS bundles are content-hashed so they never go stale in cache.
 const PRECACHE_ASSETS = [
-  "/",
   "/offline.html",
   "/manifest.json",
   "/icon-192.png",
@@ -53,25 +55,56 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// ─── Activate — clean up old caches ──────────────────────────────────────────
+// ─── Activate — clean up old caches, then tell all windows to hard-reload ────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys()
+      .then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      )
+      .then(() => self.clients.claim())
+      .then(() =>
+        // Post a message to every open window — the app listens and calls
+        // window.location.reload(true) which bypasses the HTTP cache.
+        // This works on iOS and Android where client.navigate() is unreliable.
+        self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) =>
+          list.forEach((client) => client.postMessage({ type: "SW_UPDATED" }))
+        )
+      )
   );
-  self.clients.claim();
 });
 
-// ─── Fetch — network-first with offline fallback ──────────────────────────────
+// ─── Fetch — split strategy for instant updates ───────────────────────────────
+//
+// Navigation requests (HTML):  always network — never cached.
+//   Every app open fetches fresh index.html from the server, so published
+//   changes reach all devices on next open with no cache-busting required.
+//   Vite's JS/CSS bundles are content-hashed so they are safe to cache long-term.
+//
+// Static assets (JS/CSS/images/fonts):  network-first, cached on success.
+//   Content-hash filenames mean a cached bundle is always the right version.
+//
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
 
-  // Skip non-same-origin and API requests (always need fresh data)
+  // Skip non-same-origin requests — CDN, Firebase, API calls handled elsewhere
   if (url.origin !== self.location.origin) return;
+  // API calls must always be fresh
   if (url.pathname.startsWith("/api/")) return;
+  // Vite dev server internals — never cache
+  if (url.pathname.startsWith("/node_modules/")) return;
+  if (url.pathname.startsWith("/@")) return;
 
+  // ── HTML navigation — network only, never cached ──────────────────────────
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+    );
+    return;
+  }
+
+  // ── Static assets — network-first, cache on success ──────────────────────
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -81,14 +114,7 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() =>
-        caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          if (event.request.mode === "navigate") {
-            return caches.match(OFFLINE_URL);
-          }
-        })
-      )
+      .catch(() => caches.match(event.request))
   );
 });
 

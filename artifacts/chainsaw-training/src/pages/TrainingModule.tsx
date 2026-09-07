@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, Biohazard, CheckCircle2, ChevronRight, ExternalLink, FileText, LogOut, RotateCcw } from "lucide-react";
+import { ArrowLeft, Biohazard, BookOpen, CheckCircle2, ChevronRight, ExternalLink, FileText, RotateCcw, Scale } from "lucide-react";
 import { useGetModule, getGetModuleQueryKey, useCompleteVideo, useSaveHeartbeat, getListModulesQueryKey, getGetProgressSummaryQueryKey, useListModules } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserSession } from "../contexts/UserContext";
@@ -20,7 +20,7 @@ export default function TrainingModule() {
 
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { activationCode, deviceId, clearSession } = useUserSession();
+  const { activationCode, deviceId, clearSession, allModulesUnlocked } = useUserSession();
 
   const { data: module, isLoading } = useGetModule(id, {
     query: { queryKey: getGetModuleQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
@@ -46,6 +46,7 @@ export default function TrainingModule() {
 
   const playerRef = useRef<VimeoPlayerHandle>(null);
   const mainRef = useRef<HTMLElement>(null);
+  const latestPlaybackTimeRef = useRef(0);
 
   const [safetyModalOpen, setSafetyModalOpen] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -101,12 +102,27 @@ export default function TrainingModule() {
 
   const handleSafetyAcknowledge = () => { setSafetyModalOpen(false); setCanPlay(true); };
 
-  // Heartbeat for video modules
+  useEffect(() => {
+    latestPlaybackTimeRef.current = 0;
+  }, [id]);
+
+  // Record an opening heartbeat immediately, then preserve the most recent
+  // player timestamp while the learner watches. This makes partial viewing
+  // visible to administrators even if a learner leaves before 30 seconds.
   useEffect(() => {
     if (!canPlay || !deviceId || !activationCode || module?.contentType === "pdf") return;
-    const interval = setInterval(() => {
-      saveHeartbeat.mutate({ data: { moduleId: id, timestamp: 0, deviceId, activationCode } });
-    }, 30000);
+    const saveProgress = () => {
+      saveHeartbeat.mutate({
+        data: {
+          moduleId: id,
+          timestamp: Math.floor(latestPlaybackTimeRef.current),
+          deviceId,
+          activationCode,
+        },
+      });
+    };
+    saveProgress();
+    const interval = setInterval(saveProgress, 30000);
     return () => clearInterval(interval);
   }, [canPlay, deviceId, activationCode, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -139,7 +155,9 @@ export default function TrainingModule() {
     playerRef.current?.replay();
   }, []);
 
-  const handleTimeUpdate = useCallback((_t: number) => {}, []);
+  const handleTimeUpdate = useCallback((time: number) => {
+    latestPlaybackTimeRef.current = Math.max(0, time);
+  }, []);
 
   // ── Voice audio helpers ────────────────────────────────────────────────
   const stopAudio = useCallback(() => {
@@ -222,15 +240,12 @@ export default function TrainingModule() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card sticky top-0 z-50 shrink-0">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" className="font-mono text-xs" asChild>
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-2" /> BACK</Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase truncate max-w-[50vw]">{module.title}</div>
-          <Button variant="ghost" size="sm" className="font-mono text-xs text-muted-foreground hover:text-destructive w-[80px]"
-            onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}>
-            <LogOut className="w-3 h-3 mr-1" /> LOG OUT
-          </Button>
+          <div className="min-w-0 truncate text-center font-mono text-xs font-bold uppercase sm:text-sm">{module.title}</div>
+          <div className="w-0 sm:w-20" />
         </div>
       </header>
 
@@ -244,29 +259,22 @@ export default function TrainingModule() {
             </div>
             <div>
               <h2 className="text-2xl font-black font-mono uppercase tracking-wider mb-2">{module.title}</h2>
-              <p className="text-muted-foreground max-w-md">{module.description}</p>
+              {module.description && <p className="text-muted-foreground max-w-md">{module.description}</p>}
             </div>
-
             {module.pdfUrl ? (
-              <Button size="lg" className="font-mono tracking-widest gap-2" asChild>
+              <Button className="font-mono tracking-widest gap-2" asChild>
                 <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="w-4 h-4" /> OPEN PDF DOCUMENT
+                  <ExternalLink className="w-4 h-4" /> VIEW DOCUMENT
                 </a>
               </Button>
             ) : (
               <div className="px-6 py-4 border border-border rounded-lg bg-secondary/20 font-mono text-sm text-muted-foreground">
-                PDF document coming soon — admin can upload via the dashboard.
+                Content coming soon.
               </div>
             )}
-
-            <div className="flex items-center gap-2 mt-2">
-              <CheckCircle2 className="w-4 h-4 text-primary" />
-              <span className="font-mono text-sm text-primary uppercase tracking-wider">Module automatically marked complete</span>
-            </div>
-
             <Button variant="outline" className="font-mono tracking-widest gap-1" asChild>
               <Link href="/training">
-                BACK TO COURSE <ChevronRight className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4" /> BACK TO COURSE
               </Link>
             </Button>
           </div>
@@ -316,7 +324,7 @@ export default function TrainingModule() {
                       onTimeUpdate={handleTimeUpdate}
                       onEnded={handleVideoEnded}
                       videoWatched={module.isCompleted || videoCompleted || IS_DEMO}
-                      isPortrait={IS_DEMO}
+                      allowSeek={allModulesUnlocked || IS_DEMO}
                     />
                   );
                 }
@@ -324,10 +332,10 @@ export default function TrainingModule() {
                   <div className="w-full aspect-video flex items-center justify-center bg-secondary/20 border border-border rounded-lg">
                     <div className="text-center font-mono text-muted-foreground uppercase tracking-widest text-xs space-y-1">
                       {safetyModalOpen
-                        ? <span>SAFETY ACKNOWLEDGMENT REQUIRED</span>
+                        ? <span>SAFETY ACKNOWLEDGEMENT REQUIRED</span>
                         : !hasRealVideo
                           ? <><span>VIDEO NOT YET UPLOADED</span><br /><span className="text-[10px] opacity-60 normal-case tracking-normal">Admin: add this video in Video Settings</span></>
-                          : <span>INITIALIZING PLAYER...</span>}
+                          : <span>INITIALISING PLAYER...</span>}
                     </div>
                   </div>
                 );
@@ -354,7 +362,7 @@ export default function TrainingModule() {
                           <ChevronRight className="w-3.5 h-3.5" /> TAKE MODULE QUIZ
                         </Link>
                       ) : nextVideoModule ? (
-                        <Link href={`/module/${nextVideoModule.id}`}>
+                        <Link href={`/training/${nextVideoModule.id}`}>
                           <ChevronRight className="w-3.5 h-3.5" /> PLAY NEXT VIDEO
                         </Link>
                       ) : (
@@ -373,7 +381,7 @@ export default function TrainingModule() {
 
             {/* Quiz / next-video button — always visible, disabled until video is watched */}
             <div className="flex justify-center max-w-3xl mx-auto w-full">
-              {(videoCompleted || module.isCompleted) ? (
+              {(videoCompleted || module.isCompleted || allModulesUnlocked) ? (
                 hasQuiz ? (
                   <Button className="w-full font-mono tracking-widest" asChild>
                     <Link href={`/quiz/${module.id}`}>
@@ -382,7 +390,7 @@ export default function TrainingModule() {
                   </Button>
                 ) : nextVideoModule ? (
                   <Button className="w-full font-mono tracking-widest" asChild>
-                    <Link href={`/module/${nextVideoModule.id}`}>
+                    <Link href={`/training/${nextVideoModule.id}`}>
                       <ChevronRight className="w-4 h-4 mr-1.5" /> PLAY NEXT VIDEO
                     </Link>
                   </Button>
@@ -399,6 +407,82 @@ export default function TrainingModule() {
                 </Button>
               )}
             </div>
+
+            {/* MHOR 1992 supplementary card — shown for the Stacking module (id 30).
+                Keyed to the module's stable database id, not free-text fields, so renaming
+                the module title or editing assessmentCriteria will not hide this card. */}
+            {module.id === 30 && (
+              <div className="max-w-3xl mx-auto w-full border border-primary/30 rounded-lg bg-primary/5 overflow-hidden">
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-primary/20 bg-primary/10">
+                  <Scale className="w-4 h-4 text-primary shrink-0" />
+                  <span className="font-mono text-xs font-bold uppercase tracking-widest text-primary">Key Regulation — AC 1.5</span>
+                  <span className="ml-auto font-mono text-[10px] text-primary/60 uppercase tracking-wide">Manual Handling Operations Regulations 1992</span>
+                </div>
+                <div className="px-5 py-4 space-y-4">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    The <strong className="text-foreground">Manual Handling Operations Regulations 1992 (MHOR 1992)</strong> require employers and employees to avoid hazardous manual handling where reasonably practicable, and to assess and reduce the risk of injury from all manual handling tasks — including <strong className="text-foreground">log lifting, carrying, and timber stacking</strong> during chainsaw operations.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">TILE Framework</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li><span className="font-semibold text-foreground">T</span>ask — what the lift involves (distance, frequency, posture)</li>
+                        <li><span className="font-semibold text-foreground">I</span>ndividual — the person's capability and fitness</li>
+                        <li><span className="font-semibold text-foreground">L</span>oad — weight, shape, and stability of the log</li>
+                        <li><span className="font-semibold text-foreground">E</span>nvironment — ground conditions, slope, and space</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Log Lifting Rules</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Avoid manual lifting — use machinery or mechanical aids where possible</li>
+                        <li>Only lift within your personal capability</li>
+                        <li>Use timber tongs, hooks, or cant hooks to roll or drag logs</li>
+                        <li>Never lift and carry when rolling or dragging is an option</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Timber Stacking</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Manual stacks must not exceed <strong className="text-foreground">1.2 m high</strong></li>
+                        <li>On slopes, ensure stacks are braced to prevent rolling</li>
+                        <li>Never climb on or stand on a timber stack</li>
+                        <li>Machine-assisted stacking: check the rated lifting capacity</li>
+                      </ul>
+                    </div>
+
+                    <div className="rounded-md border border-border bg-card p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <ExternalLink className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="font-mono text-xs font-bold uppercase tracking-wide text-primary">Back Injury Risk</span>
+                      </div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5 pl-1">
+                        <li>Back injury is the most common chainsaw-related musculoskeletal harm</li>
+                        <li>Cold muscles and fatigue significantly increase injury risk</li>
+                        <li>Always warm up before manual handling activity on site</li>
+                        <li>Report near-misses and strain incidents under RIDDOR</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-wide">
+                    Reference: Manual Handling Operations Regulations 1992 (SI 1992/2793) · HSE L23 Manual Handling Guidance · Chainsaw Manual pages 19 &amp; 120
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>

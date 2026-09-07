@@ -20,6 +20,7 @@ import privacyPolicyRouter from "./privacyPolicy";
 import gatewayRouter from "./gateway";
 import adminGatewayRouter from "./adminGateway";
 import adminQualityRouter from "./adminQuality";
+import adminMockRouter from "./adminMock";
 import shopifyWebhookRouter from "./shopifyWebhook";
 
 const router: IRouter = Router();
@@ -45,6 +46,7 @@ router.use(privacyPolicyRouter);
 router.use(gatewayRouter);
 router.use(adminGatewayRouter);
 router.use(adminQualityRouter);
+router.use(adminMockRouter);
 router.use(shopifyWebhookRouter);
 
 export default router;

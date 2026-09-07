@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import path from "path";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { loadAllAiResources } from "./lib/ai-resource";
@@ -29,6 +30,7 @@ app.use(
 app.use(cors());
 app.use(
   express.json({
+    limit: "2mb",
     verify: (req: express.Request & { rawBody?: Buffer }, _res, buf) => {
       req.rawBody = buf;
     },
@@ -44,7 +46,42 @@ app.use("/api", (_req, res, next) => {
   next();
 });
 
+// Serve uploaded question images as static files
+app.use("/question-images/uploads", express.static(path.join(__dirname, "../uploads/question-images")));
+// Serve uploaded question audio as static files
+app.use("/question-audio/uploads", express.static(path.join(__dirname, "../uploads/question-audio")));
+
 app.use("/api", router);
+
+// Temporary: serve pre-built iOS dist as a download
+app.get("/download-ios-dist", (_req, res) => {
+  res.download(path.join(__dirname, "../dist-public.zip"), "dist-public.zip");
+});
+
+// Temporary: iPad preview video download
+app.get("/download-ipad-preview", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_ipad_preview.mp4"), "chainsaw_ipad_preview.mp4");
+});
+
+// Temporary: iPhone preview video download
+app.get("/download-iphone-preview", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_iphone_preview.mp4"), "chainsaw_iphone_preview.mp4");
+});
+
+// Temporary: iPhone preview video v2 download
+app.get("/download-iphone-preview-v2", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_iphone_v2_preview.mp4"), "chainsaw_iphone_preview.mp4");
+});
+
+// Temporary: App icon download
+app.get("/download-app-icon", (_req, res) => {
+  res.download(path.join(__dirname, "../chainsaw_appicon_1024.png"), "chainsaw_appicon_1024.png");
+});
+
+// Privacy policy page
+app.get("/privacy-policy", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../privacy-policy.html"));
+});
 
 // Pre-load AI reference resources (manual + Q&A) on startup
 loadAllAiResources();

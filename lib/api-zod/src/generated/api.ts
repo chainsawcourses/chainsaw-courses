@@ -17,6 +17,27 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+export const getHazardsReferenceResponseHazardsItemLikelihoodMax = 5;
+
+export const getHazardsReferenceResponseHazardsItemSeverityMax = 5;
+
+
+
+export const GetHazardsReferenceResponse = zod.object({
+  "title": zod.string(),
+  "intro": zod.string(),
+  "hazards": zod.array(zod.object({
+  "label": zod.string(),
+  "likelihood": zod.number().min(1).max(getHazardsReferenceResponseHazardsItemLikelihoodMax),
+  "severity": zod.number().min(1).max(getHazardsReferenceResponseHazardsItemSeverityMax),
+  "controlMeasures": zod.string()
+}))
+})
+
+
+/**
  * @summary Activate a Shopify purchase code and bond it to a device
  */
 export const ActivateCodeBody = zod.object({
@@ -89,6 +110,7 @@ export const ListModulesResponseItem = zod.object({
   "duration": zod.number(),
   "thumbnailUrl": zod.string().nullish(),
   "isHighRisk": zod.boolean().optional(),
+  "pdfUrl": zod.string().nullish(),
   "learningOutcome": zod.string().nullish(),
   "assessmentCriteria": zod.string().nullish()
 })
@@ -126,7 +148,8 @@ export const GetModuleResponse = zod.object({
   "lastTimestamp": zod.number().nullish(),
   "safetyText": zod.string().nullish(),
   "learningOutcome": zod.string().nullish(),
-  "assessmentCriteria": zod.string().nullish()
+  "assessmentCriteria": zod.string().nullish(),
+  "quizCount": zod.number().optional()
 })
 
 
@@ -299,9 +322,30 @@ export const GetExamStatusResponse = zod.object({
 
 
 /**
+ * @summary Get the current user's certificate display details
+ */
+export const GetCertificateDetailsHeader = zod.object({
+  "deviceId": zod.string(),
+  "activationCode": zod.string()
+})
+
+export const GetCertificateDetailsResponse = zod.object({
+  "fullName": zod.string(),
+  "email": zod.string(),
+  "passedAt": zod.coerce.date(),
+  "passedScore": zod.number().nullable(),
+  "certificateReference": zod.string()
+})
+
+
+/**
  * @summary Submit overall app feedback after passing the final exam
  */
 export const submitAppFeedbackBodyRatingMax = 5;
+
+export const submitAppFeedbackBodyClarityRatingMax = 5;
+
+export const submitAppFeedbackBodyUsabilityRatingMax = 5;
 
 
 
@@ -309,6 +353,8 @@ export const SubmitAppFeedbackBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "rating": zod.number().min(1).max(submitAppFeedbackBodyRatingMax),
+  "clarityRating": zod.number().min(1).max(submitAppFeedbackBodyClarityRatingMax).optional(),
+  "usabilityRating": zod.number().min(1).max(submitAppFeedbackBodyUsabilityRatingMax).optional(),
   "comment": zod.string().optional()
 })
 
@@ -328,6 +374,8 @@ export const ListAppFeedbackHeader = zod.object({
 export const ListAppFeedbackResponseItem = zod.object({
   "id": zod.number(),
   "rating": zod.number(),
+  "clarityRating": zod.number().nullish(),
+  "usabilityRating": zod.number().nullish(),
   "comment": zod.string().nullish(),
   "studentName": zod.string(),
   "createdAt": zod.string()
@@ -375,12 +423,13 @@ export const ListFeedbackResponse = zod.array(ListFeedbackResponseItem)
 
 
 /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const SubmitInspectionBody = zod.object({
   "deviceId": zod.string(),
   "activationCode": zod.string(),
   "sawIdentifier": zod.string().optional(),
+  "duplicate": zod.boolean().optional(),
   "items": zod.array(zod.object({
   "id": zod.string(),
   "label": zod.string(),
@@ -496,7 +545,35 @@ export const ListAllInspectionsResponse = zod.array(ListAllInspectionsResponseIt
 
 
 /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Delete all inspection records
+ */
+export const DeleteAllInspectionsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteAllInspectionsResponse = zod.object({
+  "deleted": zod.number()
+})
+
+
+/**
+ * @summary Delete a single inspection record
+ */
+export const DeleteInspectionParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteInspectionHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteInspectionResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const SubmitRiskAssessmentBody = zod.object({
   "deviceId": zod.string(),
@@ -515,6 +592,7 @@ export const SubmitRiskAssessmentBody = zod.object({
   "firstAidKit": zod.string().optional(),
   "nearestAed": zod.string().optional(),
   "nearestSignal": zod.string().optional(),
+  "duplicate": zod.boolean().optional(),
   "hazards": zod.array(zod.object({
   "id": zod.string(),
   "label": zod.string(),
@@ -703,6 +781,34 @@ export const ListAllRiskAssessmentsResponse = zod.array(ListAllRiskAssessmentsRe
 
 
 /**
+ * @summary Delete all risk assessment records
+ */
+export const DeleteAllRiskAssessmentsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteAllRiskAssessmentsResponse = zod.object({
+  "deleted": zod.number()
+})
+
+
+/**
+ * @summary Delete a single risk assessment record
+ */
+export const DeleteRiskAssessmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteRiskAssessmentHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const DeleteRiskAssessmentResponse = zod.object({
+  "success": zod.boolean()
+})
+
+
+/**
  * @summary Get waiver status for current user
  */
 export const GetWaiverHeader = zod.object({
@@ -713,7 +819,11 @@ export const GetWaiverHeader = zod.object({
 export const GetWaiverResponse = zod.object({
   "signed": zod.boolean(),
   "signedAt": zod.string().nullish(),
-  "pdfUrl": zod.string().nullish()
+  "pdfUrl": zod.string().nullish(),
+  "fullName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "signatureData": zod.string().nullish(),
+  "clausesSnapshot": zod.string().nullish()
 })
 
 
@@ -800,7 +910,11 @@ export const ListStudentsResponseItem = zod.object({
   "totalModules": zod.number(),
   "quizzesPassed": zod.number().optional(),
   "waiverSigned": zod.boolean(),
-  "lastActivity": zod.string().nullish()
+  "lastActivity": zod.string().nullish(),
+  "feedbackCount": zod.number(),
+  "moduleFeedbackCount": zod.number(),
+  "courseFeedbackCount": zod.number(),
+  "totalQuizAttempts": zod.number().optional()
 })
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem)
 
@@ -833,7 +947,8 @@ export const GetStudentResponse = zod.object({
   "moduleTitle": zod.string(),
   "passed": zod.boolean(),
   "score": zod.number(),
-  "attemptedAt": zod.string()
+  "attemptedAt": zod.string(),
+  "totalAttempts": zod.number().optional()
 })),
   "examAttempts": zod.array(zod.object({
   "id": zod.number(),
@@ -841,6 +956,30 @@ export const GetStudentResponse = zod.object({
   "passed": zod.boolean(),
   "totalQuestions": zod.number(),
   "attemptedAt": zod.string()
+})),
+  "videoProgress": zod.array(zod.object({
+  "moduleId": zod.number(),
+  "moduleTitle": zod.string(),
+  "videoCompleted": zod.boolean(),
+  "quizPassed": zod.boolean(),
+  "lastTimestamp": zod.number(),
+  "updatedAt": zod.string()
+})),
+  "moduleFeedback": zod.array(zod.object({
+  "id": zod.number(),
+  "moduleId": zod.number(),
+  "moduleTitle": zod.string(),
+  "rating": zod.number(),
+  "comment": zod.string().nullable(),
+  "createdAt": zod.string()
+})),
+  "courseFeedback": zod.array(zod.object({
+  "id": zod.number(),
+  "rating": zod.number(),
+  "clarityRating": zod.number().nullable(),
+  "usabilityRating": zod.number().nullable(),
+  "comment": zod.string().nullable(),
+  "createdAt": zod.string()
 })),
   "lastActivity": zod.string().nullish()
 })
@@ -923,7 +1062,8 @@ export const CreateActivationCodeHeader = zod.object({
 
 export const CreateActivationCodeBody = zod.object({
   "code": zod.string(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "assignedTo": zod.string().optional()
 })
 
 
@@ -939,7 +1079,9 @@ export const ListNewsItemsResponseItem = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 export const ListNewsItemsResponse = zod.array(ListNewsItemsResponseItem)
 
@@ -976,7 +1118,9 @@ export const ListPendingNewsItemsResponseItem = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 export const ListPendingNewsItemsResponse = zod.array(ListPendingNewsItemsResponseItem)
 
@@ -993,6 +1137,20 @@ export const TriggerNewsFetchResponse = zod.object({
   "inserted": zod.number(),
   "skipped": zod.number(),
   "errors": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const RetagAllNewsItemsHeader = zod.object({
+  "adminToken": zod.string()
+})
+
+export const RetagAllNewsItemsResponse = zod.object({
+  "total": zod.number(),
+  "tagged": zod.number(),
+  "errors": zod.number()
 })
 
 
@@ -1016,7 +1174,9 @@ export const ApproveNewsItemResponse = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 
 
@@ -1060,7 +1220,9 @@ export const UpdateNewsItemResponse = zod.object({
   "publishedAt": zod.string(),
   "createdAt": zod.string(),
   "status": zod.string(),
-  "feedSource": zod.string().nullish()
+  "feedSource": zod.string().nullish(),
+  "learningOutcome": zod.string().nullish(),
+  "assessmentCriteria": zod.string().nullish()
 })
 
 

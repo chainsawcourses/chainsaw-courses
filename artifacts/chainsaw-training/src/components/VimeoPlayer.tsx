@@ -14,8 +14,8 @@ interface VimeoPlayerProps {
   /** True when the user has already watched this video to completion at least once.
    *  If false, seeking forward past the furthest-watched point is blocked. */
   videoWatched?: boolean;
-  /** True when the source video is portrait (9:16). Crops black bars on desktop. */
-  isPortrait?: boolean;
+  /** True for reviewer/admin codes — forward seeking is never restricted. */
+  allowSeek?: boolean;
 }
 
 function buildEmbedUrl(vimeoId: string, nativeControls: boolean): string {
@@ -43,7 +43,7 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false, isPortrait = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
+export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpdate, onEnded, videoWatched = false, allowSeek = false }: VimeoPlayerProps, ref: ForwardedRef<VimeoPlayerHandle>) {
   const { fullName, email } = useUserSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -64,6 +64,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   // iOS Safari cannot start video playback via postMessage from an overlay div —
   // it requires a direct user gesture on the media element itself.
@@ -96,6 +97,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   // Reset state when video changes
   useEffect(() => {
     setLoadError(null);
+    setIframeLoaded(false);
     setIsPaused(true);
     setCurrentTime(0);
     setDuration(0);
@@ -111,7 +113,7 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     }, 14000);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vimeoId]);
+  }, [vimeoId, retryNonce]);
 
   // Vimeo postMessage listener
   useEffect(() => {
@@ -177,17 +179,23 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
     return () => clearInterval(id);
   }, [sendCommand]);
 
-  // Roaming watermark
+  // Roaming watermark — move frequently enough to discourage cropping,
+  // while keeping the movement subtle and away from pillarbox edges.
   useEffect(() => {
+    const isDesktop = window.innerWidth >= 640;
+    const interval = isDesktop ? 20000 : 15000;
     const move = () => {
+      // On desktop keep watermark away from potential black pillarbox edges.
+      const leftMin = isDesktop ? 20 : 15;
+      const leftMax = isDesktop ? 80 : 85;
       const zones = [
-        { top: `${10 + Math.random() * 15}%`, left: `${10 + Math.random() * 80}%` },
-        { top: `${70 + Math.random() * 20}%`, left: `${10 + Math.random() * 80}%` },
+        { top: `${15 + Math.random() * 15}%`, left: `${leftMin + Math.random() * (leftMax - leftMin)}%` },
+        { top: `${68 + Math.random() * 17}%`, left: `${leftMin + Math.random() * (leftMax - leftMin)}%` },
       ];
       setWatermarkPos(zones[Math.floor(Math.random() * zones.length)]);
     };
     move();
-    const id = setInterval(move, 60000);
+    const id = setInterval(move, interval);
     return () => clearInterval(id);
   }, []);
 
@@ -221,9 +229,9 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
   const applySeek = useCallback((clientX: number) => {
     const t = clientXToTime(clientX);
     if (t === null) return;
-    // If the video hasn't been fully watched yet, cap seeking to the furthest
-    // point the user has already reached in this session.
-    const capped = (!videoWatched && t > maxReachedTimeRef.current)
+    // If the video hasn't been fully watched yet (and seek isn't explicitly
+    // allowed for this user), cap seeking to the furthest point reached.
+    const capped = (!allowSeek && !videoWatched && t > maxReachedTimeRef.current)
       ? maxReachedTimeRef.current
       : t;
     setCurrentTime(capped);
@@ -247,17 +255,22 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
       style={isFullscreen ? {
         position: "fixed", inset: 0, zIndex: 9999,
         background: "black", display: "flex", flexDirection: "column",
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
       } : undefined}
     >
       {/* ── Video frame ── */}
-      <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isPortrait ? "vimeo-is-portrait" : ""} ${isFullscreen ? "flex-1 rounded-none" : isPortrait ? "aspect-[9/16] max-h-[85vh] mx-auto rounded-t-lg" : "aspect-video rounded-t-lg"}`}>
+      <div className={`vimeo-portrait-container relative w-full bg-black overflow-hidden border-x border-t border-border shadow-2xl ${isFullscreen ? "flex-1 rounded-none" : "aspect-video rounded-t-lg"}`}>
         <iframe
           ref={iframeRef}
-          key={vimeoId}
+          key={`${vimeoId}-${retryNonce}`}
           src={src}
           className="vimeo-iframe"
           frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
+          referrerPolicy="origin"
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
           allowFullScreen
           title="Training Video"
           onLoad={() => setIframeLoaded(true)}
@@ -307,13 +320,12 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
             </div>
           ) : (
             <div
-              className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none"
+              className="pointer-events-none absolute z-[46] whitespace-nowrap transition-all duration-1000 ease-in-out select-none flex flex-col items-center gap-0.5"
               style={{
                 top: watermarkPos.top,
                 left: watermarkPos.left,
                 transform: "translate(-50%, -50%)",
                 fontFamily: "monospace",
-                fontSize: "clamp(0.6rem, 1.5vw, 0.75rem)",
                 fontWeight: 700,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
@@ -321,7 +333,12 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
                 textShadow: "0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)",
               }}
             >
-              {`${fullName} · ${email}`}
+              <span style={{ fontSize: "clamp(0.4rem, 0.8vw, 0.5rem)", letterSpacing: "0.14em", opacity: 0.85 }}>
+                CHAINSAW COURSES
+              </span>
+              <span style={{ fontSize: "clamp(0.7rem, 1.5vw, 0.95rem)" }}>
+                {`${fullName} · ${email}`}
+              </span>
             </div>
           )
         )}
@@ -332,7 +349,11 @@ export const VimeoPlayer = forwardRef(function VimeoPlayer({ vimeoId, onTimeUpda
             <div className="text-destructive font-mono font-bold text-sm uppercase tracking-widest">⚠ VIDEO UNAVAILABLE</div>
             <p className="text-white/80 text-xs font-mono leading-relaxed max-w-sm">{loadError}</p>
             <button
-              onClick={() => { setLoadError(null); isReadyRef.current = false; if (iframeRef.current) iframeRef.current.src = src; }}
+              onClick={() => {
+                setLoadError(null);
+                isReadyRef.current = false;
+                setRetryNonce((nonce) => nonce + 1);
+              }}
               className="mt-2 text-xs font-mono text-primary underline underline-offset-2"
             >Retry</button>
           </div>

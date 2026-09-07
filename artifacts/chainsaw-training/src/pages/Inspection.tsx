@@ -5,24 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Edit2, X,
+  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Copy, Edit2, X,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
+import { playCompletionDing, primeCompletionDing } from "../lib/completionSound";
+import { useToast } from "@/hooks/use-toast";
+import PdfSaveDialog from "../components/PdfSaveDialog";
 
 const BASE = import.meta.env.BASE_URL as string;
-
-const bingAudio = new Audio("/audio/ding.wav");
-bingAudio.load();
-
-function playBing() {
-  try {
-    bingAudio.currentTime = 0;
-    bingAudio.play().catch(() => { /* silent fail */ });
-  } catch {
-    // audio not available — silent fail
-  }
-}
 import { useSubmitInspection, useListMyInspections, getListMyInspectionsQueryKey, usePatchInspection } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -32,6 +23,16 @@ interface ChecklistItem {
   id: string;
   label: string;
 }
+
+const PPE_ITEMS: ChecklistItem[] = [
+  { id: "ppe-helmet",   label: "Safety helmet with integral face visor — present, undamaged, and CE/UKCA marked (EN 397 + EN 1731, Class 1 or 3)" },
+  { id: "ppe-hearing",  label: "Hearing protection — present and CE/UKCA marked (EN 352-1, SNR ≥ 27 dB)" },
+  { id: "ppe-gloves",   label: "Chainsaw protective gloves — present and undamaged (EN 388 / ISO 11393-4)" },
+  { id: "ppe-trousers", label: "Chainsaw protective trousers — correct type (Type A or C), undamaged (EN ISO 11393-2)" },
+  { id: "ppe-boots",    label: "Chainsaw safety boots or gaiters — correct class, undamaged (EN ISO 17249 Class 1 or 2)" },
+  { id: "ppe-hiviz",    label: "High-visibility vest or jacket — present (EN ISO 20471 Class 2+)" },
+  { id: "ppe-firstaid", label: "First aid kit — accessible on site (BS 8599-1)" },
+];
 
 const PRE_START_ITEMS: ChecklistItem[] = [
   { id: "chain-tension", label: "Chain tension is correct (snug against bar, moves freely by hand)" },
@@ -57,7 +58,7 @@ const PRE_USE_ITEMS: ChecklistItem[] = [
 
 const buildInitialItems = (): Record<string, Status> => {
   const map: Record<string, Status> = {};
-  [...PRE_START_ITEMS, ...PRE_USE_ITEMS].forEach((item) => {
+  [...PPE_ITEMS, ...PRE_START_ITEMS, ...PRE_USE_ITEMS].forEach((item) => {
     map[item.id] = "na";
   });
   return map;
@@ -96,6 +97,7 @@ function StatusButton({
 export default function Inspection() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, userId } = useUserSession();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -113,11 +115,18 @@ export default function Inspection() {
   const [showHistory, setShowHistory] = useState(false);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [pdfDownloading, setPdfDownloading] = useState(false);
+  const [pdfToSave, setPdfToSave] = useState<{ blob: Blob; filename: string } | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingOriginalDate, setEditingOriginalDate] = useState<string | null>(null);
+  const [duplicateMode, setDuplicateMode] = useState(false);
+  const [newRecordMode, setNewRecordMode] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
   const downloadPdf = async (id: number) => {
+    toast({
+      title: "Preparing PDF",
+      description: "Your checklist PDF is being downloaded…",
+    });
     try {
       const res = await fetch(`${BASE}api/inspections/${id}/pdf`, {
         headers: {
@@ -128,16 +137,14 @@ export default function Inspection() {
       });
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `inspection-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const filename = `inspection-${id}.pdf`;
+      setPdfToSave({ blob, filename });
     } catch {
-      alert("Could not download PDF. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Could not download PDF",
+        description: "Please try again.",
+      });
     }
   };
 
@@ -164,7 +171,20 @@ export default function Inspection() {
       onSuccess: (data) => {
         setSubmitted({ hasFailures: data.hasFailures });
         setExportRecord(data);
-        playBing();
+        setDuplicateMode(false);
+        setNewRecordMode(false);
+        setEditingOriginalDate(null);
+        playCompletionDing();
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyInspectionsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -180,7 +200,19 @@ export default function Inspection() {
         setExportRecord(data);
         setEditingId(null);
         setEditingOriginalDate(null);
-        playBing();
+        setDuplicateMode(false);
+        setNewRecordMode(false);
+        playCompletionDing();
+        queryClient.setQueryData<Array<typeof data> | undefined>(
+          getListMyInspectionsQueryKey(),
+          (current) => {
+            if (!current) return [data];
+            const existingIndex = current.findIndex((record) => record.id === data.id);
+            return existingIndex === -1
+              ? [data, ...current]
+              : current.map((record) => (record.id === data.id ? data : record));
+          }
+        );
         queryClient.invalidateQueries({ queryKey: getListMyInspectionsQueryKey() });
         setTimeout(() => {
           exportCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -192,11 +224,13 @@ export default function Inspection() {
   const history = useListMyInspections({
     query: {
       queryKey: getListMyInspectionsQueryKey(),
-      enabled: showHistory && !!deviceId && !!activationCode,
+      enabled: !!deviceId && !!activationCode,
     },
   });
 
-  const loadForEdit = (record: NonNullable<typeof history.data>[number]) => {
+  const hasSavedInspection = (history.data?.length ?? 0) > 0;
+
+  const loadForEdit = (record: NonNullable<typeof history.data>[number], duplicate = false) => {
     setSawIdentifier(record.sawIdentifier ?? "");
     const newItems: Record<string, Status> = buildInitialItems();
     const newNotes: Record<string, string> = {};
@@ -208,8 +242,23 @@ export default function Inspection() {
     }
     setItems(newItems);
     setNotes(newNotes);
-    setEditingId(record.id);
+    setEditingId(duplicate ? null : record.id);
     setEditingOriginalDate(record.createdAt);
+    setDuplicateMode(duplicate);
+    setNewRecordMode(false);
+    setSubmitted(null);
+    setExportRecord(null);
+    setShowHistory(false);
+  };
+
+  const startNewChecklist = () => {
+    setSawIdentifier("");
+    setItems(buildInitialItems());
+    setNotes({});
+    setEditingId(null);
+    setEditingOriginalDate(null);
+    setDuplicateMode(false);
+    setNewRecordMode(true);
     setSubmitted(null);
     setExportRecord(null);
     setShowHistory(false);
@@ -217,10 +266,12 @@ export default function Inspection() {
 
   const handleSubmit = () => {
     if (!deviceId || !activationCode) return;
-    const payload = [...PRE_START_ITEMS, ...PRE_USE_ITEMS].map((item) => ({
+    primeCompletionDing();
+    const payload = [...PPE_ITEMS, ...PRE_START_ITEMS, ...PRE_USE_ITEMS].map((item) => ({
       id: item.id,
       label: item.label,
-      section: PRE_START_ITEMS.some((p) => p.id === item.id) ? "Pre-Start" : "Pre-Use",
+      section: PPE_ITEMS.some((p) => p.id === item.id) ? "PPE"
+        : PRE_START_ITEMS.some((p) => p.id === item.id) ? "Pre-Start" : "Pre-Use",
       status: items[item.id],
       note: notes[item.id]?.trim() || undefined,
     }));
@@ -241,6 +292,7 @@ export default function Inspection() {
           deviceId,
           activationCode,
           sawIdentifier: sawIdentifier.trim() || undefined,
+          duplicate: duplicateMode || newRecordMode || undefined,
           items: payload,
         },
       });
@@ -251,11 +303,11 @@ export default function Inspection() {
 
   const renderSection = (title: string, sectionItems: ChecklistItem[]) => (
     <Card className="border-border bg-card/60">
-      <CardContent className="p-4 space-y-4">
-        <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">{title}</h2>
+      <CardContent className="min-w-0 p-4 space-y-4">
+        <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary break-words">{title}</h2>
         {sectionItems.map((item) => (
           <div key={item.id} className="border-b border-border/60 last:border-b-0 pb-3 last:pb-0">
-            <p className="font-mono text-xs text-foreground mb-2">{item.label}</p>
+            <p className="font-mono text-xs text-foreground mb-2 break-words">{item.label}</p>
             <div className="flex flex-wrap gap-2">
               <StatusButton
                 status={items[item.id]}
@@ -298,45 +350,55 @@ export default function Inspection() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PdfSaveDialog
+        open={pdfToSave !== null}
+        onOpenChange={(open) => {
+          if (!open) setPdfToSave(null);
+        }}
+        blob={pdfToSave?.blob ?? null}
+        defaultFilename={pdfToSave?.filename ?? "inspection.pdf"}
+        documentLabel="inspection checklist"
+      />
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 min-h-14 py-2 flex items-center justify-between gap-2">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Link>
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-2 text-center">
             <ClipboardCheck className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Inspection Checklist</span>
+            <span className="font-mono font-bold uppercase tracking-wide text-xs leading-tight break-words">Inspection Checklist</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowHistory((v) => !v)}
-            className="font-mono uppercase tracking-widest text-xs text-muted-foreground hover:text-primary"
-          >
-            <History className="w-3.5 h-3.5 mr-1" />
-            History
-          </Button>
+          <div className="w-16 sm:w-20 shrink-0" aria-hidden="true" />
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 space-y-6 pb-28">
+      <main className="mobile-bottom-action-main flex-1 min-w-0 max-w-3xl w-full mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="font-black tracking-tighter text-lg uppercase text-primary mb-1">
-            Pre-Start &amp; Pre-Use Checklist
+            PPE, Pre-Start &amp; Pre-Use Checklist
           </h1>
           <p className="font-mono text-[11px] text-muted-foreground leading-relaxed">
-            Use this checklist before using your chainsaw to run through the standard pre-start and pre-use safety
-            checks. This is a personal record only — it does not unlock or affect your course progress.
+            Verify PPE compliance, then run through the standard pre-start and pre-use chainsaw safety checks. This is a personal record — it does not unlock or affect your course progress.
           </p>
         </div>
 
         {showHistory ? (
           <Card className="border-border bg-card/60">
             <CardContent className="p-4 space-y-3">
-              <h2 className="font-mono font-bold uppercase tracking-widest text-xs text-primary">Your Inspection History</h2>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h2 className="min-w-0 flex-1 font-mono font-bold uppercase tracking-widest text-xs text-primary break-words">Your Inspection History</h2>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="font-mono text-[10px] uppercase tracking-wide h-auto min-h-7 max-w-full px-2 shrink-0 whitespace-normal text-center"
+                  onClick={() => setShowHistory(false)}
+                >
+                  Back to Checklist
+                </Button>
+              </div>
               {history.isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -353,12 +415,12 @@ export default function Inspection() {
                   void downloadPdf(record.id).finally(() => setDownloadingId(null));
                 };
                 return (
-                  <div key={record.id} className="border rounded p-3 space-y-1.5 border-border">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[11px] text-muted-foreground">
+                  <div key={record.id} className="min-w-0 border rounded p-3 space-y-1.5 border-border">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <span className="min-w-0 font-mono text-[11px] text-muted-foreground break-words">
                         {new Date(record.createdAt).toLocaleString()}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex max-w-full flex-wrap items-center justify-end gap-2">
                         {record.amendedAt && (
                           <span className="font-mono text-[10px] uppercase tracking-widest text-amber-600 border border-amber-400 rounded px-1.5 py-0.5">amended</span>
                         )}
@@ -374,7 +436,7 @@ export default function Inspection() {
                       </div>
                     </div>
                     {record.sawIdentifier && (
-                      <p className="font-mono text-[11px] text-foreground">Saw: {record.sawIdentifier}</p>
+                      <p className="font-mono text-[11px] text-foreground break-words">Saw: {record.sawIdentifier}</p>
                     )}
                     {record.amendedAt && (
                       <p className="font-mono text-[10px] text-amber-600">Amended: {new Date(record.amendedAt).toLocaleString()}</p>
@@ -392,11 +454,19 @@ export default function Inspection() {
                         size="sm"
                         variant="outline"
                         className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
+                        onClick={() => loadForEdit(record, true)}
+                      >
+                        <Copy className="w-3 h-3 mr-1" /> Duplicate
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="font-mono text-[10px] uppercase tracking-wide h-7 px-2"
                         disabled={isDownloading}
                         onClick={handleDownload}
                       >
                         {isDownloading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FileDown className="w-3 h-3 mr-1" />}
-                        {isDownloading ? "Downloading…" : "PDF"}
+                        {isDownloading ? "PDF downloading…" : "PDF"}
                       </Button>
                       <Button
                         size="sm"
@@ -416,13 +486,26 @@ export default function Inspection() {
           </Card>
         ) : (
           <>
-            {editingId !== null && editingOriginalDate && (
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Checklist History
+              </Button>
+            </div>
+            {(editingId !== null || duplicateMode) && editingOriginalDate && (
               <Card className="border-amber-500 bg-amber-500/10">
                 <CardContent className="p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Edit2 className="w-4 h-4 text-amber-600 shrink-0" />
                     <p className="font-mono text-xs text-amber-700 truncate">
-                      Editing inspection from {new Date(editingOriginalDate).toLocaleString()} — save to update record.
+                      {duplicateMode
+                        ? `Creating a copy of the inspection from ${new Date(editingOriginalDate).toLocaleString()} — save to create a separate record.`
+                        : `Editing inspection from ${new Date(editingOriginalDate).toLocaleString()} — save to update record.`}
                     </p>
                   </div>
                   <Button
@@ -432,6 +515,7 @@ export default function Inspection() {
                     onClick={() => {
                       setEditingId(null);
                       setEditingOriginalDate(null);
+                      setDuplicateMode(false);
                       setSawIdentifier("");
                       setItems(buildInitialItems());
                       setNotes({});
@@ -458,8 +542,20 @@ export default function Inspection() {
               </CardContent>
             </Card>
 
+            {renderSection("PPE Verification", PPE_ITEMS)}
             {renderSection("Pre-Start Checks", PRE_START_ITEMS)}
             {renderSection("Pre-Use / On-Site Checks", PRE_USE_ITEMS)}
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHistory(true)}
+                className="font-mono text-xs uppercase tracking-widest"
+              >
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Checklist History
+              </Button>
+            </div>
 
             {submitted && (
               <Card className={submitted.hasFailures ? "border-destructive bg-destructive/5" : "border-primary bg-primary/5"}>
@@ -492,6 +588,7 @@ export default function Inspection() {
                           ? "bg-primary text-primary-foreground ring-2 ring-primary/50 shadow-sm"
                           : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
                       }`}
+                      disabled={pdfDownloading}
                       onClick={() => {
                         setPdfDownloading(true);
                         void downloadPdf(exportRecord.id!).finally(() => setPdfDownloading(false));
@@ -500,7 +597,7 @@ export default function Inspection() {
                       {pdfDownloading
                         ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                         : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
-                      {pdfDownloading ? "Downloading…" : "Download PDF"}
+                      {pdfDownloading ? "PDF downloading…" : "Download PDF"}
                     </Button>
                     <Button
                       size="sm"
@@ -519,32 +616,52 @@ export default function Inspection() {
                 </CardContent>
               </Card>
             )}
+            {!showHistory && <div className="mobile-bottom-action-spacer" aria-hidden="true" />}
           </>
         )}
       </main>
 
       {!showHistory && (
-        <div className="fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
-          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-            <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+        <div className="mobile-bottom-action-bar fixed bottom-0 left-0 right-0 z-10 bg-card/90 backdrop-blur border-t border-border">
+          <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span className="min-w-0 font-mono text-[10px] text-muted-foreground uppercase tracking-widest break-words sm:w-auto">
               {failedCount > 0
                 ? `${failedCount} failed`
                 : uncheckedCount > 0
                   ? `${uncheckedCount} not checked`
                   : "All items checked"}
             </span>
-            <Button
-              onClick={handleSubmit}
-              disabled={submitInspection.isPending || patchInspection.isPending}
-              className="font-mono text-sm uppercase tracking-widest px-6"
-            >
-              {(submitInspection.isPending || patchInspection.isPending) ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <ClipboardCheck className="w-4 h-4 mr-2" />
+            <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
+              {(hasSavedInspection || exportRecord !== null || newRecordMode) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={startNewChecklist}
+                  disabled={submitInspection.isPending || patchInspection.isPending}
+                  className="w-full justify-center font-mono text-xs uppercase tracking-widest px-3 sm:w-auto"
+                >
+                  New Checklist
+                </Button>
               )}
-              {editingId !== null ? "Update Inspection" : "Save Inspection"}
-            </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={submitInspection.isPending || patchInspection.isPending}
+                className="w-full justify-center font-mono text-sm uppercase tracking-widest px-5 sm:w-auto"
+              >
+                {(submitInspection.isPending || patchInspection.isPending) ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <ClipboardCheck className="w-4 h-4 mr-2" />
+                )}
+                {newRecordMode
+                  ? "Save New Inspection"
+                  : duplicateMode
+                    ? "Create Duplicate"
+                    : editingId !== null || hasSavedInspection
+                      ? "Save Inspection"
+                      : "Save Inspection"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

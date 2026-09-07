@@ -31,9 +31,14 @@ import type {
   AiChatResponse,
   AppFeedbackInput,
   AppFeedbackItem,
+  CertificateDetails,
   ChatMessage,
   CompleteVideoInput,
   CreateNewsItemInput,
+  DeleteAllInspections200,
+  DeleteAllRiskAssessments200,
+  DeleteInspection200,
+  DeleteRiskAssessment200,
   ErrorResponse,
   Exam,
   ExamResult,
@@ -41,6 +46,7 @@ import type {
   ExamSubmission,
   FeedbackEntry,
   FeedbackInput,
+  HazardsReference,
   HealthStatus,
   HeartbeatInput,
   InspectionEntry,
@@ -48,6 +54,7 @@ import type {
   ModuleDetail,
   NewsFetchResult,
   NewsItem,
+  NewsRetagResult,
   PatchInspectionInput,
   PatchRiskAssessmentInput,
   ProgressSummary,
@@ -143,6 +150,83 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getHealthCheckQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetHazardsReferenceUrl = () => {
+
+
+
+
+  return `/api/documents/hazards/reference`
+}
+
+/**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+export const getHazardsReference = async ( options?: RequestInit): Promise<HazardsReference> => {
+
+  return customFetch<HazardsReference>(getGetHazardsReferenceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetHazardsReferenceQueryKey = () => {
+    return [
+    `/api/documents/hazards/reference`
+    ] as const;
+    }
+
+
+export const getGetHazardsReferenceQueryOptions = <TData = Awaited<ReturnType<typeof getHazardsReference>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetHazardsReferenceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getHazardsReference>>> = ({ signal }) => getHazardsReference({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetHazardsReferenceQueryResult = NonNullable<Awaited<ReturnType<typeof getHazardsReference>>>
+export type GetHazardsReferenceQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the Hazards and Risks reference content for the in-app reader
+ */
+
+export function useGetHazardsReference<TData = Awaited<ReturnType<typeof getHazardsReference>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getHazardsReference>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetHazardsReferenceQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -1120,6 +1204,83 @@ export function useGetExamStatus<TData = Awaited<ReturnType<typeof getExamStatus
 
 
 
+export const getGetCertificateDetailsUrl = () => {
+
+
+
+
+  return `/api/certificate/details`
+}
+
+/**
+ * @summary Get the current user's certificate display details
+ */
+export const getCertificateDetails = async ( options?: RequestInit): Promise<CertificateDetails> => {
+
+  return customFetch<CertificateDetails>(getGetCertificateDetailsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCertificateDetailsQueryKey = () => {
+    return [
+    `/api/certificate/details`
+    ] as const;
+    }
+
+
+export const getGetCertificateDetailsQueryOptions = <TData = Awaited<ReturnType<typeof getCertificateDetails>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCertificateDetails>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCertificateDetailsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCertificateDetails>>> = ({ signal }) => getCertificateDetails({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCertificateDetails>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCertificateDetailsQueryResult = NonNullable<Awaited<ReturnType<typeof getCertificateDetails>>>
+export type GetCertificateDetailsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the current user's certificate display details
+ */
+
+export function useGetCertificateDetails<TData = Awaited<ReturnType<typeof getCertificateDetails>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCertificateDetails>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCertificateDetailsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
 export const getSubmitAppFeedbackUrl = () => {
 
 
@@ -1426,7 +1587,7 @@ export const getSubmitInspectionUrl = () => {
 }
 
 /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const submitInspection = async (submitInspectionInput: SubmitInspectionInput, options?: RequestInit): Promise<InspectionEntry> => {
 
@@ -1475,7 +1636,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SubmitInspectionMutationError = ErrorType<unknown>
 
     /**
- * @summary Submit a completed pre-start/pre-use inspection checklist
+ * @summary Save the current inspection checklist, or create an explicit duplicate
  */
 export const useSubmitInspection = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitInspection>>, TError,{data: BodyType<SubmitInspectionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -1714,6 +1875,146 @@ export function useListAllInspections<TData = Awaited<ReturnType<typeof listAllI
 
 
 
+export const getDeleteAllInspectionsUrl = () => {
+
+
+
+
+  return `/api/admin/inspections/all`
+}
+
+/**
+ * @summary Delete all inspection records
+ */
+export const deleteAllInspections = async ( options?: RequestInit): Promise<DeleteAllInspections200> => {
+
+  return customFetch<DeleteAllInspections200>(getDeleteAllInspectionsUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteAllInspectionsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError,void, TContext> => {
+
+const mutationKey = ['deleteAllInspections'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllInspections>>, void> = () => {
+
+
+          return  deleteAllInspections(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAllInspectionsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAllInspections>>>
+
+    export type DeleteAllInspectionsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete all inspection records
+ */
+export const useDeleteAllInspections = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllInspections>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAllInspections>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteAllInspectionsMutationOptions(options));
+    }
+
+export const getDeleteInspectionUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/inspections/${id}`
+}
+
+/**
+ * @summary Delete a single inspection record
+ */
+export const deleteInspection = async (id: number, options?: RequestInit): Promise<DeleteInspection200> => {
+
+  return customFetch<DeleteInspection200>(getDeleteInspectionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteInspectionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteInspection'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteInspection>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteInspection(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteInspectionMutationResult = NonNullable<Awaited<ReturnType<typeof deleteInspection>>>
+
+    export type DeleteInspectionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a single inspection record
+ */
+export const useDeleteInspection = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInspection>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteInspection>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteInspectionMutationOptions(options));
+    }
+
 export const getSubmitRiskAssessmentUrl = () => {
 
 
@@ -1723,7 +2024,7 @@ export const getSubmitRiskAssessmentUrl = () => {
 }
 
 /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const submitRiskAssessment = async (submitRiskAssessmentInput: SubmitRiskAssessmentInput, options?: RequestInit): Promise<RiskAssessmentEntry> => {
 
@@ -1772,7 +2073,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SubmitRiskAssessmentMutationError = ErrorType<unknown>
 
     /**
- * @summary Submit a completed dynamic risk assessment
+ * @summary Save the current dynamic risk assessment, updating the learner's latest record when one exists
  */
 export const useSubmitRiskAssessment = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof submitRiskAssessment>>, TError,{data: BodyType<SubmitRiskAssessmentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
@@ -2010,6 +2311,146 @@ export function useListAllRiskAssessments<TData = Awaited<ReturnType<typeof list
 
 
 
+
+export const getDeleteAllRiskAssessmentsUrl = () => {
+
+
+
+
+  return `/api/admin/risk-assessments/all`
+}
+
+/**
+ * @summary Delete all risk assessment records
+ */
+export const deleteAllRiskAssessments = async ( options?: RequestInit): Promise<DeleteAllRiskAssessments200> => {
+
+  return customFetch<DeleteAllRiskAssessments200>(getDeleteAllRiskAssessmentsUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteAllRiskAssessmentsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError,void, TContext> => {
+
+const mutationKey = ['deleteAllRiskAssessments'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, void> = () => {
+
+
+          return  deleteAllRiskAssessments(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAllRiskAssessmentsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAllRiskAssessments>>>
+
+    export type DeleteAllRiskAssessmentsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete all risk assessment records
+ */
+export const useDeleteAllRiskAssessments = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAllRiskAssessments>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAllRiskAssessments>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteAllRiskAssessmentsMutationOptions(options));
+    }
+
+export const getDeleteRiskAssessmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/risk-assessments/${id}`
+}
+
+/**
+ * @summary Delete a single risk assessment record
+ */
+export const deleteRiskAssessment = async (id: number, options?: RequestInit): Promise<DeleteRiskAssessment200> => {
+
+  return customFetch<DeleteRiskAssessment200>(getDeleteRiskAssessmentUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteRiskAssessmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteRiskAssessment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRiskAssessment>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteRiskAssessment(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRiskAssessmentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRiskAssessment>>>
+
+    export type DeleteRiskAssessmentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a single risk assessment record
+ */
+export const useDeleteRiskAssessment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRiskAssessment>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRiskAssessment>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRiskAssessmentMutationOptions(options));
+    }
 
 export const getGetWaiverUrl = () => {
 
@@ -3113,6 +3554,76 @@ export const useTriggerNewsFetch = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getTriggerNewsFetchMutationOptions(options));
+    }
+
+export const getRetagAllNewsItemsUrl = () => {
+
+
+
+
+  return `/api/admin/news/retag-all`
+}
+
+/**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const retagAllNewsItems = async ( options?: RequestInit): Promise<NewsRetagResult> => {
+
+  return customFetch<NewsRetagResult>(getRetagAllNewsItemsUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRetagAllNewsItemsMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext> => {
+
+const mutationKey = ['retagAllNewsItems'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof retagAllNewsItems>>, void> = () => {
+
+
+          return  retagAllNewsItems(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RetagAllNewsItemsMutationResult = NonNullable<Awaited<ReturnType<typeof retagAllNewsItems>>>
+
+    export type RetagAllNewsItemsMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Retag all approved articles that have no LO/AC assigned
+ */
+export const useRetagAllNewsItems = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof retagAllNewsItems>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof retagAllNewsItems>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRetagAllNewsItemsMutationOptions(options));
     }
 
 export const getApproveNewsItemUrl = (id: number,) => {

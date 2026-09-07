@@ -3,17 +3,30 @@
  * Generates all policy documents and the IIRSM Submission Brief for Chainsaw Courses.
  * Run: pnpm --filter @workspace/scripts run generate-pdfs
  * Output: artifacts/chainsaw-training/public/pdfs/
+ *
+ * STT pre-flight check
+ * --------------------
+ * By default this script scans all video transcripts for known speech-to-text
+ * errors before writing any files.  If flags are found it prints them and
+ * exits non-zero so errors cannot silently reach the submission document.
+ *
+ * Override flags:
+ *   --skip-stt-check   Skip the transcript scan (use when all flags have
+ *                      already been reviewed via scan-transcripts.ts).
+ *   --force            Alias for --skip-stt-check.
  */
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { runSttPreflight } from "./stt-scan-lib.js";
+import { pool } from "@workspace/db";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const OUT_DIR = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/pdfs");
-const LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/logo.png");
+const IIRSM_HORIZONTAL_LOGO_PATH = path.resolve(__dirname, "../../artifacts/chainsaw-training/public/iirsm-horizontal-logo.png");
 
 const ORANGE = "#e27226";
 const DARK = "#1C1C1C";
@@ -33,12 +46,13 @@ function newDoc(title: string): PDFKit.PDFDocument {
 }
 
 function drawPageHeader(doc: PDFKit.PDFDocument): void {
-  const logoSize = 52;
+  const logoWidth = 120;
+  const logoHeight = 52;
   const hY = 60;
-  if (fs.existsSync(LOGO_PATH)) {
-    doc.image(LOGO_PATH, 60, hY, { width: logoSize, height: logoSize });
+  if (fs.existsSync(IIRSM_HORIZONTAL_LOGO_PATH)) {
+    doc.image(IIRSM_HORIZONTAL_LOGO_PATH, 60, hY, { width: logoWidth, height: logoHeight });
   }
-  const tX = fs.existsSync(LOGO_PATH) ? 60 + logoSize + 12 : 60;
+  const tX = fs.existsSync(IIRSM_HORIZONTAL_LOGO_PATH) ? 60 + logoWidth + 12 : 60;
   doc
     .fontSize(13)
     .fillColor(ORANGE)
@@ -49,7 +63,7 @@ function drawPageHeader(doc: PDFKit.PDFDocument): void {
     .fillColor(MID)
     .font("Helvetica")
     .text("CHAINSAW MAINTENANCE & CROSS CUTTING  ·  OVERLEAF PUBLISHERS LTD", tX, hY + 30, { lineBreak: false });
-  doc.text("", 60, hY + logoSize + 8);
+  doc.text("", 60, hY + logoHeight + 8);
   doc
     .moveTo(60, doc.y)
     .lineTo(535, doc.y)
@@ -383,7 +397,7 @@ async function genDataProtection(): Promise<void> {
       ["Activation Code", "Verify a valid purchase; prevent unauthorised sharing. Lawful basis: Contract."],
       ["Device identifier", "Bond access to a single device; prevent credential sharing. Lawful basis: Legitimate interests (Art. 6(1)(f))."],
       ["Video watch progress & timestamps", "Enable resume-on-return; enforce sequential module unlocking; verify completion. Lawful basis: Contract."],
-      ["Quiz & exam scores", "Assess competency; gate module progression at 80% pass threshold. Lawful basis: Contract."],
+      ["Quiz & exam scores", "Assess competency; require 100% for each module quiz and 80% for the final exam. Lawful basis: Contract."],
       ["Digital waiver signature", "Record informed consent to safety terms. Lawful basis: Legal obligation / legitimate interests."],
       ["Inspection checklist records", "Personal chainsaw pre-use safety log; duty-of-care records (PUWER/LOLER). Lawful basis: Legitimate interests; legal obligation."],
       ["Risk assessment records", "Dynamic risk assessment log; statutory compliance. Lawful basis: Legitimate interests; legal obligation (MHSWR 1999)."],
@@ -526,8 +540,6 @@ async function genReasonableAdjustments(): Promise<void> {
     "Technical support for assistive technologies (screen readers, text-to-speech software).",
     "Alternative formats for course materials where technically feasible.",
     "Flexibility in assessment timing where a health condition affects concentration or endurance.",
-    "Reduced-session access to support students who cannot study for extended periods.",
-    "Direct contact with a named tutor or support person for guidance.",
   ]);
 
   sectionHeading(doc, "4. How to Apply");
@@ -542,7 +554,7 @@ async function genReasonableAdjustments(): Promise<void> {
 
   sectionHeading(doc, "6. Assessment Adjustments");
   body(doc,
-    "Where an adjustment affects the assessment process (quizzes, mock exam), we will ensure that any adjustment does not compromise the validity or integrity of the assessment, or unfairly advantage the student over other learners. Adjustments to the 80% pass threshold are not available, as this threshold is set by the IIRSM course approval framework and reflects the safety-critical nature of the subject matter."
+    "Where an adjustment affects the assessment process (module quizzes or final exam), we will ensure that any adjustment does not compromise the validity or integrity of the assessment, or unfairly advantage the student over other learners. The 100% module-quiz requirement and 80% final-exam pass threshold cannot be adjusted, as they are fixed standards set within the IIRSM course approval framework and reflect the safety-critical nature of the subject matter."
   );
 
   sectionHeading(doc, "7. Review");
@@ -777,7 +789,7 @@ async function genQuality(): Promise<void> {
     ["Learner satisfaction", "≥85% satisfaction score on post-module feedback surveys"],
     ["Prompt learner support", "100% emails acknowledged ≤2 working days; resolved ≤5"],
     ["IIRSM course approval maintained", "Renewal submitted on time; zero unresolved compliance findings"],
-    ["Fair and reliable assessment", "80% pass threshold; zero upheld appeals per year"],
+    ["Fair and reliable assessment", "100% module-quiz requirement; 80% final-exam pass threshold; zero upheld appeals per year"],
     ["Internal audits completed", "100% of planned audits; all findings closed within agreed timescales"],
     ["Controlled document reviews", "100% of controlled documents reviewed within review cycle"],
     ["Supplier approval", "100% of new suppliers approved pre-engagement; annual review of key suppliers"],
@@ -865,10 +877,10 @@ async function genAssessment(): Promise<void> {
   sectionHeading(doc, "3. Assessment Structure");
   twoColTable(doc, ["Assessment Type", "Detail"], [
     ["Module Quizzes (×7)", "Each of the 7 training modules concludes with a multiple-choice quiz. Quizzes are randomly drawn from a bank of questions to reduce repetition across attempts."],
-    ["Mock Examination", "A 45-question randomised examination covering the full course content. Simulates the standard of knowledge required for NPTC practical assessment."],
-    ["Pass Threshold", "80% correct answers required to pass each module quiz and the mock examination. This threshold reflects the safety-critical nature of chainsaw operation."],
-    ["Retries", "Unlimited retries are permitted for module quizzes. The mock examination may be retaken after a cooling-off period."],
-    ["Sequential Locking", "Module quizzes must be passed (≥80%) before the next module unlocks. Learners must also watch the full module video before the quiz becomes available."],
+    ["Final Examination", "A 45-question randomised examination covering the full course content. Simulates the standard of knowledge required for NPTC practical assessment."],
+    ["Pass Thresholds", "100% correct answers are required for every module quiz. The 45-question final examination requires 80% correct answers. These thresholds reflect the safety-critical nature of chainsaw operation."],
+    ["Retries", "Unlimited retries are permitted for module quizzes. The final examination may be retaken after a cooling-off period."],
+    ["Sequential Locking", "Every module quiz must be passed at 100% before the next module unlocks. Learners must also watch the full module video before the quiz becomes available."],
   ], 180);
 
   sectionHeading(doc, "4. Marking and Results");
@@ -888,7 +900,7 @@ async function genAssessment(): Promise<void> {
 
   sectionHeading(doc, "7. Adjustments to Assessment");
   body(doc,
-    "Reasonable adjustments to the assessment process may be available for learners with a disability or learning difficulty. Please refer to the Reasonable Adjustments Policy. The 80% pass threshold cannot be adjusted as it is a fixed standard set within the IIRSM course approval framework."
+    "Reasonable adjustments to the assessment process may be available for learners with a disability or learning difficulty. Please refer to the Reasonable Adjustments Policy. The 100% module-quiz requirement and 80% final-exam pass threshold cannot be adjusted because they are fixed standards set within the IIRSM course approval framework."
   );
 
   sectionHeading(doc, "8. Review");
@@ -1248,9 +1260,11 @@ async function genIIRSMBrief(): Promise<void> {
   infoRow(doc, "Qualification Alignment", "NPTC/City & Guilds Unit 0039-20 (Chainsaw Maintenance & Cross Cutting) — theoretical underpinning and gateway to NPTC practical assessment");
   infoRow(doc, "Level", "Level 2 (equivalent) — vocational knowledge and understanding");
   infoRow(doc, "Delivery Mode", "Online eLearning — Progressive Web Application (PWA), device-locked, video-streamed");
-  infoRow(doc, "Guided Learning Hours (GLH)", "16 hours — comprising approximately 1.5 hours of structured video content (34 modules), module quizzes and mock examination (~1 hr), directed study of the Overleaf Chainsaw Manual companion text (~10–11 hrs), and use of the built-in practical tools (~1 hr)");
-  infoRow(doc, "Total Qualification Time (TQT)", "19 hours — GLH (16 hrs) plus approximately 3 hours of learner-directed independent study and revision");
-  infoRow(doc, "Assessment", "7 module quizzes (80% pass threshold each) + 45-question mock examination");
+  infoRow(doc, "Guided Learning Hours (GLH)", "4 hours — PWA online modules, video content & gated knowledge checks");
+  infoRow(doc, "Directed Online Assessment", "2 hours — formative module quizzes + 45-question randomised multiple-choice final examination");
+  infoRow(doc, "Independent Self-Study", "4 hours — reading The Chainsaw Manual & risk assessment exercises");
+  infoRow(doc, "Total Qualification Time (TQT)", "10 hours total");
+  infoRow(doc, "Assessment", "7 module quizzes (100% required each) + 45-question final examination (80% required)");
   infoRow(doc, "Entry Requirements", "No formal prerequisites. Learners must be aged 18 or over. Basic literacy and numeracy required. No prior chainsaw experience necessary — course is suitable for both complete beginners and those refreshing existing knowledge before practical assessment");
   infoRow(doc, "Target Learner", "Arboricultural and forestry professionals seeking NPTC theoretical preparation; landowners; groundworkers; anyone required to demonstrate theoretical chainsaw competence before booking NPTC practical assessment");
   infoRow(doc, "Certification", "IIRSM-approved digital certificate of completion issued automatically on passing all module quizzes and the 45-question mock examination. Certificate confirms theoretical competence to support NPTC assessment centre booking. No expiry — certificate reflects knowledge at date of completion; learners are advised to repeat the course if more than 3 years have elapsed");
@@ -1281,9 +1295,9 @@ async function genIIRSMBrief(): Promise<void> {
 
   twoColTable(doc, ["Stage", "Description"], [
     ["1 — Purchase & Activate", "Learner purchases via chainsawcourses.com; receives a unique Activation Code bonded to their device on first use. Digital liability waiver signed on activation."],
-    ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (6–8 hours total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
-    ["3 — Pass Module Quizzes", "80% pass threshold on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
-    ["4 — Pass Mock Examination", "45-question randomised mock examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
+    ["2 — Complete 7 Sequential Modules", "Learner watches each video module in full (approximately 90 minutes of video content in total). Each module locks until the previous one is passed. Modules cover PPE, first aid, risk assessment, hazards, emergency planning, legislation, and chainsaw safety features."],
+    ["3 — Pass Module Quizzes", "100% required on each of the 7 module quizzes. Unlimited retries permitted. Progress is saved automatically so learners can return across multiple sessions."],
+    ["4 — Pass Final Examination", "45-question randomised final examination (AI-assisted or standard). 80% pass threshold. 24-hour cooling-off period between retakes."],
     ["5 — Receive IIRSM Certificate", "IIRSM-approved certificate of theoretical competence issued automatically on platform completion. Certificate includes learner name, date, and course reference."],
     ["6 — Book NPTC Practical Assessment", "Learner presents their IIRSM certificate to a NPTC/City & Guilds approved assessment centre to book Unit 0039-20 practical assessment. The eLearning certificate demonstrates theoretical readiness."],
   ], 175);
@@ -1295,7 +1309,7 @@ async function genIIRSMBrief(): Promise<void> {
     "Dynamic Risk Assessment tool — GPS-located, records site hazards using the same framework assessed at NPTC level",
     "AI Chainsaw Manual Examiner — interactive mock assessment restricted to chainsaw safety topics; provides immediate explanatory feedback",
     "Biosecurity & Hazard Map — illustrative reference for statutory containment zones (OPM, ash dieback, etc.)",
-    "Chain Identification Chart — reference tool for the appendix content examined in the written element of NPTC assessment",
+    "Chain Identification Chart — visual reference for chain types, pitch, gauge, and drive link counts to support correct chain selection and maintenance",
   ]);
 
   // Section 4 — Learning Outcomes
@@ -1303,7 +1317,7 @@ async function genIIRSMBrief(): Promise<void> {
   drawPageHeader(doc);
   sectionHeading(doc, "Section 4 | Learning Outcomes & Assessment Criteria");
   body(doc,
-    "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification."
+    "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 100% on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions requires a score of 80% or higher for certification."
   );
   doc.moveDown(0.4);
 
@@ -1362,8 +1376,8 @@ async function genIIRSMBrief(): Promise<void> {
       ["Assessment format", "Multiple-choice questions (MCQ) with four answer options per question"],
       ["Question bank size", "Minimum 10 questions per module (70+ module questions total); 45-question mock examination drawn from full bank"],
       ["Randomisation", "Questions and answer option order randomised on each attempt to prevent memorisation of answer sequences"],
-      ["Pass threshold", "80% correct answers required for each module quiz and for the mock examination"],
-      ["Sequential gating", "Each module quiz must be passed (≥80%) before the subsequent module video unlocks. Module video must be watched in full before the quiz is accessible"],
+      ["Pass thresholds", "100% correct answers required for each module quiz; 80% correct answers required for the final examination"],
+      ["Sequential gating", "Each module quiz must be passed at 100% before the subsequent module video unlocks. Module video must be watched in full before the quiz is accessible"],
       ["Retries", "Unlimited retries permitted for all module quizzes and the mock examination. No cooling-off period between attempts"],
       ["Results recording", "All quiz and examination results are recorded automatically to the learner's progress record with timestamp; accessible at any time from the Training Dashboard"],
       ["Anti-malpractice", "Device-locking (one device per Activation Code); dynamic video watermarking (learner name + email, repositioning every 60 seconds); behavioural review for anomalous completion patterns"],
@@ -2257,7 +2271,137 @@ async function genRiskRegister(): Promise<void> {
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
+// ─── Learner Feedback Policy ─────────────────────────────────────────────────
+
+async function genFeedback(): Promise<void> {
+  const doc = newDoc("Learner Feedback Policy");
+  drawPageHeader(doc);
+  docTitle(doc, "Learner Feedback Policy");
+
+  infoRow(doc, "Document owner",   "Content Author / Director, Overleaf Publishers Ltd");
+  infoRow(doc, "Applies to",       "All delegates completing the Chainsaw Courses eLearning programme");
+  infoRow(doc, "Review frequency", "Monthly (data monitoring); Annually (policy review)");
+  infoRow(doc, "Related policies", "Assessment Policy; Quality Management Policy; Data Protection Policy");
+  doc.moveDown(0.6);
+
+  sectionHeading(doc, "1. Purpose and Scope");
+  body(doc,
+    "This policy describes how Overleaf Publishers Ltd collects, stores, analyses, and acts upon feedback from learners who complete the Chainsaw Courses eLearning programme. Systematic feedback collection is a core component of our quality management framework and our commitment to continuous improvement of course content, platform usability, and learner experience."
+  );
+  body(doc,
+    "This is a fully digital eLearning application. Post-examination feedback is captured automatically from all delegates upon completing the 45-question final examination. Collection is integrated directly into the platform so that every learner encounter generates a data point; no separate survey tool or manual follow-up is required."
+  );
+
+  sectionHeading(doc, "2. Feedback Collection Method");
+  body(doc,
+    "Feedback is collected at two points in the learner journey:"
+  );
+  bullet(doc, [
+    "Module-level feedback — presented immediately after each module quiz is passed. Learners rate the clarity and usefulness of that module's content.",
+    "Course-level (post-examination) feedback — presented upon passing the 45-question final examination. Learners provide an overall satisfaction rating and optional free-text comments covering content quality, platform usability, and any suggestions for improvement.",
+  ]);
+  body(doc,
+    "Both feedback forms are embedded within the platform interface and are presented at the natural completion point of each activity. Participation is voluntary; learners may skip either form without penalty and without affecting their assessment record or certificate."
+  );
+
+  sectionHeading(doc, "3. Metrics Captured");
+  twoColTable(doc, ["Metric", "Description"], [
+    ["Overall satisfaction score", "A 1–5 star rating of the learner's overall experience of the course and platform."],
+    ["Content clarity rating",     "A 1–5 rating of how clearly the course material explained the subject matter."],
+    ["Platform usability rating",  "A 1–5 rating of how easy the eLearning platform was to navigate and use."],
+    ["Free-text comments",         "Optional open-ended field allowing learners to describe their experience in their own words, highlight specific strengths, or identify areas for improvement."],
+    ["Module-level ratings",       "A per-module 1–5 rating of content quality and relevance, captured immediately after each module quiz is passed."],
+    ["Completion timestamp",       "The date and time the feedback was submitted, used to track response trends over time."],
+  ], 185);
+
+  sectionHeading(doc, "4. Data Storage and Security");
+  body(doc,
+    "All feedback responses are stored in a managed PostgreSQL relational database hosted within the Replit cloud infrastructure. Data is persisted indefinitely for longitudinal trend analysis unless a learner submits a Subject Access Request or Right to Erasure request under UK GDPR. The database is access-controlled; only authorised personnel within Overleaf Publishers Ltd may query feedback data."
+  );
+  body(doc,
+    "Free-text comments are stored as plain text and are not subject to automated sentiment analysis or third-party processing. Feedback data is not shared with any external organisation, including IIRSM, unless required to demonstrate quality assurance compliance during a course approval audit, in which case only anonymised aggregate statistics will be disclosed."
+  );
+  body(doc,
+    "All feedback data is handled in accordance with our Data Protection Policy and the UK GDPR. Learners wishing to view, correct, or request deletion of their feedback data should contact us at info@chainsawcourses.com."
+  );
+
+  sectionHeading(doc, "5. Review and Monitoring");
+  body(doc,
+    "The content author reviews all feedback data on a monthly basis. Each review examines:"
+  );
+  bullet(doc, [
+    "Mean satisfaction, clarity, and usability scores for the period.",
+    "Volume and direction of trend compared with the previous period.",
+    "Any free-text comments that identify a specific content error, technical fault, or systemic usability concern.",
+    "Per-module ratings to identify modules that consistently receive lower clarity scores.",
+    "Any correlation between low feedback scores and lower assessment pass rates in the same period.",
+  ]);
+  body(doc,
+    "Review findings are documented in the Monthly Feedback Summary, which is retained alongside the Internal Verification Log. Significant findings (e.g. a mean satisfaction score below 3.5/5, or repeated reports of the same content error) are escalated immediately to the Director without waiting for the next scheduled review."
+  );
+
+  sectionHeading(doc, "6. Acting on Feedback");
+  twoColTable(doc, ["Finding", "Action"], [
+    ["Content error identified in free-text",     "Flagged for Internal Verification; corrected within 10 working days; IV log updated."],
+    ["Module clarity score below 3.5 for 2 consecutive months", "Module content reviewed and rewritten; updated video re-recorded if necessary; change logged."],
+    ["Platform usability concern mentioned by 3+ learners", "Development team notified; bug or UX issue investigated within 5 working days."],
+    ["Overall satisfaction mean above 4.5/5",    "Noted in Management Review as evidence of course quality; no immediate action required."],
+    ["No feedback received in a calendar month",  "Checked against enrolment data; if learners completed the exam but did not submit feedback, the feedback prompt is reviewed for technical faults."],
+  ], 220);
+
+  sectionHeading(doc, "7. Reporting");
+  body(doc,
+    "Aggregated and anonymised feedback statistics are included in the Quarterly Quality Management Report and the Annual Management Review. These reports are retained for a minimum of 3 years. Where IIRSM requests evidence of learner feedback as part of course approval monitoring, the content author will prepare an anonymised summary from the database records."
+  );
+  body(doc,
+    "Individual learner responses are never disclosed to third parties and are not used for any purpose other than improving the quality of the Chainsaw Courses programme."
+  );
+
+  sectionHeading(doc, "8. Complaints Arising from the Feedback Process");
+  body(doc,
+    "If a learner believes their feedback has not been taken into account, or wishes to raise a concern about how their feedback data has been handled, they should refer to the Complaints Procedure. Complaints relating to data handling should additionally refer to the Data Protection Policy and, if unresolved, may be escalated to the Information Commissioner's Office (ICO) at ico.org.uk."
+  );
+
+  sectionHeading(doc, "9. Policy Review");
+  body(doc,
+    "This policy is reviewed annually as part of the Quality Management review cycle, or immediately following any material change in the platform's feedback architecture, applicable data protection legislation, or IIRSM course approval requirements. The content author is responsible for initiating each review and for ensuring any revisions are communicated to relevant staff."
+  );
+
+  body(doc, "\nFor queries: info@chainsawcourses.com  ·  Overleaf Publishers Ltd");
+  await save(doc, "Learner_Feedback_Policy.pdf", "Learner Feedback Policy");
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
 async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const skipStt =
+    args.includes("--skip-stt-check") || args.includes("--force");
+
+  if (!skipStt) {
+    const { fixturesPassed, flags } = await runSttPreflight();
+    await pool.end();
+
+    if (!fixturesPassed) {
+      console.error(
+        "⛔  Aborting PDF generation — STT dictionary precision fixtures failed.\n" +
+          "    Fix the dictionary in stt-scan-lib.ts, then try again.\n"
+      );
+      process.exit(1);
+    }
+
+    if (flags.length > 0) {
+      console.error(
+        `⛔  Aborting PDF generation — ${flags.length} transcript flag(s) must be resolved first.\n` +
+          "    Fix them with:  pnpm exec tsx scripts/src/scan-transcripts.ts --interactive\n" +
+          "    Then re-run generate-pdfs.  To skip this check: pass --skip-stt-check\n"
+      );
+      process.exit(1);
+    }
+  } else {
+    console.log("⚠️   --skip-stt-check active: transcript scan bypassed.\n");
+  }
+
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
   console.log(`\nGenerating PDFs → ${OUT_DIR}\n`);
 
@@ -2275,7 +2419,7 @@ async function main(): Promise<void> {
   await genEDI();
   await genSafeguarding();
   await genEnvironmental();
-  await genIIRSMBrief();
+  // IIRSM Submission Brief is generated by generate-iirsm-brief.ts — do not call genIIRSMBrief() here
   await genDocumentControl();
   await genManagementReview();
   await genNonconformance();
@@ -2289,6 +2433,7 @@ async function main(): Promise<void> {
   await genEmergency();
   await genCompetenceFramework();
   await genRiskRegister();
+  await genFeedback();
 
   console.log("\n✅  All PDFs generated successfully.\n");
 }

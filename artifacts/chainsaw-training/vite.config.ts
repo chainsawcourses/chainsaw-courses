@@ -19,6 +19,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = process.env.BASE_PATH;
+const apiOrigin = process.env.API_ORIGIN;
 
 if (!basePath) {
   throw new Error(
@@ -28,6 +29,7 @@ if (!basePath) {
 
 export default defineConfig({
   base: basePath,
+  cacheDir: "node_modules/.vitecache",
   plugins: [
     react(),
     tailwindcss(),
@@ -53,6 +55,9 @@ export default defineConfig({
     },
     dedupe: ["react", "react-dom"],
   },
+  optimizeDeps: {
+    include: ["react", "react-dom", "react-dom/client"],
+  },
   root: path.resolve(import.meta.dirname),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
@@ -63,9 +68,21 @@ export default defineConfig({
     strictPort: true,
     host: "0.0.0.0",
     allowedHosts: true,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+    },
     fs: {
       strict: true,
     },
+    ...(apiOrigin ? {
+      proxy: {
+        "/api": {
+          target: apiOrigin,
+          changeOrigin: true,
+        },
+      },
+    } : {}),
   },
   preview: {
     port,

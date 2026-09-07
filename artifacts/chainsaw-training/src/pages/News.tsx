@@ -21,41 +21,49 @@ export default function News() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
+        <div className="max-w-5xl mx-auto px-2 sm:px-4 min-h-14 py-2 flex items-center gap-1.5 sm:gap-3">
+          <Button variant="ghost" size="sm" asChild className="shrink-0 px-2 sm:px-3 font-mono uppercase tracking-widest text-xs">
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Link>
           </Button>
-          <Newspaper className="w-4 h-4 text-[#e27226]" />
-          <span className="font-mono font-bold uppercase tracking-widest text-sm">
+          <Newspaper className="hidden sm:block w-4 h-4 shrink-0 text-[#e27226]" />
+          <span className="min-w-0 whitespace-nowrap font-mono font-bold uppercase tracking-widest text-xs sm:text-sm">
             Industry News
           </span>
-          <div className="ml-auto">
+          <div className="ml-auto shrink-0">
             {notifState === "unsupported" ? null : notifState === "denied" ? (
-              <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-                Notifications blocked
+              <span
+                className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground uppercase tracking-widest"
+                title="Notifications blocked"
+              >
+                <BellOff className="h-4 w-4" />
+                <span className="hidden sm:inline">Notifications blocked</span>
               </span>
             ) : notifState === "subscribed" ? (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={unsubscribe}
-                className="font-mono text-[10px] uppercase tracking-widest gap-1.5"
+                aria-label="Disable notifications"
+                title="Notifications on"
+                className="h-9 w-9 p-0 sm:h-8 sm:w-auto sm:px-3 font-mono text-[10px] uppercase tracking-widest gap-1.5"
               >
                 <BellOff className="w-3.5 h-3.5" />
-                Notifications On
+                <span className="hidden sm:inline">Notifications On</span>
               </Button>
             ) : notifState === "unsubscribed" ? (
               <Button
                 size="sm"
                 variant="outline"
                 onClick={subscribe}
-                className="font-mono text-[10px] uppercase tracking-widest gap-1.5 border-primary/40 text-primary hover:bg-primary/10"
+                aria-label="Enable notifications"
+                title="Enable notifications"
+                className="h-9 w-9 p-0 sm:h-8 sm:w-auto sm:px-3 font-mono text-[10px] uppercase tracking-widest gap-1.5 border-primary/40 text-primary hover:bg-primary/10"
               >
                 <Bell className="w-3.5 h-3.5" />
-                Enable Notifications
+                <span className="hidden sm:inline">Enable Notifications</span>
               </Button>
             ) : (
               <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
@@ -124,9 +132,21 @@ export default function News() {
                     <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2">
                       {item.excerpt}
                     </p>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {formatDate(item.publishedAt)}
-                    </Badge>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {formatDate(item.publishedAt)}
+                      </Badge>
+                      {item.learningOutcome && (
+                        <Badge className="font-mono text-xs bg-[#e27226]/10 text-[#e27226] border border-[#e27226]/30 hover:bg-[#e27226]/10">
+                          {item.learningOutcome}
+                        </Badge>
+                      )}
+                      {item.assessmentCriteria && (
+                        <Badge variant="outline" className="font-mono text-xs text-muted-foreground">
+                          {item.assessmentCriteria}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>

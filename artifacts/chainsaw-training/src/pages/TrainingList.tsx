@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { downloadPdf } from "../lib/downloadPdf";
 import WelcomeModal from "../components/WelcomeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -7,13 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileDown, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
-import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetWaiver, getGetWaiverQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
+import { useListModules, getListModulesQueryKey, useGetProgressSummary, getGetProgressSummaryQueryKey, useCompleteVideo, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { IS_DEMO } from "../lib/demo";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
@@ -70,11 +69,8 @@ export default function TrainingList() {
   const { activationCode, deviceId, fullName, clearSession, userId, accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
   void accessExpiresAt; void courseCompletedAt; void accessStatus;
   const [equipmentOpen, setEquipmentOpen] = useState(false);
-  const [equipmentScrolled, setEquipmentScrolled] = useState(false);
-  const [equipmentAcknowledged, setEquipmentAcknowledged] = useState(() =>
-    localStorage.getItem("equipment-acknowledged") === "true"
-  );
-  const equipmentScrollRef = useRef<HTMLDivElement>(null);
+
+
   const activeTriggerRef = useRef<HTMLElement | null>(null);
   const [hazardsOpen, setHazardsOpen] = useState(false);
   const [hazardsViewed, setHazardsViewed] = useState(() =>
@@ -83,7 +79,16 @@ export default function TrainingList() {
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   const [howToUseOpen, setHowToUseOpen] = useState(false);
   const [preparingOpen, setPreparingOpen] = useState(false);
+  const [preparingClicked, setPreparingClicked] = useState(() =>
+    localStorage.getItem("preparing-clicked") === "true"
+  );
   const [nptcOpen, setNptcOpen] = useState(false);
+  const [nptcClicked, setNptcClicked] = useState(() =>
+    localStorage.getItem("nptc-clicked") === "true"
+  );
+  const [findCentreClicked, setFindCentreClicked] = useState(() =>
+    localStorage.getItem("find-centre-clicked") === "true"
+  );
   const [docsOpen, setDocsOpen] = useState(false);
   const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [helpHowItWorksOpen, setHelpHowItWorksOpen] = useState(false);
@@ -93,8 +98,6 @@ export default function TrainingList() {
   const [helpAdminOpen, setHelpAdminOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [certLoading, setCertLoading] = useState(false);
-  const [certDownloading, setCertDownloading] = useState(false);
   const [certResending, setCertResending] = useState(false);
   const { toast } = useToast();
 
@@ -103,34 +106,8 @@ export default function TrainingList() {
 
   const certHeaders = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
 
-  const handleViewCertificate = async () => {
-    if (!activationCode || !deviceId || certLoading) return;
-    setCertLoading(true);
-    try {
-      const res = await fetch("/api/certificate", { headers: certHeaders });
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } finally { setCertLoading(false); }
-  };
-
-  const handleDownloadCertificate = async () => {
-    if (!activationCode || !deviceId || certDownloading) return;
-    setCertDownloading(true);
-    try {
-      const res = await fetch("/api/certificate?download=1", { headers: certHeaders });
-      if (!res.ok) return;
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "Chainsaw_Certificate.pdf"; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } finally { setCertDownloading(false); }
+  const handleViewCertificate = () => {
+    setLocation("/certificate");
   };
 
   const handleResendCertificate = async () => {
@@ -143,6 +120,9 @@ export default function TrainingList() {
       } else {
         toast({ variant: "destructive", title: "Could not send", description: "Please try again or contact support." });
       }
+    } catch (error) {
+      console.error("Certificate email request failed", error);
+      toast({ variant: "destructive", title: "Could not send", description: "Please check your connection and try again." });
     } finally { setCertResending(false); }
   };
 
@@ -170,8 +150,15 @@ export default function TrainingList() {
 
   const queryClient = useQueryClient();
   const completeVideo = useCompleteVideo();
+  const handleSignInAgain = () => {
+    // Keep the device ID so a returning learner can be matched to their
+    // existing progress, but clear stale login details before reactivation.
+    queryClient.clear();
+    clearSession();
+    setLocation("/");
+  };
 
-  const { data: modules, isLoading: isLoadingModules } = useListModules({
+  const { data: modulesResponse, isLoading: isLoadingModules, isError: hasModulesError } = useListModules({
     query: {
       queryKey: getListModulesQueryKey(),
       enabled: !!activationCode && !!deviceId,
@@ -179,6 +166,9 @@ export default function TrainingList() {
       refetchOnMount: "always",
     }
   });
+  const hasInvalidModulesResponse =
+    modulesResponse !== undefined && !Array.isArray(modulesResponse);
+  const modules = Array.isArray(modulesResponse) ? modulesResponse : [];
 
   const { data: summary, isLoading: isLoadingSummary } = useGetProgressSummary({
     query: {
@@ -187,10 +177,6 @@ export default function TrainingList() {
       staleTime: 0,
       refetchOnMount: "always",
     }
-  });
-
-  const { data: waiverStatus } = useGetWaiver({
-    query: { queryKey: getGetWaiverQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
   const { data: examStatus } = useGetExamStatus({
@@ -206,37 +192,6 @@ export default function TrainingList() {
   const examPassed = examStatus?.passed ?? false;
   const remainingModules = Math.max(0, (summary?.totalModules ?? 0) - (summary?.completedModules ?? 0));
 
-  const equipmentListModule = useMemo(
-    () => (modules ?? []).find((m) => m.category === "COURSE REQUIREMENTS" && m.contentType === "pdf"),
-    [modules]
-  );
-
-  const equipmentFooterRef = useRef<HTMLDivElement>(null);
-
-  const handleEquipmentScroll = useCallback(() => {
-    const el = equipmentScrollRef.current;
-    if (!el) return;
-    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
-      setEquipmentScrolled(true);
-    }
-  }, []);
-
-
-  const handleEquipmentAcknowledge = useCallback(() => {
-    if (!equipmentListModule || !deviceId || !activationCode) return;
-    completeVideo.mutate(
-      { data: { moduleId: equipmentListModule.id, deviceId, activationCode } },
-      {
-        onSuccess: () => {
-          localStorage.setItem("equipment-acknowledged", "true");
-          setEquipmentAcknowledged(true);
-          setEquipmentOpen(false);
-          queryClient.invalidateQueries({ queryKey: getListModulesQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetProgressSummaryQueryKey() });
-        },
-      }
-    );
-  }, [equipmentListModule, deviceId, activationCode, completeVideo, queryClient]);
 
   const anyOpen = equipmentOpen || hazardsOpen || disclaimerOpen || howToUseOpen || preparingOpen || nptcOpen || docsOpen || brandMenuOpen || helpHowItWorksOpen || helpDeviceLockOpen || helpWatermarkOpen || helpLostCodeOpen || helpAdminOpen;
 
@@ -333,21 +288,10 @@ export default function TrainingList() {
     });
   };
 
-  // Course Requirements modules — rendered separately below the equipment collapsible
-  const courseReqModules = useMemo(
-    () => (modules ?? []).filter((m) => m.category === "COURSE REQUIREMENTS" && m.contentType !== "pdf"),
-    [modules]
-  );
-
-  // Group remaining modules by category → sub-category, preserving DB order
-  // Equipment List, Course Requirements and Hazards modules are excluded (shown separately)
+  // Group modules by category → sub-category, preserving DB order
   const grouped = useMemo(() => {
     if (!modules) return [];
-    const filtered = modules.filter((m) =>
-      !m.title.toLowerCase().includes("equipment") &&
-      !m.title.toLowerCase().includes("hazard") &&
-      m.category !== "COURSE REQUIREMENTS"
-    );
+    const filtered = modules.filter((m) => m.category !== "COURSE REQUIREMENTS");
     const categoryOrder: string[] = [];
     const categoryMap = new Map<string, Map<string | null, typeof modules>>();
     filtered.forEach((mod) => {
@@ -380,11 +324,34 @@ export default function TrainingList() {
     );
   }
 
+  if (hasModulesError || hasInvalidModulesResponse) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-5 p-6 text-center">
+        <div className="max-w-sm space-y-2">
+          <h1 className="font-mono text-lg font-bold uppercase tracking-wide text-foreground">
+            Couldn&apos;t load your training
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Please check your connection and reload the app. If you have changed devices, sign in again. Your progress is still saved.
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => window.location.reload()}>
+            Reload app
+          </Button>
+          <Button variant="outline" onClick={handleSignInAgain}>
+            Sign in again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // HEADER V12 - logo above title, stacked brand button
   return (
     <div className="min-h-screen pb-20">
       <WelcomeModal />
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
+      <header className="app-header border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
           {/* Left — brand dropdown: logo above title */}
           <div className="relative flex items-center">
@@ -401,12 +368,12 @@ export default function TrainingList() {
             </button>
 
             {brandMenuOpen && (
-              <div
-                className="absolute top-full left-0 mt-1 z-50 w-[75vw] max-w-[280px] bg-popover border border-border rounded-md shadow-md overflow-hidden font-mono text-xs"
+               <div
+                 className="brand-dropdown absolute top-full left-0 mt-1 z-50 max-h-[calc(100dvh-5rem)] w-[75vw] max-w-[280px] overflow-x-hidden overflow-y-auto overscroll-contain rounded-md border border-border bg-popover font-mono text-xs shadow-md"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Logo + user identity */}
-                <div className="flex items-center gap-3 px-3 py-3 border-b border-border bg-card/60">
+                 <div className="brand-dropdown-identity flex items-center gap-3 px-3 py-3 border-b border-border bg-card/60">
                   <img
                     src={`${import.meta.env.BASE_URL}logo.png?v=20`}
                     alt="Chainsaw Courses"
@@ -414,38 +381,33 @@ export default function TrainingList() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="font-black tracking-tighter text-xs uppercase text-primary leading-tight">Chainsaw Courses</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className="font-mono text-[11px] text-foreground font-semibold truncate">{fullName}</p>
-                      {IS_DEMO ? (
-                        <Link
-                          href="/waiver"
-                          className="text-muted-foreground hover:text-primary shrink-0"
-                          title="Candidate Waiver"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                        </Link>
-                      ) : (
-                        <a
-                          href={waiverStatus?.pdfUrl ?? `/api/waiver/pdf?code=${encodeURIComponent(activationCode ?? "")}&device=${encodeURIComponent(deviceId ?? "")}&uid=${userId ?? ""}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-primary shrink-0"
-                          title="Your Signed Waiver"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                    </div>
+                    <button
+                      type="button"
+                      className="mt-0.5 flex w-full min-w-0 items-start gap-2 text-left text-foreground hover:text-primary"
+                        title={IS_DEMO ? "Candidate waiver preview" : "View your signed waiver"}
+                        aria-label={IS_DEMO ? "View candidate waiver preview" : `View signed waiver for ${fullName ?? "current user"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBrandMenuOpen(false);
+                        setLocation(IS_DEMO ? "/waiver" : "/signed-waiver");
+                      }}
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-mono text-[11px] font-semibold leading-tight">{fullName}</span>
+                        <span className="mt-0.5 block font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                          View waiver
+                        </span>
+                      </span>
+                      <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    </button>
                   </div>
                 </div>
 
                 {/* Help — single "How It Works" accordion containing all sub-sections */}
-                <div className="border-b border-border">
-                  <button
+                 <div className="brand-dropdown-help border-b border-border">
+                   <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                    className="w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-help-trigger w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>How It Works</span>
                     <ChevronDown className={`w-4 h-4 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
@@ -454,7 +416,7 @@ export default function TrainingList() {
                     <div className="px-3 pb-3 space-y-4">
                       {/* Intro */}
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Each module is a short training video. Watch it in full, then take the quiz. Score 80% or higher to unlock the next module. Complete all modules to earn your certificate.
+                        Each module is a short training video. Watch it in full, then score 100% on its quiz to unlock the next module. After completing every module, score 80% or higher on the final exam to earn your certificate.
                       </p>
 
                       {/* Device Lock */}
@@ -528,11 +490,11 @@ export default function TrainingList() {
                 </div>
 
                 {/* Navigation links */}
-                <div className="border-b border-border">
+                 <div className="brand-dropdown-nav border-b border-border">
                   {/* Community link kept for future use — hidden for now */}
                   <Link
                     href="/manual"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -540,7 +502,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/inspection"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ClipboardCheck className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -548,7 +510,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/risk-assessment"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <MapPin className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -556,7 +518,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/biosecurity-map"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Leaf className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -564,7 +526,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/chain-chart"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Cog className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -572,7 +534,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/news"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Newspaper className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -580,7 +542,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/species-guide"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <LogEndIcon className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -588,7 +550,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/glossary"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ScrollText className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -596,7 +558,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/resources"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Library className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -604,45 +566,36 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/privacy"
-                    className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4 shrink-0 text-[#e27226]" />
                     <span>Privacy Policy</span>
                   </Link>
 
-                  {/* Feedback — only active after exam passed */}
-                  {examPassed ? (
-                    <Link
-                      href="/feedback"
-                      className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                      onClick={() => setBrandMenuOpen(false)}
-                    >
-                      <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
-                      <span>Feedback</span>
-                    </Link>
-                  ) : (
-                    <div className="w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm cursor-not-allowed opacity-40 select-none">
-                      <MessageSquarePlus className="w-4 h-4 shrink-0" />
-                      <span>Feedback</span>
-                      <Lock className="w-3 h-3 ml-auto shrink-0" />
-                    </div>
-                  )}
+                  <Link
+                    href="/feedback"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                    onClick={() => setBrandMenuOpen(false)}
+                  >
+                    <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
+                    <span>Feedback</span>
+                  </Link>
                 </div>
 
                 {/* Log Out + Delete Account */}
                 {!deleteConfirmOpen ? (
-                  <div className="flex border-t border-border">
+                   <div className="brand-dropdown-actions flex border-t border-border">
                     <button
                       onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
-                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
+                       className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
                     >
                       <LogOut className="w-3 h-3" /> Log Out
                     </button>
-                    <div className="w-px bg-border shrink-0" />
+                    <div className="hidden w-px shrink-0 bg-border sm:block" />
                     <button
                       onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(true); }}
-                      className="flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
+                       className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left text-destructive/60 hover:bg-destructive/10 hover:text-destructive transition-colors"
                     >
                       <Trash2 className="w-3 h-3" /> Delete Account
                     </button>
@@ -751,16 +704,19 @@ export default function TrainingList() {
             {/* Final Exam row */}
             <div className="flex items-center pt-1 border-t border-border">
               {examPassed ? (
-                <span className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 flex items-center gap-1.5 cursor-default">
+                <Link href="/exam" className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 hover:text-green-700 flex items-center gap-1.5 transition-colors">
                   <Award className="w-3 h-3 shrink-0" />
                   Final Exam ✓
-                </span>
+                </Link>
               ) : courseUnlocked ? (
-                <Link
-                  href="/exam"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Final Exam
+                <Link href="/exam" className="relative inline-flex items-center group">
+                  {/* Ping ring */}
+                  <span className="absolute inset-0 rounded-full animate-ping bg-primary/40 group-hover:opacity-0" />
+                  <span className="relative font-mono font-semibold uppercase tracking-widest text-xs
+                    bg-primary text-primary-foreground px-3 py-1 rounded-full shadow-md
+                    animate-pulse hover:animate-none hover:bg-primary/90 transition-colors">
+                    Final Exam
+                  </span>
                 </Link>
               ) : (
                 <span className="flex flex-col gap-0.5 cursor-not-allowed select-none" title="Complete all modules and quizzes to unlock the final exam">
@@ -789,22 +745,10 @@ export default function TrainingList() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleViewCertificate}
-                    disabled={certLoading}
-                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
-                    title="Open certificate in browser"
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px transition-all"
+                    title="View certificate"
                   >
-                    {certLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                    <span>View</span>
-                  </button>
-                  <span className="text-muted-foreground/30 text-[10px]">·</span>
-                  <button
-                    onClick={handleDownloadCertificate}
-                    disabled={certDownloading}
-                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
-                    title="Download certificate as PDF"
-                  >
-                    {certDownloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileDown className="w-3 h-3" />}
-                    <span>Download</span>
+                    View
                   </button>
                   <span className="text-muted-foreground/30 text-[10px]">·</span>
                   <button
@@ -822,13 +766,13 @@ export default function TrainingList() {
               )}
             </div>
 
-            {/* Practical Progression Gateway — locked until exam passed (or demo mode) */}
+            {/* Practical Progression Gateway — locked until exam passed */}
             <div className="flex items-center justify-between pt-1 border-t border-border">
               <div className="flex items-center gap-2">
                 {(examPassed || IS_DEMO) ? (
                   <Link
                     href="/gateway"
-                    className="font-mono font-semibold uppercase tracking-widest text-xs text-[#e27226] hover:text-[#c9621f] transition-colors flex items-center gap-1.5"
+                    className="font-mono font-semibold uppercase tracking-widest text-xs text-green-600 hover:text-green-700 transition-colors flex items-center gap-1.5"
                   >
                     <MapPin className="w-3 h-3 shrink-0" />
                     Practical Progression Gateway
@@ -845,7 +789,13 @@ export default function TrainingList() {
               {(examPassed || IS_DEMO) && (
                 <Link
                   href="/gateway"
-                  className="font-mono text-[10px] uppercase tracking-widest text-[#e27226] hover:text-[#c9621f] underline underline-offset-2 transition-colors"
+                  onClick={() => {
+                    if (!findCentreClicked) {
+                      setFindCentreClicked(true);
+                      localStorage.setItem("find-centre-clicked", "true");
+                    }
+                  }}
+                  className={`font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-700 underline underline-offset-2 transition-colors${!findCentreClicked ? " animate-green-pulse" : ""}`}
                 >
                   Find a Centre
                 </Link>
@@ -902,7 +852,7 @@ export default function TrainingList() {
                     <CardContent className="p-4">
                       <p className="font-mono text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                         {(() => {
-                          const examInjection = "Final Exam — 40 Multiple-Choice Questions:\n\nThe final exam is made up of 40 multiple-choice questions drawn from across all training modules. Questions cover chainsaw safety, maintenance, legislation, cross-cutting techniques, and risk assessment. You must score 80% or higher — 32 correct answers out of 40 — to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing result is recorded.\n\n";
+                          const examInjection = "Assessment Requirements:\n\nEach video module ends with a quiz. You must score 100% on every module quiz before the next module unlocks. The final exam is made up of 45 multiple-choice questions drawn from across all training modules. You must score 80% or higher — 36 correct answers out of 45 — on the final exam to pass and trigger the automatic issue of your Certificate of Theoretical Competency. There is no limit on attempts, and only your passing final-exam result is recorded.\n\n";
                           const gatewayInjection = "\n\nPractical Progression Gateway:\n\nOnce you have passed the final exam and received your Certificate of Theoretical Competency, the Practical Progression Gateway unlocks on your dashboard. This tool helps you find an NPTC-approved assessment centre near you and register your interest directly with the venue.\n\nAfter making initial contact with a venue, allow approximately 4–6 weeks to finalise a confirmed assessment date. Venues vary in availability and some operate on a cohort basis — so contact them as early as possible once your certificate is issued. All assessment fees are paid directly to the venue.";
                           const marker = "Practical Mock Assessment Practice:";
                           const idx = howToUseText!.indexOf(marker);
@@ -934,8 +884,6 @@ export default function TrainingList() {
                 <Card className="border-border bg-card/60 mt-1">
                   {/* Scrollable content — scroll to bottom to unlock acknowledge button */}
                   <div
-                    ref={equipmentScrollRef}
-                    onScroll={handleEquipmentScroll}
                     className="max-h-[70vh] overflow-y-auto"
                   >
                     <CardContent className="p-6 space-y-6 font-mono text-sm text-foreground">
@@ -1013,14 +961,25 @@ export default function TrainingList() {
             <div>
               <button
                 ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setPreparingOpen((o) => !o); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreparingOpen((o) => !o);
+                  if (examPassed && !preparingClicked) {
+                    setPreparingClicked(true);
+                    localStorage.setItem("preparing-clicked", "true");
+                  }
+                }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                <h3 className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${
+                  examPassed
+                    ? `text-green-600 group-hover:text-green-700 ${!preparingClicked ? "animate-green-pulse" : ""}`
+                    : "text-muted-foreground group-hover:text-primary"
+                }`}>
                   Preparing for Your Assessment
                 </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${preparingOpen ? "rotate-180 text-primary" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${examPassed ? "text-green-600 group-hover:text-green-700" : "text-muted-foreground group-hover:text-primary"} ${preparingOpen ? "rotate-180" : ""}`} />
               </button>
               {preparingOpen && (
                 <Card className="border-border bg-card/60 mt-1">
@@ -1032,7 +991,7 @@ export default function TrainingList() {
                       <span className="text-foreground font-semibold">Use the practical mock assessment.</span> Once you have completed all seven training modules, a Practical Mock Assessment button will appear on your dashboard. Use it repeatedly — it simulates the exact question style and timing of the real exam, and the AI examiner will explain the reasoning behind correct answers to deepen your understanding.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">Revisit weak areas.</span> If you score below 80% on a module quiz or practical mock assessment, go back and rewatch the relevant video before retrying. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
+                      <span className="text-foreground font-semibold">Revisit weak areas.</span> A video-module quiz requires 100%, so if any answer is incorrect, rewatch the relevant video before retrying. The final exam requires 80%. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
@@ -1055,14 +1014,25 @@ export default function TrainingList() {
             <div>
               <button
                 ref={(el) => { if (el) activeTriggerRef.current = el; }}
-                onClick={(e) => { e.stopPropagation(); setNptcOpen((o) => !o); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNptcOpen((o) => !o);
+                  if (examPassed && !nptcClicked) {
+                    setNptcClicked(true);
+                    localStorage.setItem("nptc-clicked", "true");
+                  }
+                }}
                 className="w-full flex items-center gap-2 py-2 text-left group ml-4"
               >
                 <div className="w-3 h-px bg-border shrink-0" />
-                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                <h3 className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${
+                  examPassed
+                    ? `text-green-600 group-hover:text-green-700 ${!nptcClicked ? "animate-green-pulse" : ""}`
+                    : "text-muted-foreground group-hover:text-primary"
+                }`}>
                   NPTC Resources
                 </h3>
-                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary ${nptcOpen ? "rotate-180 text-primary" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-all ${examPassed ? "text-green-600 group-hover:text-green-700" : "text-muted-foreground group-hover:text-primary"} ${nptcOpen ? "rotate-180" : ""}`} />
               </button>
               {nptcOpen && (
                 <Card className="border-border bg-card/60 mt-1">
@@ -1103,7 +1073,7 @@ export default function TrainingList() {
               {courseUnlocked ? (
                 <Link
                   href="/mock-test"
-                  className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground hover:text-primary transition-colors"
+                  className={`font-mono font-semibold uppercase tracking-widest text-xs transition-colors ${examPassed ? "text-green-600 hover:text-green-700" : "text-muted-foreground hover:text-primary"}`}
                 >
                   Practical Mock Assessment
                 </Link>
@@ -1114,60 +1084,6 @@ export default function TrainingList() {
               )}
             </div>
 
-            {courseReqModules.map((module) => {
-              const isPdf = module.contentType === "pdf";
-              return (
-                <Card
-                  key={module.id}
-                  className={`border-border transition-all duration-150 group ${
-                    module.isLocked
-                      ? "opacity-40 bg-card/30"
-                      : "hover:border-primary/40 bg-card/50 hover:bg-card/70"
-                  }`}
-                >
-                  <CardContent className="p-2.5 flex items-center gap-3">
-                    <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
-                      {module.isLocked ? (
-                        <Lock className="w-3 h-3 text-muted-foreground" />
-                      ) : module.isCompleted ? (
-                        <CheckCircle className="w-3 h-3 text-primary" />
-                      ) : isPdf ? (
-                        <FileText className="w-3 h-3 text-muted-foreground" />
-                      ) : (
-                        <PlayCircle className="w-3 h-3 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`font-mono font-bold text-xs uppercase tracking-wide truncate transition-colors ${module.isCompleted && !module.isLocked ? "group-hover:text-primary" : ""}`}>{module.title}</span>
-                        {isPdf && (
-                          <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
-                        )}
-                      </div>
-                      {module.isCompleted && (
-                        <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
-                      )}
-                    </div>
-                    {!module.isLocked && (
-                      <div className="shrink-0">
-                        <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
-                          <Link href={`/training/${module.id}`}>
-                            {isPdf ? (
-                              <><FileText className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "VIEW" : "OPEN"}</>
-                            ) : (
-                              <><PlayCircle className="w-2.5 h-2.5 mr-1" />{module.isCompleted ? "REWATCH" : "START"}</>
-                            )}
-                          </Link>
-                        </Button>
-                      </div>
-                    )}
-                    {module.isLocked && (
-                      <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
         </div>
 
         {/* Grouped Module List */}
@@ -1195,12 +1111,15 @@ export default function TrainingList() {
                     {mods.map((module) => {
                       const isPdf = module.contentType === "pdf";
                       const isRiskAssessment = module.title.toLowerCase().includes("risk assessment");
+                      const isHazardsReference = isPdf && module.title.toLowerCase().includes("hazards");
                       const moduleIndex = modules!.findIndex((m) => m.id === module.id);
                       // needsHazards is only used to show a soft prompt — it no longer gates access.
                       // Modules unlock purely based on the backend isLocked flag (quiz + video completion).
                       const needsHazards = riskAssessmentIndex !== -1 && moduleIndex > riskAssessmentIndex && !hazardsViewed;
                       void needsHazards;
-                      const effectiveLocked = module.isLocked;
+                      // PDF reference documents, including Hazards & Risks, are
+                      // available throughout the course and never block progression.
+                      const effectiveLocked = isPdf ? false : module.isLocked;
                       return (
                         <div key={module.id} id={`module-${module.id}`}>
                           <Card
@@ -1209,7 +1128,15 @@ export default function TrainingList() {
                                 ? "opacity-40 bg-card/30"
                                 : "cursor-pointer hover:border-primary/40 bg-card/50 hover:bg-card/70"
                             }`}
-                            onClick={!effectiveLocked ? () => setLocation(`/training/${module.id}`) : undefined}
+                            onClick={!effectiveLocked ? () => {
+                              if (isHazardsReference) {
+                                setLocation("/hazards-reference");
+                              } else if (isPdf && module.pdfUrl) {
+                                window.open(module.pdfUrl, "_blank", "noopener,noreferrer");
+                              } else {
+                                setLocation(`/training/${module.id}`);
+                              }
+                            } : undefined}
                           >
                             <CardContent className="p-2.5 flex items-center gap-3">
                               <div className="shrink-0 w-7 h-7 rounded flex items-center justify-center bg-secondary/60">
@@ -1231,27 +1158,56 @@ export default function TrainingList() {
                                     <Badge variant="outline" className="font-mono text-[9px] rounded-none py-0 px-1 text-muted-foreground border-muted-foreground/40 shrink-0">PDF</Badge>
                                   )}
                                 </div>
-                                {module.isCompleted && (
-                                  <Badge variant="outline" className="font-mono text-[9px] text-primary border-primary rounded-none py-0 mt-0.5 w-fit">Completed</Badge>
-                                )}
                                 <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{module.description}</p>
                               </div>
 
                               {!effectiveLocked && (
-                                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
-                                    <Link href={`/training/${module.id}`}>
-                                      {isPdf ? (
-                                        <><FileText className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "VIEW" : "OPEN"}</>
-                                      ) : (
-                                        <><PlayCircle className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "REWATCH" : "START"}</>
-                                      )}
-                                    </Link>
-                                  </Button>
+                                 <div className="shrink-0 flex flex-col items-end gap-1" onClick={(e) => e.stopPropagation()}>
+                                  {isHazardsReference ? (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <Link href="/hazards-reference">
+                                        <FileText className="w-2.5 h-2.5 mr-1" /> READ
+                                      </Link>
+                                    </Button>
+                                  ) : isPdf && module.pdfUrl ? (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <a href={module.pdfUrl} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="w-2.5 h-2.5 mr-1" /> VIEW
+                                      </a>
+                                    </Button>
+                                  ) : (
+                                    <Button size="sm" className="h-6 font-mono text-[10px] px-2" asChild>
+                                      <Link href={`/training/${module.id}`}>
+                                        {isPdf ? (
+                                          <><FileText className="w-2.5 h-2.5 mr-1" /> OPEN</>
+                                        ) : (
+                                          <><PlayCircle className="w-2.5 h-2.5 mr-1" /> {module.isCompleted ? "REWATCH" : "START"}</>
+                                        )}
+                                      </Link>
+                                    </Button>
+                                  )}
+                                     {!isPdf && !isHazardsReference && (
+                                       <div
+                                         className={`flex items-center gap-1 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wide ${
+                                           module.quizPassed ? "text-green-700" : "text-muted-foreground"
+                                         }`}
+                                       >
+                                         <CheckCircle className="h-3 w-3 shrink-0" />
+                                         <span>{module.quizPassed ? "Quiz Passed" : "Quiz Pending"}</span>
+                                       </div>
+                                     )}
                                 </div>
                               )}
                               {effectiveLocked && (
-                                <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none shrink-0">LOCKED</Button>
+                                 <div className="shrink-0 flex flex-col items-end gap-1">
+                                   <Button size="sm" variant="ghost" className="h-6 font-mono text-[10px] text-muted-foreground pointer-events-none">LOCKED</Button>
+                                   {!isPdf && (
+                                     <div className="flex items-center gap-1 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                                       <CheckCircle className="h-3 w-3 shrink-0" />
+                                       <span>Quiz Pending</span>
+                                     </div>
+                                   )}
+                                 </div>
                               )}
                             </CardContent>
                           </Card>
@@ -1364,11 +1320,54 @@ export default function TrainingList() {
             </div>
           ))}
         </div>
+
+        <div className="flex justify-center pt-2 pb-8" aria-label="IIRSM Approved Course">
+          <img
+            src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png`}
+            alt="IIRSM Approved Course"
+            className="h-auto w-32 max-w-full object-contain sm:w-36"
+          />
+        </div>
       </main>
 
-      <div className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest pointer-events-none">
-        COURSE CONTENT v{COURSE_CONTENT_VERSION}
-      </div>
+      <ForceUpdateTrigger version={COURSE_CONTENT_VERSION} />
+    </div>
+  );
+}
+
+// ── Hidden force-update trigger ───────────────────────────────────────────────
+// Tap the version label 5 times to unregister the service worker and reload.
+// Useful when the installed PWA is stuck on a stale cached version.
+// Firebase auth (IndexedDB) is NOT cleared — user stays logged in.
+function ForceUpdateTrigger({ version }: { version: string }) {
+  const [taps, setTaps] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTap = () => {
+    const next = taps + 1;
+    setTaps(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (next >= 5) {
+      // Force update: unregister all SWs then reload fresh from network
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+          .then(() => window.location.reload());
+      } else {
+        window.location.reload();
+      }
+      return;
+    }
+    // Reset tap count after 2 seconds of inactivity
+    timerRef.current = setTimeout(() => setTaps(0), 2000);
+  };
+
+  return (
+    <div
+      className="fixed bottom-2 left-0 right-0 text-center text-[10px] font-mono text-muted-foreground/50 tracking-widest cursor-default select-none"
+      onClick={handleTap}
+    >
+      COURSE CONTENT v{version}{taps > 0 && taps < 5 ? ` · · · · ·`.slice(0, taps * 2 + 1) : ""}
     </div>
   );
 }

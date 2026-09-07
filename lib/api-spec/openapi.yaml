@@ -33,6 +33,8 @@ tags:
     description: Location-aware dynamic risk assessment tool
   - name: news
     description: Arboriculture and forestry news feed
+  - name: documents
+    description: Course reference documents
 paths:
   /healthz:
     get:
@@ -46,6 +48,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /documents/hazards/reference:
+    get:
+      operationId: getHazardsReference
+      tags: [documents]
+      summary: Get the Hazards and Risks reference content for the in-app reader
+      responses:
+        "200":
+          description: Hazards and Risks reference content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HazardsReference"
+        "500":
+          description: Could not load the reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/activate:
     post:
@@ -382,6 +403,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ExamStatus"
 
+  /certificate/details:
+    get:
+      operationId: getCertificateDetails
+      tags: [certificate]
+      summary: Get the current user's certificate display details
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Certificate display details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CertificateDetails"
+
   /app-feedback:
     post:
       operationId: submitAppFeedback
@@ -472,7 +517,7 @@ paths:
     post:
       operationId: submitInspection
       tags: [inspections]
-      summary: Submit a completed pre-start/pre-use inspection checklist
+      summary: Save the current inspection checklist, or create an explicit duplicate
       requestBody:
         required: true
         content:
@@ -557,11 +602,62 @@ paths:
                 items:
                   $ref: "#/components/schemas/InspectionEntry"
 
+  /admin/inspections/all:
+    delete:
+      operationId: deleteAllInspections
+      tags: [admin]
+      summary: Delete all inspection records
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All inspections deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted]
+                properties:
+                  deleted:
+                    type: integer
+
+  /admin/inspections/{id}:
+    delete:
+      operationId: deleteInspection
+      tags: [admin]
+      summary: Delete a single inspection record
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inspection deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success:
+                    type: boolean
+
   /risk-assessments:
     post:
       operationId: submitRiskAssessment
       tags: [risk-assessments]
-      summary: Submit a completed dynamic risk assessment
+      summary: Save the current dynamic risk assessment, updating the learner's latest record when one exists
       requestBody:
         required: true
         content:
@@ -645,6 +741,57 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RiskAssessmentEntry"
+
+  /admin/risk-assessments/all:
+    delete:
+      operationId: deleteAllRiskAssessments
+      tags: [admin]
+      summary: Delete all risk assessment records
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All risk assessments deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted]
+                properties:
+                  deleted:
+                    type: integer
+
+  /admin/risk-assessments/{id}:
+    delete:
+      operationId: deleteRiskAssessment
+      tags: [admin]
+      summary: Delete a single risk assessment record
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Risk assessment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success]
+                properties:
+                  success:
+                    type: boolean
 
   /waiver:
     get:
@@ -975,6 +1122,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/NewsFetchResult"
 
+  /admin/news/retag-all:
+    post:
+      operationId: retagAllNewsItems
+      tags: [news]
+      summary: Retag all approved articles that have no LO/AC assigned
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retag result summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsRetagResult"
+
   /admin/news/{id}/approve:
     post:
       operationId: approveNewsItem
@@ -1092,6 +1258,36 @@ components:
           type: string
       required: [success]
 
+    HazardReferenceEntry:
+      type: object
+      required: [label, likelihood, severity, controlMeasures]
+      properties:
+        label:
+          type: string
+        likelihood:
+          type: integer
+          minimum: 1
+          maximum: 5
+        severity:
+          type: integer
+          minimum: 1
+          maximum: 5
+        controlMeasures:
+          type: string
+
+    HazardsReference:
+      type: object
+      required: [title, intro, hazards]
+      properties:
+        title:
+          type: string
+        intro:
+          type: string
+        hazards:
+          type: array
+          items:
+            $ref: "#/components/schemas/HazardReferenceEntry"
+
     ActivateInput:
       type: object
       required: [code, deviceId, fullName, email]
@@ -1167,6 +1363,8 @@ components:
           type: ["string", "null"]
         isHighRisk:
           type: boolean
+        pdfUrl:
+          type: ["string", "null"]
         learningOutcome:
           type: ["string", "null"]
         assessmentCriteria:
@@ -1214,6 +1412,8 @@ components:
           type: ["string", "null"]
         assessmentCriteria:
           type: ["string", "null"]
+        quizCount:
+          type: integer
 
     HeartbeatInput:
       type: object
@@ -1415,6 +1615,22 @@ components:
         passingScore:
           type: integer
 
+    CertificateDetails:
+      type: object
+      required: [fullName, email, passedAt, passedScore, certificateReference]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        passedAt:
+          type: string
+          format: date-time
+        passedScore:
+          type: ["integer", "null"]
+        certificateReference:
+          type: string
+
     FeedbackInput:
       type: object
       required: [deviceId, activationCode, rating]
@@ -1454,6 +1670,8 @@ components:
           type: string
         sawIdentifier:
           type: string
+        duplicate:
+          type: boolean
         items:
           type: array
           items:
@@ -1550,6 +1768,8 @@ components:
           type: string
         nearestSignal:
           type: string
+        duplicate:
+          type: boolean
         hazards:
           type: array
           items:
@@ -1670,6 +1890,14 @@ components:
           type: ["string", "null"]
         pdfUrl:
           type: ["string", "null"]
+        fullName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        signatureData:
+          type: ["string", "null"]
+        clausesSnapshot:
+          type: ["string", "null"]
 
     WaiverInput:
       type: object
@@ -1743,7 +1971,7 @@ components:
 
     StudentSummary:
       type: object
-      required: [id, fullName, email, activatedAt, completedModules, totalModules, waiverSigned]
+      required: [id, fullName, email, activatedAt, completedModules, totalModules, waiverSigned, feedbackCount, moduleFeedbackCount, courseFeedbackCount]
       properties:
         id:
           type: integer
@@ -1767,10 +1995,18 @@ components:
           type: boolean
         lastActivity:
           type: ["string", "null"]
+        feedbackCount:
+          type: integer
+        moduleFeedbackCount:
+          type: integer
+        courseFeedbackCount:
+          type: integer
+        totalQuizAttempts:
+          type: integer
 
     StudentDetail:
       type: object
-      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned]
+      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned, videoProgress, moduleFeedback, courseFeedback]
       properties:
         id:
           type: integer
@@ -1802,8 +2038,71 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StudentExamAttempt"
+        videoProgress:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentVideoProgress"
+        moduleFeedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentModuleFeedback"
+        courseFeedback:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentCourseFeedback"
         lastActivity:
           type: ["string", "null"]
+
+    StudentVideoProgress:
+      type: object
+      required: [moduleId, moduleTitle, videoCompleted, quizPassed, lastTimestamp, updatedAt]
+      properties:
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        videoCompleted:
+          type: boolean
+        quizPassed:
+          type: boolean
+        lastTimestamp:
+          type: integer
+        updatedAt:
+          type: string
+
+    StudentModuleFeedback:
+      type: object
+      required: [id, moduleId, moduleTitle, rating, comment, createdAt]
+      properties:
+        id:
+          type: integer
+        moduleId:
+          type: integer
+        moduleTitle:
+          type: string
+        rating:
+          type: integer
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    StudentCourseFeedback:
+      type: object
+      required: [id, rating, clarityRating, usabilityRating, comment, createdAt]
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+        clarityRating:
+          type: ["integer", "null"]
+        usabilityRating:
+          type: ["integer", "null"]
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
 
     StudentExamAttempt:
       type: object
@@ -1834,6 +2133,8 @@ components:
           type: integer
         attemptedAt:
           type: string
+        totalAttempts:
+          type: integer
 
     AdminStats:
       type: object
@@ -1898,6 +2199,8 @@ components:
           type: string
         notes:
           type: string
+        assignedTo:
+          type: string
 
     ActivationCode:
       type: object
@@ -1912,6 +2215,8 @@ components:
         createdAt:
           type: string
         notes:
+          type: ["string", "null"]
+        assignedTo:
           type: ["string", "null"]
 
     NewsItem:
@@ -1936,6 +2241,21 @@ components:
           type: string
         feedSource:
           type: ["string", "null"]
+        learningOutcome:
+          type: ["string", "null"]
+        assessmentCriteria:
+          type: ["string", "null"]
+
+    NewsRetagResult:
+      type: object
+      required: [total, tagged, errors]
+      properties:
+        total:
+          type: integer
+        tagged:
+          type: integer
+        errors:
+          type: integer
 
     NewsFetchResult:
       type: object
@@ -1993,6 +2313,14 @@ components:
           type: integer
           minimum: 1
           maximum: 5
+        clarityRating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        usabilityRating:
+          type: integer
+          minimum: 1
+          maximum: 5
         comment:
           type: string
 
@@ -2004,6 +2332,10 @@ components:
           type: integer
         rating:
           type: integer
+        clarityRating:
+          type: ["integer", "null"]
+        usabilityRating:
+          type: ["integer", "null"]
         comment:
           type: ["string", "null"]
         studentName:

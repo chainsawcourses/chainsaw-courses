@@ -78,6 +78,31 @@ function resolveUrl(input: RequestInfo | URL): string {
   return input.url;
 }
 
+function addApiFreshnessParam(input: RequestInfo | URL): RequestInfo | URL {
+  const rawUrl = resolveUrl(input);
+  const relative = rawUrl.startsWith("/");
+
+  let url: URL;
+  try {
+    url = new URL(rawUrl, typeof window !== "undefined" ? window.location.origin : "https://api.local");
+  } catch {
+    return input;
+  }
+
+  if (!url.pathname.startsWith("/api/")) return input;
+
+  // A changing URL prevents a stale native WebView or an older service worker
+  // from matching a previously cached API response. The server ignores this
+  // parameter and continues to provide the normal no-store response headers.
+  url.searchParams.set("_fresh", String(Date.now()));
+
+  if (typeof input === "string") {
+    return relative ? `${url.pathname}${url.search}${url.hash}` : url.toString();
+  }
+  if (isUrl(input)) return url;
+  return new Request(url.toString(), input);
+}
+
 function mergeHeaders(...sources: Array<HeadersInit | undefined>): Headers {
   const headers = new Headers();
 
@@ -335,6 +360,10 @@ export async function customFetch<T = unknown>(
     throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
   }
 
+  if ((method === "GET" || method === "HEAD") && init.cache == null) {
+    input = addApiFreshnessParam(input);
+  }
+
   const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
 
   if (
@@ -373,7 +402,12 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  // Learner-facing course content can be edited from the admin portal. Never
+  // let a browser or native WebView reuse an old GET response for an API call:
+  // the API is the source of truth and serves its own no-store headers too.
+  // Callers can still explicitly opt into another cache policy when needed.
+  const cache = init.cache ?? (method === "GET" || method === "HEAD" ? "no-store" : undefined);
+  const response = await fetch(input, { ...init, method, headers, cache });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);

@@ -3,6 +3,13 @@ import { db, assessmentVenuesTable, assessmentEnquiriesTable, assessmentPassport
 import { eq, desc, ne } from "drizzle-orm";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
+import {
+  prepareNewGatewayVenue,
+  resolveVenueCoordinates,
+  VENUE_MAPPING_ERROR,
+  VENUE_MAPPING_SERVICE_ERROR,
+  VenueMappingServiceError,
+} from "../lib/gatewayVenue";
 
 const router = Router();
 
@@ -22,17 +29,35 @@ router.get("/admin/gateway/venues", async (req, res) => {
 router.post("/admin/gateway/venues", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorised" }); return; }
   try {
-    const { name, address, town, county, postcode, lat, lng, email, phone, website, tier, notes } = req.body as {
+    const { name, address, town, county, postcode, lat, lng, email, phone, website, tier, active, notes } = req.body as {
       name: string; address: string; town: string; county: string; postcode: string;
       lat: number; lng: number; email: string; phone: string;
-      website?: string; tier: string; notes?: string;
+      website?: string; tier: string; active?: boolean; notes?: string;
     };
-    if (!name || !address || !town || !county || !postcode || !lat || !lng || !email || !phone) {
-      res.status(400).json({ error: "Missing required fields" }); return;
+    if (!String(name ?? "").trim()) {
+      res.status(400).json({ error: "Please enter a venue name." }); return;
+    }
+    let prepared;
+    try {
+      prepared = await prepareNewGatewayVenue({ name, postcode, lat, lng });
+    } catch (err) {
+      req.log.warn({ err, postcode }, "Failed to geocode gateway venue postcode");
+      if (err instanceof VenueMappingServiceError) {
+        res.status(503).json({ error: VENUE_MAPPING_SERVICE_ERROR });
+        return;
+      }
+      throw err;
+    }
+    if (!prepared) {
+      res.status(422).json({ error: VENUE_MAPPING_ERROR });
+      return;
     }
     const [venue] = await db.insert(assessmentVenuesTable).values({
-      name, address, town, county, postcode, lat, lng, email, phone,
-      website: website ?? null, tier: tier ?? "silver", notes: notes ?? null, active: true,
+      name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
+      postcode: postcode?.trim().toUpperCase() || "", lat: prepared.lat, lng: prepared.lng,
+      email: email?.trim() || "", phone: phone?.trim() || "",
+      website: website?.trim() || null, tier: tier ?? "silver", notes: notes?.trim() || null,
+      active: true,
     }).returning();
     res.json(venue);
   } catch (err) {
@@ -51,8 +76,33 @@ router.put("/admin/gateway/venues/:id", async (req, res) => {
       lat: number; lng: number; email: string; phone: string;
       website?: string; tier: string; active: boolean; notes?: string;
     };
+    if (!String(name ?? "").trim()) {
+      res.status(400).json({ error: "Please enter a venue name." }); return;
+    }
+    let coordinates;
+    try {
+      coordinates = await resolveVenueCoordinates({ postcode, lat, lng });
+    } catch (err) {
+      req.log.warn({ err, postcode }, "Failed to geocode gateway venue postcode");
+      if (err instanceof VenueMappingServiceError) {
+        res.status(503).json({ error: VENUE_MAPPING_SERVICE_ERROR });
+        return;
+      }
+      throw err;
+    }
+    if (!coordinates) {
+      res.status(422).json({
+        error: "Enter a valid UK postcode or latitude and longitude so this venue can be shown on the map.",
+      });
+      return;
+    }
     const [updated] = await db.update(assessmentVenuesTable)
-      .set({ name, address, town, county, postcode, lat, lng, email, phone, website: website ?? null, tier, active, notes: notes ?? null })
+      .set({
+        name: name.trim(), address: address?.trim() || "", town: town?.trim() || "", county: county?.trim() || "",
+        postcode: postcode?.trim().toUpperCase() || "", lat: coordinates.lat, lng: coordinates.lng,
+        email: email?.trim() || "", phone: phone?.trim() || "", website: website?.trim() || null,
+        tier: tier ?? "silver", active, notes: notes?.trim() || null,
+      })
       .where(eq(assessmentVenuesTable.id, id))
       .returning();
     if (!updated) { res.status(404).json({ error: "Venue not found" }); return; }

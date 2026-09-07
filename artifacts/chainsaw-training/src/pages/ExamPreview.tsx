@@ -4,9 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, ArrowLeft, FileDown, Loader2 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
+import { useToast } from "@/hooks/use-toast";
+import { deliverPdf } from "../lib/pdfDownload";
 
 function PreviewCertificateButton() {
   const { activationCode, deviceId } = useUserSession();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
@@ -19,15 +22,20 @@ function PreviewCertificateButton() {
       });
       if (!res.ok) throw new Error("Failed");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const w = window.open(url, "_blank");
-      if (!w) {
-        const a = document.createElement("a");
-        a.href = url; a.target = "_blank"; a.click();
+      const result = await deliverPdf(blob, "Chainsaw_Certificate.pdf");
+      if (result === "saved") {
+        toast({ title: "Certificate saved", description: "The certificate was saved to the selected location." });
+      } else if (result === "shared") {
+        toast({ title: "Certificate ready", description: "Choose a location or app from the share sheet." });
+      } else if (result === "downloaded") {
+        toast({ title: "Certificate download started", description: "The certificate should appear in Downloads." });
       }
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch {
-      // silent retry
+      toast({
+        variant: "destructive",
+        title: "Could not download certificate",
+        description: "Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -40,7 +48,7 @@ function PreviewCertificateButton() {
       className="w-full h-14 font-mono font-bold tracking-widest gap-2"
     >
       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}
-      {loading ? "GENERATING CERTIFICATE…" : "VIEW CERTIFICATE"}
+      {loading ? "GENERATING CERTIFICATE…" : "DOWNLOAD CERTIFICATE"}
     </Button>
   );
 }

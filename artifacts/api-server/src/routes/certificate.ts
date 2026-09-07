@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { examAttemptsTable } from "@workspace/db";
-import { eq, and, desc } from "drizzle-orm";
+import { examAttemptsTable, usersTable } from "@workspace/db";
+import { eq, and, desc, isNotNull } from "drizzle-orm";
 import { resolveUser } from "./auth";
+import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
-import { generateCertificatePdf } from "../lib/generateCertificate";
+import { certRef, generateCertificatePdf } from "../lib/generateCertificate";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
+import { saveCertificateToDrive, getCertsFolderId, uploadPdfToDrive } from "../lib/driveCertificates";
 
 const router = Router();
 
@@ -22,6 +24,58 @@ async function getCertData(activationCode: string, deviceId: string) {
   const passedScore = passedAttempts.length > 0 ? passedAttempts[0].score : null;
   return { user, passedAt, passedScore };
 }
+
+// GET /api/certificate/details — data for the responsive in-app certificate.
+router.get("/certificate/details", async (req, res) => {
+  const deviceId = req.headers["deviceid"] as string;
+  const activationCode = req.headers["activationcode"] as string;
+  if (!deviceId || !activationCode) {
+    res.status(401).json({ error: "Missing credentials" });
+    return;
+  }
+
+  try {
+    const data = await getCertData(activationCode, deviceId);
+    if (!data) {
+      res.status(401).json({ error: "Unauthorised" });
+      return;
+    }
+
+    const { user, passedAt, passedScore } = data;
+    res.json({
+      fullName: user.fullName,
+      email: user.email,
+      passedAt: passedAt.toISOString(),
+      passedScore,
+      certificateReference: certRef(user.id, passedAt),
+    });
+  } catch (err) {
+    logger.error({ err }, "Error fetching certificate details");
+    res.status(500).json({ error: "Could not load certificate" });
+  }
+});
+
+// GET /api/certificate/view — iframe-friendly: accepts creds as query params so the URL
+// can be used directly as an <iframe src> (iOS Safari cannot render blob/data URIs in iframes)
+router.get("/certificate/view", async (req, res) => {
+  const activationCode = req.query["code"] as string;
+  const deviceId       = req.query["device"] as string;
+  if (!deviceId || !activationCode) { res.status(401).json({ error: "Missing credentials" }); return; }
+  try {
+    const data = await getCertData(activationCode, deviceId);
+    if (!data) { res.status(401).json({ error: "Unauthorised" }); return; }
+    const { user, passedAt, passedScore } = data;
+    const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+    const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="Certificate_${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    logger.error({ err }, "Error generating certificate (view)");
+    res.status(500).json({ error: "Could not generate certificate" });
+  }
+});
 
 // GET /api/certificate — view inline (default) or download (?download=1)
 router.get("/certificate", async (req, res) => {
@@ -53,12 +107,109 @@ router.post("/certificate/resend", async (req, res) => {
     const data = await getCertData(activationCode, deviceId);
     if (!data) { res.status(401).json({ error: "Unauthorised" }); return; }
     const { user, passedAt, passedScore } = data;
-    await sendCertificateEmail(user, passedAt, passedScore ?? 0);
+    await sendCertificateEmail(user, passedAt, passedScore);
     logger.info({ userId: user.id }, "Certificate resent on request");
     res.json({ ok: true });
   } catch (err) {
     logger.error({ err }, "Error resending certificate");
     res.status(500).json({ error: "Could not resend certificate" });
+  }
+});
+
+// GET /api/admin/certificate/:userId — admin view of any student's certificate
+// Accepts admintoken as header OR ?token= query param (for new-tab links)
+router.get("/admin/certificate/:userId", async (req, res) => {
+  const tokenFromQuery = req.query["token"] as string | undefined;
+  const reqWithToken = tokenFromQuery
+    ? { headers: { ...req.headers, admintoken: tokenFromQuery } }
+    : req;
+  if (!verifyAdmin(reqWithToken)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [passedAttempt] = await db
+      .select()
+      .from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, userId), eq(examAttemptsTable.passed, true)))
+      .orderBy(desc(examAttemptsTable.attemptedAt))
+      .limit(1);
+    const passedAt    = passedAttempt?.attemptedAt ?? new Date();
+    const passedScore = passedAttempt?.score ?? null;
+    const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+    const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="Certificate_${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(Buffer.from(pdfBytes));
+  } catch (err) {
+    logger.error({ err, userId }, "Error generating certificate for admin");
+    res.status(500).json({ error: "Could not generate certificate" });
+  }
+});
+
+// POST /api/admin/certificate/:userId/save-to-drive — save one certificate PDF to Drive
+router.post("/admin/certificate/:userId/save-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) { res.status(400).json({ error: "Invalid user ID" }); return; }
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [passedAttempt] = await db
+      .select().from(examAttemptsTable)
+      .where(and(eq(examAttemptsTable.userId, userId), eq(examAttemptsTable.passed, true)))
+      .orderBy(desc(examAttemptsTable.attemptedAt)).limit(1);
+    const passedAt    = passedAttempt?.attemptedAt ?? new Date();
+    const passedScore = passedAttempt?.score ?? null;
+    const driveUrl = await saveCertificateToDrive(user, passedAt, passedScore);
+    res.json({ url: driveUrl });
+  } catch (err) {
+    logger.error({ err, userId }, "Error saving certificate to Drive");
+    res.status(500).json({ error: "Could not save certificate to Drive" });
+  }
+});
+
+// POST /api/admin/certificates/export-to-drive — bulk-save ALL certificates to Drive
+router.post("/admin/certificates/export-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    // Get all users with a certificate
+    const certUsers = await db
+      .select()
+      .from(usersTable)
+      .where(isNotNull(usersTable.courseCompletedAt));
+
+    // Resolve folder once, reuse for all uploads
+    const { connectors, folderId } = await getCertsFolderId();
+
+    let saved = 0;
+    const errors: string[] = [];
+
+    for (const user of certUsers) {
+      try {
+        const [passedAttempt] = await db
+          .select().from(examAttemptsTable)
+          .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.passed, true)))
+          .orderBy(desc(examAttemptsTable.attemptedAt)).limit(1);
+        const passedAt    = passedAttempt?.attemptedAt ?? user.courseCompletedAt ?? new Date();
+        const passedScore = passedAttempt?.score ?? null;
+        const pdfBytes = await generateCertificatePdf(user, passedAt, passedScore);
+        const safeName = user.fullName.replace(/[^a-z0-9]/gi, "_");
+        await uploadPdfToDrive(connectors, pdfBytes, `Certificate_${safeName}.pdf`, folderId);
+        saved++;
+      } catch (e) {
+        errors.push(`${user.fullName} (${user.id}): ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    logger.info({ saved, errors: errors.length, folderId }, "Bulk certificate export to Drive");
+    res.json({ saved, errors, folderUrl });
+  } catch (err) {
+    logger.error({ err }, "Error bulk-exporting certificates to Drive");
+    res.status(500).json({ error: "Could not export certificates to Drive" });
   }
 });
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,18 +71,18 @@ export default function ChainChart() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Link>
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center justify-self-center gap-1.5 sm:gap-2">
             <Cog className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Chain Identification</span>
+            <span className="truncate font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">Chain Identification</span>
           </div>
-          <div className="w-14" />
+          <div className="w-0 sm:w-14" />
         </div>
       </header>
 
@@ -218,16 +218,16 @@ export default function ChainChart() {
             </h2>
             <div className="space-y-2">
               {PITCH_POWER_GUIDE.map((row, i) => (
-                <div key={i} className="grid grid-cols-3 gap-2 border-b border-border/50 pb-2 last:border-0 last:pb-0 text-xs font-mono">
-                  <span className="font-bold text-foreground">{row.pitch}</span>
-                  <span className="text-muted-foreground">{row.power}</span>
-                  <span className="text-muted-foreground">{row.size}</span>
+                <div key={i} className="grid grid-cols-[0.8fr_1fr_1.15fr] gap-2 border-b border-border/50 pb-2 font-mono text-xs last:border-0 last:pb-0">
+                  <span className="min-w-0 break-words font-bold text-foreground">{row.pitch}</span>
+                  <span className="min-w-0 break-words text-muted-foreground">{row.power}</span>
+                  <span className="min-w-0 break-words text-muted-foreground">{row.size}</span>
                 </div>
               ))}
-              <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-muted-foreground/60 pt-1">
-                <span>Pitch</span>
-                <span>Power</span>
-                <span>Typical Size</span>
+              <div className="grid grid-cols-[0.8fr_1fr_1.15fr] gap-2 pt-1 font-mono text-[10px] text-muted-foreground/60">
+                <span className="min-w-0 break-words">Pitch</span>
+                <span className="min-w-0 break-words">Power</span>
+                <span className="min-w-0 break-words">Typical Size</span>
               </div>
             </div>
           </CardContent>
@@ -250,9 +250,9 @@ export default function ChainChart() {
                   </p>
                   <div className="space-y-1">
                     {CHAIN_LETTER_CODES.filter((c) => c.brand === b).map((c, i) => (
-                      <div key={i} className="flex gap-2 text-xs font-mono">
+                      <div key={i} className="flex min-w-0 gap-2 font-mono text-xs">
                         <span className="font-bold text-primary shrink-0 min-w-[3.5rem]">{c.code}</span>
-                        <span className="text-muted-foreground">{c.meaning}</span>
+                        <span className="min-w-0 break-words text-muted-foreground">{c.meaning}</span>
                       </div>
                     ))}
                   </div>

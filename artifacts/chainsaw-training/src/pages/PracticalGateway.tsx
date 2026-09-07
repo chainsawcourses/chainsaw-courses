@@ -48,6 +48,12 @@ const PPE_ITEMS = [
   "PUWER-compliant chainsaw with all safety features present and working",
 ];
 
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
+  return null;
+}
+
 export default function PracticalGateway() {
   const [, setLocation] = useLocation();
   const { activationCode, deviceId, fullName, email } = useUserSession();
@@ -72,8 +78,18 @@ export default function PracticalGateway() {
   const [wpPhone, setWpPhone] = useState("");
   const [gdprChecked, setGdprChecked] = useState(false);
   const [savingPassport, setSavingPassport] = useState(false);
+  const [studentLatLng, setStudentLatLng] = useState<[number, number] | null>(null);
 
   const headers = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
+
+  useEffect(() => {
+    if (!passport?.postcode) return;
+    const pc = passport.postcode.replace(/\s+/g, "").toUpperCase();
+    fetch(`https://api.postcodes.io/postcodes/${pc}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.result) setStudentLatLng([d.result.latitude, d.result.longitude]); })
+      .catch(() => {});
+  }, [passport?.postcode]);
 
   const fetchAll = useCallback(async () => {
     if (!activationCode || !deviceId) return;
@@ -232,6 +248,7 @@ export default function PracticalGateway() {
   // ─── Main Gateway Map ──────────────────────────────────────────────────────
 
   const handleRegisterInterest = async (venue: Venue) => {
+
     if (!activationCode || !deviceId || registeringId) return;
     setRegisteringId(venue.id);
     try {
@@ -254,38 +271,21 @@ export default function PracticalGateway() {
     }
   };
 
-  const [studentLatLng, setStudentLatLng] = useState<[number, number] | null>(null);
-
-  useEffect(() => {
-    if (!passport?.postcode) return;
-    const pc = passport.postcode.replace(/\s+/g, "").toUpperCase();
-    fetch(`https://api.postcodes.io/postcodes/${pc}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.result) setStudentLatLng([d.result.latitude, d.result.longitude]); })
-      .catch(() => {});
-  }, [passport?.postcode]);
-
   const mapCenter: [number, number] = studentLatLng ?? (venues.length > 0 ? [53.5, -1.5] : [52.5, -1.5]);
   const mapZoom = studentLatLng ? 9 : 6;
-
-  function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
-    const map = useMap();
-    useEffect(() => { map.setView(center, zoom); }, [center, zoom, map]);
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" /> Back</Link>
           </Button>
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex min-w-0 items-center justify-self-center gap-1.5 sm:gap-2">
             <MapPin className="w-4 h-4 text-[#e27226] shrink-0" />
-            <span className="font-mono font-bold uppercase tracking-wide text-xs whitespace-nowrap">Practical Progression Gateway</span>
+            <span className="truncate font-mono text-[11px] font-bold uppercase tracking-wide sm:text-xs">Practical Progression Gateway</span>
           </div>
-          <div className="w-20" />
+          <div className="w-0 sm:w-20" />
         </div>
       </header>
 
@@ -323,6 +323,7 @@ export default function PracticalGateway() {
                     key={venue.id}
                     center={[venue.lat, venue.lng]}
                     radius={8}
+                    className={`gateway-venue-marker-${venue.id}`}
                     pathOptions={{
                       color: "#c9621f",
                       fillColor: "#e27226",

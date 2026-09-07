@@ -33,11 +33,11 @@ export const HAZARDS: Hazard[] = [
     color: "#f97316",
     regionLabel: "Greater London & Home Counties",
     operationalImpact:
-      "White silken canopy nests on oak. Running saws can aerosolize toxic urticating hairs, causing severe respiratory distress, skin blistering, and eye irritation.",
+      "White silken canopy nests on oak. Running saws can aerosolise toxic urticating hairs, causing severe respiratory distress, skin blistering, and eye irritation.",
     controls: [
       "Visual canopy sweep of oak before cross-cutting any felled or standing timber",
       "If nests are present, switch to sealed safety goggles and Respiratory Protective Equipment (RPE) before continuing",
-      "Do not use compressed air or brush cutters near nests — this aerosolizes hairs",
+      "Do not use compressed air or brush cutters near nests — this aerosolises hairs",
     ],
     zones: [
       { type: "circle", coords: [51.49, -0.1], radius: 45000 },

@@ -180,9 +180,9 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
 
   {
     id: 6,
-    question: "What is the Health and Safety at Work Act all about?",
+    question: "What is the Health and Safety at Work Act 1974 all about?",
     prompts: [{
-      prompt: "So what is the Health and Safety at Work Act all about?",
+      prompt: "So what is the Health and Safety at Work Act 1974 all about?",
       threshold: 2,
       keyPoints: [
         { label: "Employees must take reasonable care of their own and others' safety", keywords: ["reasonable care", "care of others", "own safety", "other people", "duty of care", "workers must be careful not to hurt themselves", "care of yourself", "not hurt yourself", "be careful", "look after yourself", "look out for others", "watch out", "stay safe", "careful", "not hurt anyone", "dont hurt yourself", "keep safe", "mind yourself", "take care", "careful at work", "safe", "careful", "care", "responsibility", "duty"] },
@@ -198,9 +198,9 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
 
   {
     id: 7,
-    question: "Under PUWER, what does it say about the equipment?",
+    question: "Under PUWER 1998, what does it say about the equipment?",
     prompts: [{
-      prompt: "Under the Provision and Use of Work Equipment Regulations — PUWER — what does it say about the equipment?",
+      prompt: "Under the Provision and Use of Work Equipment Regulations 1998 — PUWER — what does it say about the equipment?",
       threshold: 2,
       keyPoints: [
         { label: "Equipment must be maintained in an efficient state and good repair", keywords: ["maintained", "maintenance", "kept in good", "serviceable", "good repair", "efficient state", "checked and fixed often", "must be checked", "not broken", "in good condition", "looked after", "kept working", "in good nick", "well maintained", "regularly checked", "serviced", "working order", "good working order"] },
@@ -1267,7 +1267,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
     id: 74,
     question: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts.",
     prompts: [{
-      prompt: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts, all whilst maintaining a good, safe work position — keep your head out the way!",
+      prompt: "For the cutting part of the assessment you will need to demonstrate multiple cuts under tension and compression and perform bore cuts, all whilst maintaining a good, safe work position — keep your head out of the way!",
       threshold: 0,
       isAction: true,
       keyPoints: [],
@@ -1302,6 +1302,22 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   },
 
   {
+    id: 78,
+    question: "What do the Manual Handling Operations Regulations 1992 (MHOR) require you to do before manually moving heavy timber on site?",
+    prompts: [{
+      prompt: "What do the Manual Handling Operations Regulations 1992 require you to do before manually moving heavy timber on site?",
+      threshold: 2,
+      keyPoints: [
+        { label: "Avoid manual handling where reasonably practicable — use mechanical aids", keywords: ["avoid", "mechanical aid", "cant hook", "timber jack", "avoid manual handling", "use tools", "use equipment", "reasonably practicable", "avoid it if you can", "don't lift if you can use tools", "use mechanical aids", "mechanical lifting", "use a tool", "avoid lifting by hand"] },
+        { label: "Assess the load — weight, shape, distance to be moved", keywords: ["assess", "assessment", "assess the load", "assess weight", "weight", "shape", "distance", "assess the task", "assess the risk", "look at it first", "think about it", "weigh up the task", "assess what you're lifting"] },
+        { label: "Reduce the risk of injury — correct posture, bend knees, back straight", keywords: ["reduce risk", "correct posture", "bend knees", "back straight", "knees bent", "posture", "reduce injury", "safe posture", "lift safely", "safe lifting", "back upright", "straight back", "bend at knees"] },
+        { label: "Team lift if the load is too heavy for one person", keywords: ["team lift", "two person lift", "ask for help", "team", "two people", "get help", "don't lift alone", "ask a colleague", "get a partner", "lift together", "teamwork", "two man lift"] },
+        { label: "Never twist — turn your feet instead", keywords: ["never twist", "don't twist", "turn feet", "feet not spine", "no twisting", "pivot your feet", "turn whole body", "avoid twisting", "dont twist your back"] },
+      ],
+    }],
+  },
+
+  {
     id: 77,
     question: "What PPE do you need when using and operating a chainsaw?",
     prompts: [{
@@ -1320,6 +1336,38 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
         { label: "Chainsaw gloves — hand and wrist protection", keywords: ["gloves", "chainsaw gloves", "hand protection", "protective gloves", "strong gloves", "extra protection on left hand", "gloves with protection"] },
         { label: "Hi-visibility clothing — so others can see you", keywords: ["hi-vis", "high visibility", "bright clothing", "fluorescent", "visible", "hi vis jacket", "bright colors", "wear bright colors", "can be seen in the woods"] },
         { label: "Helmet with visor and ear defenders combined", keywords: ["combined helmet", "helmet with visor", "helmet visor and ear", "all in one helmet", "forestry helmet with visor", "combined protection", "helmet", "hard hat", "head protection", "visor"] },
+      ],
+    }],
+  },
+
+  {
+    id: 78,
+    question: "What do the Manual Handling Operations Regulations 1992 require employers to do?",
+    prompts: [{
+      prompt: "What do the Manual Handling Operations Regulations 1992 — MHOR — require employers to do?",
+      threshold: 2,
+      keyPoints: [
+        { label: "Avoid hazardous manual handling operations where reasonably practicable", keywords: ["avoid", "avoid manual handling", "avoid lifting", "reasonably practicable", "avoid where possible", "mechanise", "don't lift if you don't have to", "eliminate manual handling", "avoid the manual handling", "get machinery to do it", "use equipment instead"] },
+        { label: "Assess the risk of injury from manual handling that cannot be avoided", keywords: ["assess", "risk assessment", "assess the risk", "assess injury", "evaluate", "assess manual handling risk", "check how heavy it is", "look at the risk", "assess before lifting", "assess the load", "risk assess", "evaluate risk", "check risk"] },
+        { label: "Reduce the risk of injury to the lowest reasonably practicable level", keywords: ["reduce risk", "reduce injury", "lower risk", "minimise risk", "reduce the risk", "control measures", "reduce harm", "make it safer", "lower the risk of injury", "lower chance of getting hurt", "take steps to reduce", "mitigate", "risk reduction"] },
+        { label: "Use mechanical aids such as log jacks, winches, or machinery where possible", keywords: ["mechanical", "log jack", "winch", "forwarder", "machinery", "mechanical aid", "equipment", "use tools", "use machines", "use a machine", "lifting equipment", "tractor", "crane", "use log jack", "avoid heavy lifting by using equipment"] },
+        { label: "Consider the task, load, environment, and individual capability (TILE)", keywords: ["tile", "task", "load", "environment", "individual", "person", "capability", "tile framework", "task load environment individual", "consider the load weight", "consider the person doing it", "consider where you are lifting", "think about all factors"] },
+      ],
+    }],
+  },
+
+  {
+    id: 79,
+    question: "How do the Manual Handling Operations Regulations 1992 apply to log handling and timber stacking?",
+    prompts: [{
+      prompt: "How do the Manual Handling Operations Regulations 1992 apply specifically to log handling and timber stacking on site?",
+      threshold: 2,
+      keyPoints: [
+        { label: "Assess log weight and size before manually lifting — use log jacks or winches for heavy timber", keywords: ["assess", "log weight", "log size", "weight", "heavy", "log jack", "winch", "check weight", "assess before lifting", "heavy logs", "assess the log", "check how heavy", "too heavy to lift by hand", "mechanical aid", "use log jack", "use winch"] },
+        { label: "Stand uphill of logs when stacking to prevent rolling injury", keywords: ["uphill", "stand uphill", "roll", "rolling log", "prevent rolling", "uphill side", "timber rolling", "log roll", "stand on the uphill side", "logs can roll", "chock logs", "stop logs rolling"] },
+        { label: "Use correct lifting technique — bend knees, straight back, load close to body", keywords: ["bend knees", "straight back", "close to body", "correct technique", "lift correctly", "proper lift", "back straight", "knees bent", "keep load close", "body close", "manual handling technique", "how to lift correctly", "proper manual handling", "correct posture"] },
+        { label: "Do not lift loads that are too heavy alone — team lift or use machinery", keywords: ["team lift", "two people", "two person lift", "don't lift alone", "ask for help", "team", "machinery", "another person", "buddy", "two of you", "too heavy for one person", "get help lifting", "never lift alone if too heavy"] },
+        { label: "Stacking logs at a safe height to reduce overreach and crush risk", keywords: ["stacking height", "safe height", "stack safely", "stack height", "don't stack too high", "logs falling", "crush risk", "collapse", "safe stack", "stack at waist height", "not too high", "stacking at the correct height", "log stack"] },
       ],
     }],
   },

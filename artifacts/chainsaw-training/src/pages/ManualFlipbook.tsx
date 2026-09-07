@@ -19,7 +19,8 @@ const WM_POS: [number, number][] = [
 ];
 
 function pageUrl(n: number) {
-  return `${PAGES_BASE}/page-${String(n).padStart(3, "0")}.jpg`;
+  // n is the virtual page number (1 = blank front endpaper, 2 = physical page 1, etc.)
+  return `${PAGES_BASE}/page-${String(n - 1).padStart(3, "0")}.jpg`;
 }
 
 // ── Synthesised paper-rasping sound ──────────────────────────────────────────
@@ -153,7 +154,7 @@ export default function ManualFlipbook() {
         return r.json() as Promise<{ pages: number }>;
       })
       .then(data => {
-        setNumPages(data.pages);
+        setNumPages(data.pages + 1); // +1 for blank front endpaper (virtual page 1)
         setLoadState("loaded");
         // Fetch search index in the background (non-blocking)
         fetch(`${PAGES_BASE}/search-index.json`)
@@ -463,21 +464,21 @@ export default function ManualFlipbook() {
         .page-canvas { display:block; width:100%; height:100%; object-fit:contain; }
       `}</style>
 
-      <div className="h-screen flex flex-col select-none overflow-hidden" onContextMenu={e => e.preventDefault()}>
+      <div className="flex min-h-[100dvh] flex-col select-none overflow-x-hidden" onContextMenu={e => e.preventDefault()}>
 
         {/* ── Header ────────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur">
-          <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
+          <div className="max-w-5xl mx-auto grid h-14 grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-2 px-4">
             <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
               <Link href="/training"><ArrowLeft className="w-4 h-4 mr-1" />Back</Link>
             </Button>
-            <BookOpen className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">Digital Chainsaw Manual</span>
+            <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
+            <span className="min-w-0 truncate font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">Digital Chainsaw Manual</span>
           </div>
         </header>
 
         {/* ── Main ──────────────────────────────────────────────────────────── */}
-        <main className="flex-1 flex flex-col items-center justify-center px-2 py-2 gap-2 bg-stone-100 dark:bg-stone-900 min-h-0 overflow-hidden">
+        <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-y-auto bg-stone-100 px-2 py-2 dark:bg-stone-900">
 
           {loadState === "loading" && (
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
@@ -556,7 +557,7 @@ export default function ManualFlipbook() {
                           <li key={hit.page}>
                             <button
                               className="w-full text-left px-4 py-2.5 hover:bg-accent transition-colors flex items-start gap-3 border-b border-border/50 last:border-0"
-                              onClick={() => { jumpToPage(hit.page); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
+                              onClick={() => { jumpToPage(hit.page + 1); setSearchOpen(false); setSearchCollapsed(false); setSearchQuery(""); }}
                             >
                               <span className="shrink-0 mt-0.5 text-[10px] font-mono font-bold bg-[#e27226]/20 text-[#c9621f] rounded px-1.5 py-0.5 leading-none">p.{hit.page}</span>
                               <span className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{hit.snippet}</span>
@@ -567,7 +568,7 @@ export default function ManualFlipbook() {
                   </div>
                 )}
               </div>
-              <form onSubmit={handleJump} className="flex items-center gap-2 border border-border rounded-md bg-card px-3 py-2 shadow-sm shrink-0">
+              <form onSubmit={handleJump} className="flex w-full items-center gap-2 rounded-md border border-border bg-card px-3 py-2 shadow-sm sm:w-auto sm:shrink-0">
                 <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider whitespace-nowrap">Go to</span>
                 <input value={jumpInput} onChange={e => setJumpInput(e.target.value)} placeholder={`1–${numPages}`} className="w-14 text-sm text-center bg-transparent outline-none placeholder:text-muted-foreground/40" type="number" min={1} max={numPages} />
                 <button type="submit" className="text-muted-foreground hover:text-[#e27226] transition-colors" aria-label="Jump to page"><CornerDownLeft className="w-4 h-4" /></button>
@@ -725,6 +726,41 @@ export default function ManualFlipbook() {
                   {/* ── Page-edge lines ────────────────────────────────────── */}
                   <div className="absolute inset-x-0 top-0 h-px bg-stone-300/60 pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 h-px bg-stone-400/40 pointer-events-none" />
+
+                  {/* ── Page 1 how-to overlay ──────────────────────────────── */}
+                  {currentPage === 1 && !isAnimating && (
+                    <div
+                      className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+                      style={{ zIndex:28 }}
+                    >
+                      <div style={{
+                        background:"rgba(255,255,255,0.82)",
+                        backdropFilter:"blur(6px)",
+                        borderRadius:10,
+                        border:"1px solid rgba(226,114,38,0.18)",
+                        padding:"10px 14px",
+                        display:"flex",
+                        flexDirection:"column",
+                        gap:7,
+                        maxWidth:"82%",
+                        boxShadow:"0 2px 16px rgba(0,0,0,0.10)",
+                      }}>
+                        <p style={{ fontFamily:"monospace", fontSize:"0.58rem", fontWeight:700, letterSpacing:"0.13em", textTransform:"uppercase", color:"#e27226", textAlign:"center", marginBottom:2 }}>
+                          How to use this manual
+                        </p>
+                        {[
+                          { icon: <><ChevronLeft style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} /><ChevronRight style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} /></>, label: "Swipe left / right or use the arrow buttons to turn pages" },
+                          { icon: <ZoomIn style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} />, label: "Tap the page to zoom in — pinch or drag to move around" },
+                          { icon: <Search style={{width:13,height:13,color:"#e27226",display:"inline",verticalAlign:"middle"}} />, label: "Use the search bar above to find content and jump to any page" },
+                        ].map(({ icon, label }, i) => (
+                          <div key={i} style={{ display:"flex", alignItems:"center", gap:8 }}>
+                            <span style={{ display:"inline-flex", alignItems:"center", gap:1, flexShrink:0, width:24, justifyContent:"center" }}>{icon}</span>
+                            <span style={{ fontFamily:"monospace", fontSize:"0.6rem", color:"#57534e", lineHeight:1.4 }}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* ── Watermark ──────────────────────────────────────────── */}
                   <canvas ref={wmRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden style={{ zIndex:30 }} />

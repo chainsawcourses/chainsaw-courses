@@ -4,10 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Star } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, ArrowRight, RotateCcw, Star, PlayCircle } from "lucide-react";
 import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
+
+const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.volume = 0.5;
+dingAudio.load();
 
 export default function Quiz() {
   const { moduleId } = useParams();
@@ -16,8 +20,16 @@ export default function Quiz() {
   const { activationCode, deviceId } = useUserSession();
   const queryClient = useQueryClient();
 
-  const { data: quiz, isLoading } = useGetQuiz(id, {
-    query: { queryKey: getGetQuizQueryKey(id), enabled: !!activationCode && !!deviceId && !!id }
+  const { data: quiz, isLoading, refetch: refetchQuiz } = useGetQuiz(id, {
+    // Module questions are administered from the live content bank. Always
+    // fetch them on entering this page rather than reusing a recent in-memory
+    // response after an admin edit.
+    query: {
+      queryKey: getGetQuizQueryKey(id),
+      enabled: !!activationCode && !!deviceId && !!id,
+      staleTime: 0,
+      refetchOnMount: "always",
+    },
   });
 
   const submitQuiz = useSubmitQuiz();
@@ -31,6 +43,13 @@ export default function Quiz() {
   const [feedbackRating, setFeedbackRating] = useState(0);
   const [feedbackComment, setFeedbackComment] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
+
+  const playDing = () => {
+    try {
+      dingAudio.currentTime = 0;
+      dingAudio.play().catch(() => {});
+    } catch (e) { /* silent fail */ }
+  };
 
   useEffect(() => {
     if (!activationCode || !deviceId) {
@@ -128,6 +147,11 @@ export default function Quiz() {
     );
   };
 
+  const handleBackToTraining = () => {
+    sessionStorage.setItem("scrollAfterModule", String(id));
+    setLocation("/training");
+  };
+
   if (result) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
@@ -154,7 +178,7 @@ export default function Quiz() {
             )}
             {result.passed && (
               <p className="text-sm text-primary font-mono mb-8">
-                You scored above the {result.passingScore}% pass mark. Well done — the next module is now unlocked.
+                You achieved the required {result.passingScore}% pass mark. Well done — the next module is now unlocked.
               </p>
             )}
 
@@ -184,6 +208,7 @@ export default function Quiz() {
                   disabled={feedbackRating === 0 || submitFeedback.isPending || !deviceId || !activationCode}
                   onClick={() => {
                     if (!deviceId || !activationCode) return;
+                    playDing();
                     submitFeedback.mutate(
                       { moduleId: id, data: { deviceId, activationCode, rating: feedbackRating, comment: feedbackComment || undefined } },
                       { onSuccess: () => setFeedbackSent(true) }
@@ -198,18 +223,37 @@ export default function Quiz() {
               <p className="text-xs font-mono text-primary mb-8 uppercase tracking-widest">Thanks for your feedback!</p>
             )}
 
-            <div className="flex gap-4 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               {!result.passed ? (
-                <Button
-                  onClick={() => {
-                    setResult(null);
-                    setCurrentQuestionIdx(0);
-                    setAnswers({});
-                  }}
-                  className="w-full h-14 font-mono font-bold tracking-widest"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setLocation(`/training/${id}`)}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <PlayCircle className="mr-2 w-4 h-4" /> RE-WATCH VIDEO
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      // A retry starts a brand-new attempt, so load any
+                      // question edits saved since the learner opened this page.
+                      void refetchQuiz();
+                      setResult(null);
+                      setCurrentQuestionIdx(0);
+                      setAnswers({});
+                    }}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <RotateCcw className="mr-2 w-4 h-4" /> RETRY ASSESSMENT
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleBackToTraining}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <ArrowLeft className="mr-2 w-4 h-4" /> BACK TO MAIN MENU
+                  </Button>
+                </>
               ) : (
                 <Button
                   className="w-full h-14 font-mono font-bold tracking-widest"
@@ -234,11 +278,20 @@ export default function Quiz() {
   return (
     <div className="min-h-screen flex flex-col pt-[68px]">
       <header className="border-b-2 border-primary/40 bg-card fixed top-0 left-0 right-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
+        <div className="max-w-3xl mx-auto flex h-16 items-center gap-3 px-4">
+          <button
+            type="button"
+            onClick={handleBackToTraining}
+            className="flex shrink-0 items-center gap-1 font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+            aria-label="Back to training"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden min-[360px]:inline">Back</span>
+          </button>
+          <div className="min-w-0 flex-1 truncate font-mono text-xs uppercase tracking-wide text-muted-foreground sm:text-sm sm:tracking-widest">
             {quiz.moduleTitle}
           </div>
-          <div className="font-mono text-primary font-bold">
+          <div className="shrink-0 whitespace-nowrap font-mono font-bold text-primary">
             {currentQuestionIdx + 1} / {questions.length}
           </div>
         </div>
@@ -248,7 +301,7 @@ export default function Quiz() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-4 pb-4">
         <div className="flex flex-col">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-2">
-            80% required to pass — unlimited retries available
+            100% required to pass — unlimited retries available
           </p>
 
           <h2 className="text-xl sm:text-2xl font-bold font-mono leading-tight mb-4">

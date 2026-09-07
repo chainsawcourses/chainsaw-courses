@@ -11,7 +11,7 @@ import { IS_DEMO } from "../lib/demo";
 import { CheckCircle2, Circle, ClipboardList, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
-const CLAUSES = [
+export const WAIVER_CLAUSES = [
   {
     id: "c1",
     number: "1",
@@ -22,7 +22,7 @@ const CLAUSES = [
     id: "c2",
     number: "2",
     title: "No Certification Conferred",
-    text: "Completion of this online course and/or reading the companion manual does not grant any formal industry certification, practical license, or qualification. Safe and lawful chainsaw operation mandates formal practical training, in-person field supervision by qualified instructors, and verified assessment against official industry standards.",
+    text: "Completion of this online course and/or reading the companion manual does not grant any formal industry certification, practical licence, or qualification. Safe and lawful chainsaw operation mandates formal practical training, in-person field supervision by qualified instructors, and verified assessment against official industry standards.",
   },
   {
     id: "c3",
@@ -52,21 +52,22 @@ const CLAUSES = [
     id: "c7",
     number: "7",
     title: "Prohibition of Lone Working and Mandatory Emergency Supervision",
-    text: "The Candidate explicitly acknowledges, warrants, and agrees that:\n\n• No Lone Operation: The Candidate shall never, under any circumstances, start, operate, or practice with a chainsaw alone, whether performing commercial operations, private cutting, or basic practical field exercises.\n\n• Mandatory Second Competent Person: Whenever a chainsaw is in use, a second competent person must be physically present on-site within a direct line of sight and clear audible range. This individual must remain un-engaged from distracting tasks to ensure uninterrupted safety monitoring.\n\n• First Aid Competency Requirement: The required on-site second person must possess active competency in emergency first aid, explicitly capable of identifying and managing catastrophic trauma injuries and severe haemorrhages associated with chainsaw lacerations.\n\n• Emergency Resource Provision: The supervising competent person must have immediate, unobstructed access to an appropriate trauma first aid kit containing wound dressings and a tourniquet, alongside an active communication device to contact regional emergency services.\n\n• Assumption of Liability for Breaches: Any operation of a chainsaw by the Candidate while working alone constitutes a direct and hazardous breach of this Agreement. The Candidate assumes total, exclusive legal liability for all accidents, injuries, or fatalities arising from lone working and completely indemnifies the Company against any ensuing claims.",
+    text: "The Candidate explicitly acknowledges, warrants, and agrees that:\n\n• No Lone Operation: The Candidate shall never, under any circumstances, start, operate, or practise with a chainsaw alone, whether performing commercial operations, private cutting, or basic practical field exercises.\n\n• Mandatory Second Competent Person: Whenever a chainsaw is in use, a second competent person must be physically present on-site within a direct line of sight and clear audible range. This individual must remain un-engaged from distracting tasks to ensure uninterrupted safety monitoring.\n\n• First Aid Competency Requirement: The required on-site second person must possess active competency in emergency first aid, explicitly capable of identifying and managing catastrophic trauma injuries and severe haemorrhages associated with chainsaw lacerations.\n\n• Emergency Resource Provision: The supervising competent person must have immediate, unobstructed access to an appropriate trauma first aid kit containing wound dressings and a tourniquet, alongside an active communication device to contact regional emergency services.\n\n• Assumption of Liability for Breaches: Any operation of a chainsaw by the Candidate while working alone constitutes a direct and hazardous breach of this Agreement. The Candidate assumes total, exclusive legal liability for all accidents, injuries, or fatalities arising from lone working and completely indemnifies the Company against any ensuing claims.",
   },
 ];
 
 export default function Waiver() {
   const [, setLocation] = useLocation();
+  const navigate = setLocation;
   const { toast } = useToast();
-  const { deviceId, activationCode } = useUserSession();
+  const { deviceId, activationCode, clearSession } = useUserSession();
   const signWaiver = useSignWaiver();
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [finalAgreed, setFinalAgreed] = useState(false);
   const signatureRef = useRef<SignaturePadRef>(null);
 
-  const allClausesChecked = CLAUSES.every((c) => checked[c.id]);
+  const allClausesChecked = WAIVER_CLAUSES.every((c) => checked[c.id]);
   const canSign = allClausesChecked && finalAgreed;
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Waiver() {
 
     const signatureData = signatureRef.current?.toDataURL("image/png") || "";
     const clausesSnapshot = JSON.stringify(
-      CLAUSES.map((c) => ({ number: c.number, title: c.title, text: c.text }))
+      WAIVER_CLAUSES.map((c) => ({ number: c.number, title: c.title, text: c.text }))
     );
 
     signWaiver.mutate(
@@ -174,9 +175,9 @@ export default function Waiver() {
 
         {/* Clauses */}
         <div className="space-y-3 mb-4">
-          {CLAUSES.map((clause, index) => {
+          {WAIVER_CLAUSES.map((clause, index) => {
             const isChecked = !!checked[clause.id];
-            const prevChecked = index === 0 || !!checked[CLAUSES[index - 1].id];
+            const prevChecked = index === 0 || !!checked[WAIVER_CLAUSES[index - 1].id];
             const isLocked = !prevChecked;
             return (
               <Card
@@ -284,6 +285,15 @@ export default function Waiver() {
         <p className="text-center text-xs font-mono text-muted-foreground/50 mt-4 uppercase tracking-widest">
           This waiver is stored securely and can be reviewed from your training dashboard.
         </p>
+
+        <div className="text-center mt-3">
+          <button
+            onClick={() => { clearSession(); navigate("/"); }}
+            className="text-xs font-mono text-muted-foreground/40 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+          >
+            Sign out / use a different code
+          </button>
+        </div>
       </div>
     </div>
   );

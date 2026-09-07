@@ -7,10 +7,13 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
 - `pnpm --filter @workspace/chainsaw-training run dev` — run the training app frontend
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
+- `pnpm run check:release` — run the release validation used before building or deploying (UK English check + full typecheck)
+- `pnpm run build` — run release validation + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm run build:android:aab` — prepare cached standard Java 21 and Android API 36 tooling, build the signed Capacitor release bundle, and export a verified AAB with a SHA-256 sidecar
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Android release builds use the existing `.local/android-signing/signing-key-info.txt` setup without printing its values. If no compatible tools are already available, the release command downloads standard Java 21 and Android command-line tools into the ignored `.cache/android-build/` directory. `ANDROID_BUILD_CACHE`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, `ANDROID_JDK_DOWNLOAD_URL`, and `ANDROID_CMDLINE_TOOLS_DOWNLOAD_URL` may be set to use alternate locations or mirrors.
 - Optional env: `ADMIN_PASSWORD` — Admin panel password (default: `chainsaw-admin-2024`)
 - Optional env: `AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY` — for AI chat (falls back to keyword-based responses)
 - Optional env: `SMTP_HOST`, `SMTP_PORT` (default 587), `SMTP_SECURE` (`"true"` for port 465), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` — for certificate email on exam pass (gracefully skipped if `SMTP_HOST` not set)
@@ -65,7 +68,9 @@ A £198 high-ticket vocational chainsaw safety certification platform with seque
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- **Before marking any task done:** re-test all related code paths and review the surrounding logic end-to-end to ensure things work correctly the first time, without the user having to report failures.
+- **Always reference all previous chats from the very beginning before answering any question.** The user is non-technical and context from earlier in the session is critical to giving accurate, complete answers.
+- **Always check `.agents/memory/` files at the start of every session before answering anything.** Key decisions, app store status, and user context live there.
 
 ## Gotchas
 

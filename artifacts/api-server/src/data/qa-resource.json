@@ -1036,6 +1036,60 @@
     ]
   },
   {
+    "question": "What does MHOR 1992 require employers and workers to do?",
+    "threshold": 2,
+    "category": "law & regulations",
+    "modelAnswer": "Avoid hazardous manual handling where reasonably practicable, assess risks that cannot be avoided, and reduce the risk of injury.",
+    "sampleAnswers": [
+      "You must try to avoid heavy lifting if you can.",
+      "If you cannot avoid it, you must check how risky it is.",
+      "You must then do things to make it safer.",
+      "The boss must look at all lifting and carrying jobs.",
+      "Workers must follow the safe ways they have been shown.",
+      "You should use a machine or tool instead of lifting by hand if possible.",
+      "If you have to lift, you must do it the right way.",
+      "You must report any pain or injury from lifting to your boss.",
+      "The rules cover all the lifting, carrying and moving you do at work.",
+      "It is about protecting your back and body from getting hurt."
+    ]
+  },
+  {
+    "question": "How does MHOR 1992 apply to log handling and timber stacking?",
+    "threshold": 2,
+    "category": "law & regulations",
+    "modelAnswer": "Avoid lifting logs where possible, use lifting aids, keep stacks no higher than waist height, use good lifting technique.",
+    "sampleAnswers": [
+      "Try to roll or drag logs instead of lifting them.",
+      "Use tools like timber tongs or a cant hook to move logs.",
+      "Ask another person to help with heavy or awkward logs.",
+      "Only stack timber up to about waist height — roughly one metre.",
+      "Bend your knees and keep your back straight when you do lift.",
+      "Keep the log close to your body when carrying it.",
+      "Make sure the ground is flat and safe before you start stacking.",
+      "Use a machine to stack very heavy timber where you can.",
+      "Don't try to lift logs that are too heavy for you alone.",
+      "The law says you must reduce the risk of hurting your back."
+    ]
+  },
+  {
+    "question": "What is the TILE framework and what does each letter stand for?",
+    "threshold": 2,
+    "category": "law & regulations",
+    "modelAnswer": "TILE stands for Task, Individual, Load, Environment — a framework for assessing manual handling risk.",
+    "sampleAnswers": [
+      "T stands for Task — what you are actually doing with the load.",
+      "I stands for Individual — the person doing the lifting.",
+      "L stands for Load — the thing being lifted or moved.",
+      "E stands for Environment — the place where the lifting happens.",
+      "You use TILE to spot what might hurt you before you lift.",
+      "For Task: think about how far you carry it and how often.",
+      "For Individual: think about whether the person is fit and trained.",
+      "For Load: think about how heavy, big or awkward the thing is.",
+      "For Environment: think about the floor, space and lighting.",
+      "TILE helps you make a plan to lift safely under MHOR 1992."
+    ]
+  },
+  {
     "question": "In this picture, where is the compression found?",
     "threshold": 1,
     "category": "tension & compression",

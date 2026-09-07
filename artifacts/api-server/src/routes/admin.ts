@@ -25,6 +25,7 @@ import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
 import { eq, isNull, gte, count, and, ne, desc } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
+import { fetchPublicPdf } from "../lib/remotePdf";
 
 const router = Router();
 
@@ -196,6 +197,22 @@ router.get("/admin/students", async (req, res) => {
       progressMap.set(p.userId, (progressMap.get(p.userId) ?? 0) + 1);
     }
 
+    const [moduleFeedbackCounts, courseFeedbackCounts, quizAttemptCounts] = await Promise.all([
+      db.select({ userId: moduleFeedbackTable.userId, cnt: count() })
+        .from(moduleFeedbackTable)
+        .groupBy(moduleFeedbackTable.userId),
+      db.select({ userId: appFeedbackTable.userId, cnt: count() })
+        .from(appFeedbackTable)
+        .groupBy(appFeedbackTable.userId),
+      db.select({ userId: quizAttemptsTable.userId, cnt: count() })
+        .from(quizAttemptsTable)
+        .groupBy(quizAttemptsTable.userId),
+    ]);
+
+    const moduleFeedbackCountMap = new Map(moduleFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const courseFeedbackCountMap = new Map(courseFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const quizAttemptCountMap = new Map(quizAttemptCounts.map((r) => [r.userId, Number(r.cnt)]));
+
     const result = users.map((u) => ({
       id: u.id,
       fullName: u.fullName,
@@ -208,6 +225,10 @@ router.get("/admin/students", async (req, res) => {
       quizzesPassed: progressMap.get(u.id) ?? 0,
       waiverSigned: !!waiverMap.get(u.id),
       lastActivity: u.lastActivityAt?.toISOString() ?? null,
+      moduleFeedbackCount: moduleFeedbackCountMap.get(u.id) ?? 0,
+      courseFeedbackCount: courseFeedbackCountMap.get(u.id) ?? 0,
+      feedbackCount: (moduleFeedbackCountMap.get(u.id) ?? 0) + (courseFeedbackCountMap.get(u.id) ?? 0),
+      totalQuizAttempts: quizAttemptCountMap.get(u.id) ?? 0,
     }));
 
     res.json(result);
@@ -234,16 +255,26 @@ router.get("/admin/students/:studentId", async (req, res) => {
 
     const [waiver] = await db.select().from(waiversTable).where(eq(waiversTable.userId, studentId));
 
-    const quizAttempts = await db
-      .select()
-      .from(quizAttemptsTable)
-      .where(eq(quizAttemptsTable.userId, studentId));
-
-    const examAttempts = await db
-      .select()
-      .from(examAttemptsTable)
-      .where(eq(examAttemptsTable.userId, studentId))
-      .orderBy(examAttemptsTable.attemptedAt);
+    const [quizAttempts, examAttempts, progressRecords, moduleFeedback, courseFeedback] = await Promise.all([
+      db.select()
+        .from(quizAttemptsTable)
+        .where(eq(quizAttemptsTable.userId, studentId)),
+      db.select()
+        .from(examAttemptsTable)
+        .where(eq(examAttemptsTable.userId, studentId))
+        .orderBy(examAttemptsTable.attemptedAt),
+      db.select()
+        .from(userProgressTable)
+        .where(eq(userProgressTable.userId, studentId)),
+      db.select()
+        .from(moduleFeedbackTable)
+        .where(eq(moduleFeedbackTable.userId, studentId))
+        .orderBy(desc(moduleFeedbackTable.createdAt)),
+      db.select()
+        .from(appFeedbackTable)
+        .where(eq(appFeedbackTable.userId, studentId))
+        .orderBy(desc(appFeedbackTable.createdAt)),
+    ]);
 
     const modules = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true));
     const moduleMap = new Map(modules.map((m) => [m.id, m]));
@@ -254,11 +285,6 @@ router.get("/admin/students/:studentId", async (req, res) => {
         passedAttempts.set(attempt.moduleId, attempt);
       }
     }
-
-    const progressRecords = await db
-      .select()
-      .from(userProgressTable)
-      .where(eq(userProgressTable.userId, studentId));
 
     const completedCount = progressRecords.filter((p) => p.videoCompleted && p.quizPassed).length;
 
@@ -278,19 +304,49 @@ router.get("/admin/students/:studentId", async (req, res) => {
       waiverSignedAt: waiver?.signedAt?.toISOString() ?? null,
       waiverPdfUrl: waiver ? `/api/waiver/pdf/${studentId}` : null,
       completedModules: completedCount,
-      quizResults: Array.from(passedAttempts.values()).map((a) => ({
-        moduleId: a.moduleId,
-        moduleTitle: moduleMap.get(a.moduleId)?.title ?? "Module",
-        passed: a.passed,
-        score: a.score,
-        attemptedAt: a.attemptedAt.toISOString(),
-      })),
+      quizResults: Array.from(passedAttempts.values()).map((a) => {
+        const totalAttempts = quizAttempts.filter((q) => q.moduleId === a.moduleId).length;
+        return {
+          moduleId: a.moduleId,
+          moduleTitle: moduleMap.get(a.moduleId)?.title ?? "Module",
+          passed: a.passed,
+          score: a.score,
+          attemptedAt: a.attemptedAt.toISOString(),
+          totalAttempts,
+        };
+      }),
       examAttempts: examAttempts.map((a) => ({
         id: a.id,
         score: a.score,
         passed: a.passed,
         totalQuestions: a.totalQuestions,
         attemptedAt: a.attemptedAt.toISOString(),
+      })),
+      videoProgress: progressRecords
+        .map((p) => ({
+          moduleId: p.moduleId,
+          moduleTitle: moduleMap.get(p.moduleId)?.title ?? "Module",
+          videoCompleted: p.videoCompleted,
+          quizPassed: p.quizPassed,
+          lastTimestamp: p.lastTimestamp,
+          updatedAt: p.updatedAt.toISOString(),
+        }))
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+      moduleFeedback: moduleFeedback.map((feedback) => ({
+        id: feedback.id,
+        moduleId: feedback.moduleId,
+        moduleTitle: moduleMap.get(feedback.moduleId)?.title ?? "Module",
+        rating: feedback.rating,
+        comment: feedback.comment,
+        createdAt: feedback.createdAt.toISOString(),
+      })),
+      courseFeedback: courseFeedback.map((feedback) => ({
+        id: feedback.id,
+        rating: feedback.rating,
+        clarityRating: feedback.clarityRating,
+        usabilityRating: feedback.usabilityRating,
+        comment: feedback.comment,
+        createdAt: feedback.createdAt.toISOString(),
       })),
       lastActivity: user.lastActivityAt?.toISOString() ?? null,
     });
@@ -340,7 +396,7 @@ router.post("/admin/codes", async (req, res) => {
     return;
   }
 
-  const { code, notes } = parse.data;
+  const { code, notes, assignedTo } = parse.data;
 
   try {
     const [existing] = await db
@@ -355,7 +411,7 @@ router.post("/admin/codes", async (req, res) => {
 
     const [newCode] = await db
       .insert(activationCodesTable)
-      .values({ code, notes: notes ?? null })
+      .values({ code, notes: notes ?? null, assignedTo: assignedTo ?? null })
       .returning();
 
     res.status(201).json({
@@ -364,9 +420,98 @@ router.post("/admin/codes", async (req, res) => {
       isUsed: newCode.isUsed,
       createdAt: newCode.createdAt.toISOString(),
       notes: newCode.notes ?? null,
+      assignedTo: newCode.assignedTo ?? null,
     });
   } catch (err) {
     logger.error({ err }, "Error creating activation code");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// List all access codes (unlimited + standard)
+router.get("/admin/codes", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const codes = await db.select().from(activationCodesTable).orderBy(desc(activationCodesTable.createdAt));
+    // Attach user count per code
+    const userCounts = await db
+      .select({ code: usersTable.activationCode, cnt: count(usersTable.id) })
+      .from(usersTable)
+      .where(isNull(usersTable.deletedAt))
+      .groupBy(usersTable.activationCode);
+    const countMap = new Map(userCounts.map((r) => [r.code, Number(r.cnt)]));
+    res.json(codes.map((c) => ({
+      id: c.id,
+      code: c.code,
+      isUsed: c.isUsed,
+      isUnlimited: c.isUnlimited,
+      allModulesUnlocked: c.allModulesUnlocked,
+      isPaused: c.isPaused,
+      notes: c.notes ?? null,
+      assignedTo: c.assignedTo ?? null,
+      createdAt: c.createdAt.toISOString(),
+      userCount: countMap.get(c.code) ?? 0,
+    })));
+  } catch (err) {
+    logger.error({ err }, "Error listing codes");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update assignedTo on a code
+router.patch("/admin/codes/:code/assign", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const code = req.params.code.toUpperCase();
+  const { assignedTo } = req.body as { assignedTo: string | null };
+  try {
+    const [updated] = await db
+      .update(activationCodesTable)
+      .set({ assignedTo: assignedTo ?? null })
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Code not found" }); return; }
+    res.json({ code: updated.code, assignedTo: updated.assignedTo ?? null });
+  } catch (err) {
+    logger.error({ err }, "Error updating code assignedTo");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Toggle pause on any code
+router.delete("/admin/codes/:code", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const { code } = req.params;
+  try {
+    const deleted = await db.delete(activationCodesTable)
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (deleted.length === 0) {
+      res.status(404).json({ error: "Code not found" });
+      return;
+    }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Failed to delete activation code");
+    res.status(500).json({ error: "Failed to delete code" });
+  }
+});
+
+router.patch("/admin/codes/:code/pause", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const code = req.params.code.toUpperCase();
+  const { paused } = req.body as { paused: boolean };
+  if (typeof paused !== "boolean") { res.status(400).json({ error: "paused must be boolean" }); return; }
+  try {
+    const [updated] = await db
+      .update(activationCodesTable)
+      .set({ isPaused: paused })
+      .where(eq(activationCodesTable.code, code))
+      .returning();
+    if (!updated) { res.status(404).json({ error: "Code not found" }); return; }
+    logger.info({ code, paused }, "Admin toggled code pause state");
+    res.json({ code: updated.code, isPaused: updated.isPaused });
+  } catch (err) {
+    logger.error({ err }, "Error toggling code pause");
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -385,6 +530,44 @@ router.get("/admin/modules", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching modules");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/admin/modules/:moduleId/pdf", async (req, res) => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const moduleId = Number.parseInt(req.params.moduleId, 10);
+  if (!Number.isInteger(moduleId)) {
+    res.status(400).json({ error: "Invalid module ID" });
+    return;
+  }
+
+  try {
+    const [module] = await db
+      .select({ title: modulesTable.title, pdfUrl: modulesTable.pdfUrl })
+      .from(modulesTable)
+      .where(eq(modulesTable.id, moduleId))
+      .limit(1);
+    if (!module?.pdfUrl) {
+      res.status(404).json({ error: "PDF not found" });
+      return;
+    }
+    if (module.pdfUrl.startsWith("/") || new URL(module.pdfUrl).origin === `${req.protocol}://${req.get("host")}`) {
+      res.status(400).json({ error: "Local PDFs should be downloaded directly" });
+      return;
+    }
+
+    const { bytes, contentType } = await fetchPublicPdf(module.pdfUrl);
+    const safeName = module.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || `module-${moduleId}`;
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${safeName}.pdf"`);
+    res.setHeader("Cache-Control", "private, no-store");
+    res.send(bytes);
+  } catch (err) {
+    logger.warn({ err, moduleId }, "Could not fetch external module PDF");
+    res.status(502).json({ error: "Could not fetch external PDF" });
   }
 });
 
@@ -423,6 +606,33 @@ router.patch("/admin/modules/:moduleId", async (req, res) => {
   }
 });
 
+const LEGACY_WELCOME_MODULE_QUIZ_STEP =
+  "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).";
+const CURRENT_WELCOME_MODULE_QUIZ_STEP =
+  "Work through the 7 training modules in order — watch each video in full and score 100% on its quiz to unlock the next module.";
+const CURRENT_WELCOME_FINAL_EXAM_STEP =
+  "After every video module is complete, the final exam requires 80% to pass.";
+
+function normalizeLegacyWelcomeNote(value: string): string {
+  try {
+    const config = JSON.parse(value) as { steps?: unknown };
+    if (!Array.isArray(config.steps)) return value;
+
+    let changed = false;
+    const steps = config.steps.flatMap((step) => {
+      if (step === LEGACY_WELCOME_MODULE_QUIZ_STEP) {
+        changed = true;
+        return [CURRENT_WELCOME_MODULE_QUIZ_STEP, CURRENT_WELCOME_FINAL_EXAM_STEP];
+      }
+      return [step];
+    });
+
+    return changed ? JSON.stringify({ ...config, steps }) : value;
+  } catch {
+    return value;
+  }
+}
+
 // Public: GET /config/:key
 router.get("/config/:key", async (req, res) => {
   const { key } = req.params;
@@ -432,7 +642,8 @@ router.get("/config/:key", async (req, res) => {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    res.json({ key: row.key, value: row.value });
+    const value = key === "welcome-note" ? normalizeLegacyWelcomeNote(row.value) : row.value;
+    res.json({ key: row.key, value });
   } catch (err) {
     logger.error({ err }, "Error fetching app config");
     res.status(500).json({ error: "Internal server error" });
@@ -560,13 +771,31 @@ router.get("/admin/backup/export", async (req, res) => {
     return;
   }
   try {
-    const users = await db.select().from(usersTable);
-    const progress = await db.select().from(userProgressTable);
-    const waivers = await db.select().from(waiversTable);
-    const codes = await db.select().from(activationCodesTable);
-    const inspections = await db.select().from(inspectionRecordsTable);
-    const risks = await db.select().from(riskAssessmentsTable);
-    const passports = await db.select().from(assessmentPassportsTable);
+    const [
+      users, progress, waivers, codes,
+      inspections, risks, passports,
+      moduleFeedback, appFeedback, modules,
+      videoEngagement,
+    ] = await Promise.all([
+      db.select().from(usersTable),
+      db.select().from(userProgressTable),
+      db.select().from(waiversTable),
+      db.select().from(activationCodesTable),
+      db.select().from(inspectionRecordsTable),
+      db.select().from(riskAssessmentsTable),
+      db.select().from(assessmentPassportsTable),
+      db.select().from(moduleFeedbackTable),
+      db.select().from(appFeedbackTable),
+      db.select().from(modulesTable),
+      db.select().from(videoEngagementTable),
+    ]);
+
+    // ── Lookup maps ────────────────────────────────────────────────────────────
+    const userById: Record<number, typeof users[0]> = {};
+    users.forEach((u) => { userById[u.id] = u; });
+
+    const moduleById: Record<number, typeof modules[0]> = {};
+    modules.forEach((m) => { moduleById[m.id] = m; });
 
     const progressByUser: Record<number, { completed: number; total: number }> = {};
     progress.forEach((p) => {
@@ -604,6 +833,7 @@ router.get("/admin/backup/export", async (req, res) => {
     });
     const toRow = (vals: CellValue[]) => ({ values: vals.map(toCell) });
 
+    // ── Sheet 0: Learners summary ─────────────────────────────────────────────
     const LEARNER_HEADERS = [
       "ID", "Full Name", "Email", "Activation Code", "Device ID",
       "Activated At", "Last Activity", "Waiver Signed At",
@@ -611,7 +841,6 @@ router.get("/admin/backup/export", async (req, res) => {
       "Inspection Records", "Risk Assessments",
       "Phone (Gateway Passport)",
     ];
-    const CODE_HEADERS = ["Code", "Notes", "Created At"];
 
     const learnerRows = users.map((u) => {
       const prog = progressByUser[u.id] ?? { completed: 0, total: 0 };
@@ -625,9 +854,137 @@ router.get("/admin/backup/export", async (req, res) => {
       return { values: [...baseCells, toPhoneCell(phone)] };
     });
 
+    // ── Sheet 1: Unused Codes ─────────────────────────────────────────────────
+    const CODE_HEADERS = ["Code", "Notes", "Created At"];
     const codeRows = unusedCodes.map((c) =>
       toRow([c.code, c.notes ?? "", c.createdAt.toISOString()])
     );
+
+    // ── Sheet 2: Video Progress ───────────────────────────────────────────────
+    const VIDEO_HEADERS = [
+      "Student Name", "Email", "Module", "Video Watched",
+      "Quiz Passed", "Quiz Score", "Video Launched At", "Video Completed At",
+      "Seek Attempts", "Last Updated",
+    ];
+
+    // Build a map from (userId, moduleId) to engagement record
+    const engagementKey = (uid: number, mid: number) => `${uid}:${mid}`;
+    const engagementMap: Record<string, typeof videoEngagement[0]> = {};
+    videoEngagement.forEach((e) => { engagementMap[engagementKey(e.userId, e.moduleId)] = e; });
+
+    const videoRows = progress.map((p) => {
+      const u = userById[p.userId];
+      const m = moduleById[p.moduleId];
+      const eng = engagementMap[engagementKey(p.userId, p.moduleId)];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        m?.title ?? `Module ${p.moduleId}`,
+        p.videoCompleted ? "Yes" : "No",
+        p.quizPassed ? "Yes" : "No",
+        p.quizScore ?? "",
+        eng?.launchedAt?.toISOString() ?? "",
+        eng?.completedAt?.toISOString() ?? "",
+        eng?.seekAttemptCount ?? 0,
+        p.updatedAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 3: Module Feedback ──────────────────────────────────────────────
+    const MODULE_FEEDBACK_HEADERS = [
+      "Student Name", "Email", "Module", "Rating", "Comment", "Submitted At",
+    ];
+    const moduleFeedbackRows = moduleFeedback.map((f) => {
+      const u = userById[f.userId];
+      const m = moduleById[f.moduleId];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        m?.title ?? `Module ${f.moduleId}`,
+        f.rating, f.comment ?? "",
+        f.createdAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 4: App Feedback ─────────────────────────────────────────────────
+    const APP_FEEDBACK_HEADERS = [
+      "Student Name", "Email", "Rating", "Comment", "Submitted At",
+    ];
+    const appFeedbackRows = appFeedback.map((f) => {
+      const u = userById[f.userId];
+      return toRow([
+        u?.fullName ?? "", u?.email ?? "",
+        f.rating, f.comment ?? "",
+        f.createdAt?.toISOString() ?? "",
+      ]);
+    });
+
+    // ── Sheet 5: Inspections (detailed) ──────────────────────────────────────
+    const INSPECTION_HEADERS = [
+      "Student Name", "Email", "Saw / Equipment ID",
+      "Overall Result", "Item", "Section", "Status", "Note", "Submitted At",
+    ];
+    const inspectionRows: ReturnType<typeof toRow>[] = [];
+    for (const insp of inspections) {
+      const u = userById[insp.userId];
+      let items: Array<{ id?: number; label?: string; section?: string; status?: string; note?: string }> = [];
+      try { items = JSON.parse(insp.items as unknown as string); } catch { /* ignore */ }
+      if (items.length === 0) {
+        inspectionRows.push(toRow([
+          u?.fullName ?? "", u?.email ?? "",
+          insp.sawIdentifier ?? "",
+          insp.hasFailures ? "FAILED" : "PASS",
+          "", "", "", "",
+          insp.createdAt?.toISOString() ?? "",
+        ]));
+      } else {
+        items.forEach((item) => {
+          inspectionRows.push(toRow([
+            u?.fullName ?? "", u?.email ?? "",
+            insp.sawIdentifier ?? "",
+            insp.hasFailures ? "FAILED" : "PASS",
+            item.label ?? "", item.section ?? "",
+            item.status ?? "", item.note ?? "",
+            insp.createdAt?.toISOString() ?? "",
+          ]));
+        });
+      }
+    }
+
+    // ── Sheet 6: Risk Assessments (detailed) ─────────────────────────────────
+    const RISK_HEADERS = [
+      "Student Name", "Email", "Task Description", "Site Description",
+      "Address", "Grid Ref", "What3Words",
+      "Nearest Hospital", "Hospital Phone",
+      "Hazard", "Likelihood", "Severity", "Risk Rating", "Control Measures",
+      "Submitted At",
+    ];
+    const riskRows: ReturnType<typeof toRow>[] = [];
+    for (const ra of risks) {
+      const u = userById[ra.userId];
+      let hazards: Array<{ label?: string; likelihood?: number; severity?: number; riskRating?: number; controlMeasures?: string }> = [];
+      try { hazards = JSON.parse(ra.hazards as unknown as string); } catch { /* ignore */ }
+      if (hazards.length === 0) {
+        riskRows.push(toRow([
+          u?.fullName ?? "", u?.email ?? "",
+          ra.taskDescription ?? "", ra.siteDescription ?? "",
+          ra.address ?? "", ra.gridReference ?? "", ra.what3Words ?? "",
+          ra.nearestHospital ?? "", ra.hospitalPhone ?? "",
+          "", "", "", "", "",
+          ra.createdAt?.toISOString() ?? "",
+        ]));
+      } else {
+        hazards.forEach((h) => {
+          riskRows.push(toRow([
+            u?.fullName ?? "", u?.email ?? "",
+            ra.taskDescription ?? "", ra.siteDescription ?? "",
+            ra.address ?? "", ra.gridReference ?? "", ra.what3Words ?? "",
+            ra.nearestHospital ?? "", ra.hospitalPhone ?? "",
+            h.label ?? "", h.likelihood ?? "", h.severity ?? "",
+            h.riskRating ?? "", h.controlMeasures ?? "",
+            ra.createdAt?.toISOString() ?? "",
+          ]));
+        });
+      }
+    }
 
     // Orange header format matching brand colour #e27226
     const headerFmt = {
@@ -641,78 +998,162 @@ router.get("/admin/backup/export", async (req, res) => {
     const dateLabel = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
     const title = `Chainsaw Courses Export — ${dateLabel}`;
 
-    // ── Create the spreadsheet with two sheets ────────────────────────────────
+    const allSheets = [
+      { id: 0, title: "Learners",           headers: LEARNER_HEADERS,         rows: learnerRows },
+      { id: 1, title: "Unused Codes",        headers: CODE_HEADERS,            rows: codeRows },
+      { id: 2, title: "Video Progress",      headers: VIDEO_HEADERS,           rows: videoRows },
+      { id: 3, title: "Module Feedback",     headers: MODULE_FEEDBACK_HEADERS, rows: moduleFeedbackRows },
+      { id: 4, title: "App Feedback",        headers: APP_FEEDBACK_HEADERS,    rows: appFeedbackRows },
+      { id: 5, title: "Inspections",         headers: INSPECTION_HEADERS,      rows: inspectionRows },
+      { id: 6, title: "Risk Assessments",    headers: RISK_HEADERS,            rows: riskRows },
+    ];
+
+    // ── Find or create the "Chainsaw Courses User Backup" folder ─────────────
     const connectors = new ReplitConnectors();
-    const createRes = await connectors.proxy("google-sheet", "/v4/spreadsheets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        properties: { title },
-        sheets: [
-          {
-            properties: { title: "Learners", sheetId: 0 },
-            data: [{ rowData: [toRow(LEARNER_HEADERS), ...learnerRows] }],
-          },
-          {
-            properties: { title: "Unused Codes", sheetId: 1 },
-            data: [{ rowData: [toRow(CODE_HEADERS), ...codeRows] }],
-          },
-        ],
-      }),
-    });
+    const BACKUP_FOLDER_NAME = "Chainsaw Courses User Backup";
 
-    const sheet = await createRes.json() as { spreadsheetId: string };
+    const folderSearchRes = await connectors.proxy(
+      "google-drive",
+      `/drive/v3/files?q=${encodeURIComponent(`name='${BACKUP_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`)}&fields=files(id)`,
+      { method: "GET" },
+    );
+    const folderSearchData = await folderSearchRes.json() as { files: Array<{ id: string }> };
 
-    // ── Apply header formatting + auto-resize columns ─────────────────────────
-    await connectors.proxy("google-sheet", `/v4/spreadsheets/${sheet.spreadsheetId}:batchUpdate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requests: [
-          {
-            repeatCell: {
-              range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: LEARNER_HEADERS.length },
-              cell: headerFmt,
-              fields: "userEnteredFormat(textFormat,backgroundColor)",
-            },
-          },
-          {
-            repeatCell: {
-              range: { sheetId: 1, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: CODE_HEADERS.length },
-              cell: headerFmt,
-              fields: "userEnteredFormat(textFormat,backgroundColor)",
-            },
-          },
-          {
-            autoResizeDimensions: {
-              dimensions: { sheetId: 0, dimension: "COLUMNS", startIndex: 0, endIndex: LEARNER_HEADERS.length },
-            },
-          },
-          {
-            autoResizeDimensions: {
-              dimensions: { sheetId: 1, dimension: "COLUMNS", startIndex: 0, endIndex: CODE_HEADERS.length },
-            },
-          },
-        ],
-      }),
-    });
+    let folderId: string;
+    if (folderSearchData.files.length > 0) {
+      folderId = folderSearchData.files[0].id;
+    } else {
+      const createFolderRes = await connectors.proxy(
+        "google-drive",
+        "/drive/v3/files",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: BACKUP_FOLDER_NAME,
+            mimeType: "application/vnd.google-apps.folder",
+          }),
+        },
+      );
+      const folderData = await createFolderRes.json() as { id: string };
+      folderId = folderData.id;
+      logger.info({ folderId }, "Created Google Drive backup folder");
+    }
 
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheet.spreadsheetId}/edit`;
+    // ── Create blank spreadsheet inside the folder ────────────────────────────
+    const createFileRes = await connectors.proxy(
+      "google-drive",
+      "/drive/v3/files",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: title,
+          mimeType: "application/vnd.google-apps.spreadsheet",
+          parents: [folderId],
+        }),
+      },
+    );
+    const fileData = await createFileRes.json() as { id: string };
+    const spreadsheetId = fileData.id;
+
+    // ── Discover the default sheet's actual ID ────────────────────────────────
+    const metaRes = await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties.sheetId`,
+      { method: "GET" },
+    );
+    const metaData = await metaRes.json() as { sheets: Array<{ properties: { sheetId: number } }> };
+    const defaultSheetId = metaData.sheets[0].properties.sheetId;
+
+    // Map logical sheet IDs (0–6) to real IDs:
+    // sheet 0 → defaultSheetId, sheets 1–6 → 1001–1006
+    const sheetIdMap = allSheets.map((s, i) => ({
+      ...s,
+      actualId: i === 0 ? defaultSheetId : 1000 + i,
+    }));
+
+    // ── Rename default sheet + add remaining sheets ───────────────────────────
+    const setupRequests = [
+      {
+        updateSheetProperties: {
+          properties: { sheetId: defaultSheetId, title: sheetIdMap[0].title },
+          fields: "title",
+        },
+      },
+      ...sheetIdMap.slice(1).map((s) => ({
+        addSheet: { properties: { sheetId: s.actualId, title: s.title } },
+      })),
+    ];
+
+    await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requests: setupRequests }),
+      },
+    );
+
+    // ── Populate data + format headers + auto-resize ──────────────────────────
+    const populateRequests = sheetIdMap.flatMap((s) => [
+      {
+        updateCells: {
+          start: { sheetId: s.actualId, rowIndex: 0, columnIndex: 0 },
+          rows: [toRow(s.headers), ...s.rows],
+          fields: "userEnteredValue,userEnteredFormat",
+        },
+      },
+      {
+        repeatCell: {
+          range: {
+            sheetId: s.actualId,
+            startRowIndex: 0, endRowIndex: 1,
+            startColumnIndex: 0, endColumnIndex: s.headers.length,
+          },
+          cell: headerFmt,
+          fields: "userEnteredFormat(textFormat,backgroundColor)",
+        },
+      },
+      {
+        autoResizeDimensions: {
+          dimensions: {
+            sheetId: s.actualId,
+            dimension: "COLUMNS",
+            startIndex: 0,
+            endIndex: s.headers.length,
+          },
+        },
+      },
+    ]);
+
+    await connectors.proxy(
+      "google-sheet",
+      `/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requests: populateRequests }),
+      },
+    );
+
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 
     // ── Save export record to DB ──────────────────────────────────────────────
     try {
       await db.insert(backupExportsTable).values({
         title,
         sheetUrl,
-        folderId: null,
+        folderId,
         rowCount: users.length,
       });
     } catch (dbErr) {
       logger.warn({ dbErr }, "Could not save backup export record");
     }
 
-    res.json({ url: sheetUrl, title });
-    logger.info({ rows: users.length, sheetId: sheet.spreadsheetId }, "Admin exported data to Google Sheet");
+    res.json({ url: sheetUrl, title, folderId });
+    logger.info({ rows: users.length, spreadsheetId, folderId }, "Admin exported data to Google Sheet in Drive folder");
   } catch (err) {
     logger.error({ err }, "Error generating Google Sheet export");
     res.status(500).json({ error: "Internal server error" });
@@ -814,6 +1255,16 @@ router.post("/admin/bind-preview", async (req, res) => {
       .set({ deviceId })
       .where(eq(usersTable.id, user.id));
 
+    // Auto-sign waiver so the preview never gets blocked by the waiver gate
+    const [existingWaiver] = await db.select().from(waiversTable).where(eq(waiversTable.userId, user.id));
+    if (!existingWaiver) {
+      await db.insert(waiversTable).values({
+        userId: user.id,
+        signatureData: "ADMIN-AUTO-SIGNED",
+        agreedToTerms: true,
+      });
+    }
+
     res.json({
       userId: user.id,
       activationCode: "ADMIN-PREVIEW",
@@ -823,6 +1274,62 @@ router.post("/admin/bind-preview", async (req, res) => {
     });
   } catch (err) {
     logger.error({ err }, "Error binding preview account");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Delete inspection records ───────────────────────────────────────────────
+// NOTE: /all must be declared BEFORE /:id so Express doesn't swallow "all" as an id param.
+
+router.delete("/admin/inspections/all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    await db.delete(inspectionRecordsTable);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting all inspection records");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/inspections/:id", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  try {
+    const rows = await db.delete(inspectionRecordsTable).where(eq(inspectionRecordsTable.id, id)).returning();
+    if (rows.length === 0) { res.status(404).json({ error: "Record not found" }); return; }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting inspection record");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ─── Delete risk assessment records ──────────────────────────────────────────
+// NOTE: /all must be declared BEFORE /:id for the same reason.
+
+router.delete("/admin/risk-assessments/all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    await db.delete(riskAssessmentsTable);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting all risk assessment records");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/admin/risk-assessments/:id", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
+  try {
+    const rows = await db.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.id, id)).returning();
+    if (rows.length === 0) { res.status(404).json({ error: "Record not found" }); return; }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error deleting risk assessment record");
     res.status(500).json({ error: "Internal server error" });
   }
 });

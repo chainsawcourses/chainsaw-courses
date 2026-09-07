@@ -6,8 +6,7 @@ import { eq } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
-import fs from "fs";
-import path from "path";
+import { drawApprovedPdfKitHeader } from "../lib/pdfBranding";
 
 const router = Router();
 
@@ -33,7 +32,15 @@ router.get("/waiver", async (req, res) => {
       .where(eq(waiversTable.userId, user.id));
 
     if (!waiver) {
-      res.json({ signed: false, signedAt: null, pdfUrl: null });
+      res.json({
+        signed: false,
+        signedAt: null,
+        pdfUrl: null,
+        fullName: user.fullName ?? null,
+        email: user.email ?? null,
+        signatureData: null,
+        clausesSnapshot: null,
+      });
       return;
     }
 
@@ -41,6 +48,10 @@ router.get("/waiver", async (req, res) => {
       signed: true,
       signedAt: waiver.signedAt.toISOString(),
       pdfUrl: `/api/waiver/pdf?code=${encodeURIComponent(activationCode)}&device=${encodeURIComponent(deviceId)}&uid=${user.id}`,
+      fullName: user.fullName ?? null,
+      email: user.email ?? null,
+      signatureData: waiver.signatureData ?? null,
+      clausesSnapshot: waiver.clausesSnapshot ?? null,
     });
   } catch (err) {
     logger.error({ err }, "Error getting waiver status");
@@ -95,20 +106,14 @@ router.get("/waiver/pdf", async (req, res) => {
     const dark = "#1C1C1C";
     const mid = "#555555";
 
-    // Header: logo + title side by side
-    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
-    const logoSize = 56;
-    const headerY = doc.y;
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 60, headerY, { width: logoSize, height: logoSize });
-    }
-    const textX = fs.existsSync(logoPath) ? 60 + logoSize + 12 : 60;
-    doc.fontSize(22).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 6, { lineBreak: false });
-    doc.fontSize(10).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 34, { lineBreak: false });
-    // Advance past the logo block
-    doc.text("", 60, headerY + logoSize + 8);
-    doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
-    doc.moveDown(1);
+    drawApprovedPdfKitHeader(doc, {
+      left: 60,
+      right: 535,
+      y: doc.y,
+      chainsawLogoSize: 56,
+      titleSize: 22,
+      subtitleSize: 8,
+    });
 
     doc.fontSize(16).fillColor(dark).font("Helvetica-Bold").text("SIGNED LIABILITY WAIVER & AGREEMENT", { align: "center" });
     doc.moveDown(1.5);
@@ -281,18 +286,14 @@ router.get("/waiver/pdf/:studentId", async (req, res) => {
     const dark = "#1C1C1C";
     const mid = "#555555";
 
-    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
-    const logoSize = 56;
-    const headerY = doc.y;
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 60, headerY, { width: logoSize, height: logoSize });
-    }
-    const textX = fs.existsSync(logoPath) ? 60 + logoSize + 12 : 60;
-    doc.fontSize(22).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 6, { lineBreak: false });
-    doc.fontSize(10).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 34, { lineBreak: false });
-    doc.text("", 60, headerY + logoSize + 8);
-    doc.moveTo(60, doc.y).lineTo(535, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
-    doc.moveDown(1);
+    drawApprovedPdfKitHeader(doc, {
+      left: 60,
+      right: 535,
+      y: doc.y,
+      chainsawLogoSize: 56,
+      titleSize: 22,
+      subtitleSize: 8,
+    });
 
     doc.fontSize(16).fillColor(dark).font("Helvetica-Bold").text("SIGNED LIABILITY WAIVER & AGREEMENT", { align: "center" });
     doc.moveDown(1.5);

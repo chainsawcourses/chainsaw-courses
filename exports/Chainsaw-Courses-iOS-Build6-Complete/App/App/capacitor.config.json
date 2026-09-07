@@ -1,0 +1,19 @@
+{
+	"appId": "com.overleafpublishers.chainsawcourses",
+	"appName": "Chainsaw Courses",
+	"webDir": "dist/public",
+	"server": {
+		"url": "https://app.chainsawcourses.com",
+		"cleartext": false,
+		"allowNavigation": [
+			"app.chainsawcourses.com"
+		]
+	},
+	"ios": {
+		"contentInset": "always"
+	},
+	"packageClassList": [
+		"FilesystemPlugin",
+		"SharePlugin"
+	]
+}

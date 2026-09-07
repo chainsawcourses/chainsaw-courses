@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Biohazard, Download, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { deliverFile } from "../../lib/pdfDownload";
+import { useToast } from "@/hooks/use-toast";
 
 interface ModuleItem {
   id: number;
@@ -21,6 +23,8 @@ function QrCodeCard({
   baseUrl: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [downloading, setDownloading] = useState(false);
+  const { toast } = useToast();
   const url = `${baseUrl.replace(/\/$/, "")}/qr/${module.id}`;
 
   useEffect(() => {
@@ -33,22 +37,28 @@ function QrCodeCard({
   }, [url]);
 
   const handleDownload = async () => {
+    if (downloading) return;
+    setDownloading(true);
     try {
       const dataUrl = await QRCode.toDataURL(url, {
         width: 600,
         margin: 2,
         color: { dark: "#000000", light: "#ffffff" },
       });
-      const a = document.createElement("a");
-      a.href = dataUrl;
+      const blob = await (await fetch(dataUrl)).blob();
       const safeName = module.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "");
-      a.download = `qr-${safeName}.png`;
-      a.click();
+      await deliverFile(blob, `qr-${safeName}.png`, "image/png");
     } catch {
-      // ignore
+      toast({
+        variant: "destructive",
+        title: "Could not download QR code",
+        description: "Please try again.",
+      });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -70,9 +80,13 @@ function QrCodeCard({
           size="sm"
           variant="outline"
           onClick={handleDownload}
+          disabled={downloading}
           className="w-full font-mono text-xs uppercase tracking-widest"
         >
-          <Download className="w-3.5 h-3.5 mr-2" /> Download PNG
+          {downloading
+            ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+            : <Download className="w-3.5 h-3.5 mr-2" />}
+          {downloading ? "Saving…" : "Download PNG"}
         </Button>
       </CardContent>
     </Card>

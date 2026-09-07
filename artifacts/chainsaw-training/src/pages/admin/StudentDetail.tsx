@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MonitorSmartphone, Trash2, User, XCircle } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MessageSquare, MonitorSmartphone, PlayCircle, Star, Trash2, User, XCircle } from "lucide-react";
 import { useGetStudent, useResetDeviceBond, useAdminDeleteStudent, getGetStudentQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +59,21 @@ export default function StudentDetail() {
   if (isLoading || !student) {
     return <div className="min-h-screen bg-background flex justify-center items-center font-mono text-primary uppercase">Retrieving Data...</div>;
   }
+
+  const renderStars = (rating: number) => (
+    <span className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <Star key={index} className={`w-3 h-3 ${index < rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
+      ))}
+    </span>
+  );
+
+  const formatPlaybackTime = (seconds: number) => {
+    if (seconds <= 0) return "Opened video";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `Watched to ${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -215,6 +230,9 @@ export default function StudentDetail() {
                       <div className="text-right">
                         <div className="text-xs text-muted-foreground font-mono uppercase">Score</div>
                         <div className="font-mono font-bold">{result.score}%</div>
+                        {result.totalAttempts !== undefined && result.totalAttempts > 1 && (
+                          <div className="text-[10px] text-muted-foreground font-mono">{result.totalAttempts} attempts</div>
+                        )}
                       </div>
                       {result.passed ? (
                         <CheckCircle className="w-6 h-6 text-primary" />
@@ -230,6 +248,98 @@ export default function StudentDetail() {
                 NO ASSESSMENTS TAKEN
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Video Activity */}
+        <Card className="border-border bg-card/30">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+              <PlayCircle className="w-4 h-4 mr-2" /> Video Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {student.videoProgress.length > 0 ? (
+              <div className="space-y-3">
+                {student.videoProgress.map((progress) => (
+                  <div key={progress.moduleId} className="flex flex-col sm:flex-row justify-between gap-3 p-4 bg-secondary/20 border border-border rounded-md">
+                    <div>
+                      <div className="font-bold font-mono uppercase text-sm">{progress.moduleTitle}</div>
+                      <div className="text-xs text-muted-foreground font-mono mt-1">
+                        {formatPlaybackTime(progress.lastTimestamp)} · updated {new Date(progress.updatedAt).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className={`rounded-none text-[10px] font-mono ${progress.videoCompleted ? "text-primary border-primary" : "text-muted-foreground border-border"}`}>
+                        {progress.videoCompleted ? "VIDEO COMPLETE" : "IN PROGRESS"}
+                      </Badge>
+                      {progress.quizPassed && (
+                        <Badge variant="outline" className="rounded-none text-[10px] font-mono text-primary border-primary">
+                          QUIZ PASSED
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 font-mono text-sm text-muted-foreground opacity-70">
+                NO VIDEO ACTIVITY SAVED YET
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Feedback */}
+        <Card className="border-border bg-card/30">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+              <MessageSquare className="w-4 h-4 mr-2" /> Learner Feedback
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">Overall Course Feedback</div>
+              {student.courseFeedback.length > 0 ? (
+                <div className="space-y-3">
+                  {student.courseFeedback.map((feedback) => (
+                    <div key={feedback.id} className="p-4 bg-secondary/20 border border-border rounded-md">
+                      <div className="flex items-center justify-between gap-3">
+                        {renderStars(feedback.rating)}
+                        <span className="text-[10px] font-mono text-muted-foreground">{new Date(feedback.createdAt).toLocaleString()}</span>
+                      </div>
+                      <p className="mt-3 font-mono text-sm text-muted-foreground">
+                        {feedback.comment ?? <span className="italic opacity-60">No comment provided</span>}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-mono text-sm text-muted-foreground">No overall course feedback submitted.</p>
+              )}
+            </div>
+
+            <div className="border-t border-border pt-5">
+              <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">Module Feedback</div>
+              {student.moduleFeedback.length > 0 ? (
+                <div className="space-y-3">
+                  {student.moduleFeedback.map((feedback) => (
+                    <div key={feedback.id} className="p-4 bg-secondary/20 border border-border rounded-md">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-mono text-sm font-bold uppercase">{feedback.moduleTitle}</span>
+                        {renderStars(feedback.rating)}
+                      </div>
+                      <p className="mt-3 font-mono text-sm text-muted-foreground">
+                        {feedback.comment ?? <span className="italic opacity-60">No comment provided</span>}
+                      </p>
+                      <div className="mt-2 text-[10px] font-mono text-muted-foreground">{new Date(feedback.createdAt).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-mono text-sm text-muted-foreground">No module feedback submitted.</p>
+              )}
+            </div>
           </CardContent>
         </Card>
 

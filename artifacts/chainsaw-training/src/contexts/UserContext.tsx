@@ -63,8 +63,10 @@ interface UserContextType {
   accessExpiresAt: string | null;
   courseCompletedAt: string | null;
   accessStatus: "active" | "expired" | "unknown";
+  allModulesUnlocked: boolean;
+  assignedTo: string | null;
   setSession: (data: { activationCode: string; fullName: string; email: string; userId: number }) => void;
-  setAccessInfo: (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown" }) => void;
+  setAccessInfo: (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown"; allModulesUnlocked?: boolean; assignedTo?: string | null }) => void;
   clearSession: () => void;
 }
 
@@ -104,6 +106,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [accessExpiresAt, setAccessExpiresAt] = useState<string | null>(null);
   const [courseCompletedAt, setCourseCompletedAt] = useState<string | null>(null);
   const [accessStatus, setAccessStatus] = useState<"active" | "expired" | "unknown">(IS_DEMO ? "active" : "unknown");
+  const [allModulesUnlocked, setAllModulesUnlocked] = useState<boolean>(false);
+  const [assignedTo, setAssignedTo] = useState<string | null>(null);
 
   const setSession = IS_DEMO
     ? (_data: { activationCode: string; fullName: string; email: string; userId: number }) => {}
@@ -118,10 +122,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUserId(data.userId);
       };
 
-  const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown" }) => {
+  const setAccessInfo = (data: { accessExpiresAt: string | null; courseCompletedAt: string | null; accessStatus: "active" | "expired" | "unknown"; allModulesUnlocked?: boolean; assignedTo?: string | null }) => {
     setAccessExpiresAt(data.accessExpiresAt);
     setCourseCompletedAt(data.courseCompletedAt);
     setAccessStatus(data.accessStatus);
+    if (data.allModulesUnlocked !== undefined) setAllModulesUnlocked(data.allModulesUnlocked);
+    if (data.assignedTo !== undefined) setAssignedTo(data.assignedTo ?? null);
   };
 
   const clearSession = IS_DEMO
@@ -141,7 +147,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       };
 
   return (
-    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, accessExpiresAt, courseCompletedAt, accessStatus, setSession, setAccessInfo, clearSession }}>
+    <UserContext.Provider value={{ activationCode, deviceId, fullName, email, userId, accessExpiresAt, courseCompletedAt, accessStatus, allModulesUnlocked, assignedTo, setSession, setAccessInfo, clearSession }}>
       {children}
     </UserContext.Provider>
   );

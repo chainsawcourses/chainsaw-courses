@@ -1,45 +1,105 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Star, ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubmitAppFeedback } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { useToast } from "@/hooks/use-toast";
+
+const dingAudio = new Audio("/audio/ding.wav");
+dingAudio.volume = 0.5;
+dingAudio.load();
+
+function StarRow({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div>
+      <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">{label}</div>
+      <div className="flex gap-2">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(n)}
+            onMouseEnter={() => setHovered(n)}
+            onMouseLeave={() => setHovered(0)}
+            className="focus:outline-none transition-transform hover:scale-110"
+          >
+            <Star
+              className={`w-9 h-9 transition-colors ${
+                n <= (hovered || value)
+                  ? "text-primary fill-primary"
+                  : "text-muted-foreground/30"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function StudentFeedback() {
   const { deviceId, activationCode } = useUserSession();
   const submitFeedback = useSubmitAppFeedback();
+  const { toast } = useToast();
 
   const [rating, setRating] = useState(0);
-  const [hovered, setHovered] = useState(0);
+  const [clarityRating, setClarityRating] = useState(0);
+  const [usabilityRating, setUsabilityRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const playDing = () => {
     try {
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.3);
-      gain.gain.setValueAtTime(0.4, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
-      osc.onended = () => ctx.close();
-    } catch (e) {
-      // silently ignore if AudioContext unavailable
-    }
+      dingAudio.currentTime = 0;
+      dingAudio.play().catch(() => {});
+    } catch (e) { /* silent fail */ }
   };
 
+  useEffect(() => {
+    if (submitted) playDing();
+  }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSubmit = () => {
-    if (!rating || !deviceId || !activationCode) return;
+    if (!rating) {
+      toast({ variant: "destructive", title: "Choose a rating", description: "Please select an overall course rating before submitting." });
+      return;
+    }
+    if (!deviceId || !activationCode) {
+      toast({ variant: "destructive", title: "Feedback not sent", description: "Your course session has expired. Please sign in again and retry." });
+      return;
+    }
     submitFeedback.mutate(
-      { data: { deviceId, activationCode, rating, comment: comment || undefined } },
-      { onSuccess: () => { playDing(); setSubmitted(true); } }
+      {
+        data: {
+          deviceId,
+          activationCode,
+          rating,
+          clarityRating: clarityRating || undefined,
+          usabilityRating: usabilityRating || undefined,
+          comment: comment || undefined,
+        },
+      },
+      {
+        onSuccess: () => setSubmitted(true),
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Feedback not sent",
+            description: "We could not save your feedback. Please check your connection and try again.",
+          });
+        },
+      }
     );
   };
 
@@ -72,34 +132,18 @@ export default function StudentFeedback() {
             ) : (
               <div className="space-y-6">
                 <div>
-                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course overall?</h2>
+                  <h2 className="font-mono font-black uppercase tracking-widest text-base mb-1">How was the course?</h2>
                   <p className="font-mono text-xs text-muted-foreground">
                     Your feedback helps us improve the learning experience for future students.
                   </p>
                 </div>
 
-                <div>
-                  <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-3">Overall Rating</div>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setRating(n)}
-                        onMouseEnter={() => setHovered(n)}
-                        onMouseLeave={() => setHovered(0)}
-                        className="focus:outline-none transition-transform hover:scale-110"
-                      >
-                        <Star
-                          className={`w-9 h-9 transition-colors ${
-                            n <= (hovered || rating)
-                              ? "text-primary fill-primary"
-                              : "text-muted-foreground/30"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
+                <StarRow label="Overall Rating *" value={rating} onChange={setRating} />
+
+                <div className="border-t border-border/40 pt-4 space-y-5">
+                  <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Optional ratings</p>
+                  <StarRow label="Content Clarity" value={clarityRating} onChange={setClarityRating} />
+                  <StarRow label="Platform Usability" value={usabilityRating} onChange={setUsabilityRating} />
                 </div>
 
                 <div>

@@ -99,16 +99,16 @@ export default function AiTutor() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-widest text-xs">
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Link>
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center justify-self-center gap-1.5 sm:gap-2">
             <Sparkles className="w-4 h-4 text-[#e27226]" />
-            <span className="font-mono font-bold uppercase tracking-widest text-sm">AI Tutor</span>
+            <span className="truncate font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">AI Tutor</span>
           </div>
           <Button
             variant="ghost"

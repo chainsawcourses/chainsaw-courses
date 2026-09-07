@@ -1,8 +1,8 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startScheduler } from "./lib/scheduler";
-import { db, waiversTable, usersTable, examAttemptsTable } from "@workspace/db";
-import { eq, and, isNull } from "drizzle-orm";
+import { db, waiversTable, usersTable, examAttemptsTable, activationCodesTable } from "@workspace/db";
+import { eq, and, isNull, sql } from "drizzle-orm";
 
 const rawPort = process.env["PORT"];
 
@@ -47,6 +47,38 @@ async function runStartupDataFix() {
         logger.info({ userId: user.id }, "Startup: stamped missing certificate fields");
       }
     }
+    // Ensure the APPTEST26 reviewer code exists (upsert — safe to run on every boot)
+    await db
+      .insert(activationCodesTable)
+      .values({
+        code: "APPTEST26",
+        isUsed: false,
+        isUnlimited: true,
+        allModulesUnlocked: true,
+        notes: "Google Play reviewer access — all modules unlocked, waiver required",
+      })
+      .onConflictDoUpdate({
+        target: activationCodesTable.code,
+        set: { isUnlimited: true, allModulesUnlocked: true },
+        // Note: isPaused is intentionally NOT reset on boot — admin may have paused it
+      });
+    logger.info("Startup: APPTEST26 reviewer code ensured");
+
+    // Ensure ADMIN-PREVIEW always has allModulesUnlocked = true (upsert — safe to run on every boot)
+    await db
+      .insert(activationCodesTable)
+      .values({
+        code: "ADMIN-PREVIEW",
+        isUsed: false,
+        isUnlimited: true,
+        allModulesUnlocked: true,
+        notes: "Admin app preview — all modules unlocked, all content accessible",
+      })
+      .onConflictDoUpdate({
+        target: activationCodesTable.code,
+        set: { isUnlimited: true, allModulesUnlocked: true },
+      });
+    logger.info("Startup: ADMIN-PREVIEW reviewer code ensured");
   } catch (err) {
     logger.error({ err }, "Startup data-fix failed (non-fatal)");
   }

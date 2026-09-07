@@ -123,13 +123,17 @@ export default function MockTest() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: allModules } = useListModules();
+
+  const [dbQuestions, setDbQuestions] = useState<typeof VOCAL_EXAM_QUESTIONS | null>(null);
+  const allQuestions = dbQuestions ?? VOCAL_EXAM_QUESTIONS;
+
   const activeQuestions = (() => {
-    if (!moduleId) return VOCAL_EXAM_QUESTIONS;
+    if (!moduleId) return allQuestions;
     const id = Number(moduleId);
     const ids = MODULE_QUESTION_MAP[id];
-    if (!ids || ids.length === 0) return VOCAL_EXAM_QUESTIONS;
+    if (!ids || ids.length === 0) return allQuestions;
     const idSet = new Set(ids);
-    return VOCAL_EXAM_QUESTIONS.filter((q) => idSet.has(q.id));
+    return allQuestions.filter((q) => idSet.has(q.id));
   })();
 
   const [phase, setPhase] = useState<Phase>("intro");
@@ -158,6 +162,46 @@ export default function MockTest() {
 
   // Hazard reference (Q2/Q3/Q4)
   const { activationCode, deviceId, userId } = useUserSession();
+
+  // Fetch questions from the live, admin-editable bank. We deliberately bypass
+  // the WebView HTTP cache: instructors' edits must appear the next time a
+  // learner opens this assessment, without a new app release.
+  const loadLiveQuestions = useCallback(() => {
+    if (!activationCode || !deviceId) return;
+    fetch("/api/mock-questions", {
+      cache: "no-store",
+      headers: {
+        activationcode: activationCode,
+        deviceid: deviceId,
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.questions?.length > 0) setDbQuestions(data.questions); })
+      .catch(() => {});
+  }, [activationCode, deviceId]);
+
+  useEffect(() => {
+    loadLiveQuestions();
+  }, [loadLiveQuestions]);
+
+  // Native apps commonly resume an existing WebView instead of fully
+  // reloading it. Refresh the bank when the learner returns to the untouched
+  // intro screen, but never replace questions during an active attempt.
+  useEffect(() => {
+    const refreshWhenSafe = () => {
+      if (document.visibilityState === "visible" && phase === "intro") {
+        loadLiveQuestions();
+      }
+    };
+    document.addEventListener("visibilitychange", refreshWhenSafe);
+    window.addEventListener("focus", refreshWhenSafe);
+    return () => {
+      document.removeEventListener("visibilitychange", refreshWhenSafe);
+      window.removeEventListener("focus", refreshWhenSafe);
+    };
+  }, [loadLiveQuestions, phase]);
+
   const [hazardRefs, setHazardRefs] = useState<HazardRef[]>([]);
   const [hazardRefOpen, setHazardRefOpen] = useState(false);
   const [hazardRefLoading, setHazardRefLoading] = useState(false);
@@ -520,19 +564,19 @@ export default function MockTest() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-10 shrink-0">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto grid h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4">
           <Button variant="ghost" size="sm" className="font-mono text-xs" asChild>
             <Link href="/training">
               <ArrowLeft className="w-4 h-4 mr-2" />EXIT
             </Link>
           </Button>
-          <div className="font-mono text-sm font-bold uppercase tracking-widest">TAKE ASSESSMENT QUIZ</div>
+          <div className="min-w-0 truncate text-center font-mono text-xs font-bold uppercase tracking-wide sm:text-sm sm:tracking-widest">TAKE ASSESSMENT QUIZ</div>
           {(phase === "prompt" || phase === "prompt-review") ? (
-            <div className="font-mono text-xs text-muted-foreground tabular-nums">
+            <div className="shrink-0 whitespace-nowrap font-mono text-xs tabular-nums text-muted-foreground">
               Q{overallProgress}/{TOTAL}
             </div>
           ) : (
-            <div className="w-[48px]" />
+            <div className="w-0 sm:w-12" />
           )}
         </div>
         {(phase === "prompt" || phase === "prompt-review") && (
@@ -947,7 +991,7 @@ export default function MockTest() {
                 </div>
               ) : !overallPassed ? (
                 <p className="font-mono text-xs text-muted-foreground/60 max-w-xs mx-auto">
-                  All questions must be passed to unlock the next module. Review the missed points below and retake.
+                  This is a good simulation of your actual NPTC assessment day, try again, you got this.
                 </p>
               ) : null}
             </div>

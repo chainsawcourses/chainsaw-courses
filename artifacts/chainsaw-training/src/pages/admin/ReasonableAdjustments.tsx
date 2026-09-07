@@ -13,7 +13,7 @@ interface Adjustment {
 interface Student { id: number; fullName: string; email: string; }
 
 const ORANGE = "#e27226";
-const TYPES = ["Extra Time", "Large Print", "Screen Reader", "Bilingual Support", "Rest Breaks", "Other"];
+const TYPES = ["Extra Time", "Large Print", "Screen Reader", "Other"];
 const blank = { userId: "", adjustmentType: TYPES[0], details: "", evidenceProvided: "", approvedBy: "", expiresAt: "" };
 
 export default function ReasonableAdjustments() {

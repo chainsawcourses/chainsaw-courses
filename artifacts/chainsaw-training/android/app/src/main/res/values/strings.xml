@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Chainsaw Courses</string>
+    <string name="title_activity_main">Chainsaw Courses</string>
+    <string name="package_name">com.chainsawcourses.app</string>
+    <string name="custom_url_scheme">com.chainsawcourses.app</string>
+</resources>

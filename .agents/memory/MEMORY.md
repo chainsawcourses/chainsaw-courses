@@ -1,3 +1,23 @@
+- [App Store Submission Status](app-store-status.md) — full iOS/Android submission status, bundle IDs, TestFlight link, privacy policy URL, Google Play checklist answers. CHECK THIS FIRST before any app store question.
+- [Android native packaging](android-native-packaging.md) — the official Android app is a full-screen Capacitor release; browser/PWA activations may need a device reset after migration.
+- [Android AAB build environment](android-aab-build-environment.md) — standard JDK 21 plus Android API 36 SDK are required; the default GraalVM runtime fails this build.
+- [Vite dual React instance fix](vite-dual-react-fix.md) — after pnpm installs, clear .vite/.vitecache, include react-dom/client in optimizeDeps, bump SW cache version.
+- [PWA SW update mechanism](pwa-sw-update-mechanism.md) — use postMessage SW_UPDATED + window.location.reload(); client.navigate() doesn't work on iOS; bump cache version (currently v6) on every deploy.
 - [Firebase audio files](audio-files.md) — 75 WAV voice recordings in `chainsaw-courses.firebasestorage.app`, public via `?alt=media` URL pattern, no download token required.
 - [SpeechRecognition types](speech-recognition-types.md) — Browser Web Speech API types not in TypeScript lib; declare via `.d.ts` in `src/types/` with `SpeechRecognition`, `SpeechRecognitionEvent`, `SpeechRecognitionErrorEvent`.
 - [Gemini rate limits](gemini-rate-limits.md) — Free tier hits `RESOURCE_EXHAUSTED` (429) on `gemini-2.0-flash` with per-minute and per-day caps. AI grading falls back to keyword matching when quota exceeded.
+- [Step cut correct answer](step-cut-answer.md) — Module 43 Q1 answer is option 1 "When timber is under tension" — confirmed by PDF p.126. Option 2 "bar too short" is wrong.
+- [PDF generator data scripts](pdf-generator-scripts.md) — fetch-prod-data.ts must run before generator when /tmp files are cleared; mock_questions table uses column `prompts` not `key_points`.
+- [Dynamic course content](dynamic-course-content.md) — admin-edited questions must bypass WebView caches and refresh before a new learner attempt.
+- [Mobile PDF references](mobile-pdf-references.md) — Android WebViews cannot reliably open course PDFs in a new tab; provide an in-app readable reference for critical documents.
+- [Native file delivery](native-file-delivery.md) — Capacitor downloads must use native Filesystem + Share; hidden browser download links can silently fail in Android WebViews.
+- [Android PDF saving](android-pdf-saving.md) — generated PDFs save directly to the public Downloads collection; the Android share chooser is fallback-only.
+- [iOS PDF saving](ios-pdf-saving.md) — native Apple releases save generated PDFs into the app's Files folder; the share sheet is fallback-only.
+- [iOS Xcode handoffs](ios-xcode-handoffs.md) — provide one complete project ZIP; avoid manual Swift-file merging because active editors can concatenate copies.
+- [Assessment and checklist saving](risk-assessment-saving.md) — routine learner saves update the latest record; History offers an explicit Duplicate action when a new copy is wanted.
+- [Mobile completion audio](mobile-completion-audio.md) — prime a save-completion sound during the user gesture, then play it only after a successful async save.
+- [IIRSM approval](iirsm-approval.md) — the Chainsaw Courses training app received IIRSM approval in August 2026.
+- [Deployment uptime health path](deployment-uptime-health.md) — keep the API artifact preview path healthy as well as its canonical startup health endpoint.
+- [UK English copy](uk-english-copy.md) — use UK English in authored UI while preserving third-party, legal, PDF, scoring, and spoken-source wording.
+- [API route integration tests](api-route-integration-tests.md) — test the built server; direct Node imports cannot resolve this API source tree's extensionless ESM route imports.
+- [React-Leaflet marker selectors](react-leaflet-marker-selectors.md) — pass marker className directly; nesting it in pathOptions does not render a selectable SVG class.

@@ -1,4 +1,24 @@
 import { useEffect, useState } from "react";
+import { appPath } from "../lib/routing";
+
+const PREVIEW_CODE = "ADMIN-PREVIEW";
+
+/** Persist credentials to both localStorage and cookies so all auth paths are covered. */
+function storeCredentials(activationCode: string, deviceId: string, fullName: string, email: string, userId: number) {
+  localStorage.setItem("activationCode", activationCode);
+  localStorage.setItem("deviceId",       deviceId);
+  localStorage.setItem("fullName",        fullName);
+  localStorage.setItem("email",           email);
+  localStorage.setItem("userId",          String(userId));
+
+  const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
+  const base = `; expires=${expires}; path=/; SameSite=Lax`;
+  document.cookie = `activationCode=${encodeURIComponent(activationCode)}${base}`;
+  document.cookie = `deviceId=${encodeURIComponent(deviceId)}${base}`;
+  document.cookie = `fullName=${encodeURIComponent(fullName)}${base}`;
+  document.cookie = `email=${encodeURIComponent(email)}${base}`;
+  document.cookie = `userId=${encodeURIComponent(userId)}${base}`;
+}
 
 export default function AdminPreviewLogin() {
   const [status, setStatus] = useState("Setting up preview...");
@@ -7,40 +27,54 @@ export default function AdminPreviewLogin() {
   useEffect(() => {
     const setup = async () => {
       try {
-        const deviceId   = localStorage.getItem("deviceId")   || "admin-preview-device-001";
-        const adminToken = localStorage.getItem("adminToken") || "";
-
-        const res = await fetch("/api/admin/bind-preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", admintoken: adminToken },
-          body: JSON.stringify({ deviceId }),
-        });
-
-        // Session expired — bounce to admin login then come back here
-        if (res.status === 401) {
-          setStatus("Admin session expired. Redirecting to login...");
-          setTimeout(() => {
-            window.location.href = `${import.meta.env.BASE_URL}admin?redirect=admin-preview`;
-          }, 1200);
-          return;
+        // The admin dashboard passes its short-lived admin token in the URL.
+        // Fall back to localStorage so a same-origin preview still works if the
+        // browser strips the query string while opening a new tab.
+        const queryToken = new URLSearchParams(window.location.search).get("token");
+        const adminToken = queryToken || localStorage.getItem("adminToken");
+        if (!adminToken) {
+          throw new Error("Admin session missing. Return to the admin portal and try again.");
         }
 
-        if (!res.ok) throw new Error(`bind failed (${res.status})`);
+        // Remove the admin token from browser history as soon as it has been
+        // captured. The server still authenticates the binding request below.
+        window.history.replaceState({}, "", window.location.pathname);
 
-        const data = await res.json();
+        setStatus("Authenticating preview user...");
+        const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
+        localStorage.setItem("deviceId", deviceId);
 
-        localStorage.setItem("activationCode", data.activationCode);
-        localStorage.setItem("deviceId",       data.deviceId);
-        localStorage.setItem("fullName",        data.fullName);
-        localStorage.setItem("email",           data.email);
-        localStorage.setItem("userId",          String(data.userId));
+        const bindRes = await fetch("/api/admin/bind-preview", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            admintoken: adminToken,
+          },
+          body: JSON.stringify({
+            deviceId,
+          }),
+        });
+
+        if (!bindRes.ok) {
+          const err = await bindRes.json().catch(() => ({}));
+          throw new Error(`preview setup failed (${bindRes.status}): ${err?.error ?? "unknown"}`);
+        }
+
+        const { userId, fullName, email } = await bindRes.json() as {
+          userId: number;
+          fullName: string;
+          email: string;
+        };
+
+        // bind-preview signs the waiver server-side before returning.
+        storeCredentials(PREVIEW_CODE, deviceId, fullName, email, userId);
 
         setStatus("Launching preview...");
-        window.location.href = `${import.meta.env.BASE_URL}training`;
+        window.location.href = appPath("training");
       } catch (err) {
-        console.error(err);
+        console.error("AdminPreviewLogin error:", err);
         setFailed(true);
-        setStatus("Something went wrong setting up the preview.");
+        setStatus(`Preview setup failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     };
 
@@ -57,7 +91,7 @@ export default function AdminPreviewLogin() {
       </p>
       {failed && (
         <a
-          href={`${import.meta.env.BASE_URL}admin`}
+          href={appPath("admin")}
           className="font-mono text-xs underline text-primary uppercase tracking-widest"
         >
           Go to Admin Login

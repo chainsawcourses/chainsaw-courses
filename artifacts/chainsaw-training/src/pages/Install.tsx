@@ -76,17 +76,6 @@ export default function Install() {
             <img src="/icon-512.png" alt="Chainsaw Courses" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 text-center">Chainsaw Courses</h1>
-          <p className="text-[#e27226] font-semibold text-sm mt-0.5 text-center">
-            IIRSM-Approved Professional Training
-          </p>
-          <div className="flex items-center gap-1 mt-2">
-            {[1,2,3,4,5].map(n => (
-              <svg key={n} className="w-4 h-4 text-[#e27226]" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-            <span className="text-xs text-gray-500 ml-1">IIRSM Approved</span>
-          </div>
         </div>
 
         {/* Already installed / opened from home screen */}
@@ -232,25 +221,6 @@ export default function Install() {
           </ul>
         </div>
 
-        {/* Trust badges */}
-        <div className="w-full bg-white rounded-2xl border border-gray-200 p-5 shadow-sm mb-8">
-          <div className="flex items-center justify-around text-center">
-            <div>
-              <p className="text-2xl font-bold text-[#e27226]">IIRSM</p>
-              <p className="text-xs text-gray-500 mt-0.5">Approved</p>
-            </div>
-            <div className="h-10 w-px bg-gray-200" />
-            <div>
-              <p className="text-2xl font-bold text-[#e27226]">7</p>
-              <p className="text-xs text-gray-500 mt-0.5">Modules</p>
-            </div>
-            <div className="h-10 w-px bg-gray-200" />
-            <div>
-              <p className="text-2xl font-bold text-[#e27226]">£198</p>
-              <p className="text-xs text-gray-500 mt-0.5">One-time</p>
-            </div>
-          </div>
-        </div>
 
         <p className="text-xs text-gray-400 text-center pb-6">
           By installing you agree to our{" "}

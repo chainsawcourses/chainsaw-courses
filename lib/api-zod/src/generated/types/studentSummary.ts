@@ -19,4 +19,8 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
+  feedbackCount: number;
+  moduleFeedbackCount: number;
+  courseFeedbackCount: number;
+  totalQuizAttempts?: number;
 }

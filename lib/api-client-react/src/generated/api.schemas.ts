@@ -18,6 +18,27 @@ export interface SuccessResponse {
   message?: string;
 }
 
+export interface HazardReferenceEntry {
+  label: string;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  likelihood: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  severity: number;
+  controlMeasures: string;
+}
+
+export interface HazardsReference {
+  title: string;
+  intro: string;
+  hazards: HazardReferenceEntry[];
+}
+
 export interface ActivateInput {
   code: string;
   deviceId: string;
@@ -58,6 +79,8 @@ export interface Module {
   /** @nullable */
   thumbnailUrl?: string | null;
   isHighRisk?: boolean;
+  /** @nullable */
+  pdfUrl?: string | null;
   /** @nullable */
   learningOutcome?: string | null;
   /** @nullable */
@@ -197,6 +220,15 @@ export interface ExamStatus {
   passingScore?: number;
 }
 
+export interface CertificateDetails {
+  fullName: string;
+  email: string;
+  passedAt: string;
+  /** @nullable */
+  passedScore: number | null;
+  certificateReference: string;
+}
+
 export interface FeedbackInput {
   deviceId: string;
   activationCode: string;
@@ -225,6 +257,7 @@ export interface SubmitInspectionInput {
   deviceId: string;
   activationCode: string;
   sawIdentifier?: string;
+  duplicate?: boolean;
   items: InspectionItemInput[];
 }
 
@@ -274,6 +307,7 @@ export interface SubmitRiskAssessmentInput {
   firstAidKit?: string;
   nearestAed?: string;
   nearestSignal?: string;
+  duplicate?: boolean;
   hazards: HazardEntryInput[];
 }
 
@@ -350,6 +384,14 @@ export interface WaiverStatus {
   signedAt?: string | null;
   /** @nullable */
   pdfUrl?: string | null;
+  /** @nullable */
+  fullName?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  signatureData?: string | null;
+  /** @nullable */
+  clausesSnapshot?: string | null;
 }
 
 export interface WaiverInput {
@@ -414,6 +456,10 @@ export interface StudentSummary {
   waiverSigned: boolean;
   /** @nullable */
   lastActivity?: string | null;
+  feedbackCount: number;
+  moduleFeedbackCount: number;
+  courseFeedbackCount: number;
+  totalQuizAttempts?: number;
 }
 
 export interface StudentQuizResult {
@@ -422,6 +468,7 @@ export interface StudentQuizResult {
   passed: boolean;
   score: number;
   attemptedAt: string;
+  totalAttempts?: number;
 }
 
 export interface StudentExamAttempt {
@@ -430,6 +477,37 @@ export interface StudentExamAttempt {
   passed: boolean;
   totalQuestions: number;
   attemptedAt: string;
+}
+
+export interface StudentVideoProgress {
+  moduleId: number;
+  moduleTitle: string;
+  videoCompleted: boolean;
+  quizPassed: boolean;
+  lastTimestamp: number;
+  updatedAt: string;
+}
+
+export interface StudentModuleFeedback {
+  id: number;
+  moduleId: number;
+  moduleTitle: string;
+  rating: number;
+  /** @nullable */
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface StudentCourseFeedback {
+  id: number;
+  rating: number;
+  /** @nullable */
+  clarityRating: number | null;
+  /** @nullable */
+  usabilityRating: number | null;
+  /** @nullable */
+  comment: string | null;
+  createdAt: string;
 }
 
 export interface StudentDetail {
@@ -448,6 +526,9 @@ export interface StudentDetail {
   completedModules: number;
   quizResults: StudentQuizResult[];
   examAttempts: StudentExamAttempt[];
+  videoProgress: StudentVideoProgress[];
+  moduleFeedback: StudentModuleFeedback[];
+  courseFeedback: StudentCourseFeedback[];
   /** @nullable */
   lastActivity?: string | null;
 }
@@ -486,6 +567,7 @@ export interface AdminStats {
 export interface ActivationCodeInput {
   code: string;
   notes?: string;
+  assignedTo?: string;
 }
 
 export interface ActivationCode {
@@ -495,6 +577,8 @@ export interface ActivationCode {
   createdAt: string;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  assignedTo?: string | null;
 }
 
 export interface NewsItem {
@@ -509,6 +593,16 @@ export interface NewsItem {
   status: string;
   /** @nullable */
   feedSource?: string | null;
+  /** @nullable */
+  learningOutcome?: string | null;
+  /** @nullable */
+  assessmentCriteria?: string | null;
+}
+
+export interface NewsRetagResult {
+  total: number;
+  tagged: number;
+  errors: number;
 }
 
 export interface NewsFetchResult {
@@ -543,6 +637,16 @@ export interface AppFeedbackInput {
      * @maximum 5
      */
   rating: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  clarityRating?: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  usabilityRating?: number;
   comment?: string;
 }
 
@@ -550,8 +654,28 @@ export interface AppFeedbackItem {
   id: number;
   rating: number;
   /** @nullable */
+  clarityRating?: number | null;
+  /** @nullable */
+  usabilityRating?: number | null;
+  /** @nullable */
   comment?: string | null;
   studentName: string;
   createdAt: string;
 }
+
+export type DeleteAllInspections200 = {
+  deleted: number;
+};
+
+export type DeleteInspection200 = {
+  success: boolean;
+};
+
+export type DeleteAllRiskAssessments200 = {
+  deleted: number;
+};
+
+export type DeleteRiskAssessment200 = {
+  success: boolean;
+};
 

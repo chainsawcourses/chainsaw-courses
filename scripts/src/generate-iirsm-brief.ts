@@ -16,6 +16,10 @@ const OUT = path.resolve(
   __dirname,
   "../../artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 );
+const IIRSM_ROSETTE_PATH = path.resolve(
+  __dirname,
+  "../../artifacts/chainsaw-training/public/iirsm-rosette-logo.png"
+);
 
 const BRAND   = rgb(0.918, 0.361, 0.047); // #ea5c0c
 const BLACK   = rgb(0, 0, 0);
@@ -35,6 +39,7 @@ async function generate() {
   const fReg  = await doc.embedFont(StandardFonts.Helvetica);
   const fBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const fItal = await doc.embedFont(StandardFonts.HelveticaOblique);
+  const iirsmRosette = await doc.embedPng(fs.readFileSync(IIRSM_ROSETTE_PATH));
 
   type State = {
     page: ReturnType<typeof doc.addPage>;
@@ -159,15 +164,17 @@ async function generate() {
       s.page.drawRectangle({ x: M, y: s.y - rowH + 4, width: COL_W, height: rowH, color: WHITE });
     }
 
-    // draw label lines
-    let ty = s.y;
+    // draw label lines — vertically centred within the row, with top padding so
+    // the font ascender stays inside the row background rectangle
+    const TOP_PAD = 4;
+    let ty = s.y - TOP_PAD - ((rowLines - labelLines.length) * lh) / 2;
     for (const ll of labelLines) {
       s.page.drawText(ll, { x: M + 6, y: ty, size: labelFontSize, font: fBold, color: DARK });
       ty -= lh;
     }
 
-    // draw value lines
-    ty = s.y;
+    // draw value lines — vertically centred within the row
+    ty = s.y - TOP_PAD - ((rowLines - valueLines.length) * lh) / 2;
     for (const vl of valueLines) {
       s.page.drawText(vl, { x: valueX + 4, y: ty, size: valueFontSize, font: fReg, color: DARK });
       ty -= lh;
@@ -207,6 +214,9 @@ async function generate() {
   s.page.drawText("eLearning (No Trainer) Application  |  Overleaf Publishers Ltd  |  chainsawcourses.com", {
     x: M, y: PAGE_H - 46, size: 8, font: fItal, color: rgb(1, 0.9, 0.85),
   });
+  s.page.drawImage(iirsmRosette, {
+    x: PAGE_W - M - 32, y: PAGE_H - 70, width: 32, height: 44,
+  });
 
   s.y = PAGE_H - 100;
 
@@ -234,11 +244,11 @@ async function generate() {
     ["NOS Alignment",                  "Independently mapped to UK National Occupational Standards (NOS) for Chainsaw Operations"],
     ["NPTC Alignment",                 "Assessment criteria independently mapped to City & Guilds NPTC 0039-20 unit parameters for theoretical reference and CPD purposes only"],
     ["CPD Points Awarded",             "5 Verifiable CPD Points"],
-    ["Guided Learning Hours (GLH)",    "16 Hours — technical text, annotated diagrams, and seven sequential video modules"],
-    ["Directed Online Assessment",     "1.5 Hours — 45-question randomised multiple-choice examination"],
-    ["Independent Self-Study",         "1.5 Hours — risk evaluation practice, glossary review, and field tool exercises"],
-    ["Total Qualification Time (TQT)", "19 Hours total"],
-    ["Minimum Pass Threshold",         "80% or higher on the summative examination — unlimited resit attempts permitted"],
+    ["Guided Learning Hours (GLH)",    "4 Hours — PWA online modules, video content & gated knowledge checks"],
+    ["Directed Online Assessment",     "2 Hours — formative module quizzes + 45-question randomised multiple-choice final examination"],
+    ["Independent Self-Study",         "4 Hours — reading The Chainsaw Manual & risk assessment exercises"],
+    ["Total Qualification Time (TQT)", "10 Hours total"],
+    ["Assessment Thresholds",          "100% required for every module quiz; 80% or higher on the final summative examination — unlimited resit attempts permitted"],
     ["Target Learner Profile",         "Commercial chainsaw operators, forestry workers, arborists, estate and grounds teams, and landscape professionals"],
     ["Course Version",                 "Version 1.4 — submitted for initial IIRSM eLearning Course Approval (1 course)"],
     ["Approval Category",              "New to IIRSM Course Approval — eLearning (no trainer)"],
@@ -269,10 +279,10 @@ async function generate() {
     ["First Aid Certification",       "Current First Aid at Work certificate held"],
     ["Industry Experience",           "Over 27 years in the arboricultural and forestry industry. Worked as an arboricultural contract climber for numerous large and small companies throughout this period, gaining extensive hands-on operational experience across a wide range of site conditions and chainsaw applications."],
     ["Assessor & Instructor Qualifications", "City & Guilds NPTC Assessor and LANTRA Instructor and Assessor for 8 years — covering practical chainsaw assessment and vocational training delivery to industry standard."],
-    ["Published Author",              "Author of 'The Chainsaw Manual' — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course."],
+    ["Published Author",              "Author of 'The Chainsaw Manual' (Version 1.1, July 2026) — currently sold as a standalone physical learning aid to various colleges and training providers across the UK. The manual underpins the theoretical content of this eLearning course."],
     ["Subject Research",              "Course content developed with reference to current UK HSE guidance, NPTC 0039-20 unit standards, and the Overleaf Chainsaw Manual (published reference text)"],
     ["Platform Development",          "Full-stack eLearning platform designed, developed and operated by author — Progressive Web Application with device-locked access, video streaming, and automated assessment"],
-    ["CPD Status",                    "Author holds current CPD membership and engages in ongoing professional development in chainsaw safety and vocational eLearning design"],
+    ["CPD Status",                    "Author engages in ongoing professional development in chainsaw safety and vocational eLearning design"],
   ];
   for (let i = 0; i < sec2rows.length; i++) {
     s = checkPageBreak(s, 50);
@@ -283,25 +293,31 @@ async function generate() {
   s = checkPageBreak(s, 120);
   sectionHeading(s, "SECTION 3  |  Learning Outcomes & Assessment Criteria");
   gap(s, 2);
-  drawText(s, "The course is structured across seven sequential video modules, each mapped to a discrete learning outcome. Learners must complete each module video in full and achieve 80% or higher on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions is required for certification.", {
+  drawText(s, "The course is structured across video modules, each mapped to a discrete learning outcome (approximately 90 minutes of video content in total). Learners must complete each module video in full and achieve 100% on the associated module quiz before the next module unlocks. A final summative examination of 45 randomised questions requires 80% or higher for certification.", {
     size: 7.5, color: MID, font: fItal,
   });
   gap(s, 6);
 
   // Table header for Section 3
   s.page.drawRectangle({ x: M, y: s.y - 16, width: COL_W, height: 20, color: rgb(0.25, 0.25, 0.25) });
-  s.page.drawText("Module", { x: M + 6, y: s.y - 10, size: 8, font: fBold, color: WHITE });
-  s.page.drawText("Learning Outcome", { x: M + 155 + 4, y: s.y - 10, size: 8, font: fBold, color: WHITE });
+  s.page.drawText("Learning Outcome", { x: M + 6, y: s.y - 10, size: 8, font: fBold, color: WHITE });
+  s.page.drawText("Description & Assessment Criteria Coverage", { x: M + 155 + 4, y: s.y - 10, size: 8, font: fBold, color: WHITE });
   s.y -= 20;
 
+  // LO structure from The Chainsaw Manual V1.1 (July 2026)
   const sec3rows: [string, string][] = [
-    ["Equipment List",              "Identify and describe the personal protective equipment (PPE) and tools required for safe chainsaw operation"],
-    ["PPE & First Aid",             "Demonstrate knowledge of appropriate PPE standards and first-aid procedures relevant to chainsaw injury"],
-    ["5 Steps to Risk Assessment",  "Apply the HSE five-step risk assessment framework to chainsaw operations"],
-    ["Hazards & Risks",             "Identify site-specific hazards and evaluate risk levels using likelihood and severity matrices"],
-    ["Emergency Planning Information", "Develop and communicate an emergency action plan for chainsaw operations on site"],
-    ["Law & Legislation",           "Describe the legal framework governing chainsaw use including PUWER and HSE guidance"],
-    ["Chainsaw Safety Features",    "Identify and explain the function of all primary chainsaw safety features and their activation mechanisms"],
+    ["LO1  |  Legal Framework & Personal Safety  (Unit 1)",
+     "Describe the statutory legal framework and personal safety requirements governing chainsaw operations: HSWA employer/employee obligations; PUWER equipment parameters; COSHH control tracking for fuels and lubricants; CE/UKCA class markings for helmets, hearing protection, gloves, and Type A/C protective trousers (AC 1.1–1.4)."],
+    ["LO2  |  Hazard Evaluation & Emergency Protocols  (Unit 1)",
+     "Evaluate environmental hazards, risk metrics, and implement emergency protocols: 5-step site-specific risk assessment documenting ground hazards, pedestrian proximity, and structural vulnerabilities; emergency communication and extraction mapping with grid references and trauma kit deployment; bio-security cleaning controls for invasive arboreal pathogens (AC 2.1–2.3)."],
+    ["LO3  |  Chainsaw Architecture & Safety Features  (Unit 2)",
+     "Analyse the mechanical differences, design attributes, and safety features of internal combustion and battery-powered chainsaws: 2-stroke combustion cycle and 50:1 fuel-to-oil ratio; battery thermal runaway risks; identification and function of the 10 core safety features across front, centre, and rear chainsaw architecture (AC 3.1–3.3)."],
+    ["LO4  |  Diagnostic, Servicing & Maintenance  (Unit 2)",
+     "Describe the diagnostic, servicing, and maintenance procedures required to sustain cutting-assembly integrity: air filter cleaning and spark plug electrode colour interpretation; Rim vs. Spur sprocket differences; guidebar wear conditions (burring, rail splaying, thermal bluing); chain pitch, gauge, tooth shapes (Full-Chisel vs. Semi-Chisel), and filing profiles (AC 4.1–4.4)."],
+    ["LO5  |  Pre-Use Verification & Startup  (Unit 3)",
+     "Implement safe pre-use verification protocols and startup methodologies: cold start floor-anchor vs. warm start knee-clamp procedures for Husqvarna and Stihl platforms; 4-point dynamic check assessing chain brake engagement, oil dispersion flow, chain creep at tick-over, and off-switch motor cut (AC 5.1–5.2)."],
+    ["LO6  |  Cutting Mechanics: Tension & Compression  (Unit 3)",
+     "Apply mechanical principles to resolve tension and compression forces during timber cutting: log setup analysis; pulling vs. pushing chain physics; kickback zone definition and safe plunge bore entry; cut sequences for standard logs, oversized timber, and extreme-tension timber using Toast Rack and reduction sink techniques (AC 6.1–6.4)."],
   ];
   for (let i = 0; i < sec3rows.length; i++) {
     s = checkPageBreak(s, 40);
@@ -325,7 +341,7 @@ async function generate() {
     ["Data Security",      "All data encrypted in transit (TLS 1.3); hosted on Replit deployment infrastructure (EU region)"],
     ["Accessibility",      "WCAG 2.1 AA compliant colour contrast; keyboard navigable; screen-reader compatible markup"],
     ["Browser Support",    "Chrome 120+, Safari 16+, Firefox 120+, Edge 120+"],
-    ["Companion Manual",   "Overleaf Chainsaw Manual (printed) — supplied separately; referenced throughout the digital course"],
+    ["Companion Manual",   "The Chainsaw Manual by Overleaf Publishers Ltd — Version 1.1 (July 2026); printed; supplied separately; referenced and QR-code linked throughout the digital course"],
   ];
   for (let i = 0; i < sec4rows.length; i++) {
     s = checkPageBreak(s, 40);

@@ -6,99 +6,490 @@ id = "kX9li0IcCe3ZsufCqo5rT"
 uri = "file://artifacts/chainsaw-training/public/applause.mp3"
 type = "audio"
 title = "applause"
+logical_id = "b1a2004a-831d-44b4-a8f7-844c4580cc7e"
 
 [[outputs]]
 id = "YTmJm1zatLSH-DYp7_cd4"
 uri = "file://artifacts/chainsaw-training/public/pdfs/IIRSM_Submission_Brief.pdf"
 type = "pdf"
-title = "IIRSM Submission Brief v1.4 — Signed"
+title = "IIRSM Submission Brief — fixed layout"
+logical_id = "1f83e701-a211-48f5-af59-3c92248d77a3"
 
 [[outputs]]
 id = "iw93YlzKUoPZHjslZZ2Qy"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Terms_and_Conditions_Liability_Waiver.pdf"
 type = "pdf"
-title = "Terms & Conditions and Liability Waiver"
+title = "Latest Terms & Conditions and Liability Waiver"
+description = "Authoritative Chainsaw Courses copy — Version 1.0, July 2026. Download this PDF and upload it into the other Replit project."
+logical_id = "01ee49c7-06e2-4d47-8d4a-aadc919809d4"
+content_hash = "sha256:1c0738bd3eee3ff596e55916fec9c281accc07f229f67349c580be33c959e0ef"
+size = 181077
+mtime_ms = 1787749816068
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/01ee49c7-06e2-4d47-8d4a-aadc919809d4/a460d493-bc9e-4e65-b41c-7f65fe628a31"
+storage_version_token = "1788506576115276"
+content_type = "application/pdf"
 
 [[outputs]]
 id = "2FTq5pVKhUVQwan7Z0leu"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Refund_and_Cancellation_Policy.pdf"
 type = "pdf"
 title = "Refund & Cancellation Policy"
+logical_id = "ee7e73ff-8ed1-43f8-911b-273e0623d20d"
 
 [[outputs]]
 id = "iSS0dq9CCtXd9Lfk64_9U"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Data_Protection_Policy.pdf"
 type = "pdf"
-title = "Data Protection Policy (UK GDPR)"
+title = "Latest Privacy Policy — Data Protection Policy"
+description = "Authoritative Chainsaw Courses privacy policy — Version 1.0, July 2026."
+logical_id = "28522651-85e8-41ea-a98a-f03e81ea48ac"
+content_hash = "sha256:055e96a86859a0e15777b7dbc27314c4e2c6b1b414659727980ea78193c51068"
+size = 182009
+mtime_ms = 1787749816184
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/28522651-85e8-41ea-a98a-f03e81ea48ac/d7da8aa1-25fb-4479-bb6f-748658d7d8e3"
+storage_version_token = "1788506840725400"
+content_type = "application/pdf"
 
 [[outputs]]
 id = "6PJEOHR8AZsbXadTDiMwU"
 uri = "file://artifacts/chainsaw-training/public/pdfs/Complaints_Procedure.pdf"
 type = "pdf"
 title = "Complaints Procedure"
+logical_id = "fd9ead61-3bfc-416f-a21f-8d355e207dc9"
 
 [[outputs]]
 id = "DdJZbOyBPk3hEi63MBQ1J"
 uri = "file://scripts/shopify-copy.md"
 type = "text"
 title = "Shopify Store Copy — Updated for Timed Access Model"
+logical_id = "a8791323-91f9-4d65-a1fc-30f41b56506d"
 
 [[outputs]]
 id = "EpJRekkeen_myj8BpsIMi"
 uri = "file://screenshots/screen-01-activation.jpg"
 type = "image"
 title = "1 — Activation Screen (mobile)"
+logical_id = "e398fe65-610c-421d-94d3-4fac2d1fa597"
 
 [[outputs]]
 id = "X6OPvg4XURiB7gY0NZ1cT"
 uri = "file://screenshots/screen-02-news.jpg"
 type = "image"
 title = "2 — Industry News Feed (mobile)"
+logical_id = "685651a9-4731-4a38-9780-f820775d4a0e"
 
 [[outputs]]
 id = "Y0PwoZepf_4lFir7N0Itu"
 uri = "file://screenshots/screen-03-glossary.jpg"
 type = "image"
 title = "3 — Glossary 175 terms (mobile)"
+logical_id = "b60005db-f79e-4846-aa46-69a0cdd4f23c"
 
 [[outputs]]
 id = "Na_U9QH-Cd_m654Kia_ZV"
 uri = "file://screenshots/screen-07-species-guide.jpg"
 type = "image"
 title = "4 — Timber Species Guide (mobile)"
+logical_id = "7fcf1a86-07c0-462e-ad19-f9d570a7ba81"
 
 [[outputs]]
 id = "BqVbQRKpXjObvsYxWwpjM"
 uri = "file://screenshots/screen-08-desktop.jpg"
 type = "image"
 title = "9 — Activation Screen (desktop 1280×800)"
+logical_id = "61558bce-afe7-4dfc-82e1-deec09ff14ab"
 
 [[outputs]]
 id = "CA8nCFGRiWVfdEWgQqnDi"
 uri = "file://screenshots/screen-biosecurity.jpg"
 type = "image"
 title = "5 — Biosecurity & Hazard Map (mobile)"
+logical_id = "f4be1adb-1399-4b97-8651-7c689b1fbbb5"
 
 [[outputs]]
 id = "c-cFBdIjZNhqiFK9QsTi9"
 uri = "file://screenshots/screen-chain-chart.jpg"
 type = "image"
 title = "6 — Chain Identification Chart (mobile)"
+logical_id = "6b24bcf4-0cb5-4d15-ac04-079d0102207b"
 
 [[outputs]]
 id = "FYrgAr7kg8ODb1deIWF6R"
 uri = "file://screenshots/screen-inspection.jpg"
 type = "image"
 title = "7 — Pre-Start Inspection Checklist (mobile)"
+logical_id = "4a42a91c-3026-4099-a44e-0177300c0ece"
 
 [[outputs]]
 id = "-fTzHu3oJNckGxNyuW9rD"
 uri = "file://screenshots/screen-risk-assessment.jpg"
 type = "image"
 title = "8 — Dynamic Risk Assessment (mobile)"
+logical_id = "61d96f3b-8fc3-425f-b834-6c456a554707"
 
 [[outputs]]
 id = "sZy67hRqzllGcfJpt3tIq"
 uri = "file://attached_assets/signing_1785245390413.keystore"
 type = "unspecified"
 title = "signing.keystore (the correct one — password: yuWoWD_gRaB2)"
+logical_id = "0931940b-8826-4a50-859c-41df75520218"
+
+[[outputs]]
+id = "qfkA49UJMqRMdli8IBNNS"
+uri = "file://chain-id-qr.png"
+type = "image"
+title = "Chain Identification QR Code — app.chainsawcourses.com/chain-chart"
+logical_id = "f2f833e2-6ce5-4efc-bfd2-cf373dadc546"
+
+[[outputs]]
+id = "9NgZnH3xyIxZU3V2LVHoZ"
+uri = "file://glossary-qr.png"
+type = "image"
+title = "Glossary QR Code — app.chainsawcourses.com/glossary"
+logical_id = "cabf2240-70ad-445e-862b-c07023f6a911"
+
+[[outputs]]
+id = "bNmYlIYOj38I4GH0zL80n"
+uri = "file://chainsaw-courses-brand.md"
+type = "text"
+title = "Chainsaw Courses — Brand Reference"
+logical_id = "fba90a98-047f-41c5-b6f8-79b036d8b804"
+
+[[outputs]]
+id = "ir475b6lyytccQg-xdAPQ"
+uri = "file://brand-logo.svg"
+type = "image"
+title = "Brand Logo (SVG)"
+logical_id = "775322ce-8338-4db6-b462-803258030ce9"
+
+[[outputs]]
+id = "69GOE_y00614ISYiqqvcz"
+uri = "file://brand-opengraph.jpg"
+type = "image"
+title = "OG / Social Share Image"
+logical_id = "4130c956-e056-4604-83ea-2b574c2bac6e"
+
+[[outputs]]
+id = "Mn9X5FeSghpcr2Yeg7OiK"
+uri = "file://brand-logo.png"
+type = "image"
+title = "Brand Logo (PNG)"
+logical_id = "94c72af4-cfd1-44f8-8cc9-c72c603187f9"
+
+[[outputs]]
+id = "gdE-ZT3pVcSwni5PivlS5"
+uri = "file://chainsaw-courses-iirsm-audit.md"
+type = "text"
+title = "IIRSM Pre-Submission Audit Report"
+logical_id = "dcf809bc-0cd8-4193-9929-47888f64c683"
+
+[[outputs]]
+id = "HqGNxQl6Xu2zJ15Ak-IEa"
+uri = "file://iirsm-initial-contact-email.md"
+type = "text"
+title = "IIRSM Initial Contact — Draft Email"
+logical_id = "3e0a629a-07b0-4fdc-a50d-d8fdcd1e3ffe"
+
+[[outputs]]
+id = "Gy9gJgHfnC-F1nWjRgf_3"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Assessment_Policy.pdf"
+type = "pdf"
+title = "Assessment Policy"
+logical_id = "e4dabe5d-29a6-4eca-bbb6-e7426da07559"
+
+[[outputs]]
+id = "uXxmscllzrYR253KD04Dg"
+uri = "file://artifacts/chainsaw-training/public/brief_preview_p1.png"
+type = "image"
+title = "Brief Page 1 render"
+logical_id = "f2f2cdf6-12e8-47a5-9428-15d02ddf329a"
+
+[[outputs]]
+id = "FDGIemI2fgKMgOFKNqJCp"
+uri = "file://artifacts/chainsaw-training/public/brief_preview_p2.png"
+type = "image"
+title = "Brief Page 2 render"
+logical_id = "ea7e960f-8edd-4668-8a9f-51fadf178f2a"
+
+[[outputs]]
+id = "_dMCZIOmJzDrcnOG2VFTd"
+uri = "file://artifacts/chainsaw-training/public/pdfs/David_Daniel_CV.pdf"
+type = "pdf"
+title = "David Daniel CV — affiliations removed"
+logical_id = "5c4d3661-16ba-4183-98a0-7b1330836829"
+
+[[outputs]]
+id = "8FlEdjzDuFGSA3Rk1s7Wq"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Learner_Feedback_Policy.pdf"
+type = "pdf"
+title = "Learner Feedback Policy"
+description = "9-section policy document in Chainsaw Courses brand style — matches the Assessment Policy layout with orange header, branded footer, info rows, tables, and bullet sections."
+logical_id = "421a1508-8333-4a42-97a7-84f5fa9fbf66"
+
+[[outputs]]
+id = "WPz1iuAtbFAvm1YQUPXPz"
+uri = "file://generated-docs/chainsaw-courses-terms-and-conditions.pdf"
+type = "pdf"
+title = "Terms and Conditions — Chainsaw Courses"
+description = "3 pages, no blank pages. Headers and page numbers stamped cleanly on all pages."
+logical_id = "97508657-8c30-4f33-8965-e0e8fc9dcf6c"
+
+[[outputs]]
+id = "nI3ZW_hhPverV6QU9c-D2"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Q23_Course_Materials_Pack.pdf"
+type = "pdf"
+title = "Q23 Course Materials Pack — Branded"
+description = "Redesigned with Chainsaw Courses branding — orange #E27226, near-black, logo on cover, IIRSM mark, orange question badges, 156 exam questions + 80 mock questions."
+logical_id = "e376704f-b1c4-49e5-bbdb-6049fbefd954"
+
+[[outputs]]
+id = "5MElnEsOQvDuBYYFNANcj"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Course_Materials.pdf"
+type = "pdf"
+title = "Chainsaw Courses — Course Materials PDF"
+description = "Updated with 16 new video transcripts (modules 21–36)."
+logical_id = "4c72c74f-de65-4248-8e02-b79b28c64bd2"
+
+[[outputs]]
+id = "Y-mgPVYBkSxzgk9c6og85"
+uri = "file://attached_assets/chainsaw_preview_886x1920.mp4"
+type = "video"
+title = "App Store Preview Video"
+description = "Resized to 886×1920px for App Store upload"
+logical_id = "1ec4f213-8503-46de-8623-1dcaf56bea11"
+
+[[outputs]]
+id = "DBrIWJttgPUF3H7b3ndRc"
+uri = "file://attached_assets/chainsaw_ipad_preview_1600x2048.mp4"
+type = "video"
+title = "iPad App Store Preview Video"
+description = "Resized to 1600×2048px for App Store upload"
+logical_id = "7ea7841b-8bab-4384-bd84-4fefdd059c14"
+
+[[outputs]]
+id = "XMgMwew0w-EmrC50WJf7w"
+uri = "file://attached_assets/chainsaw_ipad_1200x1600.mp4"
+type = "video"
+title = "iPad Preview Video (1200×1600)"
+description = "Ready to upload to App Store Connect"
+logical_id = "1ca76a86-556c-40f8-a674-830e7a8de304"
+
+[[outputs]]
+id = "lcHOTQPEzfOofXm18HaOG"
+uri = "file://attached_assets/chainsaw_ipad_1200x1600_v2.mp4"
+type = "video"
+title = "iPad Preview Video (1200×1600)"
+description = "Ready to upload to App Store Connect"
+logical_id = "c3584807-f704-42ea-a7d4-ba0a4b39f644"
+
+[[outputs]]
+id = "HdjygF-AYIfEPwoioKU3I"
+uri = "file://attached_assets/chainsaw_iphone_886x1920.mp4"
+type = "video"
+title = "iPhone Preview Video (886×1920)"
+description = "App Store Connect compatible — H.264, 30fps, AAC stereo"
+logical_id = "cf501f23-a489-49db-967a-54a20a4a6fcf"
+
+[[outputs]]
+id = "GgnqL7VrzGvcF2rgr_WrT"
+uri = "file://attached_assets/chainsaw_appicon_1024.png"
+type = "image"
+title = "Chainsaw Courses App Icon (1024×1024)"
+description = "Drag into AppIcon slot in Xcode Assets.xcassets"
+logical_id = "81a52660-7ff7-40b2-a612-7f630c81840d"
+
+[[outputs]]
+id = "kWArVQmBRcdu3l11cyU-9"
+uri = "file://attached_assets/chainsaw_iphone_v2_886x1920.mp4"
+type = "video"
+title = "iPhone Preview Video (886×1920)"
+description = "App Store Connect compatible — H.264, 30fps, AAC stereo"
+logical_id = "412b2b20-d7d0-48f7-9347-d43198b82f94"
+
+[[outputs]]
+id = "ILbUr5sC8BOKG7anfUpIv"
+uri = "file://attached_assets/chainsaw_iphone_1320x2868.mp4"
+type = "video"
+title = "iPhone Preview Video (1320×2868)"
+description = "App Store Connect compatible — H.264, 30fps, silent AAC audio"
+logical_id = "077a64c7-4b70-4486-a63f-a3c71f8e6afd"
+
+[[outputs]]
+id = "N7Gwk_K-Gyyezcg0Zm5GX"
+uri = "file://attached_assets/chainsaw_iphone_v3_886x1920.mp4"
+type = "video"
+title = "iPhone Preview Video (886×1920)"
+description = "App Store preview video 886x1920"
+logical_id = "9618af3c-54c0-4c0c-b00d-df1e191a1a27"
+
+[[outputs]]
+id = "Bg_6x4HFAH0pi5tWBO2rS"
+uri = "file://attached_assets/generated_images/chainsaw-courses-feature-graphic.png"
+type = "image"
+title = "Updated Chainsaw Courses feature graphic"
+description = "Final 1024 × 500 PNG with the Online Safety Training label moved upward to create more space."
+logical_id = "33b808a6-0735-4d9d-91ea-4da1d4a98e32"
+
+[[outputs]]
+id = "CcmFql3AJyIysc20SQjic"
+uri = "file://artifacts/chainsaw-training/android/app/build/outputs/bundle/release/app-release.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android 1.0.4 (version code 8)"
+description = "Signed Google Play App Bundle with direct PDF saving to Downloads/Chainsaw Courses. SHA-256: b9e10c701e1a232839bd7f1a5cf57c6535bc9cfc440529daa66ad8a9fa8c9680"
+logical_id = "d5be46ef-1447-4e23-b7ea-9d41299a8938"
+content_hash = "sha256:b9e10c701e1a232839bd7f1a5cf57c6535bc9cfc440529daa66ad8a9fa8c9680"
+size = 80076202
+mtime_ms = 1788296291749
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/d5be46ef-1447-4e23-b7ea-9d41299a8938/8f87a596-ea36-4a43-af70-5c41c9493203"
+storage_version_token = "1788296303064402"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "a83eUB1SGGkn2H7e1vnZW"
+uri = "file://attached_assets/Chainsaw_Courses_1785245395501.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android release — version 1.0.1 (code 3)"
+description = "Signed native Capacitor Android App Bundle for the com.chainsawcourses.app Google Play listing. Target API 36. Upload this file to Closed testing > Alpha1; do not upload it to the old .uk listing."
+logical_id = "7e6bad2a-c1ee-4cf5-9e18-b3976b5057c1"
+
+[[outputs]]
+id = "TDYF0gVWV8T4EkJpzL2l8"
+uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_correct-key.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android release — correct Google Play signing key"
+description = "Version 1.0.1 (code 3) native Android App Bundle for com.chainsawcourses.app. Its upload certificate has been verified against Google Play's expected SHA-1 fingerprint. Upload this replacement file to Closed testing > Alpha1."
+logical_id = "773b63b3-0b5e-4a66-964f-7dcfa6d02b58"
+
+[[outputs]]
+id = "cAnyJhDrSThC8tL4TvLdL"
+uri = "file://attached_assets/Chainsaw_Courses_v1.0.1_code3_com.chainsawcourses.app_correct-key.aab"
+type = "unspecified"
+title = "UPLOAD THIS: Chainsaw Courses Android v1.0.1 (code 3)"
+description = "Newly built native Android App Bundle. Verified package: com.chainsawcourses.app; version code: 3; target API: 36; Google Play upload certificate matches the expected fingerprint. This is the only bundle to upload to Closed testing > Alpha1."
+logical_id = "8b2ac0c4-580e-434a-a72a-d49fd419027a"
+
+[[outputs]]
+id = "H9aT9QsgwinrfhWcLERu8"
+uri = "file://exports/Chainsaw_Courses_iOS_Update_Build_4_Source.zip"
+type = "unspecified"
+title = "Chainsaw Courses — iPhone Update Source (Build 4)"
+description = "Latest safe source package for the TestFlight fix, with a plain-English START-HERE guide. It excludes private Apple signing files and leaves your existing Mac iOS folder intact."
+logical_id = "145a1943-5915-4c39-9f0e-5f5d44bedbaf"
+
+[[outputs]]
+id = "mLmok7kRWB1UEiSVB78Zw"
+uri = "file://exports/Chainsaw_Courses_iOS_Build_5_White_Screen_Fix.zip"
+type = "unspecified"
+title = "iOS Build 5 white-screen repair"
+description = "Contains the corrected Capacitor configuration and exact Mac/Xcode instructions for a replacement TestFlight build."
+logical_id = "4c711b3c-8266-4e79-bc8b-5845f6d82c1b"
+
+[[outputs]]
+id = "qh2boLKcBF_WraIrT6NcW"
+uri = "file://exports/Chainsaw_Courses_Android_v1.0.1_code4_Launcher_Icon_Fix.aab"
+type = "unspecified"
+title = "Android Bundle — Launcher Icon Fix"
+description = "Signed Android App Bundle for com.chainsawcourses.app, version 1.0.1 (version code 4), ready for Google Play Closed testing."
+logical_id = "aa975583-49e1-429e-86e9-ee955116f4da"
+
+[[outputs]]
+id = "NRR9tMqbBU7tti7BEEDdj"
+uri = "file://exports/Chainsaw_Courses_Android_v1.0.1_code5_Correct_Google_Play_Key.aab"
+type = "unspecified"
+title = "Android Bundle — Correct Google Play Key"
+description = "Signed Android App Bundle for com.chainsawcourses.app, version 1.0.1 (version code 5). Its certificate SHA-1 exactly matches the Google Play Console requirement."
+logical_id = "5f0e14ef-9e33-4836-ab21-0b8cd34353cb"
+
+[[outputs]]
+id = "MJpZit3481IRdTVoQMGkU"
+uri = "file://exports/Chainsaw_Courses_Android_v1.0.2_code6_Original_Launcher_Icon.aab"
+type = "unspecified"
+title = "Android App Bundle — Original Launcher Icon (Code 6)"
+description = "Signed Google Play upload bundle for com.chainsawcourses.app, version 1.0.2 (version code 6), restored to the original small logo-in-white-circle launcher design."
+logical_id = "0d7cd194-3252-47c4-84d0-a36c17d2305a"
+
+[[outputs]]
+id = "L3TGETzDjzyIlaHo1Q-ph"
+uri = "file://artifacts/chainsaw-training/public/pdfs/Completion_Certificate_Sample_IIRSM_Approved_Course.pdf"
+type = "pdf"
+title = "Completion Certificate — Balanced Logo Spacing"
+description = "Latest sample with the Chainsaw Courses logo and course title moved upward together for more even spacing above and below."
+logical_id = "ea299070-0f63-4443-9fc8-0e52aa69adf8"
+
+[[outputs]]
+id = "x1aMMkeXbW-nJwwXE7szA"
+uri = "file://exports/Chainsaw_Courses_Android_com.chainsawcourses.app_v1.0.3_code7.aab"
+type = "unspecified"
+title = "Chainsaw Courses Android v1.0.3 (code 7)"
+description = "Google Play App Bundle targeting Android 16 / API 36, signed with the registered Play upload certificate."
+logical_id = "d3484392-cfaf-4334-9422-37689b4b43f0"
+
+[[outputs]]
+id = "up25VeXHeqcZxR99Zp4r3"
+uri = "file://exports/Chainsaw_Courses_iOS_1.0.4_Build_6_Release_Source.zip"
+type = "unspecified"
+title = "Chainsaw Courses iOS 1.0.4 — Build 6"
+description = "Prepared Xcode release source with direct PDF saving to Files/Chainsaw Courses, the existing Apple bundle ID, approved app icon, and START-HERE archive/upload instructions."
+logical_id = "a8e788cf-102c-4052-a7da-99bdacafbf7e"
+content_hash = "sha256:bbce044b871f7959eb5554009a5892c7f2a387565de015b8f400480a1a765a3a"
+size = 334570
+mtime_ms = 1788435634271
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/a8e788cf-102c-4052-a7da-99bdacafbf7e/bde2f491-018e-471f-955a-5d23ab9f4d32"
+storage_version_token = "1788435665314382"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "heiqH5ncXS_tFHqnDWX7J"
+uri = "file://exports/Chainsaw_Courses_iOS_1.0.4_Build_6_Release_Source_FIXED.zip"
+type = "unspecified"
+title = "Chainsaw Courses iOS Build 6 — corrected Swift source"
+description = "Updated release package with the PdfSaverPlugin.swift compile fix. Use this package if you want to replace the old file rather than edit it manually."
+logical_id = "e2ab3408-cecb-493d-a545-9dcea7a21d0a"
+content_hash = "sha256:7c893032f0cb6272bcb96f6d3164d66c6a1b01afc1f79d3212839f6cdea4bd6f"
+size = 334590
+mtime_ms = 1788446529111
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/e2ab3408-cecb-493d-a545-9dcea7a21d0a/5052d478-e402-4506-a8a8-d102f8f9ef1a"
+storage_version_token = "1788446537438761"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "cwS81Pgw2Df7zjhsjLiKv"
+uri = "file://exports/Chainsaw_Courses_iOS_Build_6_PdfSaver_Fix.zip"
+type = "unspecified"
+title = "DOWNLOAD THIS: Chainsaw Courses iOS Build 6 PDF Saver Fix"
+description = "Unzip this on your Mac. It contains the corrected PdfSaverPlugin.swift replacement file."
+logical_id = "bd0a3850-729e-4ad1-90ca-78d5364e92af"
+content_hash = "sha256:bb41966aea77ebc88936b9342b52810cfa73c2e9dba2a3cb28fcc14dba65dcc8"
+size = 1773
+mtime_ms = 1788456748165
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/bd0a3850-729e-4ad1-90ca-78d5364e92af/79b47a9c-341d-431a-a0ac-424285c170cd"
+storage_version_token = "1788458336409688"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "KX06qXgaBLn_NUgPXAYD8"
+uri = "file://exports/Chainsaw_Courses_iOS_1.0.4_Build_6_COMPLETE_XCODE_PROJECT.zip"
+type = "unspecified"
+title = "USE THIS ONLY: Complete iOS Build 6 Xcode Project"
+description = "Final standalone Xcode project with the duplicate Swift source removed, clean replacement compiled, and Capacitor plugins embedded. No Terminal setup or file replacement required."
+logical_id = "72398c12-72a1-41cc-8c65-3cb6674f3779"
+content_hash = "sha256:be784a86d177644b783dd93f8183db97bbb9077588d312307d41e083c99f03f8"
+size = 1708667
+mtime_ms = 1788459056693
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/72398c12-72a1-41cc-8c65-3cb6674f3779/d67abf9d-1920-4240-bd54-e2353ea9341f"
+storage_version_token = "1788459065237549"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "Xtv2U6gOMLr9tGLi1a81j"
+uri = "file://attached_assets/Terms_and_Conditions_Liability_Waiver_1788506748404.pdf"
+type = "pdf"
+title = "Latest Terms & Conditions and Liability Waiver"
+description = "The exact Terms and Conditions copy you selected — Version 1.0, July 2026."
+logical_id = "08735f9a-ff69-4950-a7c7-d382cf9695f3"
+content_hash = "sha256:1c0738bd3eee3ff596e55916fec9c281accc07f229f67349c580be33c959e0ef"
+size = 181077
+mtime_ms = 1788506748935
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:b379fd4c-68c8-4315-87b3-18430e88c03e/08735f9a-ff69-4950-a7c7-d382cf9695f3/932a422c-9cca-4756-b863-9be9922b3ba0"
+storage_version_token = "1788506841631835"
+content_type = "application/pdf"

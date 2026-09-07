@@ -8,8 +8,10 @@ import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
-import fs from "fs";
-import path from "path";
+import { generateInspectionPdf } from "../lib/generateInspectionPdf";
+import { drawApprovedPdfKitHeader } from "../lib/pdfBranding";
+import { getOrCreateDriveFolder, uploadPdfToDrive, BACKUP_FOLDER } from "../lib/driveCertificates";
+import { ReplitConnectors } from "@replit/connectors-sdk";
 
 const router = Router();
 
@@ -48,7 +50,7 @@ router.post("/inspections", async (req, res) => {
     return;
   }
 
-  const { deviceId, activationCode, sawIdentifier, items } = parse.data;
+  const { deviceId, activationCode, sawIdentifier, duplicate, items } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
@@ -58,6 +60,31 @@ router.post("/inspections", async (req, res) => {
   const hasFailures = items.some((item) => item.status === "fail");
 
   try {
+    const [latest] = duplicate
+      ? []
+      : await db
+          .select({ id: inspectionRecordsTable.id })
+          .from(inspectionRecordsTable)
+          .where(eq(inspectionRecordsTable.userId, user.id))
+          .orderBy(desc(inspectionRecordsTable.createdAt), desc(inspectionRecordsTable.id))
+          .limit(1);
+
+    if (latest) {
+      const [updated] = await db
+        .update(inspectionRecordsTable)
+        .set({
+          sawIdentifier: sawIdentifier ?? null,
+          items: JSON.stringify(items),
+          hasFailures,
+          amendedAt: new Date(),
+        })
+        .where(and(eq(inspectionRecordsTable.id, latest.id), eq(inspectionRecordsTable.userId, user.id)))
+        .returning();
+
+      res.json(serializeRecord(updated));
+      return;
+    }
+
     const [inserted] = await db
       .insert(inspectionRecordsTable)
       .values({
@@ -154,19 +181,7 @@ router.get("/inspections/:id/pdf", async (req, res) => {
     const R = 545;
     const W = R - L;
 
-    // Header
-    const logoPath = path.resolve(process.cwd(), "../chainsaw-training/public/logo.png");
-    const logoSize = 52;
-    const headerY = 40;
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, L, headerY, { width: logoSize, height: logoSize });
-    }
-    const textX = fs.existsSync(logoPath) ? L + logoSize + 12 : L;
-    doc.fontSize(20).fillColor(orange).font("Helvetica-Bold").text("Chainsaw Courses", textX, headerY + 4, { lineBreak: false });
-    doc.fontSize(9).fillColor(mid).font("Helvetica").text("CHAINSAW MAINTENANCE & CROSS CUTTING", textX, headerY + 30, { lineBreak: false });
-    doc.text("", L, headerY + logoSize + 10);
-    doc.moveTo(L, doc.y).lineTo(R, doc.y).strokeColor(orange).lineWidth(1.5).stroke();
-    doc.moveDown(0.8);
+    drawApprovedPdfKitHeader(doc, { left: L, right: R, y: 40 });
 
     doc.fontSize(14).fillColor(dark).font("Helvetica-Bold").text("PRE-START & PRE-USE INSPECTION CHECKLIST", L, doc.y);
     doc.moveDown(0.6);
@@ -365,6 +380,100 @@ router.get("/admin/inspections", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error fetching all inspections");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ── Admin: download a single inspection as PDF ─────────────────────────────────
+router.get("/admin/inspections/:id/pdf", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .where(eq(inspectionRecordsTable.id, id))
+      .limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+    const pdfBuffer = await generateInspectionPdf(record);
+    const safeName = record.studentName.replace(/[^a-z0-9]/gi, "-");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="inspection-${safeName}-${id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    logger.error({ err, id }, "Error generating admin inspection PDF");
+    if (!res.headersSent) res.status(500).json({ error: "Failed to generate PDF" });
+  }
+});
+
+// ── Admin: save a single inspection to Google Drive ───────────────────────────
+router.post("/admin/inspections/:id/save-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  try {
+    const [row] = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .where(eq(inspectionRecordsTable.id, id))
+      .limit(1);
+    if (!row) { res.status(404).json({ error: "Not found" }); return; }
+    const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+    const pdfBuffer = await generateInspectionPdf(record);
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Inspections", backupId);
+    const safeName   = record.studentName.replace(/[^a-z0-9]/gi, "_");
+    const dateStr    = record.createdAt.toISOString().slice(0, 10);
+    const fileName   = `Inspection_${safeName}_${dateStr}_${id}.pdf`;
+    const url        = await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+    logger.info({ id, fileName, url }, "Inspection saved to Drive");
+    res.json({ url, fileName });
+  } catch (err) {
+    logger.error({ err, id }, "Error saving inspection to Drive");
+    res.status(500).json({ error: "Could not save to Drive" });
+  }
+});
+
+// ── Admin: bulk export all inspections to Google Drive ────────────────────────
+router.post("/admin/inspections/export-to-drive", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const rows = await db
+      .select({ id: inspectionRecordsTable.id, sawIdentifier: inspectionRecordsTable.sawIdentifier, items: inspectionRecordsTable.items, hasFailures: inspectionRecordsTable.hasFailures, createdAt: inspectionRecordsTable.createdAt, amendedAt: inspectionRecordsTable.amendedAt, studentName: usersTable.fullName })
+      .from(inspectionRecordsTable)
+      .leftJoin(usersTable, eq(inspectionRecordsTable.userId, usersTable.id))
+      .orderBy(desc(inspectionRecordsTable.createdAt));
+
+    const connectors = new ReplitConnectors();
+    const backupId   = await getOrCreateDriveFolder(connectors, BACKUP_FOLDER);
+    const folderId   = await getOrCreateDriveFolder(connectors, "Inspections", backupId);
+
+    let saved = 0;
+    const errors: string[] = [];
+    for (const row of rows) {
+      try {
+        const record = { ...row, items: JSON.parse(row.items) as InspectionItem[], studentName: row.studentName ?? "Unknown" };
+        const pdfBuffer = await generateInspectionPdf(record);
+        const safeName  = record.studentName.replace(/[^a-z0-9]/gi, "_");
+        const dateStr   = record.createdAt.toISOString().slice(0, 10);
+        const fileName  = `Inspection_${safeName}_${dateStr}_${row.id}.pdf`;
+        await uploadPdfToDrive(connectors, pdfBuffer, fileName, folderId);
+        saved++;
+      } catch (e) {
+        errors.push(`ID ${row.id}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    const folderUrl = `https://drive.google.com/drive/folders/${folderId}`;
+    logger.info({ saved, errors: errors.length, folderId }, "Bulk inspection export to Drive");
+    res.json({ saved, errors, folderUrl });
+  } catch (err) {
+    logger.error({ err }, "Error bulk-exporting inspections to Drive");
+    res.status(500).json({ error: "Could not export to Drive" });
   }
 });
 

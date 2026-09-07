@@ -2,18 +2,40 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Auto-register service worker on every page load.
-// This is required for PWA installability scoring and offline support.
-// The push-notification hook (usePushNotifications) reuses this registration.
-if ("serviceWorker" in navigator) {
+function registerProductionServiceWorker() {
   const swPath = `${import.meta.env.BASE_URL}sw.js`;
   const swScope = import.meta.env.BASE_URL;
+
+  // Standard PWA update pattern: reload as soon as a new SW takes control.
+  // controllerchange fires on the page the moment skipWaiting + claim() runs —
+  // no message listener required in the old cached app.
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!swRefreshing) {
+      swRefreshing = true;
+      window.location.reload();
+    }
+  });
+
+  // Fallback: also handle the SW_UPDATED postMessage for belt-and-suspenders.
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type === "SW_UPDATED") {
+      window.location.reload();
+    }
+  });
+
+  // iOS bfcache fix: if the OS restores a frozen snapshot, force a fresh load.
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
 
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register(swPath, { scope: swScope })
       .then(async (reg) => {
-        // Check for updates in the background
+        // Check for updates on every page load so installs never wait 24 h
         reg.update().catch(() => {});
 
         // ── Periodic Background Sync ──────────────────────────────────────────
@@ -53,6 +75,33 @@ if ("serviceWorker" in navigator) {
         console.warn("Service worker registration failed:", err);
       });
   });
+}
+
+// Service workers are useful for the installed/PWA build, but Vite's dev
+// server must stay under the normal HMR lifecycle. A worker left behind from
+// an earlier preview session can otherwise keep claiming the page and trigger
+// the reload listeners above.
+if ("serviceWorker" in navigator) {
+  if (import.meta.env.DEV) {
+    // Never let a worker from an earlier production/PWA preview mask Vite
+    // changes. The old sessionStorage guard only cleaned it once per tab, so
+    // a stale worker could survive subsequent code updates.
+    navigator.serviceWorker
+      .getRegistration(import.meta.env.BASE_URL)
+      .then((registration) => {
+        if (!registration) return;
+        return registration.unregister().then((unregistered) => {
+          if (unregistered && navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      })
+      .catch(() => {});
+  } else {
+    // Production/PWA builds retain service-worker caching, offline support,
+    // push notifications, and automatic update reloads.
+    registerProductionServiceWorker();
+  }
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

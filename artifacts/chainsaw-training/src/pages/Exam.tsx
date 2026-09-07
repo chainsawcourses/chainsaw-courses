@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star, ChevronLeft } from "lucide-react";
 import { useGetExam, useSubmitExam, useSubmitAppFeedback, useGetExamStatus, getGetExamStatusQueryKey, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
@@ -120,39 +120,15 @@ function ConfettiCanvas() {
 // ─── Certificate download button ─────────────────────────────────────────────
 
 function CertificateButton() {
-  const { activationCode, deviceId } = useUserSession();
-  const [loading, setLoading] = useState(false);
-
-  const handleDownload = async () => {
-    if (!activationCode || !deviceId) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/certificate", {
-        headers: { activationcode: activationCode, deviceid: deviceId },
-      });
-      if (!res.ok) throw new Error("Failed to generate certificate");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Chainsaw_Certificate.pdf";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } catch {
-      // silent — user can retry
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [, navigate] = useLocation();
 
   return (
     <Button
-      onClick={handleDownload}
-      disabled={loading}
+      onClick={() => navigate("/certificate")}
       className="w-full h-14 font-mono font-bold tracking-widest gap-2"
     >
       <FileDown className="w-5 h-5" />
-      {loading ? "GENERATING..." : "VIEW CERTIFICATE"}
+      VIEW CERTIFICATE
     </Button>
   );
 }
@@ -310,12 +286,17 @@ function ExamResultScreen({
 
             <div className="flex flex-col gap-3 w-full">
               {!result.passed ? (
-                <Button
-                  onClick={onReset}
-                  className="w-full h-14 font-mono font-bold tracking-widest"
-                >
-                  <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
-                </Button>
+                <>
+                  <Button
+                    onClick={onReset}
+                    className="w-full h-14 font-mono font-bold tracking-widest"
+                  >
+                    <RotateCcw className="mr-2 w-4 h-4" /> RETAKE EXAM
+                  </Button>
+                  <Button asChild variant="outline" className="w-full h-12 font-mono font-bold tracking-widest">
+                    <Link href="/training">RETURN TO HOMEPAGE</Link>
+                  </Button>
+                </>
               ) : (
                 <>
                   <CertificateButton />
@@ -342,8 +323,16 @@ export default function Exam() {
     query: { queryKey: getGetExamStatusQueryKey(), enabled: !!activationCode && !!deviceId }
   });
 
-  const { data: exam, isLoading, error } = useGetExam({
-    query: { queryKey: getGetExamQueryKey(), enabled: !!activationCode && !!deviceId && !examStatus?.passed }
+  const { data: exam, isLoading, error, refetch: refetchExam } = useGetExam({
+    // The final assessment is generated from the admin-editable question
+    // bank. Request a new bank whenever a learner enters this page instead of
+    // reusing a recently cached exam response.
+    query: {
+      queryKey: getGetExamQueryKey(),
+      enabled: !!activationCode && !!deviceId && !examStatus?.passed,
+      staleTime: 0,
+      refetchOnMount: "always",
+    },
   });
 
   const submitExam = useSubmitExam();
@@ -383,12 +372,15 @@ export default function Exam() {
   }, [result]);
 
   const handleReset = useCallback(() => {
+    // A retake is a new attempt. Reload the live final-exam bank before it
+    // begins so an admin edit is reflected without a native app release.
+    void refetchExam();
     setResult(null);
     setCurrentQuestionIdx(0);
     setAnswers({});
     applausePlayedRef.current = false;
     disappointmentPlayedRef.current = false;
-  }, []);
+  }, [refetchExam]);
 
   if (!activationCode || !deviceId) {
     setLocation("/");
@@ -398,7 +390,14 @@ export default function Exam() {
   // Guard: show completion screen if already passed
   if (examStatus?.passed) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center relative">
+        <button
+          onClick={() => window.history.back()}
+          className="absolute top-4 left-4 flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
         <CheckCircle2 className="w-20 h-20 text-green-600 mb-6" />
         <h1 className="text-2xl font-black font-mono uppercase tracking-wide mb-3 text-green-600">
           Exam Already Passed
@@ -507,7 +506,7 @@ export default function Exam() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-8">
         <div className="flex-1 flex flex-col justify-center">
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-4">
-            {exam.passingScore}% required to pass — {exam.totalQuestions} randomized questions
+            {exam.passingScore}% required to pass — {exam.totalQuestions} randomised questions
           </p>
 
           <h2 className="text-2xl sm:text-3xl font-bold font-mono leading-tight mb-8">

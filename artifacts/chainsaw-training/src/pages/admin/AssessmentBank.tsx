@@ -17,6 +17,12 @@ interface Question {
   isActive: boolean;
 }
 
+interface QuestionStat {
+  questionId: number;
+  correct: number;
+  incorrect: number;
+}
+
 const BLANK_FORM = {
   question: "",
   options: ["", "", "", ""],
@@ -160,11 +166,13 @@ function QuestionForm({
 
 function QuestionRow({
   q,
+  stat,
   knownLOs,
   onUpdate,
   onDelete,
 }: {
   q: Question;
+  stat?: QuestionStat;
   knownLOs: string[];
   onUpdate: (id: number, data: typeof BLANK_FORM) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -225,6 +233,12 @@ function QuestionRow({
           )}
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
+          {stat && (stat.correct + stat.incorrect) > 0 && (
+            <div className="flex flex-col items-end gap-0.5 mr-1">
+              <span className="text-[10px] font-mono text-green-700 leading-none">✓ {stat.correct}</span>
+              <span className="text-[10px] font-mono text-red-500 leading-none">✗ {stat.incorrect}</span>
+            </div>
+          )}
           {!q.isActive && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">DRAFT</span>
           )}
@@ -251,6 +265,7 @@ function QuestionRow({
 function LOSection({
   lo,
   questions,
+  statsMap,
   knownLOs,
   onUpdate,
   onDelete,
@@ -258,6 +273,7 @@ function LOSection({
 }: {
   lo: string;
   questions: Question[];
+  statsMap: Map<number, QuestionStat>;
   knownLOs: string[];
   onUpdate: (id: number, data: typeof BLANK_FORM) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
@@ -296,7 +312,7 @@ function LOSection({
       {open && (
         <div className="border-t border-border px-4 py-3 space-y-2">
           {questions.map(q => (
-            <QuestionRow key={q.id} q={q} knownLOs={knownLOs} onUpdate={onUpdate} onDelete={onDelete} />
+            <QuestionRow key={q.id} q={q} stat={statsMap.get(q.id)} knownLOs={knownLOs} onUpdate={onUpdate} onDelete={onDelete} />
           ))}
 
           {adding ? (
@@ -326,6 +342,7 @@ export default function AssessmentBank() {
   const { adminToken, isReady } = useAdminSession();
   const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [statsMap, setStatsMap] = useState<Map<number, QuestionStat>>(new Map());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(true);
@@ -339,8 +356,12 @@ export default function AssessmentBank() {
   const load = useCallback(async () => {
     if (!adminToken) return;
     try {
-      const data = await fetch("/api/admin/questions", { headers: { admintoken: adminToken } }).then(r => r.json()) as Question[];
+      const [data, stats] = await Promise.all([
+        fetch("/api/admin/questions", { headers: { admintoken: adminToken } }).then(r => r.json()) as Promise<Question[]>,
+        fetch("/api/admin/questions/stats", { headers: { admintoken: adminToken } }).then(r => r.json()) as Promise<QuestionStat[]>,
+      ]);
       setQuestions(data);
+      setStatsMap(new Map(stats.map(s => [s.questionId, s])));
     } catch {
       toast({ variant: "destructive", title: "Error", description: "Could not load questions." });
     } finally {
@@ -358,7 +379,7 @@ export default function AssessmentBank() {
     if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "Could not update question." }); return; }
     const updated: Question = await res.json();
     setQuestions(qs => qs.map(q => q.id === id ? updated : q));
-    toast({ title: "Question updated" });
+    toast({ title: "Final-exam question updated" });
   };
 
   const handleDelete = async (id: number) => {
@@ -376,7 +397,7 @@ export default function AssessmentBank() {
     if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "Could not add question." }); return; }
     const created: Question = await res.json();
     setQuestions(qs => [...qs, created]);
-    toast({ title: "Question added" });
+    toast({ title: "Final-exam question added" });
   };
 
   const handleAddNew = async (form: typeof BLANK_FORM) => {
@@ -421,7 +442,7 @@ export default function AssessmentBank() {
             </button>
           </Link>
           <span className="text-muted-foreground/40">·</span>
-          <span className="font-semibold text-sm flex-1">Assessment Bank</span>
+          <span className="font-semibold text-sm flex-1">Final Exam Bank</span>
           <button
             onClick={() => setAddingNew(a => !a)}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium"
@@ -433,6 +454,12 @@ export default function AssessmentBank() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-950">
+          <strong>Final summative exam only.</strong> Changes saved here appear in the randomised final exam when a learner opens or retakes it.
+          {" "}To change the short quiz shown after a training video, use{" "}
+          <Link href="/admin/module-quizzes" className="font-semibold underline underline-offset-2">Module Quizzes</Link>.
+        </div>
+
         {/* Stats bar */}
         <div className="grid grid-cols-3 gap-3">
           {[
@@ -499,6 +526,7 @@ export default function AssessmentBank() {
               key={lo}
               lo={lo}
               questions={grouped.get(lo) ?? []}
+              statsMap={statsMap}
               knownLOs={knownLOs}
               onUpdate={handleUpdate}
               onDelete={handleDelete}

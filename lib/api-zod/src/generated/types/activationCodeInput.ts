@@ -9,4 +9,5 @@
 export interface ActivationCodeInput {
   code: string;
   notes?: string;
+  assignedTo?: string;
 }

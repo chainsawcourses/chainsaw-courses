@@ -10,7 +10,7 @@ export async function sendCertificateEmail(
   const host = process.env.SMTP_HOST?.trim();
   if (!host) {
     logger.warn({ userId: user.id }, "SMTP not configured — certificate email skipped");
-    return;
+    throw new Error("SMTP is not configured");
   }
 
   try {
@@ -42,9 +42,10 @@ export async function sendCertificateEmail(
         "",
         "Course details:",
         "  Unit Ref: 0039-20",
-        "  Guided Learning Hours: 5",
-        "  CPD: 5 Verifiable CPD Hours",
-        "  Pass Mark: 80%",
+        "  Guided Learning Hours: 4",
+        "  CPD: 5 Verifiable CPD Points",
+        "  Module quizzes: 100% required",
+        "  Final exam pass mark: 80%",
         `  Score achieved: ${score !== null ? `${score}%` : "—"}`,
         "",
         "You can also download your certificate at any time from the app.",
@@ -65,5 +66,6 @@ export async function sendCertificateEmail(
     logger.info({ userId: user.id, email: user.email }, "Certificate email sent");
   } catch (err) {
     logger.error({ err, userId: user.id }, "Failed to send certificate email");
+    throw err;
   }
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FileText, Download, ArrowLeft, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { downloadPdf } from "../lib/downloadPdf";
+import { useToast } from "@/hooks/use-toast";
 
 type Doc = {
   title: string;
@@ -77,7 +78,7 @@ const SECTIONS: Section[] = [
       },
       {
         title: "Assessment Policy",
-        description: "Assessment design principles, validity, reliability, fairness, the 80% pass threshold, unlimited retries, and marking criteria.",
+        description: "Assessment design principles, validity, reliability, fairness, 100% required for each module quiz, 80% required for the final exam, unlimited retries, and marking criteria.",
         file: "Assessment_Policy.pdf",
         pages: "3 pages",
       },
@@ -117,13 +118,23 @@ const SECTIONS: Section[] = [
 
 function DocCard({ doc, base }: { doc: Doc; base: string }) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   async function handleDownload() {
     if (loading) return;
     setLoading(true);
-    const url = `${base}/pdfs/${doc.file}`;
-    await downloadPdf(url, doc.file);
-    setLoading(false);
+    try {
+      const url = `${base}/pdfs/${doc.file}`;
+      await downloadPdf(url, doc.file);
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not download PDF",
+        description: "Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

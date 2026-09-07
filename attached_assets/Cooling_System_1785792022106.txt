@@ -1,0 +1,52 @@
+00:00:01:07 - 00:00:06:07
+Unknown
+This video is about the cooling system, which uses airflow for cooling.
+
+00:00:06:10 - 00:00:15:15
+Unknown
+Where is the cooling system? The cooling system is comprised of the flywheel and the cylinder fins.
+
+00:00:15:17 - 00:00:23:23
+Unknown
+The flywheel is found underneath the recoil side cover, and the cylinder fins can found under the main top cover.
+
+00:00:23:26 - 00:00:30:21
+Unknown
+What does it do? Its function is to cool the main cylinder block and prevent overheating of the engine.
+
+00:00:30:23 - 00:00:45:14
+Unknown
+As the flywheel spins, it draws air in up, across and through the cylinder fins, allowing a constant flow of air. Some air is also fed to the air filter.
+
+00:00:45:17 - 00:00:48:06
+Unknown
+How do you maintain it?
+
+00:00:48:09 - 00:00:55:25
+Unknown
+Unscrew the four bolts on the recoil housing on some saws. You will have to remove the top cover to access one of the bolts.
+
+00:00:55:28 - 00:00:59:03
+Unknown
+Check for damage and clean all vents.
+
+00:00:59:06 - 00:01:09:18
+Unknown
+Inspect the flywheel and cylinder fins for any cracks, dense missing fins or build up of debris and clean them with a soft brush or airline.
+
+00:01:09:20 - 00:01:16:09
+Unknown
+Avoid using any metal tools on the fins as this could damage them.
+
+00:01:16:11 - 00:01:23:29
+Unknown
+If flywheel or cylinder fins are damaged or missing, replace immediately
+
+00:01:24:01 - 00:01:31:17
+Unknown
+before putting the cover back on. See the video on the recoil assembly.
+
+00:01:31:20 - 00:01:34:09
+Unknown
+This concludes the video on the cooling system.
+

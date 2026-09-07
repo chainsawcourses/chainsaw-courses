@@ -7,7 +7,8 @@ type Phase = "logo-in" | "expand" | "content" | "leaving";
 
 const DEFAULT_INTRO = "Thank you for purchasing the course. Here's a quick guide to help you get started.";
 const DEFAULT_STEPS = [
-  "Work through the 7 training modules in order — each one unlocks after you watch the video and pass the quiz (80% to pass).",
+  "Work through the 7 training modules in order — watch each video in full and score 100% on its quiz to unlock the next module.",
+  "After every video module is complete, the final exam requires 80% to pass.",
   "Use the AI Mock Test when you're ready to practise for the written exam.",
   "The Inspection Checklist and Risk Assessment are standalone tools for your real-world use.",
   "The Biosecurity Map, Chain Chart, Species Guide, and Cross-Cut Simulator are all available from the main menu.",
@@ -20,7 +21,7 @@ interface WelcomeConfig {
 }
 
 export default function WelcomeModal() {
-  const { userId } = useUserSession();
+  const { userId, assignedTo } = useUserSession();
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<Phase>("logo-in");
   const [config, setConfig] = useState<WelcomeConfig>({ intro: DEFAULT_INTRO, steps: DEFAULT_STEPS });
@@ -59,8 +60,19 @@ export default function WelcomeModal() {
 
   const dismiss = () => {
     if (userId) localStorage.setItem(`welcome_seen_${userId}`, "1");
+    // The focused button is inside the fixed welcome overlay. When it is
+    // removed, browsers and native WebViews may scroll the underlying page to
+    // the nearest focusable item (currently the first video). Clear focus
+    // before removing the overlay and restore the main screen's scroll
+    // position after the fade-out has completed.
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     setPhase("leaving");
-    setTimeout(() => setMounted(false), 600);
+    setTimeout(() => {
+      setMounted(false);
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, 600);
   };
 
   if (!mounted) return null;
@@ -79,13 +91,14 @@ export default function WelcomeModal() {
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
-        padding: "72px 16px 16px",
+        padding: "max(24px, calc(env(safe-area-inset-top, 0px) + 16px)) 16px 16px",
         background: "rgba(0,0,0,0.72)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
         opacity: isLeaving ? 0 : 1,
         transition: "opacity 600ms ease",
       }}
+      className="welcome-overlay"
     >
       {/* Card */}
       <div
@@ -100,6 +113,8 @@ export default function WelcomeModal() {
           boxShadow: "0 25px 60px -10px rgba(0,0,0,0.5)",
           transition: "width 750ms cubic-bezier(0.34,1.4,0.64,1), border-radius 750ms cubic-bezier(0.34,1.4,0.64,1)",
         }}
+        className="welcome-modal-card"
+        data-phase={phase}
       >
         {/* Logo area — fixed 164px height while circular so we get a perfect circle */}
         <div
@@ -108,23 +123,25 @@ export default function WelcomeModal() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            paddingTop: isCircle ? 0 : 28,
-            paddingBottom: isCircle ? 0 : 4,
+            paddingTop: isCircle ? 0 : 20,
+            paddingBottom: isCircle ? 0 : 2,
             transition: "height 750ms cubic-bezier(0.34,1.4,0.64,1), padding 750ms ease",
           }}
+          className="welcome-modal-logo-area"
         >
           <img
             src={`${BASE}logo.png`}
             alt="Chainsaw Courses"
             style={{
-              width: isCircle ? 100 : 80,
-              height: isCircle ? 100 : 80,
+              width: isCircle ? 100 : 64,
+              height: isCircle ? 100 : 64,
               objectFit: "contain",
               opacity: logoVisible ? 1 : 0,
               transform: logoVisible ? "scale(1)" : "scale(0.85)",
               transition: "opacity 700ms ease, transform 700ms ease, width 750ms ease, height 750ms ease",
               transitionDelay: phase === "logo-in" ? "100ms" : "0ms",
             }}
+            className="welcome-modal-logo"
           />
         </div>
 
@@ -132,52 +149,74 @@ export default function WelcomeModal() {
         <div
           style={{
             width: "100%",
-            maxHeight: showContent ? 600 : 0,
+            maxHeight: showContent ? "min(520px, calc(100dvh - 132px))" : 0,
             opacity: showContent ? 1 : 0,
-            overflow: "hidden",
+            overflowY: showContent ? "auto" : "hidden",
+            overflowX: "hidden",
             transition: "max-height 600ms ease, opacity 500ms ease",
             transitionDelay: showContent ? "120ms" : "0ms",
           }}
         >
-          <div style={{ padding: "4px 24px 28px", textAlign: "center" }}>
+          <div style={{ padding: "4px 20px 20px", textAlign: "center" }} className="welcome-modal-content">
 
             <h2
               style={{
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "1.4rem",
+                fontSize: "1.12rem",
                 fontWeight: 900,
                 textTransform: "uppercase",
                 letterSpacing: "-0.02em",
                 color: "#b45309",
-                margin: "0 0 4px",
+                margin: "0 0 3px",
               }}
             >
               Welcome!
             </h2>
 
+            {assignedTo && (
+              <p
+                style={{
+                  fontFamily: "ui-monospace, monospace",
+                  fontSize: "0.66rem",
+                  color: "#b45309",
+                  fontWeight: 600,
+                  margin: "0 0 9px",
+                  padding: "4px 8px",
+                  background: "#fef3c7",
+                  borderRadius: 6,
+                  border: "1px solid #fde68a",
+                }}
+                className="welcome-modal-assigned"
+              >
+                This course was arranged for you by <strong>{assignedTo}</strong>
+              </p>
+            )}
+
             <p
               style={{
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "0.775rem",
+                fontSize: "0.68rem",
                 color: "#6b7280",
-                lineHeight: 1.65,
-                margin: "0 0 20px",
+                lineHeight: 1.5,
+                margin: "0 0 14px",
               }}
+                className="welcome-modal-intro"
             >
               {config.intro}
             </p>
 
-            <div style={{ textAlign: "left", marginBottom: 22 }}>
+            <div style={{ textAlign: "left", marginBottom: 16 }}>
               {config.steps.map((text, i) => (
                 <p
                   key={i}
                   style={{
                     fontFamily: "ui-monospace, monospace",
-                    fontSize: "0.72rem",
+                    fontSize: "0.65rem",
                     color: "#111827",
-                    lineHeight: 1.65,
-                    margin: "0 0 11px",
+                    lineHeight: 1.48,
+                    margin: "0 0 8px",
                   }}
+                  className="welcome-modal-step"
                 >
                   {text}
                 </p>
@@ -188,13 +227,13 @@ export default function WelcomeModal() {
               onClick={dismiss}
               style={{
                 width: "100%",
-                padding: "11px 0",
+                padding: "9px 0",
                 background: "#b45309",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: 8,
                 fontFamily: "ui-monospace, monospace",
-                fontSize: "0.85rem",
+                fontSize: "0.75rem",
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",

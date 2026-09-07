@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable, quizQuestionsTable } from "@workspace/db";
+import { modulesTable, userProgressTable, quizQuestionsTable, activationCodesTable } from "@workspace/db";
 import { eq, asc, and, sql, count } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
@@ -22,11 +22,15 @@ router.get("/modules", async (req, res) => {
     return;
   }
 
-  // Demo mode: return all modules with only specific video modules unlocked
+  // Check if this activation code unlocks all modules (e.g. reviewer codes)
+  const [codeRow] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+  const allUnlocked = codeRow?.allModulesUnlocked ?? false;
+
+  // Demo mode: return all modules with only the selected preview videos unlocked
   if (user.id === 0) {
     const DEMO_UNLOCKED_TITLES = ["Spark Plug", "Chain Basics", "Bore Cutting"];
     const allMods = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order));
-    return res.json(allMods.map((mod) => {
+    res.json(allMods.map((mod) => {
       const isCourseReq = mod.category === "COURSE REQUIREMENTS";
       const unlocked = isCourseReq || DEMO_UNLOCKED_TITLES.includes(mod.title);
       return {
@@ -43,10 +47,51 @@ router.get("/modules", async (req, res) => {
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       };
     }));
+    return;
+  }
+
+  // Reviewer / all-modules-unlocked codes: every module accessible, no sequential gating
+  if (allUnlocked) {
+    const [allMods, progressRecords] = await Promise.all([
+      db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
+      db.select().from(userProgressTable).where(eq(userProgressTable.userId, user.id)),
+    ]);
+    const progressMap = new Map<number, (typeof progressRecords)[number]>();
+    for (const progress of progressRecords) {
+      const existing = progressMap.get(progress.moduleId);
+      if (!existing || (progress.updatedAt ?? progress.id) > (existing.updatedAt ?? existing.id)) {
+        progressMap.set(progress.moduleId, progress);
+      }
+    }
+    res.json(allMods.map((mod) => {
+      // Reviewer codes bypass locking, but must still see the signed-in user's
+      // actual completion state when they have completed a module or quiz.
+      const progress = progressMap.get(mod.id);
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: false,
+        isCompleted: !!progress?.videoCompleted,
+        quizPassed: !!progress?.quizPassed,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+      };
+    }));
+    return;
   }
 
   try {
@@ -94,9 +139,13 @@ router.get("/modules", async (req, res) => {
         prevMod === null ||   // no gating module (first video, or all prior are PDF-only)
         !!(prevProgress?.videoCompleted && (!prevHasQuiz || prevProgress?.quizPassed));
       const alreadyStarted = !!progress?.videoCompleted;
-      // COURSE REQUIREMENTS modules are always accessible — they are prerequisites,
-      // not gated behind each other.
-      const isLocked = mod.category !== "COURSE REQUIREMENTS" && !prevComplete && !alreadyStarted;
+      // PDF modules are reference documents and must remain available throughout
+      // the course. COURSE REQUIREMENTS modules are also always accessible.
+      const isLocked =
+        mod.contentType !== "pdf" &&
+        mod.category !== "COURSE REQUIREMENTS" &&
+        !prevComplete &&
+        !alreadyStarted;
 
       return {
         id: mod.id,
@@ -112,6 +161,7 @@ router.get("/modules", async (req, res) => {
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
+        pdfUrl: mod.pdfUrl ?? null,
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       };
@@ -140,6 +190,10 @@ router.get("/modules/:moduleId", async (req, res) => {
     return;
   }
 
+  // Check if this activation code unlocks all modules
+  const [codeRow2] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+  const allUnlocked2 = codeRow2?.allModulesUnlocked ?? false;
+
   try {
     const [mod] = await db
       .select()
@@ -153,7 +207,7 @@ router.get("/modules/:moduleId", async (req, res) => {
 
     // Demo mode: no locking logic needed — just return the module with no progress
     if (user.id === 0) {
-      return res.json({
+      res.json({
         id: mod.id,
         title: mod.title,
         description: mod.description,
@@ -172,6 +226,38 @@ router.get("/modules/:moduleId", async (req, res) => {
         learningOutcome: mod.learningOutcome ?? null,
         assessmentCriteria: mod.assessmentCriteria ?? null,
       });
+      return;
+    }
+
+    // Reviewer / all-modules-unlocked: skip locking but still return real quizCount
+    if (allUnlocked2) {
+      const [quizCountRow] = await db
+        .select({ count: count() })
+        .from(quizQuestionsTable)
+        .where(eq(quizQuestionsTable.moduleId, moduleId));
+      res.json({
+        id: mod.id,
+        title: mod.title,
+        description: mod.description,
+        order: mod.order,
+        category: mod.category,
+        subCategory: mod.subCategory ?? null,
+        contentType: mod.contentType,
+        isLocked: false,
+        isCompleted: false,
+        quizPassed: false,
+        duration: mod.duration,
+        thumbnailUrl: mod.thumbnailUrl ?? null,
+        vimeoId: mod.vimeoId ?? null,
+        pdfUrl: mod.pdfUrl ?? null,
+        isHighRisk: mod.isHighRisk,
+        learningOutcome: mod.learningOutcome ?? null,
+        assessmentCriteria: mod.assessmentCriteria ?? null,
+        lastTimestamp: null,
+        safetyText: mod.safetyText ?? null,
+        quizCount: quizCountRow?.count ?? 0,
+      });
+      return;
     }
 
     const allModules = await db
@@ -215,8 +301,8 @@ router.get("/modules/:moduleId", async (req, res) => {
         ? prevProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
         : null;
       const prevComplete = !!(prevLatest?.videoCompleted && (!prevHasQuiz || prevLatest?.quizPassed));
-      // COURSE REQUIREMENTS modules are always accessible
-      if (mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
+      // PDF reference modules and COURSE REQUIREMENTS modules are always accessible.
+      if (mod.contentType !== "pdf" && mod.category !== "COURSE REQUIREMENTS" && !prevComplete) {
         // Only lock if the student hasn't already watched this module before
         const ownProgressAll = await db
           .select()

@@ -12,9 +12,10 @@ import {
   videoEngagementTable,
   moduleFeedbackTable,
   examAttemptsTable,
+  reasonableAdjustmentsTable,
 } from "@workspace/db";
 import { ActivateCodeBody } from "@workspace/api-zod";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, or, gte } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -39,24 +40,42 @@ router.post("/auth/activate", async (req, res) => {
         return { error: "Invalid activation code", status: 400 };
       }
 
-      // Unlimited codes: look up by code + deviceId + name + email so each
+      if (activation.isPaused) {
+        return { error: "This access code has been temporarily paused. Please contact support.", status: 403 };
+      }
+
+      // Unlimited codes: look up by code + name + email so each
       // distinct person gets their own user record and must sign their own waiver.
       if (activation.isUnlimited) {
         const normalizedName = fullName.trim().toLowerCase();
         const normalizedEmail = email.trim().toLowerCase();
 
-        const sameDeviceUsers = await tx
+        // For all-modules-unlocked (reviewer) codes, ignore device binding entirely
+        // so the same session works across any device. Store a fixed placeholder deviceId.
+        const storedDeviceId = activation.allModulesUnlocked ? "reviewer-any-device" : deviceId;
+
+        const codeUsers = await tx
           .select()
           .from(usersTable)
-          .where(and(eq(usersTable.activationCode, code), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+          .where(and(eq(usersTable.activationCode, code), isNull(usersTable.deletedAt)));
 
-        const existingUser = sameDeviceUsers.find(
+        const existingUser = codeUsers.find(
           (u) =>
             u.fullName.trim().toLowerCase() === normalizedName &&
             u.email.trim().toLowerCase() === normalizedEmail
         );
 
         if (existingUser) {
+          // Unlimited codes identify a returning learner by their name and email.
+          // When that learner activates on a replacement device, the successful
+          // activation must update the device bond as well; otherwise every
+          // follow-up request is rejected because it still points at the old device.
+          if (!activation.allModulesUnlocked && existingUser.deviceId !== deviceId) {
+            await tx
+              .update(usersTable)
+              .set({ deviceId })
+              .where(eq(usersTable.id, existingUser.id));
+          }
           const [waiver] = await tx.select().from(waiversTable).where(eq(waiversTable.userId, existingUser.id));
           return {
             success: true,
@@ -67,11 +86,10 @@ router.post("/auth/activate", async (req, res) => {
           };
         }
 
-        // Different person (or new device) — create a fresh user record
-        // Unlimited codes have no access expiry (null = unlimited)
+        // New person — create a fresh user record with no access expiry
         const [newUser] = await tx
           .insert(usersTable)
-          .values({ activationCode: code, fullName, email, deviceId })
+          .values({ activationCode: code, fullName, email, deviceId: storedDeviceId })
           .returning();
 
         return {
@@ -177,12 +195,26 @@ async function resolveUser(activationCode: string, deviceId: string, userId?: nu
     return DEMO_USER_OBJ;
   }
 
+  // Check if this is a reviewer / all-modules-unlocked code — these are device-agnostic
+  const [codeRecord] = await db
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked, isPaused: activationCodesTable.isPaused })
+    .from(activationCodesTable)
+    .where(eq(activationCodesTable.code, normalizedCode));
+  const deviceAgnostic = codeRecord?.allModulesUnlocked ?? false;
+
+  // Paused codes are treated as unauthorised for all session requests
+  if (codeRecord?.isPaused) return null;
+
   // Fast path: when the client supplies its own userId, verify it directly.
   if (userId) {
     const [user] = await db
       .select()
       .from(usersTable)
-      .where(and(eq(usersTable.id, userId), eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)));
+      .where(
+        deviceAgnostic
+          ? and(eq(usersTable.id, userId), eq(usersTable.activationCode, normalizedCode), isNull(usersTable.deletedAt))
+          : and(eq(usersTable.id, userId), eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt))
+      );
     return user ?? null;
   }
 
@@ -190,7 +222,11 @@ async function resolveUser(activationCode: string, deviceId: string, userId?: nu
   const [user] = await db
     .select()
     .from(usersTable)
-    .where(and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt)))
+    .where(
+      deviceAgnostic
+        ? and(eq(usersTable.activationCode, normalizedCode), isNull(usersTable.deletedAt))
+        : and(eq(usersTable.activationCode, normalizedCode), eq(usersTable.deviceId, deviceId), isNull(usersTable.deletedAt))
+    )
     .orderBy(usersTable.id);
 
   return user ?? null;
@@ -224,6 +260,27 @@ router.get("/auth/me", async (req, res) => {
     ? Math.max(0, Math.ceil((user.accessExpiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
     : null;
 
+  // Fetch allModulesUnlocked + assignedTo flag for this activation code
+  const [codeFlags] = await db
+    .select({ allModulesUnlocked: activationCodesTable.allModulesUnlocked, assignedTo: activationCodesTable.assignedTo })
+    .from(activationCodesTable)
+    .where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
+
+  // Fetch active reasonable adjustments for this user
+  const adjustmentRows = await db
+    .select({ adjustmentType: reasonableAdjustmentsTable.adjustmentType })
+    .from(reasonableAdjustmentsTable)
+    .where(
+      and(
+        eq(reasonableAdjustmentsTable.userId, user.id),
+        or(
+          isNull(reasonableAdjustmentsTable.expiresAt),
+          gte(reasonableAdjustmentsTable.expiresAt, now)
+        )
+      )
+    );
+  const activeAdjustments = adjustmentRows.map(r => r.adjustmentType);
+
   res.json({
     id: user.id,
     fullName: user.fullName,
@@ -235,6 +292,9 @@ router.get("/auth/me", async (req, res) => {
     accessExpiresAt: user.accessExpiresAt?.toISOString() ?? null,
     courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
     daysRemaining,
+    allModulesUnlocked: codeFlags?.allModulesUnlocked ?? false,
+    assignedTo: codeFlags?.assignedTo ?? null,
+    activeAdjustments,
   });
 });
 

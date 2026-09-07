@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Pencil, Trash2, MapPin, Star, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, MapPin, Star, Users, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { getAdminApiError } from "../../lib/adminApiError";
 
 interface Venue {
   id: number;
@@ -50,6 +51,8 @@ export default function AdminGateway() {
   const [loading, setLoading] = useState(true);
   const [editingVenue, setEditingVenue] = useState<Partial<Venue> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [togglingVenueId, setTogglingVenueId] = useState<number | null>(null);
 
   const headers = { admintoken: adminToken ?? "", "Content-Type": "application/json" };
 
@@ -72,13 +75,27 @@ export default function AdminGateway() {
 
   const saveVenue = async () => {
     if (!editingVenue) return;
+    if (!String(editingVenue.name ?? "").trim()) {
+      setSaveError("Please enter a venue name.");
+      return;
+    }
+
+    setSaveError("");
     setSaving(true);
     try {
       const isNew = !editingVenue.id;
       const url = isNew ? "/api/admin/gateway/venues" : `/api/admin/gateway/venues/${editingVenue.id}`;
       const method = isNew ? "POST" : "PUT";
       const r = await fetch(url, { method, headers, body: JSON.stringify(editingVenue) });
-      if (r.ok) { setEditingVenue(null); await loadVenues(); }
+      if (r.ok) {
+        setEditingVenue(null);
+        setSaveError("");
+        await loadVenues();
+        return;
+      }
+      setSaveError(await getAdminApiError(r));
+    } catch {
+      setSaveError("The venue could not be saved. Please check your connection and try again.");
     } finally { setSaving(false); }
   };
 
@@ -86,6 +103,24 @@ export default function AdminGateway() {
     if (!confirm("Permanently delete this venue? This cannot be undone.")) return;
     await fetch(`/api/admin/gateway/venues/${id}`, { method: "DELETE", headers });
     await loadVenues();
+  };
+
+  const toggleVenueVisibility = async (venue: Venue) => {
+    if (togglingVenueId !== null) return;
+    setTogglingVenueId(venue.id);
+    try {
+      const r = await fetch(`/api/admin/gateway/venues/${venue.id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ ...venue, active: !venue.active }),
+      });
+      if (r.ok) {
+        const updated = await r.json() as Venue;
+        setVenues(current => current.map(item => item.id === updated.id ? updated : item));
+      }
+    } finally {
+      setTogglingVenueId(null);
+    }
   };
 
   const resolveEnquiry = async (id: number) => {
@@ -122,7 +157,7 @@ export default function AdminGateway() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <h2 className="font-mono font-bold uppercase tracking-widest text-sm">Assessment Venues</h2>
-              <Button size="sm" className="font-mono tracking-widest text-xs gap-1.5" onClick={() => setEditingVenue({ ...EMPTY_VENUE })}>
+              <Button size="sm" className="font-mono tracking-widest text-xs gap-1.5" onClick={() => { setSaveError(""); setEditingVenue({ ...EMPTY_VENUE }); }}>
                 <Plus className="w-3.5 h-3.5" /> Add Venue
               </Button>
             </div>
@@ -138,21 +173,24 @@ export default function AdminGateway() {
                       ["phone", "Phone"], ["website", "Website (optional)"],
                     ] as [keyof Venue, string][]).map(([field, label]) => (
                       <div key={field}>
-                        <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">{label}</label>
+                        <label htmlFor={`gateway-venue-${field}`} className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">
+                          {label}{field === "name" || field === "postcode" ? " *" : ""}
+                        </label>
                         <input
+                          id={`gateway-venue-${field}`}
                           value={(editingVenue[field] as string) ?? ""}
-                          onChange={e => setEditingVenue(prev => ({ ...prev!, [field]: e.target.value }))}
+                          onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, [field]: e.target.value })); }}
                           className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono"
                         />
                       </div>
                     ))}
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude</label>
-                      <input type="number" step="0.0001" value={editingVenue.lat ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, lat: parseFloat(e.target.value) }))} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label htmlFor="gateway-venue-lat" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Latitude (optional — found from postcode)</label>
+                      <input id="gateway-venue-lat" type="number" step="0.0001" value={editingVenue.lat || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lat: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
-                      <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude</label>
-                      <input type="number" step="0.0001" value={editingVenue.lng ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, lng: parseFloat(e.target.value) }))} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
+                      <label htmlFor="gateway-venue-lng" className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Longitude (optional — found from postcode)</label>
+                      <input id="gateway-venue-lng" type="number" step="0.0001" value={editingVenue.lng || ""} onChange={e => { setSaveError(""); setEditingVenue(prev => ({ ...prev!, lng: e.target.value === "" ? undefined : Number(e.target.value) })); }} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm font-mono" />
                     </div>
                     <div>
                       <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Tier</label>
@@ -161,17 +199,26 @@ export default function AdminGateway() {
                         <option value="silver">Silver — Directory</option>
                       </select>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
-                      <label className="font-mono text-xs">Active (visible on map)</label>
-                    </div>
+                    {editingVenue.id ? (
+                      <div className="flex items-center gap-2">
+                        <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
+                        <label className="font-mono text-xs">Active (visible on map)</label>
+                      </div>
+                    ) : (
+                      <p className="self-center text-xs font-semibold text-[#e27226]">New venues are added to the map immediately.</p>
+                    )}
                   </div>
                   <div>
                     <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block mb-1">Internal Notes</label>
                     <textarea value={editingVenue.notes ?? ""} onChange={e => setEditingVenue(prev => ({ ...prev!, notes: e.target.value }))} rows={2} className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-sm resize-none" />
                   </div>
+                  {saveError && (
+                    <p role="alert" className="rounded border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
+                      {saveError}
+                    </p>
+                  )}
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="font-mono tracking-widest text-xs" onClick={() => setEditingVenue(null)}>Cancel</Button>
+                    <Button variant="outline" size="sm" className="font-mono tracking-widest text-xs" onClick={() => { setSaveError(""); setEditingVenue(null); }}>Cancel</Button>
                     <Button size="sm" className="font-mono tracking-widest text-xs" disabled={saving} onClick={saveVenue}>
                       {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null} Save Venue
                     </Button>
@@ -185,7 +232,7 @@ export default function AdminGateway() {
                 {venues.length === 0 && <p className="font-mono text-xs text-muted-foreground text-center py-8">No venues yet — add one above.</p>}
                 {venues.map(v => (
                   <Card key={v.id} className={`border-border ${!v.active ? "opacity-50" : ""}`}>
-                    <CardContent className="p-3 flex items-center justify-between gap-3">
+                    <CardContent className="p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-2 h-2 rounded-full shrink-0 ${v.tier === "gold" ? "bg-amber-400" : "bg-gray-400"}`} />
                         <div className="min-w-0">
@@ -193,10 +240,30 @@ export default function AdminGateway() {
                           <div className="font-mono text-[10px] text-muted-foreground">{v.town}, {v.county} · {v.postcode} · {v.email}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2 flex-wrap sm:justify-end">
+                        <Badge variant="outline" className={`font-mono text-[10px] ${v.active ? "border-green-500/40 text-green-700 dark:text-green-400" : "border-muted-foreground/30 text-muted-foreground"}`}>
+                          {v.active ? "Visible" : "Hidden"}
+                        </Badge>
                         <Badge variant="outline" className={`font-mono text-[10px] ${v.tier === "gold" ? "border-amber-400/50 text-amber-600" : ""}`}>
                           {v.tier === "gold" ? "⭐ Gold" : "Silver"}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2 font-mono text-[10px] gap-1"
+                          onClick={() => toggleVenueVisibility(v)}
+                          disabled={togglingVenueId !== null}
+                          title={v.active ? "Hide this venue from the Gateway map" : "Show this venue on the Gateway map"}
+                        >
+                          {togglingVenueId === v.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : v.active ? (
+                            <EyeOff className="w-3.5 h-3.5" />
+                          ) : (
+                            <Eye className="w-3.5 h-3.5" />
+                          )}
+                          {v.active ? "Hide" : "Show"}
+                        </Button>
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditingVenue({ ...v })}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>

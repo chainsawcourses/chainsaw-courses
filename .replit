@@ -1,4 +1,4 @@
-modules = ["nodejs-24", "python-3.11", "postgresql-16"]
+modules = ["nodejs-24", "python-3.11", "java-graalvm22.3", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -11,6 +11,71 @@ env = { "CI" = "true" }
 [workflows]
 runButton = "Project"
 
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-routes"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "typecheck-generated"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "api-spec-test"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-generated"
+
+[[workflows.workflow]]
+name = "check-routes"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-spec run check-routes"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "typecheck-generated"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-spec run typecheck"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "api-spec-test"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-spec run test"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "check-generated"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/api-spec run check-generated"
+
+[workflows.workflow.metadata]
+isValidation = true
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
@@ -22,11 +87,12 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+packages = ["glib", "nspr", "nss", "atk", "at-spi2-atk", "dbus", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "xorg.libxcb", "libxkbcommon", "alsa-lib", "at-spi2-core", "libgbm"]
 
 [userenv]
 
 [userenv.shared]
-ADMIN_PASSWORD = "pigplums"
+ADMIN_PASSWORD = "CHAIN26"
 VAPID_PUBLIC_KEY = "BDR2Y5H4WerxIjaMvMdnBm58GItDh38sSkKQgnjLua-CXFqr_yOfcX-dT_f1MM1nTGRtorMq20klzTujCLSlJHw"
 VAPID_PRIVATE_KEY = "u0PqDiMxZ4TaY-ek_f4tOCPHY4cBk8d-dhYSwyRojGs"
 VAPID_EMAIL = "mailto:admin@chainsawcourses.co.uk"

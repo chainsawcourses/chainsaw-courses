@@ -12,4 +12,5 @@ export interface StudentQuizResult {
   passed: boolean;
   score: number;
   attemptedAt: string;
+  totalAttempts?: number;
 }

@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { db, newsItemsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
 import { fetchAllFeeds } from "../lib/rssFetcher";
 import { z } from "zod/v4";
 import { sendPushToAll } from "./push";
+import { eq, desc, and, isNull, notInArray } from "drizzle-orm";
+import { tagNewsArticle, TagOutcome } from "../lib/newsTagging";
 
 const router = Router();
 
@@ -56,15 +57,56 @@ router.get("/admin/news/pending", async (req, res) => {
   }
 });
 
-// Admin: manually trigger RSS fetch
+// Admin: manually trigger RSS fetch + tag any untagged approved articles
 router.post("/admin/news/fetch-now", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
     const result = await fetchAllFeeds();
-    res.json(result);
+
+    const untagged = await db
+      .select({ id: newsItemsTable.id, title: newsItemsTable.title, excerpt: newsItemsTable.excerpt })
+      .from(newsItemsTable)
+      .where(and(eq(newsItemsTable.status, "approved"), isNull(newsItemsTable.learningOutcome)));
+
+    let tagged = 0;
+    let errors = 0;
+    for (const article of untagged) {
+      const outcome: TagOutcome = await tagNewsArticle(article.id, article.title, article.excerpt)
+        .catch((): TagOutcome => "failed");
+      if (outcome !== "failed") tagged++;
+      else errors++;
+    }
+
+    res.json({ ...result, tagged, errors });
   } catch (err) {
-    logger.error({ err }, "Manual RSS fetch failed");
-    res.status(500).json({ error: "Fetch failed" });
+    logger.error({ err }, "Failed to fetch news");
+    res.status(500).json({ error: "Failed to fetch news" });
+  }
+});
+
+// Admin: retag all approved articles that have no LO/AC assigned
+router.post("/admin/news/retag-all", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const untagged = await db
+      .select({ id: newsItemsTable.id, title: newsItemsTable.title, excerpt: newsItemsTable.excerpt })
+      .from(newsItemsTable)
+      .where(and(eq(newsItemsTable.status, "approved"), isNull(newsItemsTable.learningOutcome)));
+
+    const total = untagged.length;
+    let tagged = 0;
+    let errors = 0;
+    for (const article of untagged) {
+      const outcome: TagOutcome = await tagNewsArticle(article.id, article.title, article.excerpt)
+        .catch((): TagOutcome => "failed");
+      if (outcome !== "failed") tagged++;
+      else errors++;
+    }
+
+    res.json({ total, tagged, errors });
+  } catch (err) {
+    logger.error({ err }, "Failed to retag news items");
+    res.status(500).json({ error: "Failed to retag news items" });
   }
 });
 
@@ -81,11 +123,8 @@ router.post("/admin/news/:id/approve", async (req, res) => {
       .returning();
     if (!item) { res.status(404).json({ error: "Not found" }); return; }
     res.json(item);
-    void sendPushToAll({
-      title: "🌳 Forestry & Arb News 🌳",
-      body: item.title,
-      url: item.url,
-    }).catch((err) => logger.warn({ err }, "Push notification failed after approve"));
+    void tagNewsArticle(item.id, item.title, item.excerpt)
+      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after approve"));
   } catch (err) {
     logger.error({ err }, "Failed to approve news item");
     res.status(500).json({ error: "Failed to approve" });
@@ -110,7 +149,7 @@ router.post("/admin/news/:id/reject", async (req, res) => {
   }
 });
 
-// Admin: create manual item (auto-approved)
+// Admin: create a manual news item (auto-approved)
 router.post("/admin/news", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const parse = CreateNewsItemBody.safeParse(req.body);
@@ -119,9 +158,18 @@ router.post("/admin/news", async (req, res) => {
   try {
     const [item] = await db
       .insert(newsItemsTable)
-      .values({ title, excerpt, url, imageUrl: imageUrl ?? null, publishedAt: new Date(publishedAt), status: "approved" })
+      .values({
+        title,
+        excerpt,
+        url,
+        imageUrl: imageUrl ?? null,
+        publishedAt: new Date(publishedAt),
+        status: "approved",
+      })
       .returning();
     res.status(201).json(item);
+    void tagNewsArticle(item.id, item.title, item.excerpt)
+      .catch((err) => logger.warn({ err }, "LO/AC tagging failed after create"));
     void sendPushToAll({
       title: "🌳 Forestry & Arb News 🌳",
       body: item.title,
@@ -133,7 +181,7 @@ router.post("/admin/news", async (req, res) => {
   }
 });
 
-// Admin: update item
+// Admin: update item fields
 router.patch("/admin/news/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);
@@ -160,7 +208,34 @@ router.patch("/admin/news/:id", async (req, res) => {
   }
 });
 
-// Admin: delete item
+// Admin: keep 20 most recent approved articles, delete the rest
+router.delete("/admin/news/purge-old", async (req, res) => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const keep = await db
+      .select({ id: newsItemsTable.id })
+      .from(newsItemsTable)
+      .where(eq(newsItemsTable.status, "approved"))
+      .orderBy(desc(newsItemsTable.publishedAt))
+      .limit(20);
+
+    const keepIds = keep.map(r => r.id);
+
+    const deleted = keepIds.length === 0
+      ? await db.delete(newsItemsTable).where(eq(newsItemsTable.status, "approved")).returning()
+      : await db.delete(newsItemsTable)
+          .where(and(eq(newsItemsTable.status, "approved"), notInArray(newsItemsTable.id, keepIds)))
+          .returning();
+
+    logger.info({ deleted: deleted.length, kept: keepIds.length }, "Purged old news articles");
+    res.json({ deleted: deleted.length, kept: keepIds.length });
+  } catch (err) {
+    logger.error({ err }, "Failed to purge old news");
+    res.status(500).json({ error: "Failed to purge old news" });
+  }
+});
+
+// Admin: delete a specific item
 router.delete("/admin/news/:id", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   const id = parseInt(req.params.id, 10);

@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, Building2, CheckCircle2, ClipboardCheck, ClipboardList, Download, ExternalLink, FileText, Globe, LogOut, MapPin, MessageSquare, Newspaper, Phone, Plus, QrCode, Search, ShieldCheck, Star, Users, Users2, Video, X, XCircle } from "lucide-react";
+import { AlertTriangle, Award, BarChart2, Biohazard, BookOpen, CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList, ExternalLink, FileText, Infinity, KeyRound, LogOut, MapPin, MessageSquare, Newspaper, Pause, Play, Plus, QrCode, Search, ShieldCheck, Star, Trash2, Users, Users2, Video, X, XCircle } from "lucide-react";
 import {
   useGetAdminStats,
   useListStudents,
@@ -21,21 +21,7 @@ import {
   getListAllRiskAssessmentsQueryKey,
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
-
-interface Venue {
-  id: number;
-  name: string;
-  address: string;
-  town: string;
-  county: string;
-  postcode: string;
-  email: string;
-  phone: string;
-  website?: string;
-  tier: string;
-  active: boolean;
-  notes?: string;
-}
+import { appPath } from "../../lib/routing";
 
 type SearchCategory = "students" | "inspections" | "risk" | "news";
 
@@ -68,8 +54,85 @@ export default function AdminDashboard() {
   const [newCodeNotes, setNewCodeNotes] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
 
+  type AccessCode = {
+    id: number; code: string; isUsed: boolean; isUnlimited: boolean;
+    allModulesUnlocked: boolean; isPaused: boolean; notes: string | null;
+    assignedTo: string | null; createdAt: string; userCount: number;
+  };
   type BackupLog = { id: number; testedAt: string; testedBy: string; outcome: string; notes: string | null; createdAt: string };
   type BackupExport = { id: number; title: string; sheetUrl: string; folderId: string | null; rowCount: number; exportedAt: string };
+  const [accessCodes, setAccessCodes] = useState<AccessCode[]>([]);
+  const [accessCodesLoading, setAccessCodesLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [dataBackupOpen, setDataBackupOpen] = useState(true);
+  const [accessCodesOpen, setAccessCodesOpen] = useState(true);
+  const [studentRosterOpen, setStudentRosterOpen] = useState(true);
+  const [editingName, setEditingName] = useState<string | null>(null); // code being edited
+  const [editingNameValue, setEditingNameValue] = useState("");
+
+  const handleSaveAssignedTo = async (code: string) => {
+    if (!adminToken) return;
+    const trimmed = editingNameValue.trim();
+    try {
+      const res = await fetch(`/api/admin/codes/${code}/assign`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", admintoken: adminToken },
+        body: JSON.stringify({ assignedTo: trimmed || null }),
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.map((c) => c.code === code ? { ...c, assignedTo: trimmed || null } : c));
+      }
+    } finally {
+      setEditingName(null);
+    }
+  };
+
+  const fetchAccessCodes = useCallback(async () => {
+    if (!adminToken) return;
+    setAccessCodesLoading(true);
+    try {
+      const res = await fetch("/api/admin/codes", { headers: { admintoken: adminToken } });
+      if (res.ok) setAccessCodes(await res.json());
+    } finally {
+      setAccessCodesLoading(false);
+    }
+  }, [adminToken]);
+
+  const handleDeleteCode = async (code: string) => {
+    if (!adminToken) return;
+    if (!window.confirm(`Delete code "${code}"? This cannot be undone.`)) return;
+    setDeleteLoading(code);
+    try {
+      const res = await fetch(`/api/admin/codes/${code}`, {
+        method: "DELETE",
+        headers: { admintoken: adminToken },
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.filter((c) => c.code !== code));
+      }
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
+
+  const handleTogglePause = async (code: string, currentlyPaused: boolean) => {
+    if (!adminToken) return;
+    setPauseLoading(code);
+    try {
+      const res = await fetch(`/api/admin/codes/${code}/pause`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", admintoken: adminToken },
+        body: JSON.stringify({ paused: !currentlyPaused }),
+      });
+      if (res.ok) {
+        setAccessCodes((prev) => prev.map((c) => c.code === code ? { ...c, isPaused: !currentlyPaused } : c));
+      }
+    } finally {
+      setPauseLoading(null);
+    }
+  };
+
   const [backupLogs, setBackupLogs] = useState<BackupLog[]>([]);
   const [backupLogsLoading, setBackupLogsLoading] = useState(false);
   const [exportHistory, setExportHistory] = useState<BackupExport[]>([]);
@@ -82,8 +145,6 @@ export default function AdminDashboard() {
   const [logSaving, setLogSaving] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [hideTestUsers, setHideTestUsers] = useState(false);
-  const [venues, setVenues] = useState<Venue[]>([]);
-  const [venuesLoading, setVenuesLoading] = useState(true);
 
   const TEST_DOMAINS = ["@bob.com", "@test.com", "@amy.com", "@lemon.com", "@bb.com", "@aa.com", "@chainsawcourses.com"];
   const isTestUser = (email: string) => TEST_DOMAINS.some((d) => email.toLowerCase().endsWith(d));
@@ -110,16 +171,8 @@ export default function AdminDashboard() {
     }
   }, [adminToken]);
 
-  useEffect(() => { if (adminToken) { fetchBackupLogs(); fetchExportHistory(); } }, [adminToken, fetchBackupLogs, fetchExportHistory]);
+  useEffect(() => { if (adminToken) { fetchBackupLogs(); fetchExportHistory(); fetchAccessCodes(); } }, [adminToken, fetchBackupLogs, fetchExportHistory, fetchAccessCodes]);
 
-  useEffect(() => {
-    if (!adminToken) return;
-    fetch("/api/admin/gateway/venues", { headers: { admintoken: adminToken } })
-      .then((r) => r.ok ? r.json() : [])
-      .then((data: Venue[]) => setVenues(data))
-      .catch(() => {})
-      .finally(() => setVenuesLoading(false));
-  }, [adminToken]);
 
   const handleExport = async () => {
     if (!adminToken) return;
@@ -176,6 +229,7 @@ export default function AdminDashboard() {
         onSuccess: (data) => {
           setGeneratedCode(data.code);
           setNewCodeNotes("");
+          fetchAccessCodes();
         },
       }
     );
@@ -191,6 +245,13 @@ export default function AdminDashboard() {
   });
 
   const testUserCount = students?.filter((s) => isTestUser(s.email)).length ?? 0;
+
+  const lastBackup = exportHistory.reduce<BackupExport | null>((latest, current) => {
+    if (!latest || new Date(current.exportedAt).getTime() > new Date(latest.exportedAt).getTime()) {
+      return current;
+    }
+    return latest;
+  }, null);
 
   // Global search across all categories
   const q = globalSearch.trim().toLowerCase();
@@ -302,15 +363,19 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 sticky top-0 z-10">
+      <header className="border-b border-border bg-card/50 fixed top-0 left-0 right-0 z-50 w-full">
         {/* Row 1 — brand + primary actions */}
         <div className="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
           <div className="flex items-center font-mono font-bold uppercase tracking-widest text-sm text-primary">
             <Biohazard className="w-5 h-5 mr-2 inline" /> OVERSEER
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" className="font-mono text-xs bg-primary text-primary-foreground" asChild>
-              <a href={`${import.meta.env.BASE_URL}admin-preview`} target="_blank"><ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW</a>
+            <Button
+              size="sm"
+              className="font-mono text-xs bg-primary text-primary-foreground"
+              onClick={() => window.open(`${appPath("admin-preview")}?token=${encodeURIComponent(adminToken ?? "")}`, "_blank")}
+            >
+              <ExternalLink className="w-4 h-4 mr-1" /> APP PREVIEW
             </Button>
 
             <Button variant="ghost" size="sm" onClick={handleLogout} className="font-mono text-xs">
@@ -320,7 +385,7 @@ export default function AdminDashboard() {
         </div>
         {/* Row 2 — navigation links */}
         <div className="border-t border-border bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto">
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/videos"><Video className="w-3.5 h-3.5 mr-1" /> VIDEO SETTINGS</Link>
             </Button>
@@ -348,15 +413,15 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/gateway"><MapPin className="w-3.5 h-3.5 mr-1" /> GATEWAY</Link>
             </Button>
-            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <Link href="/admin/policy-docs"><FileText className="w-3.5 h-3.5 mr-1" /> POLICY DOCS</Link>
-            </Button>
           </div>
         </div>
         {/* Row 3 — EQA / quality features */}
         <div className="border-t border-border bg-orange-50/40">
-          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 flex-wrap">
+          <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-1.5 overflow-x-auto">
             <span className="font-mono text-xs text-muted-foreground mr-1">EQA:</span>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/policy-docs"><FileText className="w-3.5 h-3.5 mr-1" /> POLICY DOCS</Link>
+            </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/stats"><BarChart2 className="w-3.5 h-3.5 mr-1" /> STATISTICS</Link>
             </Button>
@@ -364,10 +429,16 @@ export default function AdminDashboard() {
               <Link href="/admin/certificates"><Award className="w-3.5 h-3.5 mr-1" /> CERT REGISTER</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <Link href="/admin/exam-log"><BookOpen className="w-3.5 h-3.5 mr-1" /> EXAM LOG</Link>
+              <Link href="/admin/exam-log"><BookOpen className="w-3.5 h-3.5 mr-1" /> FINAL EXAM LOG</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
-              <Link href="/admin/assessment-bank"><ClipboardList className="w-3.5 h-3.5 mr-1" /> ASSESSMENT BANK</Link>
+              <Link href="/admin/assessment-bank"><ClipboardList className="w-3.5 h-3.5 mr-1" /> FINAL EXAM BANK</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/module-quizzes"><ClipboardList className="w-3.5 h-3.5 mr-1" /> MODULE QUIZZES</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
+              <Link href="/admin/mock-questions"><ClipboardCheck className="w-3.5 h-3.5 mr-1" /> MOCK QUESTIONS</Link>
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs h-7" asChild>
               <Link href="/admin/iqa"><ShieldCheck className="w-3.5 h-3.5 mr-1" /> IQA LOG</Link>
@@ -382,7 +453,7 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8 pt-[140px]">
 
         {/* Global Search */}
         <div className="relative">
@@ -487,216 +558,35 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Students Table */}
-        <Card className="border-border bg-card/30">
-          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="font-mono uppercase tracking-widest">Student Roster</CardTitle>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Filter roster..."
-                  value={rosterSearch}
-                  onChange={(e) => setRosterSearch(e.target.value)}
-                  className="pl-9 h-9 font-mono text-xs bg-background"
-                />
-              </div>
-              {testUserCount > 0 && (
-                <Button
-                  size="sm"
-                  variant={hideTestUsers ? "default" : "outline"}
-                  onClick={() => setHideTestUsers((v) => !v)}
-                  className="h-9 font-mono text-xs"
-                >
-                  {hideTestUsers ? `TEST HIDDEN (${testUserCount})` : `HIDE TEST (${testUserCount})`}
-                </Button>
-              )}
-              <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
-                <Plus className="w-4 h-4 mr-1" /> NEW CODE
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {/* Mobile card list */}
-            <div className="sm:hidden divide-y divide-border">
-              {filteredRoster?.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground font-mono text-sm">NO RECORDS FOUND</div>
-              )}
-              {filteredRoster?.map((student) => (
-                <div key={student.id} className="p-4 flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold text-sm truncate flex items-center gap-2">
-                      {student.fullName}
-                      {isTestUser(student.email) && (
-                        <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0 shrink-0">TEST</Badge>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">{student.email}</div>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
-                      <span className="text-muted-foreground">·</span>
-                      {student.waiverSigned ? (
-                        <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none py-0">SIGNED</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none py-0">MISSING</Badge>
-                      )}
-                      <span className="text-muted-foreground">·</span>
-                      <span className="font-mono text-[10px] text-muted-foreground">{student.completedModules}/{student.totalModules}</span>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" className="font-mono text-xs h-9 px-4 shrink-0" asChild>
-                    <Link href={`/admin/students/${student.id}`}>VIEW</Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop table */}
-            <div className="hidden sm:block overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-secondary/30">
-                  <TableRow className="border-border">
-                    <TableHead className="font-mono text-xs">OPERATOR</TableHead>
-                    <TableHead className="font-mono text-xs">CODE</TableHead>
-                    <TableHead className="font-mono text-xs">PROGRESS</TableHead>
-                    <TableHead className="font-mono text-xs">WAIVER</TableHead>
-                    <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRoster?.map((student) => (
-                    <TableRow key={student.id} className={`border-border hover:bg-secondary/10 ${isTestUser(student.email) ? "opacity-70" : ""}`}>
-                      <TableCell>
-                        <div className="font-bold text-sm flex items-center gap-2">
-                          {student.fullName}
-                          {isTestUser(student.email) && (
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0">TEST</Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground">{student.email}</div>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs opacity-70">{student.activationCode || "—"}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary"
-                              style={{ width: `${(student.completedModules / (student.totalModules || 1)) * 100}%` }}
-                            />
-                          </div>
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {student.completedModules}/{student.totalModules}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {student.waiverSigned ? (
-                          <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none">SIGNED</Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none">MISSING</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="outline" className="font-mono text-xs h-7" asChild>
-                          <Link href={`/admin/students/${student.id}`}>VIEW</Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {filteredRoster?.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground font-mono text-sm">
-                        NO RECORDS FOUND
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Assessment Venues */}
-        <Card className="border-border bg-card/30">
-          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-primary" /> Assessment Venues
-              <Badge variant="outline" className="font-mono text-[10px] rounded-none ml-1">
-                {venues.filter((v) => v.active).length} ACTIVE
-              </Badge>
-            </CardTitle>
-            <Button size="sm" variant="outline" className="font-mono text-xs h-8" asChild>
-              <Link href="/admin/gateway"><MapPin className="w-3.5 h-3.5 mr-1" /> MANAGE</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
-            {venuesLoading ? (
-              <div className="py-8 text-center text-muted-foreground font-mono text-sm animate-pulse">LOADING…</div>
-            ) : venues.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground font-mono text-sm">No venues configured.</div>
-            ) : (
-              <div className="divide-y divide-border">
-                {venues.map((v) => (
-                  <div key={v.id} className={`px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 ${!v.active ? "opacity-50" : ""}`}>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono font-bold text-sm">{v.name}</span>
-                        <Badge
-                          variant="outline"
-                          className={`text-[9px] font-mono rounded-none py-0 ${
-                            v.tier === "gold"
-                              ? "text-yellow-600 border-yellow-500"
-                              : v.tier === "silver"
-                              ? "text-slate-500 border-slate-400"
-                              : "text-amber-700 border-amber-600"
-                          }`}
-                        >
-                          {v.tier.toUpperCase()}
-                        </Badge>
-                        {!v.active && (
-                          <Badge variant="outline" className="text-[9px] font-mono rounded-none py-0 text-destructive border-destructive">INACTIVE</Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                        {[v.town, v.county, v.postcode].filter(Boolean).join(", ")}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground font-mono shrink-0">
-                      {v.phone && (
-                        <a href={`tel:${v.phone}`} className="flex items-center gap-1 hover:text-foreground transition-colors">
-                          <Phone className="w-3 h-3" /> {v.phone}
-                        </a>
-                      )}
-                      {v.email && (
-                        <a href={`mailto:${v.email}`} className="flex items-center gap-1 hover:text-foreground transition-colors truncate max-w-[180px]">
-                          <ExternalLink className="w-3 h-3 shrink-0" /> {v.email}
-                        </a>
-                      )}
-                      {v.website && (
-                        <a href={v.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-foreground transition-colors">
-                          <Globe className="w-3 h-3" /> Site
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Data & Backup */}
         <Card className="border-border bg-card/30">
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1 font-mono">
-                Export learner data · View Replit DB backups · Log quarterly restoration tests
-              </p>
-            </div>
-            <div className="flex gap-2 flex-wrap">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setDataBackupOpen((v) => !v)}>
+              <div>
+                <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" /> Data &amp; Backup
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  Export learner data · View Replit DB backups · Log quarterly restoration tests
+                </p>
+              </div>
+              {dataBackupOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {dataBackupOpen && <div className="flex gap-2 flex-wrap">
+              <span
+                className="h-9 flex items-center px-1 font-mono text-[10px] uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+                title={lastBackup ? new Date(lastBackup.exportedAt).toLocaleString("en-GB") : "No backup has been created yet"}
+              >
+                Last backed up: {lastBackup
+                  ? new Date(lastBackup.exportedAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Never"}
+              </span>
               <Button
                 size="sm"
                 variant="outline"
@@ -705,7 +595,7 @@ export default function AdminDashboard() {
                 disabled={exportLoading}
               >
                 <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                {exportLoading ? "PREPARING…" : "OPEN GOOGLE SHEET"}
+                {exportLoading ? "PREPARING…" : "BACKUP ALL DATA"}
               </Button>
               <Button
                 size="sm"
@@ -713,7 +603,7 @@ export default function AdminDashboard() {
                 className="h-9 font-mono text-xs"
                 asChild
               >
-                <a href="https://drive.google.com/drive/search?q=Chainsaw+Courses+Export" target="_blank" rel="noopener noreferrer">
+                <a href={exportHistory.find(e => e.folderId)?.folderId ? `https://drive.google.com/drive/folders/${exportHistory.find(e => e.folderId)!.folderId}` : "https://drive.google.com/drive/search?q=Chainsaw+Courses+User+Backup"} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-3.5 h-3.5 mr-1" /> BACKUP FOLDER
                 </a>
               </Button>
@@ -724,9 +614,10 @@ export default function AdminDashboard() {
               >
                 <Plus className="w-3.5 h-3.5 mr-1" /> LOG RESTORE TEST
               </Button>
-            </div>
+            </div>}
           </CardHeader>
-          <CardContent className="p-0 space-y-0">
+          {dataBackupOpen && (
+            <CardContent className="p-0 space-y-0">
 
             {/* Export History */}
             <div className="px-6 pt-4 pb-2">
@@ -735,7 +626,7 @@ export default function AdminDashboard() {
                 <div className="py-4 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
               ) : exportHistory.length === 0 ? (
                 <div className="py-4 text-center text-muted-foreground font-mono text-xs">
-                  No exports yet. Click "OPEN GOOGLE SHEET" to create your first export.
+                  No exports yet. Click "BACKUP DATA" to create your first export.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -809,7 +700,7 @@ export default function AdminDashboard() {
                       <TableHead className="font-mono text-xs">DATE TESTED</TableHead>
                       <TableHead className="font-mono text-xs">TESTED BY</TableHead>
                       <TableHead className="font-mono text-xs">OUTCOME</TableHead>
-                      <TableHead className="font-mono text-xs">NOTES</TableHead>
+                      <TableHead className="font-mono text-xs">ASSIGNED TO</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -837,7 +728,294 @@ export default function AdminDashboard() {
                 </Table>
               </div>
             )}
+            </CardContent>
+          )}
+        </Card>
+
+        {/* Access Codes */}
+        <Card className="border-border bg-card/30">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setAccessCodesOpen((v) => !v)}>
+              <div>
+                <CardTitle className="font-mono uppercase tracking-widest flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-primary" /> Access Codes
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  Manage unlimited/reviewer codes · Pause to block access instantly
+                </p>
+              </div>
+              {accessCodesOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {accessCodesOpen && <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
+              <Plus className="w-4 h-4 mr-1" /> NEW CODE
+            </Button>}
+          </CardHeader>
+          {accessCodesOpen && (
+            <CardContent className="p-0">
+            {accessCodesLoading ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-sm">LOADING…</div>
+            ) : accessCodes.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground font-mono text-xs">No codes yet.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="bg-secondary/30">
+                    <TableRow className="border-border">
+                      <TableHead className="font-mono text-xs">CODE</TableHead>
+                      <TableHead className="font-mono text-xs">TYPE</TableHead>
+                      <TableHead className="font-mono text-xs">USERS</TableHead>
+                      <TableHead className="font-mono text-xs">ASSIGNED TO</TableHead>
+                      <TableHead className="font-mono text-xs">STATUS</TableHead>
+                      <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {accessCodes.map((c) => (
+                      <TableRow key={c.id} className={`border-border hover:bg-secondary/10 ${c.isPaused ? "opacity-50" : ""}`}>
+                        <TableCell className="font-mono text-sm font-bold tracking-wider">{c.code}</TableCell>
+                        <TableCell>
+                          {c.isUnlimited ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-purple-600 border-purple-500 flex items-center gap-1 w-fit">
+                              <Infinity className="w-3 h-3" /> UNLIMITED
+                            </Badge>
+                          ) : c.isUsed ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-muted-foreground flex items-center gap-1 w-fit">USED</Badge>
+                          ) : (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-green-600 border-green-500 flex items-center gap-1 w-fit">UNUSED</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{c.userCount}</TableCell>
+                        <TableCell className="text-xs max-w-[160px]">
+                          {editingName === c.code ? (
+                            <input
+                              autoFocus
+                              className="w-full bg-secondary/40 border border-border rounded px-1.5 py-0.5 font-mono text-xs outline-none focus:border-primary"
+                              value={editingNameValue}
+                              onChange={(e) => setEditingNameValue(e.target.value)}
+                              onBlur={() => handleSaveAssignedTo(c.code)}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleSaveAssignedTo(c.code); if (e.key === "Escape") setEditingName(null); }}
+                            />
+                          ) : (
+                            <button
+                              className="text-left w-full truncate hover:text-foreground transition-colors group"
+                              onClick={() => { setEditingName(c.code); setEditingNameValue(c.assignedTo ?? ""); }}
+                              title="Click to edit"
+                            >
+                              {c.assignedTo ? (
+                                <span className="font-medium text-foreground">{c.assignedTo}</span>
+                              ) : (
+                                <span className="text-muted-foreground/50 group-hover:text-muted-foreground italic">unassigned</span>
+                              )}
+                            </button>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {c.isPaused ? (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-destructive border-destructive flex items-center gap-1 w-fit">
+                              <Pause className="w-3 h-3" /> PAUSED
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="font-mono text-[10px] rounded-none text-green-600 border-green-600 flex items-center gap-1 w-fit">
+                              <Play className="w-3 h-3" /> ACTIVE
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={c.isPaused ? "default" : "outline"}
+                              className={`font-mono text-xs h-7 ${c.isPaused ? "bg-green-600 hover:bg-green-700 text-white border-green-600" : "text-destructive border-destructive hover:bg-destructive/10"}`}
+                              disabled={pauseLoading === c.code}
+                              onClick={() => handleTogglePause(c.code, c.isPaused)}
+                            >
+                              {pauseLoading === c.code ? "…" : c.isPaused ? "RESUME" : "PAUSE"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="font-mono text-xs h-7 px-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              disabled={deleteLoading === c.code}
+                              onClick={() => handleDeleteCode(c.code)}
+                              title="Delete code"
+                            >
+                              {deleteLoading === c.code ? "…" : <Trash2 className="w-3.5 h-3.5" />}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </CardContent>
+          )}
+        </Card>
+
+        {/* Students Table */}
+        <Card className="border-border bg-card/30">
+          <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <button className="flex items-center gap-2 text-left group" onClick={() => setStudentRosterOpen((v) => !v)}>
+              <CardTitle className="font-mono uppercase tracking-widest">Student Roster</CardTitle>
+              {studentRosterOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />}
+            </button>
+            {studentRosterOpen && <div className="flex gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Filter roster..."
+                  value={rosterSearch}
+                  onChange={(e) => setRosterSearch(e.target.value)}
+                  className="pl-9 h-9 font-mono text-xs bg-background"
+                />
+              </div>
+              {testUserCount > 0 && (
+                <Button
+                  size="sm"
+                  variant={hideTestUsers ? "default" : "outline"}
+                  onClick={() => setHideTestUsers((v) => !v)}
+                  className="h-9 font-mono text-xs"
+                >
+                  {hideTestUsers ? `TEST HIDDEN (${testUserCount})` : `HIDE TEST (${testUserCount})`}
+                </Button>
+              )}
+              <Button size="sm" onClick={() => { setCreateCodeOpen(true); setGeneratedCode(""); }} className="h-9 font-mono text-xs">
+                <Plus className="w-4 h-4 mr-1" /> NEW CODE
+              </Button>
+            </div>}
+          </CardHeader>
+          {studentRosterOpen && (
+            <CardContent className="p-0">
+            {/* Mobile card list */}
+            <div className="sm:hidden divide-y divide-border">
+              {filteredRoster?.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground font-mono text-sm">NO RECORDS FOUND</div>
+              )}
+              {filteredRoster?.map((student) => (
+                <div key={student.id} className="p-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-sm truncate flex items-center gap-2">
+                      {student.fullName}
+                      {isTestUser(student.email) && (
+                        <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0 shrink-0">TEST</Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">{student.email}</div>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <span className="font-mono text-[10px] opacity-60">{student.activationCode || "—"}</span>
+                      <span className="text-muted-foreground">·</span>
+                      {student.waiverSigned ? (
+                        <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none py-0">SIGNED</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none py-0">MISSING</Badge>
+                      )}
+                      <span className="text-muted-foreground">·</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">{student.completedModules}/{student.totalModules}</span>
+                      {(student.totalQuizAttempts ?? 0) > 0 && (
+                        <>
+                          <span className="text-muted-foreground">·</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">{student.totalQuizAttempts} quiz attempts</span>
+                        </>
+                      )}
+                      {(student.feedbackCount ?? 0) > 0 && (
+                        <Link href={`/admin/feedback?student=${encodeURIComponent(student.fullName)}`} className="flex items-center gap-0.5 text-primary font-mono text-[10px]">
+                          <Star className="w-2.5 h-2.5 fill-primary" /> {student.feedbackCount} feedback
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="font-mono text-xs h-9 px-4 shrink-0" asChild>
+                    <Link href={`/admin/students/${student.id}`}>VIEW</Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-secondary/30">
+                  <TableRow className="border-border">
+                    <TableHead className="font-mono text-xs">OPERATOR</TableHead>
+                    <TableHead className="font-mono text-xs">CODE</TableHead>
+                    <TableHead className="font-mono text-xs">PROGRESS</TableHead>
+                    <TableHead className="font-mono text-xs">WAIVER</TableHead>
+                    <TableHead className="font-mono text-xs text-center">QUIZ ATTEMPTS</TableHead>
+                    <TableHead className="font-mono text-xs text-center">FEEDBACK</TableHead>
+                    <TableHead className="font-mono text-xs text-right">ACTION</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRoster?.map((student) => (
+                    <TableRow key={student.id} className={`border-border hover:bg-secondary/10 ${isTestUser(student.email) ? "opacity-70" : ""}`}>
+                      <TableCell>
+                        <div className="font-bold text-sm flex items-center gap-2">
+                          {student.fullName}
+                          {isTestUser(student.email) && (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-500 text-[9px] font-mono rounded-none py-0">TEST</Badge>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{student.email}</div>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs opacity-70">{student.activationCode || "—"}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div className="w-24 h-1.5 bg-secondary rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary"
+                              style={{ width: `${(student.completedModules / (student.totalModules || 1)) * 100}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {student.completedModules}/{student.totalModules}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {student.waiverSigned ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] font-mono rounded-none">SIGNED</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-destructive border-destructive text-[10px] font-mono rounded-none">MISSING</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center font-mono text-sm">
+                        {(student.totalQuizAttempts ?? 0) > 0 ? (
+                          <span className="font-bold">{student.totalQuizAttempts}</span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {(student.feedbackCount ?? 0) > 0 ? (
+                          <Button size="sm" variant="outline" className="font-mono text-[10px] h-6 px-2 text-primary border-primary/40 hover:bg-primary/10" asChild>
+                            <Link href={`/admin/feedback?student=${encodeURIComponent(student.fullName)}`}>
+                              <Star className="w-3 h-3 mr-1 fill-primary" />{student.feedbackCount}
+                            </Link>
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground text-xs font-mono">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="outline" className="font-mono text-xs h-7" asChild>
+                          <Link href={`/admin/students/${student.id}`}>VIEW</Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredRoster?.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground font-mono text-sm">
+                        NO RECORDS FOUND
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            </CardContent>
+          )}
         </Card>
       </main>
 

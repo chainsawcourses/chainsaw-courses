@@ -13,4 +13,6 @@ export interface ActivationCode {
   createdAt: string;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  assignedTo?: string | null;
 }

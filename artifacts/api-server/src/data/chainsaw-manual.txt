@@ -109,7 +109,7 @@ Credit & Time Allocation
 This training program is structurally developed in accordance with the Average
 Learner Model for safety-critical vocational technical training. This standard
 framework accurately translates your engagement with the technical text, component
-diagnostics, and interactive online verification modules into formally recognized
+diagnostics, and interactive online verification modules into formally recognised
 professional credits.
 By accounting for a deliberate technical reading pace (150 words per minute), safety
 diagram analysis, and required risk-assessment reflection time, this curriculum
@@ -133,18 +133,21 @@ CPD Points Awarded: 5 Points
 Fulfills 5 hours of verifiable Continuing Professional Development (CPD).
 PROGRAM LEARNING OUTCOMES (LO) & ASSESSMENT CRITERIA (AC)
 UNIT 1: Occupational Standards, Health & Safety, and Risk Evaluation
-Learning Outcome 1 (LO1): Understand the statutory legal framework and personal
+Learning Outcome 1 (LO1): Describe the statutory legal framework and personal
 safety requirements dictating chainsaw operations.
 AC 1.1: Identify the primary obligations of employers and employees under the Health
-and Safety at Work Act (HSWA) and global equivalents.
+and Safety at Work Act 1974 (HSWA 1974) and global equivalents.
 AC 1.2: Explain the operational parameters mandated by the Provision and Use of
-Work Equipment Regulations (PUWER) regarding tool maintenance and operator
-competence.
-AC 1.3: Summarize the control tracking required by COSHH when handling
+Work Equipment Regulations 1998 (PUWER 1998) regarding tool maintenance and
+operator competence.
+AC 1.3: Summarize the control tracking required by COSHH 2002 when handling
 hazardous fuels, battery cells, lubricants, and toxic flora species.
 AC 1.4: Detail the correct European (CE/UKCA) and global standard class markings
 required for safety helmets, visual shields, hearing protection, gloves, and Type A
-versus Type C protective trousers.
+versus Type C protective trousers (EN ISO 11393 / EN 381).
+AC 1.5: Describe the requirements of the Manual Handling Operations Regulations
+1992 (MHOR 1992) and explain how they apply to log handling, lifting, and timber
+stacking during chainsaw operations.
 Learning Outcome 2 (LO2): Evaluate environmental hazards, risk metrics, and
 implement emergency protocols.
 AC 2.1: Execute a 5-step site-specific risk assessment documenting local ground
@@ -158,18 +161,18 @@ references, postcodes, access limitations, and trauma kit deployments.
 AC 2.3: Identify bio-security cleaning controls necessary to stop the spread of invasive
 arboreal pathogens and pests.
 UNIT 2: Power Unit Architecture, Mechanical Integrity, and Component Maintenance
-Learning Outcome 3 (LO3): Analyze the mechanical differences, design attributes, and
+Learning Outcome 3 (LO3): Analyse the mechanical differences, design attributes, and
 safety features of internal combustion and battery-powered chainsaws.
 AC 3.1: Describe the internal 2-stroke combustion cycle (“Suck-Squeeze-Bang-Blow”)
-and determine fuel-to-oil component lubrication math at a standard 50:1 ratio.
+and determine fuel-to-oil component lubrication maths at a standard 50:1 ratio.
 AC 3.2: Compare the advantages and operational risks (such as charging thermal
 runaway) of battery-powered power units against internal combustion platforms.
 AC 3.3: Map and explain the mechanical function of the 10 core safety features
-spanning the front, center, and rear architecture of a chainsaw.
+spanning the front, centre, and rear architecture of a chainsaw.
 Learning Outcome 4 (LO4): Demonstrate how to diagnose, service, and maintain the
 structural integrity of a chainsaw cutting assembly.
 AC 4.1: Detail correct cleaning procedures for air filtration housings and interpret
-electrode color indicators (Brown vs. Black vs. Grey) on a spark plug.
+electrode colour indicators (Brown vs. Black vs. Grey) on a spark plug.
 AC 4.2: Explain safe carburettor adjusting rules using factory Idle (LA/T), Low (L), and
 High (H) screw limit constraints.
 AC 4.3: Differentiate between Rim and Spur drive sprockets and diagnose guidebar
@@ -186,7 +189,7 @@ AC 5.2: Perform a 4-point dynamic check assessing chain brake engagement, oil
 dispersion flow, chain creep at tick-over, and off-switch motor cuts.
 Learning Outcome 6 (LO6): Apply mechanical principles to resolve tension and
 compression forces during timber cutting.
-AC 6.1: Analyze a log setup to determine where tension and compression forces
+AC 6.1: Analyse a log setup to determine where tension and compression forces
 reside.
 AC 6.2: Explain the physics behind pulling chains versus pushing chains to prevent
 guidebar jamming.
@@ -201,13 +204,14 @@ attached root plates.
 EVIDENCE OF LEARNING & ASSESSMENT STRATEGY
 This integrated program implements a multi-tiered knowledge verification system:
 Formative Assessment: Learners complete modular self-test quizzes located at the
-conclusion of individual text topics.
+conclusion of individual text topics. Each linked video-module quiz requires a score of
+100% before the learner can progress to the next module.
 Summative Digital Examination: Progression to certification requires a student to input
 their answers via the online course portal. This portal runs a randomized, 45-question
 multiple-choice examination directly mapped to the NPTC criteria.
-Minimum Performance Threshold: Learners must demonstrate clear cognitive
-retention by scoring an exact 80% or higher score to pass and auto-generate their
-verifiable certificate of completion.
+Final Examination Threshold: Learners must demonstrate clear cognitive retention by
+scoring 80% or higher on the final examination to auto-generate their verifiable
+certificate of completion.
 
 -- 5 of 138 --
 
@@ -227,12 +231,13 @@ maintenance theory.
 At certain intervals throughout the book, you will find dedicated QR codes. Scanning
 these codes with a smartphone camera will launch the corresponding online video
 demonstrations in your app. Once the video is watched, this then opens the modular
-multiple-choice knowledge quiz for that specific section.
+multiple-choice knowledge quiz for that specific section. A score of 100% is required on
+each module quiz before you can progress to the next video module.
 The app can be downloaded at www.chainsawcourses.com
 For enrolled students, completing these digital checkpoints is necessary to log
 your required Guided Learning Hours, track your qualification progression, and
-automatically generate your verified CPD and IIRSM certificate of completion upon
-achieving a passing score.
+automatically generate your verified CPD and IIRSM certificate of completion after achieving
+80% or higher on the final examination.
 ADVANCED WORKSHOP EXTENSION MODULE
 When you see this next to the title of a page it means the following content is
 provided for professional enrichment and advanced operational awareness only.
@@ -754,7 +759,7 @@ and guidance to help employers and employees achieve this.
 NOTE: While this manual presents global regulatory equivalents for international
 context, formal assessment protocols will strictly evaluate the statutory laws active
 within the learner’s local operating jurisdiction. In the United Kingdom, compliance with
-HSWA, PUWER, COSHH, PPE and wildlife protection remains mandatory.
+HSWA 1974, PUWER 1998, COSHH 2002, MHOR 1992, PPEWR and wildlife protection remains mandatory.
 Employers and employees have
 a duty of care to keep themselves
 and others safe including
@@ -763,8 +768,8 @@ Follow training and wear PPE
 provided.
 Maintain a safe working
 environment.
-HSWA Health & Safety at
-Work Act
+HSWA 1974 Health & Safety at
+Work Act 1974
 EU Framework Directive
 OSHA Occupational Safety
 and Health Administration
@@ -779,8 +784,8 @@ intervals by a competent
 technician.
 All operators are to be trained &
 competent.
-PUWER Provision & Use of
-Work Equipment Regulations
+PUWER 1998 Provision & Use of
+Work Equipment Regulations 1998
 Use of Work Equipment
 Directive 2009/104/EC
 ANSI B175.1-2000
@@ -791,8 +796,8 @@ Health and Safety at Work:
 -- 18 of 138 --
 
 19	The Chainsaw Manual
-COSHH Control of Substances
-Hazardous to Health
+COSHH 2002 Control of Substances
+Hazardous to Health Regulations 2002
 CLP Classification, Labelling
 and Packaging
 HCS Hazard
@@ -808,6 +813,22 @@ for all fuels, oils and chemicals.
 Any noted defects in PPE must
 be immediately reported and the
 items taken out of service.
+MHOR 1992 Manual Handling
+Operations Regulations 1992
+EU Manual Handling Directive
+OSHA 29 CFR 1910.269 /
+NIOSH Lifting Equation
+Avoid hazardous manual
+handling where reasonably
+practicable. Assess and reduce
+the risk of injury from all
+manual handling tasks —
+including log lifting, carrying,
+and timber stacking.
+Apply the TILE framework:
+Task, Individual, Load &
+Environment.
+Manual Handling:
 PPEWR Personal Protective
 Equipment Regulations
 Regulation EU 2016/425
@@ -939,7 +960,7 @@ your chain?
 2. Standards &
 Regulations
 HAZARDOUS CHEMICALS & MATERIALS
-COSHH - Control of Substances Hazardous to Health
+COSHH 2002 - Control of Substances Hazardous to Health Regulations 2002
 Handling fuel, oil, insecticides, and other mechanical lubricants is a daily reality with
 chainsaw operations. These substances and materials pose significant fire, health,
 and environmental risks. Chemical exposure and flash fires are entirely preventable if
@@ -2250,7 +2271,7 @@ giving more chain speed.
 NOTE: Using a worn sprocket can lead to unnecessary
 wear to the chain drive links and damage to the
 underside of the tie straps, this is called peening. This
-in turn damages the chain, sprocket, guide bar and
+in turn damages the chain, sprocket, guidebar and
 nose sprocket.
 Visible wear
 lines
@@ -4167,7 +4188,11 @@ y 	Try to keep a straight back when cutting.
 y 	If possible, raise the logs to just below waist height for a more
 comfortable cutting position.
 y 	Only lift logs within your capabilities and use good lifting
-techniques.
+techniques. Under the Manual Handling Operations Regulations 1992
+(MHOR 1992), you must avoid hazardous manual handling where
+reasonably practicable, assess risks that cannot be avoided, and
+reduce the risk of injury — bend your knees, keep your back
+straight, and keep the load close to your body.
 y 	Use lifting and rolling aids such as timber tongs and hooks, felling
 levers, turning straps, cant hooks, hookeroons and pickeroons.
 y 	Use another person to help with the lift.
@@ -4412,10 +4437,10 @@ y 	Biosecurity: Measures used
 to prevent the spread of pests,
 diseases, or invasive organisms
 between sites.
-y 	Bluing: Blue discoloration caused by
+y 	Bluing: Blue discolouration caused by
 heat buildup on metal surfaces.
 y 	Bore cut: Cutting technique using
-the guide bar tip to cut into the timber.
+the guidebar tip to cut into the timber.
 y 	Box cut: Two horizontal and two
 vertical cuts that create a rectangular
 section in the timber.
@@ -4439,13 +4464,13 @@ when engine speed increases.
 y 	Centrifugal force: Outward force
 generated by rotating components.
 y 	Chain: Loop of cutting teeth driven
-around the guide bar to cut wood.
+around the guidebar to cut wood.
 y 	Chain brake: Safety device that
 stops the chain rapidly when
 activated.
 y 	Chain catcher: Device designed to
 catch the chain if it breaks or derails
-from the guide bar.
+from the guidebar.
 y 	Chain chart: Reference chart used
 to identify the correct chain type and
 specifications.
@@ -4556,7 +4581,7 @@ square corners for fast cutting in
 clean timber.
 y 	Full-skip chain: Chain configuration
 with fewer cutters, commonly used on
-longer guide bars.
+longer guidebars.
 y 	Gasket: Sealing material placed
 between engine components to
 prevent leaks.
@@ -4602,7 +4627,7 @@ assembly.
 y 	Needle valve: Carburetor component
 controlling fuel flow.
 y 	Nose sprocket: Small sprocket
-located at the tip of some guide bars
+located at the tip of some guidebars
 to assist chain movement.
 y 	NPTC: UK awarding body providing
 land-based qualifications.
@@ -4727,7 +4752,7 @@ cutting edge of the chain tooth.
 y 	Tuning: Adjusting the carburetor for
 correct engine performance.
 y 	Wedges: Tools inserted into a cut to
-prevent the guide bar from becoming
+prevent the guidebar from becoming
 trapped.
 y 	Windblown/Windthrown: Trees that
 have been uprooted or broken by
@@ -4890,21 +4915,21 @@ Module Alignment
 Page
 AC 1.1 	Identify the primary obligations of employers and
 employees under the Health and Safety at Work
-Act (HSWA) and global equivalents.
+Act 1974 (HSWA 1974) and global equivalents.
 MODULE 3 -
 Regulations &
 Codes of Practice
 Page 18
 AC 1.2 	Explain the operational parameters mandated
 by the Provision and Use of Work Equipment
-Regulations (PUWER) regarding tool
+Regulations 1998 (PUWER 1998) regarding tool
 maintenance and operator competence.
 MODULE 3 -
 Regulations &
 Codes of Practice
 Page 18
 AC 1.3 	Summarize the control tracking required by
-COSHH when handling hazardous fuels, battery
+COSHH 2002 when handling hazardous fuels, battery
 cells, lubricants, and toxic flora species.
 MODULE 3 -
 Regulations &
@@ -4916,13 +4941,21 @@ AC 1.4 	Detail the correct European (CE/UKCA) and
 global standard class markings required for
 safety helmets, visual shields, hearing protection,
 gloves, and Type A versus Type C protective
-trousers.
+trousers (EN ISO 11393 / EN 381).
 MODULE 1 - PPE
 (Compliance &
 Standards)
 Pages
 10, 11,
 21
+AC 1.5 	Describe the requirements of the Manual
+Handling Operations Regulations 1992 (MHOR 1992)
+and explain how they apply to log handling, lifting,
+and timber stacking during chainsaw operations.
+MODULE 3 -
+Regulations &
+Codes of Practice
+Page 19
 AC 2.1 	Execute a 5-step site-specific risk assessment
 documenting local ground hazards, pedestrian
 proximity and structural vulnerabilities.
@@ -4949,7 +4982,7 @@ Hazards & Risks
 Page 17
 AC 3.1 	Describe the internal 2-stroke combustion cycle
 (“Suck-Squeeze-Bang-Blow”) and determine fuel-
-to-oil component lubrication math at a standard
+to-oil component lubrication maths at a standard
 50:1 ratio.
 ADVANCED
 WORKSHOP
@@ -4978,7 +5011,7 @@ Features)
 Pages
 30–33
 AC 4.1 	Detail correct cleaning procedures for air filtration
-housings and interpret electrode color indicators
+housings and interpret electrode colour indicators
 (Brown vs. Black vs. Grey) on a spark plug.
 MODULE 5 -
 Maintenance

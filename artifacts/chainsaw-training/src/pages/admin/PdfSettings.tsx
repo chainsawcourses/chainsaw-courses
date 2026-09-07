@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Biohazard, CheckCircle2, Download, FileText, FolderOpen, Save } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
+import { downloadPdf } from "../../lib/downloadPdf";
 
 interface PdfModule {
   id: number;
@@ -23,6 +24,7 @@ export default function PdfSettings() {
   const { toast } = useToast();
   const [modules, setModules] = useState<PdfModule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingAll, setDownloadingAll] = useState(false);
 
   useEffect(() => {
     if (isReady && !adminToken) {
@@ -56,20 +58,29 @@ export default function PdfSettings() {
       });
   }, [adminToken]);
 
-  const handleDownloadAll = () => {
+  const handleDownloadAll = async () => {
+    if (downloadingAll) return;
     const pdfsWithUrl = modules.filter((m) => m.pdfUrl);
-    pdfsWithUrl.forEach((mod, i) => {
-      setTimeout(() => {
-        const a = document.createElement("a");
-        a.href = mod.pdfUrl;
-        a.download = `${mod.title}.pdf`;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }, i * 600);
-    });
+    setDownloadingAll(true);
+    try {
+      for (const mod of pdfsWithUrl) {
+        const parsedUrl = new URL(mod.pdfUrl, window.location.href);
+        const isExternal = parsedUrl.origin !== window.location.origin;
+        await downloadPdf(
+          isExternal ? `/api/admin/modules/${mod.id}/pdf` : parsedUrl.toString(),
+          `${mod.title}.pdf`,
+          isExternal ? { headers: { admintoken: adminToken ?? "" } } : undefined,
+        );
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Download stopped",
+        description: "One of the PDFs could not be downloaded. Please try again.",
+      });
+    } finally {
+      setDownloadingAll(false);
+    }
   };
 
   const handleSave = async (moduleId: number) => {
@@ -115,9 +126,10 @@ export default function PdfSettings() {
                 variant="outline"
                 size="sm"
                 className="font-mono text-xs"
-                onClick={handleDownloadAll}
+                onClick={() => void handleDownloadAll()}
+                disabled={downloadingAll}
               >
-                <Download className="w-4 h-4 mr-1.5" /> DOWNLOAD ALL
+                <Download className="w-4 h-4 mr-1.5" /> {downloadingAll ? "DOWNLOADING…" : "DOWNLOAD ALL"}
               </Button>
             )}
             <div className="text-xs font-mono text-muted-foreground hidden sm:block">
@@ -155,10 +167,10 @@ export default function PdfSettings() {
               <FileText className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
               <div className="space-y-2">
                 <p className="font-mono text-sm font-bold text-foreground uppercase tracking-wide">
-                  Option B — Use any public URL
+                    Option B — Use a supported public host
                 </p>
                 <p className="text-sm text-muted-foreground font-mono leading-relaxed">
-                  Paste any publicly accessible PDF link — Google Drive (share → "Anyone with the link"), Dropbox, your own website, or any CDN.
+                  Paste an HTTPS PDF link from Google Drive (share → "Anyone with the link"), Dropbox, Firebase Storage, Google Cloud Storage, or chainsawcourses.com.
                 </p>
               </div>
             </div>
