@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Loader2, AlertTriangle, BookOpen, ArrowLeft, ChevronLeft, ChevronRight, Search, CornerDownLeft, ZoomIn, X } from "lucide-react";
+import { AlertTriangle, BookOpen, ArrowLeft, ChevronLeft, ChevronRight, Search, CornerDownLeft, ZoomIn, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUserSession } from "../contexts/UserContext";
+import { clearCachedManualPage, clearManualPageCache, getCachedManualPage } from "../lib/manualPageCache";
+import { trackManualDeliveryEvent } from "../lib/analytics";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
-const PAGES_BASE = `${import.meta.env.BASE_URL}manual-pages`;
+const MANUAL_API_BASE = `${import.meta.env.BASE_URL}api/documents/manual`;
 const EXIT_MS = 180;
 const ENTER_MS = 280;
 const FLIP_MS = 550;
 
 type LoadState = "idle" | "loading" | "loaded" | "missing" | "error";
+type ZoomLoadState = "loading" | "loaded" | "error";
+type ManualPageAttempt = "initial" | "retry";
 
 interface PageEntry { page: number; text: string; }
 
@@ -18,9 +23,59 @@ const WM_POS: [number, number][] = [
   [0.50, 0.55], [0.35, 0.40], [0.65, 0.40],
 ];
 
-function pageUrl(n: number) {
+function pageFilename(n: number) {
   // n is the virtual page number (1 = blank front endpaper, 2 = physical page 1, etc.)
-  return `${PAGES_BASE}/page-${String(n - 1).padStart(3, "0")}.jpg`;
+  return `page-${String(n - 1).padStart(3, "0")}.jpg`;
+}
+
+function manualPageFailureType(error: unknown): "request" | "image_decode" {
+  return error instanceof Error && error.message === "image_decode"
+    ? "image_decode"
+    : "request";
+}
+
+function manualPageLayout(): "single_page" | "spread" {
+  return window.innerWidth < 700 ? "single_page" : "spread";
+}
+
+type ManualCredentials = {
+  activationCode: string;
+  deviceId: string;
+  userId: number;
+};
+
+function authHeaders(credentials: ManualCredentials): HeadersInit {
+  return {
+    activationcode: credentials.activationCode,
+    deviceid: credentials.deviceId,
+    userid: String(credentials.userId),
+  };
+}
+
+async function fetchManual(pathname: string, credentials: ManualCredentials): Promise<Response> {
+  const response = await fetch(`${MANUAL_API_BASE}/${pathname}`, {
+    headers: authHeaders(credentials),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const error = new Error(response.status === 403 ? "access_expired" : response.status === 401 ? "access_denied" : "manual_unavailable");
+    throw error;
+  }
+  return response;
+}
+
+function fetchManualPage(pageNum: number, credentials: ManualCredentials): Promise<Blob> {
+  const filename = pageFilename(pageNum);
+  const identity = `${credentials.activationCode}:${credentials.deviceId}:${credentials.userId}`;
+  return getCachedManualPage(
+    identity,
+    filename,
+    () => fetchManual(`pages/${filename}`, credentials).then(response => response.blob()),
+  );
+}
+
+function fetchZoomedManualPage(pageNum: number, credentials: ManualCredentials): Promise<Blob> {
+  return fetchManual(`pages/${pageFilename(pageNum)}`, credentials).then(response => response.blob());
 }
 
 // ── Synthesised paper-rasping sound ──────────────────────────────────────────
@@ -33,8 +88,22 @@ function playPageSound() {
 }
 
 // ── Load a page image onto a canvas element ───────────────────────────────────
-function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement): Promise<void> {
-  return new Promise((resolve) => {
+async function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement, credentials: ManualCredentials): Promise<void> {
+  // Remove the previous protected page before starting a request for different
+  // content. A failed request must never leave stale manual content visible.
+  el.width = 595;
+  el.height = 842;
+  const initialContext = el.getContext("2d");
+  if (initialContext) {
+    initialContext.fillStyle = "#faf8f5";
+    initialContext.fillRect(0, 0, 595, 842);
+  }
+  if (pageNum < 1 || pageNum > total) {
+    return;
+  }
+  const blob = await fetchManualPage(pageNum, credentials);
+  const objectUrl = URL.createObjectURL(blob);
+  return new Promise((resolve, reject) => {
     if (pageNum < 1 || pageNum > total) {
       el.width = 595; el.height = 842;
       const ctx = el.getContext("2d");
@@ -44,6 +113,7 @@ function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement
     }
     const img = new Image();
     img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
       el.width = img.naturalWidth;
       el.height = img.naturalHeight;
       const ctx = el.getContext("2d");
@@ -51,19 +121,19 @@ function loadImageToCanvas(pageNum: number, total: number, el: HTMLCanvasElement
       resolve();
     };
     img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
       el.width = 595; el.height = 842;
       const ctx = el.getContext("2d");
       if (ctx) { ctx.fillStyle = "#faf8f5"; ctx.fillRect(0, 0, 595, 842); }
-      resolve();
+      reject(new Error("image_decode"));
     };
-    img.src = pageUrl(pageNum);
+    img.src = objectUrl;
   });
 }
 
-function prefetchImages(pageNums: number[]) {
+function prefetchImages(pageNums: number[], credentials: ManualCredentials) {
   for (const n of pageNums) {
-    const img = new Image();
-    img.src = pageUrl(n);
+    void fetchManualPage(n, credentials).catch(() => {});
   }
 }
 
@@ -98,9 +168,34 @@ function PageEdgeStack({ side, total, current }: { side: "left" | "right"; total
 }
 
 export default function ManualFlipbook() {
-  const { activationCode, fullName, email } = useUserSession();
+  const { activationCode, deviceId, userId, fullName, email, setAccessInfo } = useUserSession();
   const [, navigate] = useLocation();
   useEffect(() => { if (!activationCode) navigate("/"); }, [activationCode, navigate]);
+  const credentials = useMemo(
+    () => activationCode && deviceId && userId !== null ? { activationCode, deviceId, userId } : null,
+    [activationCode, deviceId, userId],
+  );
+  const credentialIdentity = credentials
+    ? `${credentials.activationCode}:${credentials.deviceId}:${credentials.userId}`
+    : null;
+  const handleAccessFailure = useCallback((error: unknown) => {
+    const message = error instanceof Error ? error.message : "";
+    if (credentialIdentity) clearManualPageCache(credentialIdentity);
+    if (message === "access_expired") {
+      setAccessInfo({
+        accessExpiresAt: new Date().toISOString(),
+        courseCompletedAt: null,
+        accessStatus: "expired",
+      });
+      navigate("/expired");
+      return true;
+    }
+    if (message === "access_denied") {
+      navigate("/");
+      return true;
+    }
+    return false;
+  }, [credentialIdentity, navigate, setAccessInfo]);
 
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [numPages, setNumPages] = useState(0);
@@ -108,11 +203,50 @@ export default function ManualFlipbook() {
   const [flipDir, setFlipDir] = useState<"none" | "forward" | "backward">("none");
   const [jumpInput, setJumpInput] = useState("");
   const [pageRendering, setPageRendering] = useState(false);
+  const [failedPages, setFailedPages] = useState<Set<number>>(() => new Set());
+  const [retryingPages, setRetryingPages] = useState<Set<number>>(() => new Set());
 
   // ── Fullscreen zoom ────────────────────────────────────────────────────────
   const [zoomedPage, setZoomedPage] = useState<number | null>(null);
+  const [zoomedPageUrl, setZoomedPageUrl] = useState<string | null>(null);
+  const [zoomLoadState, setZoomLoadState] = useState<ZoomLoadState>("loading");
+  const [zoomRetryAttempt, setZoomRetryAttempt] = useState(0);
   const [zoomScale, setZoomScale] = useState(1);
   const [zoomPan, setZoomPan] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (zoomedPage === null || !credentials) {
+      setZoomedPageUrl(null);
+      setZoomLoadState("loading");
+      return;
+    }
+    let active = true;
+    let objectUrl: string | null = null;
+    setZoomLoadState("loading");
+    fetchZoomedManualPage(zoomedPage, credentials)
+      .then((blob) => {
+        if (!active) return;
+        objectUrl = URL.createObjectURL(blob);
+        setZoomedPageUrl(objectUrl);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setZoomedPageUrl(null);
+        if (!handleAccessFailure(error)) {
+          trackManualDeliveryEvent("manual_page_load_failed", {
+            surface: "zoom",
+            attempt: zoomRetryAttempt > 0 ? "retry" : "initial",
+            layout: manualPageLayout(),
+            failure_type: manualPageFailureType(error),
+          });
+          setZoomLoadState("error");
+        }
+      });
+    return () => {
+      active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [credentials, handleAccessFailure, zoomedPage, zoomRetryAttempt]);
 
   // ── Search ────────────────────────────────────────────────────────────────
   const [searchIndex, setSearchIndex] = useState<PageEntry[]>([]);
@@ -148,7 +282,8 @@ export default function ManualFlipbook() {
   // ── Load manifest then search index ──────────────────────────────────────
   useEffect(() => {
     setLoadState("loading");
-    fetch(`${PAGES_BASE}/manifest.json`)
+    if (!credentials) return;
+    fetchManual("manifest", credentials)
       .then(r => {
         if (!r.ok) throw new Error("missing");
         return r.json() as Promise<{ pages: number }>;
@@ -157,16 +292,17 @@ export default function ManualFlipbook() {
         setNumPages(data.pages + 1); // +1 for blank front endpaper (virtual page 1)
         setLoadState("loaded");
         // Fetch search index in the background (non-blocking)
-        fetch(`${PAGES_BASE}/search-index.json`)
+        fetchManual("search-index", credentials)
           .then(r => r.ok ? r.json() as Promise<PageEntry[]> : Promise.resolve([]))
           .then(idx => setSearchIndex(idx))
           .catch(() => {});
       })
       .catch((err: unknown) => {
         const msg = err instanceof Error ? err.message : String(err);
-        setLoadState(msg === "missing" ? "missing" : "error");
+        if (handleAccessFailure(err)) return;
+        else setLoadState(msg === "missing" ? "missing" : "error");
       });
-  }, []);
+  }, [credentials, handleAccessFailure]);
 
   // ── Search results ────────────────────────────────────────────────────────
   const searchResults = useMemo(() => {
@@ -269,17 +405,65 @@ export default function ManualFlipbook() {
     const page = (isMobile || clientX < rect.left + rect.width / 2)
       ? currentPage
       : Math.min(currentPage + 1, numPages);
-    if (page < 1 || page > numPages) return;
+    if (page < 1 || page > numPages || failedPages.has(page)) return;
     setZoomedPage(page);
+    setZoomRetryAttempt(0);
     setZoomScale(2);
     setZoomPan({ x: 0, y: 0 });
-  }, [isAnimating, isMobile, currentPage, numPages]);
+  }, [isAnimating, isMobile, currentPage, numPages, failedPages]);
 
   // ── Render single page to canvas ─────────────────────────────────────────
-  const renderPage = useCallback((pageNum: number, el: HTMLCanvasElement | null) => {
-    if (!el) return Promise.resolve();
-    return loadImageToCanvas(pageNum, numPages, el);
-  }, [numPages]);
+  const renderPage = useCallback((pageNum: number, el: HTMLCanvasElement | null, attempt: ManualPageAttempt = "initial") => {
+    if (!el) return Promise.resolve(false);
+    if (!credentials) return Promise.reject(new Error("access_denied"));
+    return loadImageToCanvas(pageNum, numPages, el, credentials)
+      .then(() => {
+        setFailedPages(previous => {
+          if (!previous.has(pageNum)) return previous;
+          const next = new Set(previous);
+          next.delete(pageNum);
+          return next;
+        });
+        return true;
+      })
+      .catch((error: unknown) => {
+        if (handleAccessFailure(error)) return false;
+        trackManualDeliveryEvent("manual_page_load_failed", {
+          surface: "reader",
+          attempt,
+          layout: manualPageLayout(),
+          failure_type: manualPageFailureType(error),
+        });
+        setFailedPages(previous => new Set(previous).add(pageNum));
+        return false;
+      });
+  }, [credentials, handleAccessFailure, numPages]);
+
+  const retryPage = useCallback(async (pageNum: number, el: HTMLCanvasElement | null) => {
+    trackManualDeliveryEvent("manual_page_retry_attempted", {
+      surface: "reader",
+      layout: manualPageLayout(),
+    });
+    setRetryingPages(previous => new Set(previous).add(pageNum));
+    try {
+      if (credentialIdentity) {
+        clearCachedManualPage(credentialIdentity, pageFilename(pageNum));
+      }
+      const recovered = await renderPage(pageNum, el, "retry");
+      if (recovered) {
+        trackManualDeliveryEvent("manual_page_retry_succeeded", {
+          surface: "reader",
+          layout: manualPageLayout(),
+        });
+      }
+    } finally {
+      setRetryingPages(previous => {
+        const next = new Set(previous);
+        next.delete(pageNum);
+        return next;
+      });
+    }
+  }, [credentialIdentity, renderPage]);
 
   // ── Render current spread ─────────────────────────────────────────────────
   const renderSpread = useCallback(async (p: number) => {
@@ -306,9 +490,9 @@ export default function ManualFlipbook() {
       setTimeout(drawWatermark, 60);
       const s = isMobile ? 1 : 2;
       const next = currentPage + s;
-      prefetchImages([next, next + 1].filter(n => n >= 1 && n <= numPages));
+      if (credentials) prefetchImages([next, next + 1].filter(n => n >= 1 && n <= numPages), credentials);
     });
-  }, [currentPage, loadState, flipDir, renderSpread, drawWatermark, isMobile, numPages]);
+  }, [credentials, currentPage, loadState, flipDir, renderSpread, drawWatermark, isMobile, numPages]);
 
   // ── Navigation ────────────────────────────────────────────────────────────
   const step = isMobile ? 1 : 2;
@@ -482,7 +666,7 @@ export default function ManualFlipbook() {
 
           {loadState === "loading" && (
             <div className="flex flex-col items-center gap-3 text-muted-foreground py-24">
-              <Loader2 className="w-8 h-8 animate-spin text-[#e27226]" />
+              <ChainsawLoader className="w-8 h-8 text-[#e27226]" />
               <p className="text-sm font-semibold">Opening manual…</p>
             </div>
           )}
@@ -496,7 +680,7 @@ export default function ManualFlipbook() {
               </div>
               <h2 className="font-black tracking-tighter text-lg uppercase">Manual Not Found</h2>
               <p className="text-sm text-muted-foreground">Page images have not been generated yet.</p>
-              <code className="block bg-muted rounded px-3 py-2 text-xs font-mono">public/manual-pages/</code>
+              <p className="text-xs text-muted-foreground">The protected manual files are unavailable.</p>
             </div>
           )}
 
@@ -638,12 +822,50 @@ export default function ManualFlipbook() {
                     <div className="relative bg-[#fdfcfa] overflow-hidden"
                       style={{ width: isMobile ? "100%" : "50%", borderRight: isMobile ? "none" : "1px solid #ddd8d0" }}>
                       <canvas ref={leftRef} className="page-canvas" style={{ position:"absolute", inset:0 }} />
+                      {failedPages.has(currentPage) && (
+                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#faf8f5] px-4 text-center" role="alert">
+                          <AlertTriangle className="h-7 w-7 text-[#e27226]" />
+                          <p className="text-sm font-semibold text-stone-800">Page {currentPage} could not be loaded.</p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={retryingPages.has(currentPage)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void retryPage(currentPage, leftRef.current);
+                            }}
+                            onMouseDown={(event) => event.stopPropagation()}
+                          >
+                            {retryingPages.has(currentPage) ? <ChainsawLoader className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                            Retry page
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Right page — desktop only */}
                     {!isMobile && (
                       <div className="relative bg-[#fdfcfa] overflow-hidden" style={{ width:"50%" }}>
                         <canvas ref={rightRef} className="page-canvas" style={{ position:"absolute", inset:0 }} />
+                        {failedPages.has(currentPage + 1) && (
+                          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#faf8f5] px-4 text-center" role="alert">
+                            <AlertTriangle className="h-7 w-7 text-[#e27226]" />
+                            <p className="text-sm font-semibold text-stone-800">Page {currentPage + 1} could not be loaded.</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={retryingPages.has(currentPage + 1)}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                void retryPage(currentPage + 1, rightRef.current);
+                              }}
+                              onMouseDown={(event) => event.stopPropagation()}
+                            >
+                              {retryingPages.has(currentPage + 1) ? <ChainsawLoader className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                              Retry page
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -765,11 +987,11 @@ export default function ManualFlipbook() {
                   {/* ── Watermark ──────────────────────────────────────────── */}
                   <canvas ref={wmRef} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden style={{ zIndex:30 }} />
 
-                  {/* ── Loading spinner ────────────────────────────────────── */}
+                  {/* ── Loading indicator ──────────────────────────────────── */}
                   {pageRendering && !isAnimating && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none"
                       style={{ zIndex:35, background:"rgba(250,248,245,0.55)" }}>
-                      <Loader2 className="w-7 h-7 animate-spin text-[#e27226] drop-shadow" />
+                      <ChainsawLoader className="w-7 h-7 text-[#e27226] drop-shadow" />
                     </div>
                   )}
                 </div>
@@ -890,9 +1112,27 @@ export default function ManualFlipbook() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <img
-              src={pageUrl(zoomedPage)}
+            {zoomedPageUrl && <img
+              src={zoomedPageUrl}
               alt={`Page ${zoomedPage}`}
+              onLoad={() => {
+                setZoomLoadState("loaded");
+                if (zoomRetryAttempt > 0) {
+                  trackManualDeliveryEvent("manual_page_retry_succeeded", {
+                    surface: "zoom",
+                    layout: manualPageLayout(),
+                  });
+                }
+              }}
+              onError={() => {
+                trackManualDeliveryEvent("manual_page_load_failed", {
+                  surface: "zoom",
+                  attempt: zoomRetryAttempt > 0 ? "retry" : "initial",
+                  layout: manualPageLayout(),
+                  failure_type: "image_decode",
+                });
+                setZoomLoadState("error");
+              }}
               style={{
                 display: "block",
                 maxWidth: "100vw",
@@ -904,7 +1144,36 @@ export default function ManualFlipbook() {
                 WebkitUserDrag: "none" as React.CSSProperties["userSelect"],
               } as React.CSSProperties}
               draggable={false}
-            />
+            />}
+
+            {zoomLoadState === "error" && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white px-6 text-center" role="alert">
+                <AlertTriangle className="h-8 w-8 text-[#e27226]" />
+                <p className="text-sm font-semibold text-stone-800">Page {zoomedPage} could not be loaded.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    trackManualDeliveryEvent("manual_page_retry_attempted", {
+                      surface: "zoom",
+                      layout: manualPageLayout(),
+                    });
+                    setZoomRetryAttempt(attempt => attempt + 1);
+                  }}
+                  onMouseDown={(event) => event.stopPropagation()}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retry zoomed page
+                </Button>
+              </div>
+            )}
+
+            {zoomLoadState === "loading" && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-white" aria-label={`Loading page ${zoomedPage}`}>
+                <ChainsawLoader className="h-7 w-7 text-[#e27226]" />
+              </div>
+            )}
 
             {/* Watermark tiles */}
             {[

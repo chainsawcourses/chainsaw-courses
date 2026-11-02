@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { CERTIFICATE_LAYOUT } from "./certificateLayout";
+import { certificateIdentity } from "./enrollment";
 
 // Resolve public asset dir from either the workspace root (production) or
 // from artifacts/api-server/ (dev via pnpm).  Try both and use whichever exists.
@@ -25,27 +26,33 @@ function cx(text: string, size: number, font: { widthOfTextAtSize(t: string, s: 
   return (W - font.widthOfTextAtSize(text, size)) / 2;
 }
 
-export function certRef(userId: number, date: Date): string {
-  const hash = crypto
-    .createHash("md5")
-    .update(`${userId}-${date.getFullYear()}`)
-    .digest("hex")
-    .toUpperCase()
-    .slice(0, 6);
-  return `CC/${date.getFullYear()}/${String(userId).padStart(4, "0")}/${hash}`;
+export function certRef(userId: number, date: Date, enrollmentId?: number | null): string {
+  const hash = enrollmentId
+    ? certificateIdentity(userId, date, enrollmentId)
+    : crypto
+      .createHash("sha256")
+      .update(`${userId}-legacy-${date.getTime()}`)
+      .digest("hex")
+      .toUpperCase()
+      .slice(0, 6);
+  const enrollmentPart = enrollmentId ? `/E${String(enrollmentId).padStart(5, "0")}` : "";
+  return `CC/${date.getFullYear()}/${String(userId).padStart(4, "0")}${enrollmentPart}/${hash}`;
 }
 
 export interface CertUser {
   id: number;
   fullName: string;
   email: string;
+  enrollmentId?: number | null;
 }
 
 export async function generateCertificatePdf(
   user: CertUser,
   passedAt: Date,
   passedScore: number | null,
+  options: { sample?: boolean } = {},
 ): Promise<Uint8Array> {
+  const sample = options.sample === true;
   const pdfDoc = await PDFDocument.create();
   const W = 595, H = 842;
   const page = pdfDoc.addPage([W, H]);
@@ -85,8 +92,8 @@ export async function generateCertificatePdf(
   const footerTxt = "chainsawcourses.com  |  IIRSM Approved Course";
   page.drawText(footerTxt, { x: cx(footerTxt, 7.5, fReg, W), y: 30, size: 7.5, font: fReg, color: lgrey });
 
-  const ref    = certRef(user.id, passedAt);
-  const refStr = `Certificate Ref: ${ref}`;
+  const refStr = sample ? "TEST CERT NOT VALID - No certificate reference issued" :
+    `Certificate Ref: ${certRef(user.id, passedAt, user.enrollmentId)}`;
   page.drawText(refStr, { x: cx(refStr, 7, fReg, W), y: 58, size: 7, font: fReg, color: lgrey });
 
   const SIG_LINE_Y  = 140;
@@ -96,7 +103,7 @@ export async function generateCertificatePdf(
   const sigZoneW    = 190;
   const sigX        = (W - sigZoneW) / 2;
 
-  try {
+  if (!sample) try {
     const sigBytes = fs.readFileSync(SIG_PATH);
     const sigImg   = await pdfDoc.embedPng(sigBytes);
     const d        = sigImg.scaleToFit(sigZoneW - 20, SIG_MAX_H);
@@ -117,21 +124,23 @@ export async function generateCertificatePdf(
 
   // ── MAIN CONTENT ZONE ─────────────────────────────────────────────────────
   const dateStr  = passedAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const dateLine = `Date of Award:  ${dateStr}`;
+  const dateLine = sample ? "TEST CERT NOT VALID - No date of award" : `Date of Award:  ${dateStr}`;
   page.drawText(dateLine, { x: cx(dateLine, 10, fReg, W), y: 230, size: 10, font: fReg, color: mid });
 
-  const validityLine = "It is recommended to refresh your certificate every 3-5 years";
+  const validityLine = sample ? "Sample only - not proof of training" : "It is recommended to refresh your certificate every 3-5 years";
   page.drawText(validityLine, { x: cx(validityLine, 8, fItalic, W), y: 212, size: 8, font: fItalic, color: lgrey });
 
   rule(249, 0.28);
 
-  const glhLine = "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Course";
+  const glhLine = sample ? "COURSE PREVIEW - No CPD points or qualification awarded" :
+    "Guided Learning Hours: 4  \u00B7  CPD: 5 Verifiable CPD Points  \u00B7  IIRSM Approved Course";
   page.drawText(glhLine, { x: cx(glhLine, 9.5, fBold, W), y: 326, size: 9.5, font: fBold, color: black });
 
-  const unitLine = "Unit Ref: 0039-20  \u00B7  Module Quizzes: 100%  \u00B7  Final Exam Pass Mark: 80%";
+  const unitLine = sample ? "Unit Ref: 0039-20  \u00B7  Final exam not completed" :
+    "Unit Ref: 0039-20  \u00B7  Module Quizzes: 100%  \u00B7  Final Exam Pass Mark: 80%";
   page.drawText(unitLine, { x: cx(unitLine, 8.5, fReg, W), y: 307, size: 8.5, font: fReg, color: mid });
 
-  const courseVersion = "Course Version 1.1 \u00B7 July 2026";
+  const courseVersion = sample ? "Sample certificate for app review" : "Course Version 1.1 \u00B7 July 2026";
   if (passedScore !== null) {
     const scoreLine = `Assessment Score: ${passedScore}%  \u00B7  ${courseVersion}`;
     page.drawText(scoreLine, { x: cx(scoreLine, 9, fReg, W), y: 288, size: 9, font: fReg, color: mid });
@@ -170,11 +179,14 @@ export async function generateCertificatePdf(
     y: 650 - UPPER_CONTENT_SHIFT, size: 20, font: fBold, color: black,
   });
 
-  page.drawText("This is to certify that", { x: cx("This is to certify that", 10, fItalic, W), y: 615 - UPPER_CONTENT_SHIFT, size: 10, font: fItalic, color: mid });
+  const introduction = sample ? "Test preview for" : "This is to certify that";
+  page.drawText(introduction, { x: cx(introduction, 10, fItalic, W), y: 615 - UPPER_CONTENT_SHIFT, size: 10, font: fItalic, color: mid });
   page.drawText(user.fullName, { x: cx(user.fullName, 34, fBold, W), y: 570 - UPPER_CONTENT_SHIFT, size: 34, font: fBold, color: black });
   page.drawText(user.email, { x: cx(user.email, 9.5, fReg, W), y: 540 - UPPER_CONTENT_SHIFT, size: 9.5, font: fReg, color: lgrey });
-  page.drawText("has successfully completed the following IIRSM Approved Course:", {
-    x: cx("has successfully completed the following IIRSM Approved Course:", 9.5, fItalic, W),
+  const completionLine = sample ? "No course completion or exam pass is recorded for this account." :
+    "has successfully completed the following IIRSM Approved Course:";
+  page.drawText(completionLine, {
+    x: cx(completionLine, 9.5, fItalic, W),
     y: CERTIFICATE_LAYOUT.completionSentence.bottom, size: 9.5, font: fItalic, color: mid,
   });
 
@@ -193,6 +205,18 @@ export async function generateCertificatePdf(
   // ── BORDER ────────────────────────────────────────────────────────────────
   page.drawRectangle({ x: BI, y: BI, width: W - BI * 2, height: H - BI * 2, borderColor: orange, borderWidth: BW });
   page.drawRectangle({ x: BI + 7, y: BI + 7, width: W - (BI + 7) * 2, height: H - (BI + 7) * 2, borderColor: silver, borderWidth: 0.5 });
+
+  if (sample) {
+    const watermark = "TEST CERT NOT VALID";
+    page.drawText(watermark, {
+      x: cx(watermark, 37, fBold, W), y: 390,
+      size: 37, font: fBold, color: orange, opacity: 0.64,
+    });
+    page.drawText(watermark, {
+      x: cx(watermark, 37, fBold, W), y: 510,
+      size: 37, font: fBold, color: orange, opacity: 0.64,
+    });
+  }
 
   return pdfDoc.save();
 }

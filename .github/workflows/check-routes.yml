@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check required release validations
+        run: pnpm run check:release-contract
+
       - name: Run release validation
         run: pnpm run check:release
 

@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, Check, Download, Loader2 } from "lucide-react";
+import { ChevronLeft, Check, Download } from "lucide-react";
 import { getGetWaiverQueryKey, useGetWaiver } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useUserSession } from "@/contexts/UserContext";
 import { deliverPdf } from "@/lib/pdfDownload";
 import { WAIVER_CLAUSES } from "./Waiver";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 type WaiverClause = {
   number: string;
@@ -89,7 +90,7 @@ export default function SignedWaiver() {
           disabled={downloading || !waiver?.signed}
           className="h-8 gap-1.5 px-2 font-mono text-xs uppercase tracking-widest sm:px-3"
         >
-          {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          {downloading ? <ChainsawLoader className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
           <span className="hidden sm:inline">Download</span>
         </Button>
       </div>
@@ -97,7 +98,7 @@ export default function SignedWaiver() {
       <main className="flex flex-1 items-start justify-center overflow-auto p-3 sm:p-6">
         {isLoading && (
           <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <ChainsawLoader className="h-8 w-8 text-primary" />
             <p className="font-mono text-sm uppercase tracking-widest text-muted-foreground">Loading signed waiver…</p>
           </div>
         )}

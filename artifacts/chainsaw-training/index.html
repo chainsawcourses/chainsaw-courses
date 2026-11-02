@@ -26,7 +26,40 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="startup-fallback" role="status" aria-live="polite">
+        <img src="/icon-192.png" alt="" width="64" height="64" />
+        <p>Loading Chainsaw Courses…</p>
+      </div>
+    </div>
+    <style>
+      #startup-fallback {
+        box-sizing: border-box;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        color: #333;
+        background: #fff;
+        text-align: center;
+        font: 600 1rem/1.5 system-ui, sans-serif;
+      }
+    </style>
+    <script>
+      window.__chainsawStartupTimer = window.setTimeout(function () {
+        var fallback = document.getElementById("startup-fallback");
+        if (!fallback) return;
+        fallback.setAttribute("role", "alert");
+        fallback.innerHTML =
+          '<img src="/icon-192.png" alt="Chainsaw Courses" width="64" height="64">' +
+          "<h1 style=\"margin:0;color:#e27226;font-size:1.25rem\">The app could not start</h1>" +
+          "<p style=\"margin:0;max-width:22rem;font-weight:400\">Check your internet connection, install any available phone software updates, then close and reopen the app.</p>" +
+          "<button type=\"button\" onclick=\"window.location.reload()\" style=\"padding:.75rem 2rem;border:0;border-radius:6px;background:#e27226;color:#fff;font:600 1rem system-ui,sans-serif\">Try again</button>";
+      }, 12000);
+    </script>
     <script type="module" src="/src/main.tsx?v=2"></script>
   </body>
 </html>

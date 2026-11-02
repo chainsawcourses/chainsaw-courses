@@ -4,6 +4,7 @@ import { eq, and, ne } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
 import {
   sendCandidateConfirmation,
   sendBatchEmailToVenue,
@@ -25,16 +26,24 @@ function nextBatchDate(): string {
   return next.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-async function requireGatewayUser(req: import("express").Request, res: import("express").Response) {
+export async function requireGatewayUser(req: import("express").Request, res: import("express").Response) {
   const deviceId = req.headers["deviceid"] as string;
   const activationCode = req.headers["activationcode"] as string;
   if (!deviceId || !activationCode) {
     res.status(401).json({ error: "Missing credentials" });
     return null;
   }
-  const user = await resolveUser(activationCode, deviceId);
+  const user = await resolveUser(
+    activationCode,
+    deviceId,
+    req.headers["userid"] ? Number(req.headers["userid"]) : undefined,
+  );
   if (!user) {
     res.status(401).json({ error: "Unauthorised" });
+    return null;
+  }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
     return null;
   }
   return user;

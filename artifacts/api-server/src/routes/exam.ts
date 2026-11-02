@@ -1,12 +1,14 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable, usersTable, activationCodesTable } from "@workspace/db";
+import { examQuestionsTable, examAttemptsTable, modulesTable, userProgressTable, quizQuestionsTable, courseEnrolmentsTable, activationCodesTable } from "@workspace/db";
 import { SubmitExamBody } from "@workspace/api-zod";
-import { eq, asc, sql, desc } from "drizzle-orm";
+import { eq, asc, sql, desc, and, isNull } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { sendCertificateEmail } from "../lib/sendCertificateEmail";
 import { saveCertificateToDrive } from "../lib/driveCertificates";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
+import { isCertificateTestCode } from "../lib/certificateTestAccess";
 
 const router = Router();
 
@@ -30,10 +32,13 @@ async function isReviewerCode(activationCode: string): Promise<boolean> {
   return row?.allModulesUnlocked ?? false;
 }
 
-async function isCourseComplete(userId: number): Promise<boolean> {
+async function isCourseComplete(userId: number, enrollmentId: number | null): Promise<boolean> {
   const [modules, progressRecords, quizCounts] = await Promise.all([
     db.select().from(modulesTable).where(eq(modulesTable.isActive, true)),
-    db.select().from(userProgressTable).where(eq(userProgressTable.userId, userId)),
+    db.select().from(userProgressTable).where(and(
+      eq(userProgressTable.userId, userId),
+      enrollmentId === null ? isNull(userProgressTable.enrollmentId) : eq(userProgressTable.enrollmentId, enrollmentId),
+    )),
     db.select({
       moduleId: quizQuestionsTable.moduleId,
       count: sql<number>`cast(count(*) as int)`,
@@ -52,11 +57,14 @@ async function isCourseComplete(userId: number): Promise<boolean> {
   });
 }
 
-async function hasAlreadyPassed(userId: number): Promise<boolean> {
+async function hasAlreadyPassed(userId: number, enrollmentId: number | null): Promise<boolean> {
   const passed = await db
     .select()
     .from(examAttemptsTable)
-    .where(eq(examAttemptsTable.userId, userId))
+    .where(and(
+      eq(examAttemptsTable.userId, userId),
+      enrollmentId === null ? isNull(examAttemptsTable.enrollmentId) : eq(examAttemptsTable.enrollmentId, enrollmentId),
+    ))
     .then((rows) => rows.some((r) => r.passed));
   return passed;
 }
@@ -75,21 +83,28 @@ router.get("/exam", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   try {
     const reviewer = await isReviewerCode(activationCode);
+    const certificateTest = isCertificateTestCode(activationCode);
 
     if (!reviewer) {
       // Block access once already passed
-      if (await hasAlreadyPassed(user.id)) {
+       if (await hasAlreadyPassed(user.id, user.enrollmentId)) {
         res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
         return;
       }
 
-      const complete = await isCourseComplete(user.id);
-      if (!complete) {
-        res.status(403).json({ error: "Complete all training modules before taking the final exam." });
-        return;
+      if (!certificateTest) {
+        const complete = await isCourseComplete(user.id, user.enrollmentId);
+        if (!complete) {
+          res.status(403).json({ error: "Complete all training modules before taking the final exam." });
+          return;
+        }
       }
     }
 
@@ -126,21 +141,28 @@ router.post("/exam/submit", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   try {
     const reviewer = await isReviewerCode(activationCode);
+    const certificateTest = isCertificateTestCode(activationCode);
 
     if (!reviewer) {
       // Block re-submission once already passed
-      if (await hasAlreadyPassed(user.id)) {
+       if (await hasAlreadyPassed(user.id, user.enrollmentId)) {
         res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
         return;
       }
 
-      const complete = await isCourseComplete(user.id);
-      if (!complete) {
-        res.status(403).json({ error: "Complete all training modules before taking the final exam." });
-        return;
+      if (!certificateTest) {
+        const complete = await isCourseComplete(user.id, user.enrollmentId);
+        if (!complete) {
+          res.status(403).json({ error: "Complete all training modules before taking the final exam." });
+          return;
+        }
       }
     }
 
@@ -170,32 +192,61 @@ router.post("/exam/submit", async (req, res) => {
     const passed = score >= EXAM_PASS_SCORE;
     const attemptedAt = new Date();
 
-    await db.insert(examAttemptsTable).values({
-      userId: user.id,
-      score,
-      passed,
-      totalQuestions: total,
-      answers: JSON.stringify(answers),
+    const result = await db.transaction(async (tx) => {
+      // Serialize pass creation per enrolment. The conditional completion
+      // update makes the first pass immutable and is the sole trigger for
+      // certificate side effects.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${"exam:" + user.id + ":" + user.enrollmentId}))`);
+      const [priorPass] = await tx.select({ id: examAttemptsTable.id })
+        .from(examAttemptsTable)
+        .where(and(
+          eq(examAttemptsTable.userId, user.id),
+          eq(examAttemptsTable.enrollmentId, user.enrollmentId),
+          eq(examAttemptsTable.passed, true),
+        ))
+        .orderBy(asc(examAttemptsTable.attemptedAt))
+        .limit(1);
+      if (priorPass && passed && !reviewer) return { alreadyPassed: true, firstPass: false };
+
+      await tx.insert(examAttemptsTable).values({
+        userId: user.id,
+        enrollmentId: user.enrollmentId,
+        score,
+        passed,
+        totalQuestions: total,
+        answers: JSON.stringify(answers),
+      });
+
+      if (!passed || !user.enrollmentId) return { alreadyPassed: false, firstPass: false };
+      const [completed] = await tx
+        .update(courseEnrolmentsTable)
+        .set({ courseCompletedAt: attemptedAt, certificateIssuedAt: attemptedAt })
+        .where(and(
+          eq(courseEnrolmentsTable.id, user.enrollmentId),
+          eq(courseEnrolmentsTable.userId, user.id),
+          isNull(courseEnrolmentsTable.courseCompletedAt),
+          isNull(courseEnrolmentsTable.certificateIssuedAt),
+        ))
+        .returning({ id: courseEnrolmentsTable.id });
+      return { alreadyPassed: false, firstPass: !!completed };
     });
+    if (result.alreadyPassed) {
+      res.status(403).json({ error: "already_passed", message: "You have already passed the final exam." });
+      return;
+    }
 
     logger.info({ userId: user.id, score, passed }, "Summative exam attempt recorded");
 
     if (passed) {
-      // Open a 3-month certificate window and record course completion
-      const certWindowEnds = new Date(attemptedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
-      await db
-        .update(usersTable)
-        .set({ courseCompletedAt: attemptedAt, certificateIssuedAt: attemptedAt, accessExpiresAt: certWindowEnds })
-        .where(eq(usersTable.id, user.id));
-
-      // Fire-and-forget certificate email
-      sendCertificateEmail(user, attemptedAt, score).catch((err) => {
-        logger.error({ err, userId: user.id }, "Certificate email fire-and-forget failed");
-      });
-      // Fire-and-forget Drive save
-      saveCertificateToDrive(user, attemptedAt, score).catch((err) => {
-        logger.error({ err, userId: user.id }, "Certificate Drive save fire-and-forget failed");
-      });
+      if (result.firstPass) {
+        // Side effects happen only for the transactionally claimed first pass.
+        sendCertificateEmail(user, attemptedAt, score).catch((err) => {
+          logger.error({ err, userId: user.id }, "Certificate email fire-and-forget failed");
+        });
+        saveCertificateToDrive(user, attemptedAt, score).catch((err) => {
+          logger.error({ err, userId: user.id }, "Certificate Drive save fire-and-forget failed");
+        });
+      }
     }
 
     res.json({ passed, score, passingScore: EXAM_PASS_SCORE, correct, total, feedback });
@@ -219,6 +270,10 @@ router.get("/exam/status", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   // Demo mode: exam is never unlocked for demo users
   if (user.id === 0) {
@@ -228,11 +283,12 @@ router.get("/exam/status", async (req, res) => {
 
   try {
     const reviewer = await isReviewerCode(activationCode);
-    const unlocked = reviewer || await isCourseComplete(user.id);
+    const certificateTest = isCertificateTestCode(activationCode);
+    const unlocked = reviewer || certificateTest || await isCourseComplete(user.id, user.enrollmentId);
     const attempts = await db
       .select()
       .from(examAttemptsTable)
-      .where(eq(examAttemptsTable.userId, user.id))
+      .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.enrollmentId, user.enrollmentId)))
       .orderBy(desc(examAttemptsTable.attemptedAt));
 
     const bestScore = attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : null;

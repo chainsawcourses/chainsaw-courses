@@ -11,6 +11,10 @@ tags:
     description: Health operations
   - name: auth
     description: Activation and user authentication
+  - name: billing
+    description: Website subscription entitlement events
+  - name: purchases
+    description: Signed server-to-server purchase fulfilment
   - name: modules
     description: Training modules and videos
   - name: progress
@@ -35,7 +39,227 @@ tags:
     description: Arboriculture and forestry news feed
   - name: documents
     description: Course reference documents
+  - name: retailers
+    description: Public chainsaw retailer directory
 paths:
+  /apple/config:
+    get:
+      operationId: getApplePurchaseConfig
+      tags: [purchases]
+      responses:
+        "200":
+          description: Store availability, never a hardcoded customer price
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplePurchaseConfig"
+  /apple/intent:
+    post:
+      operationId: createApplePurchaseIntent
+      tags: [purchases]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppleIntentInput"
+      responses:
+        "200":
+          description: Short-lived server-owned purchase identity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplePurchaseIntent"
+        "503":
+          description: Apple purchases are not configured
+  /apple/identity/request:
+    post:
+      operationId: requestAppleIdentity
+      tags: [purchases]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppleIdentityInput"
+      responses:
+        "200":
+          description: Verification sent without disclosing whether an account exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppleIdentityChallenge"
+        "429":
+          description: Too many requests
+        "503":
+          description: Mail or Apple access unavailable
+  /apple/identity/complete:
+    post:
+      operationId: completeAppleIdentity
+      tags: [purchases]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppleIdentityProof"
+      responses:
+        "200":
+          description: Verified learner session for the existing app APIs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppleLearnerSession"
+        "400":
+          description: Invalid proof
+        "401":
+          description: Verification failed
+        "409":
+          description: Ownership conflict or support required
+        "503":
+          description: Service unavailable
+  /apple/sync:
+    post:
+      operationId: syncApplePurchase
+      tags: [purchases]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppleTransactionInput"
+      responses:
+        "200":
+          description: Reconciled without changing another provider's entitlement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppleSyncResult"
+        "401":
+          description: Learner authentication required
+        "409":
+          description: Purchase ownership conflict
+  /apple/notifications:
+    post:
+      operationId: receiveAppleNotification
+      tags: [purchases]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppleNotificationInput"
+      responses:
+        "200":
+          description: Verified notification acknowledged
+        "400":
+          description: Invalid Apple signature or payload
+        "503":
+          description: Apple verification unavailable
+  /automation/backups/daily:
+    get:
+      operationId: checkDailyBackupTrigger
+      tags: [admin]
+      summary: Check external backup trigger configuration without starting a backup
+      security:
+        - BackupTriggerBearer: []
+      responses:
+        "200":
+          description: Trigger is configured for production
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupTriggerStatus" }
+        "401":
+          description: Invalid dedicated trigger key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "503":
+          description: Production backup configuration is incomplete
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: triggerDailyBackup
+      tags: [admin]
+      summary: Run the due daily backup and wait for verified completion
+      description: Dedicated server-to-server trigger only. Deduplicated by Europe/London date, never before 06:00. Returns only job state, not learner data or backup download links.
+      security:
+        - BackupTriggerBearer: []
+      responses:
+        "200":
+          description: Completed, failed, already recorded, or not yet due
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupTriggerStatus" }
+        "202":
+          description: Another backup owns the lock or today's backup is running
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupTriggerStatus" }
+        "401":
+          description: Invalid dedicated trigger key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "503":
+          description: Backup service unavailable or configuration incomplete
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /website/purchases:
+    post:
+      operationId: submitWebsitePurchase
+      tags: [purchases]
+      summary: Record a verified Shopify seat purchase or reversal
+      description: Server-to-server only. The website verifies Shopify payment first and signs timestamp + "." + exact raw JSON body with WEBSITE_PURCHASE_SECRET. Never call from a browser.
+      security:
+        - WebsitePurchaseSignature: []
+          WebsitePurchaseTimestamp: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebsitePurchaseEvent"
+      responses:
+        "200":
+          description: Code email sent or seat revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebsitePurchaseResult"
+        "202":
+          description: Code stored; email delivery not confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebsitePurchaseResult"
+        "400":
+          description: Invalid event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing, stale, or invalid signature
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Legacy order or seat identity conflict requiring manual review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Bridge secret not configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /healthz:
     get:
       operationId: healthCheck
@@ -48,6 +272,123 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /retailers/public:
+    get:
+      operationId: getPublicRetailers
+      tags: [retailers]
+      summary: Get publishable retailer details for the public map
+      description: Read-only retailer data only. Returns active, verified retailers and excludes learner, verification, and administrator records.
+      responses:
+        "200":
+          description: Active, verified retailers ordered featured first, then by name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicRetailer"
+        "500":
+          description: Retailer directory unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /retailers/public/logos/{retailerId}/{objectId}:
+    get:
+      operationId: getPublicRetailerLogo
+      tags: [retailers]
+      summary: Get a retailer logo image
+      parameters:
+        - name: retailerId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+        - name: objectId
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[a-f0-9-]{36}$" }
+      responses:
+        "200":
+          description: Public retailer logo image
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+            image/webp:
+              schema: { type: string, format: binary }
+        "404":
+          description: Logo image not found
+
+  /admin/retailers/{id}/logo-upload:
+    post:
+      operationId: createRetailerLogoUpload
+      tags: [retailers]
+      summary: Create a signed upload URL for a retailer logo
+      security:
+        - AdminToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RetailerLogoUploadRequest"
+      responses:
+        "200":
+          description: Signed upload URL and private object key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RetailerLogoUploadResponse"
+        "400":
+          description: Unsupported image type or size
+        "401":
+          description: Administrator authentication is required
+        "404":
+          description: Retailer not found
+        "503":
+          description: Image storage is unavailable
+
+  /admin/retailers/{id}/logo:
+    put:
+      operationId: updateRetailerLogo
+      tags: [retailers]
+      summary: Attach, replace, or remove a retailer logo
+      security:
+        - AdminToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RetailerLogoUpdateRequest"
+      responses:
+        "200":
+          description: Updated retailer logo reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RetailerLogoUpdateResponse"
+        "400":
+          description: Invalid logo reference or uploaded image
+        "401":
+          description: Administrator authentication is required
+        "404":
+          description: Retailer or uploaded image not found
+        "503":
+          description: Image storage is unavailable
 
   /documents/hazards/reference:
     get:
@@ -63,6 +404,362 @@ paths:
                 $ref: "#/components/schemas/HazardsReference"
         "500":
           description: Could not load the reference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /documents/manual/manifest:
+    get:
+      operationId: getManualManifest
+      tags: [documents]
+      summary: Get the protected digital manual manifest
+      responses:
+        "200":
+          description: Manual page count
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [pages]
+                properties:
+                  pages:
+                    type: integer
+                    minimum: 1
+        "401":
+          description: Missing or invalid learner credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /documents/manual/search-index:
+    get:
+      operationId: getManualSearchIndex
+      tags: [documents]
+      summary: Get the protected digital manual search index
+      responses:
+        "200":
+          description: Searchable manual page text
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [page, text]
+                  properties:
+                    page:
+                      type: integer
+                      minimum: 1
+                    text:
+                      type: string
+        "401":
+          description: Missing or invalid learner credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /documents/manual/pages/{filename}:
+    get:
+      operationId: getManualPage
+      tags: [documents]
+      summary: Get one protected digital manual page
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^page-\d{3}\.jpg$'
+      responses:
+        "200":
+          description: Manual page image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid learner credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Manual page not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /assessment-images/{source}/{filename}:
+    get:
+      operationId: getAssessmentImage
+      tags: [documents]
+      summary: Get one protected assessment image
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [bundled, uploads]
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9._-]+$'
+      responses:
+        "200":
+          description: Assessment image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid learner or administrator credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Assessment image not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /assessment-images/objects/assessment-media/images/{objectId}:
+    get:
+      operationId: getUploadedAssessmentImage
+      tags: [documents]
+      summary: Get one protected assessment image from App Storage
+      parameters:
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Assessment image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid learner or administrator credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Assessment image not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /assessment-audio/{source}/{filename}:
+    get:
+      operationId: getLegacyAssessmentAudio
+      tags: [documents]
+      summary: Get one protected legacy assessment audio file
+      parameters:
+        - name: source
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [uploads]
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9._-]+$'
+      responses:
+        "200":
+          description: Assessment audio
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+            audio/ogg:
+              schema:
+                type: string
+                format: binary
+            audio/mp4:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid learner or administrator credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Assessment audio not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /assessment-audio/objects/assessment-media/audio/{objectId}:
+    get:
+      operationId: getUploadedAssessmentAudio
+      tags: [documents]
+      summary: Get one protected assessment audio file from App Storage
+      parameters:
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Assessment audio
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+            audio/ogg:
+              schema:
+                type: string
+                format: binary
+            audio/mp4:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid learner or administrator credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Learner course access has ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Assessment audio not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/mock-questions/request-media-upload:
+    post:
+      operationId: requestAssessmentMediaUpload
+      tags: [admin]
+      summary: Request an App Storage upload URL for assessment media
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssessmentMediaUploadInput"
+      responses:
+        "200":
+          description: Presigned upload details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentMediaUploadResult"
+        "400":
+          description: Unsupported media type or file size
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Missing or invalid administrator credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Media storage unavailable
           content:
             application/json:
               schema:
@@ -99,6 +796,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /learner/code-reset-requests:
+    post:
+      operationId: createCodeResetRequest
+      tags: [auth]
+      summary: Request a replacement activation code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeResetRequestInput"
+      responses:
+        "201":
+          description: Request recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Invalid email address
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /auth/me:
     get:
       operationId: getMe
@@ -122,6 +844,86 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /billing/subscription-events:
+    post:
+      operationId: recordSubscriptionBillingEvent
+      tags: [billing]
+      summary: Record a website subscription entitlement event authenticated with a shared bearer secret
+      security:
+        - WebsiteBillingBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionBillingEventInput"
+      responses:
+        "200":
+          description: Event accepted or already recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionBillingEventResult"
+        "400":
+          description: Invalid event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Invalid website billing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Learner identity was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email matched multiple learners and learnerId is required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/history:
+    get:
+      operationId: getEnrollmentHistory
+      tags: [auth]
+      summary: Get the learner's historical CPD enrolments and evidence
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: header
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Historical enrolments and isolated progress summaries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrollmentHistory"
         "401":
           description: Unauthorized
           content:
@@ -276,6 +1078,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProgressSummary"
 
+  /progress/video-engagement:
+    post:
+      operationId: saveVideoEngagement
+      tags: [progress]
+      summary: Save isolated video engagement for the current enrolment
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoEngagementInput"
+      responses:
+        "200":
+          description: Engagement saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
   /quizzes/{moduleId}:
     get:
       operationId: getQuiz
@@ -426,6 +1258,129 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CertificateDetails"
+
+  /certificate/sample/details:
+    get:
+      operationId: getReviewerSampleCertificateDetails
+      tags: [certificate]
+      summary: Get an explicitly non-valid sample for APPTEST26 app review
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: header
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sample display details (never a real award)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CertificateDetails"
+        "401":
+          description: Not the APPTEST26 reviewer session
+
+  /certificate/sample:
+    get:
+      operationId: downloadReviewerSampleCertificate
+      tags: [certificate]
+      summary: Download a non-valid app-review sample PDF
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: header
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sample PDF without an issued certificate reference
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not the APPTEST26 reviewer session
+
+  /certificate/sample/email:
+    post:
+      operationId: emailReviewerSampleCertificate
+      tags: [certificate]
+      summary: Email a watermarked, non-valid sample to the signed-in APPTEST26 reviewer
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: header
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Test PDF accepted by the mail server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Not the APPTEST26 reviewer session
+
+  /certificate/access-token:
+    get:
+      operationId: getCertificateAccessToken
+      tags: [certificate]
+      summary: Issue a short-lived token for a certificate PDF
+      parameters:
+        - name: deviceId
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: activationCode
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: enrollmentId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Short-lived certificate token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CertificateAccessToken"
 
   /app-feedback:
     post:
@@ -1017,6 +1972,234 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminStats"
 
+  /admin/billing-alerts:
+    get:
+      operationId: getBillingAlerts
+      tags: [admin]
+      summary: List subscription delivery and expiry alerts
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current billing alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BillingAlert"
+
+  /admin/assessment-media-cleanup-health:
+    get:
+      operationId: getAssessmentMediaCleanupHealth
+      tags: [admin]
+      summary: Get the durable assessment media cleanup status
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Assessment media cleanup health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentMediaCleanupHealth"
+        "401":
+          description: Administrator authentication is required
+
+  /admin/billing-monitoring-smoke:
+    post:
+      operationId: runBillingMonitoringSmoke
+      tags: [admin]
+      summary: Verify the live billing monitoring schema and alert recovery
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Billing monitoring is healthy and synthetic data was rolled back
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [schema, alertOpened, alertCleared, retainedRows]
+                properties:
+                  schema:
+                    type: string
+                    enum: [ok]
+                  alertOpened:
+                    type: boolean
+                    enum: [true]
+                  alertCleared:
+                    type: boolean
+                    enum: [true]
+                  retainedRows:
+                    type: integer
+                    enum: [0]
+        "401":
+          description: Administrator authentication is required
+        "503":
+          description: Billing monitoring validation failed
+
+  /admin/billing-support-notifications:
+    get:
+      operationId: getBillingSupportNotifications
+      tags: [admin]
+      summary: List support notification delivery outcomes for billing alerts
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: deliveryOutcome
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [delivered, failed_or_exhausted, pending]
+        - name: incidentStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open, resolved]
+      responses:
+        "200":
+          description: Billing support notification history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BillingSupportNotification"
+        "400":
+          description: Invalid billing history filter
+        "401":
+          description: Administrator authentication is required
+
+  /admin/website-purchase-seats:
+    get:
+      operationId: listWebsitePurchaseSeatsForReview
+      tags: [admin]
+      summary: List website purchase seats with uncertain email delivery
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Recent uncertain seats, including resolved cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebsitePurchaseReviewSeat"
+        "401":
+          description: Administrator authentication is required
+
+  /admin/website-purchase-seats/{id}/code:
+    get:
+      operationId: revealWebsitePurchaseSeatCode
+      tags: [admin]
+      summary: Reveal the existing active, unpaused code for manual handoff
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: adminToken
+          in: header
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Existing code; never creates or sends a code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebsitePurchaseCode"
+        "401":
+          description: Administrator authentication is required
+        "409":
+          description: Seat is not ready for handoff
+
+  /admin/website-purchase-seats/{id}/resolve:
+    post:
+      operationId: resolveWebsitePurchaseSeat
+      tags: [admin]
+      summary: Record a manual resolution without sending email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: adminToken
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebsitePurchaseResolutionInput"
+      responses:
+        "200":
+          description: Resolution recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebsitePurchaseResolutionResult"
+        "400":
+          description: Invalid resolution or note
+        "401":
+          description: Administrator authentication is required
+        "409":
+          description: Seat changed or is not ready for resolution
+
+  /admin/students/{studentId}/subscription-repair:
+    post:
+      operationId: repairStudentSubscription
+      tags: [admin]
+      summary: Rebuild provider subscription state from immutable billing history
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Subscription state repaired idempotently
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionRepairResult"
+        "404":
+          description: Student or billing history was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /admin/codes:
     post:
       operationId: createActivationCode
@@ -1041,6 +2224,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ActivationCode"
+
+  /admin/code-reset-requests:
+    get:
+      operationId: listCodeResetRequests
+      tags: [admin]
+      summary: List learner activation-code reset requests
+      parameters:
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reset requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CodeResetRequest"
+        "401":
+          description: Administrator authentication is required
+
+  /admin/code-reset-requests/{requestId}/send-code:
+    post:
+      operationId: completeCodeResetRequest
+      tags: [admin]
+      summary: Email a manually-created activation code to a learner
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: adminToken
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeResetCompletionInput"
+      responses:
+        "200":
+          description: Code emailed and request completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Reset request not found
+        "409":
+          description: Request completed or code unavailable
+        "502":
+          description: Email delivery failed
 
   /news:
     get:
@@ -1234,7 +2476,265 @@ paths:
           description: Deleted
 
 components:
+  securitySchemes:
+    BackupTriggerBearer:
+      type: http
+      scheme: bearer
+      description: Dedicated BACKUP_TRIGGER_SECRET; never an admin password or archive passphrase.
+    WebsitePurchaseSignature:
+      type: apiKey
+      in: header
+      name: X-CC-Signature
+      description: Hex HMAC-SHA256 over timestamp + "." + exact raw JSON bytes; server-side secret only.
+    WebsitePurchaseTimestamp:
+      type: apiKey
+      in: header
+      name: X-CC-Timestamp
+      description: Unix seconds within five minutes of server time.
+    WebsiteBillingBearer:
+      type: http
+      scheme: bearer
+      description: Shared website billing secret sent as an Authorization Bearer token.
+    AdminToken:
+      type: apiKey
+      in: header
+      name: admintoken
+      description: Administrator session token.
   schemas:
+    ApplePurchaseConfig:
+      type: object
+      required: [enabled, productId, environment, message]
+      properties:
+        enabled: { type: boolean }
+        productId: { type: string }
+        environment: { type: string, enum: [Sandbox, Production] }
+        message: { type: string }
+    AppleIntentInput:
+      type: object
+      required: [deviceId]
+      properties:
+        deviceId: { type: string, minLength: 8, maxLength: 128 }
+    ApplePurchaseIntent:
+      type: object
+      required: [id, secret, appAccountToken, productId]
+      properties:
+        id: { type: string, format: uuid }
+        secret: { type: string }
+        appAccountToken: { type: string, format: uuid }
+        productId: { type: string }
+    AppleIdentityInput:
+      type: object
+      required: [deviceId, email, fullName]
+      properties:
+        deviceId: { type: string, minLength: 8, maxLength: 128 }
+        email: { type: string, format: email, maxLength: 254 }
+        fullName: { type: string, minLength: 2, maxLength: 160 }
+    AppleIdentityChallenge:
+      type: object
+      required: [challengeId, message]
+      properties:
+        challengeId: { type: string, format: uuid }
+        message: { type: string }
+    AppleIdentityProof:
+      type: object
+      required: [challengeId, code, deviceId]
+      properties:
+        challengeId: { type: string, format: uuid }
+        code: { type: string, pattern: "^[0-9]{6}$" }
+        deviceId: { type: string, minLength: 8, maxLength: 128 }
+        signedTransaction: { type: string, maxLength: 32000 }
+        intentId: { type: string, format: uuid }
+        intentSecret: { type: string, maxLength: 128 }
+    AppleTransactionInput:
+      type: object
+      required: [signedTransaction]
+      properties:
+        signedTransaction: { type: string, minLength: 100, maxLength: 32000 }
+    AppleSyncResult:
+      type: object
+      required: [success, revoked, expiresAt]
+      properties:
+        success: { type: boolean }
+        revoked: { type: boolean }
+        expiresAt: { type: string }
+    AppleNotificationInput:
+      type: object
+      required: [signedPayload]
+      properties:
+        signedPayload: { type: string, minLength: 100, maxLength: 64000 }
+    AppleLearnerSession:
+      type: object
+      required: [activationCode, userId, enrollmentId, fullName, email, waiverRequired]
+      properties:
+        activationCode: { type: string }
+        userId: { type: integer }
+        enrollmentId: { type: integer }
+        fullName: { type: string }
+        email: { type: string }
+        waiverRequired: { type: boolean }
+    BackupTriggerStatus:
+      type: object
+      additionalProperties: false
+      required: [state, dateKey]
+      properties:
+        state:
+          type: string
+          enum: [ready, not_due, busy, running, succeeded, failed]
+        dateKey:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+    PublicRetailer:
+      type: object
+      additionalProperties: false
+      required: [id, name, address, town, county, postcode, lat, lng, email, phone, website, featured, logoUrl]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        address: { type: string }
+        town: { type: string }
+        county: { type: string }
+        postcode: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+        email: { type: string }
+        phone: { type: string }
+        website: { type: ["string", "null"] }
+        featured: { type: boolean }
+        logoUrl: { type: ["string", "null"], format: uri }
+    RetailerLogoUploadRequest:
+      type: object
+      additionalProperties: false
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        size: { type: integer, minimum: 1, maximum: 5242880 }
+        contentType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp]
+    RetailerLogoUploadResponse:
+      type: object
+      additionalProperties: false
+      required: [uploadURL, objectKey]
+      properties:
+        uploadURL: { type: string, format: uri }
+        objectKey: { type: string, pattern: "^retailer-logos/[1-9][0-9]*/[a-f0-9-]{36}$" }
+    RetailerLogoUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [objectKey]
+      properties:
+        objectKey: { type: ["string", "null"], pattern: "^retailer-logos/[1-9][0-9]*/[a-f0-9-]{36}$" }
+    RetailerLogoUpdateResponse:
+      type: object
+      additionalProperties: false
+      required: [logoObjectKey]
+      properties:
+        logoObjectKey: { type: ["string", "null"], pattern: "^retailer-logos/[1-9][0-9]*/[a-f0-9-]{36}$" }
+    WebsitePurchaseReviewSeat:
+      type: object
+      required: [id, orderId, lineItemId, seatId, email, status, emailStatus, isPaused, updatedAt, reviewable, resolution, resolutionNote, resolvedBy, resolvedAt]
+      properties:
+        id: { type: integer }
+        orderId: { type: string }
+        lineItemId: { type: string }
+        seatId: { type: string }
+        email: { type: [string, "null"] }
+        status: { type: string }
+        emailStatus: { type: string }
+        isPaused: { type: [boolean, "null"] }
+        updatedAt: { type: string }
+        reviewable: { type: boolean }
+        resolution: { type: [string, "null"] }
+        resolutionNote: { type: [string, "null"] }
+        resolvedBy: { type: [string, "null"] }
+        resolvedAt: { type: [string, "null"] }
+    WebsitePurchaseCode:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string }
+    WebsitePurchaseResolutionInput:
+      type: object
+      additionalProperties: false
+      required: [resolution, note]
+      properties:
+        resolution:
+          type: string
+          enum: [confirmed_received, manual_handoff, closed_unresolved]
+        note: { type: string, minLength: 1, maxLength: 1000 }
+    WebsitePurchaseResolutionResult:
+      type: object
+      required: [resolved]
+      properties:
+        resolved: { type: boolean }
+    WebsitePurchaseEvent:
+      type: object
+      additionalProperties: false
+      required: [event, orderId, lineItemId, seatId]
+      properties:
+        event:
+          type: string
+          enum: [purchase.confirmed, purchase.refunded, purchase.cancelled]
+        orderId:
+          type: string
+          pattern: '^[1-9]\d{0,19}$'
+          description: Numeric Shopify REST order ID as a string, not order number.
+        lineItemId:
+          type: string
+          pattern: '^[1-9]\d{0,19}$'
+          description: Numeric Shopify REST line-item ID as a string.
+        seatId:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: '^[a-zA-Z0-9:/_-]+$'
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: Required when event is purchase.confirmed.
+        buyerName:
+          type: string
+          maxLength: 150
+    WebsitePurchaseResult:
+      type: object
+      required: [status, emailStatus]
+      properties:
+        status:
+          type: string
+          enum: [active, revoked]
+        emailStatus:
+          type: string
+          enum: [pending, sending, sent, needs_review, not_applicable]
+
+    AssessmentMediaUploadInput:
+      type: object
+      required: [kind, name, size, contentType]
+      properties:
+        kind:
+          type: string
+          enum: [image, audio]
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+          maximum: 20971520
+        contentType:
+          type: string
+          minLength: 1
+
+    AssessmentMediaUploadResult:
+      type: object
+      required: [uploadURL, url]
+      properties:
+        uploadURL:
+          type: string
+          format: uri
+        url:
+          type: string
+
     HealthStatus:
       type: object
       properties:
@@ -1247,6 +2747,8 @@ components:
       properties:
         error:
           type: string
+        message:
+          type: string
       required: [error]
 
     SuccessResponse:
@@ -1257,6 +2759,48 @@ components:
         message:
           type: string
       required: [success]
+
+    CodeResetRequestInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+
+    CodeResetCompletionInput:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 100
+
+    CodeResetRequest:
+      type: object
+      required: [id, email, status, supportEmailStatus, issuedCode, requestedAt, completedAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        status:
+          type: string
+          enum: [pending, completed]
+        supportEmailStatus:
+          type: string
+          enum: [pending, sent, failed]
+        issuedCode:
+          type: ["string", "null"]
+        requestedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
 
     HazardReferenceEntry:
       type: object
@@ -1309,6 +2853,8 @@ components:
           type: boolean
         userId:
           type: integer
+        enrollmentId:
+          type: ["integer", "null"]
         fullName:
           type: string
         email:
@@ -1318,8 +2864,21 @@ components:
 
     UserProfile:
       type: object
-      required: [id, fullName, email, activatedAt]
+      required: [id, fullName, email, activatedAt, subscription]
       properties:
+        accessExpiresAt:
+          type: ["string", "null"]
+          format: date-time
+        courseCompletedAt:
+          type: ["string", "null"]
+          format: date-time
+        accessStatus:
+          type: string
+          enum: [active, expired]
+        allModulesUnlocked:
+          type: boolean
+        assignedTo:
+          type: ["string", "null"]
         id:
           type: integer
         fullName:
@@ -1332,6 +2891,154 @@ components:
           type: boolean
         deviceId:
           type: string
+        enrollmentId:
+          type: ["integer", "null"]
+        enrollmentHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnrollmentSummary"
+        subscription:
+          $ref: "#/components/schemas/LearnerSubscriptionState"
+
+    LearnerSubscriptionState:
+      type: object
+      required: [status, paidThroughAt, cancelAtPeriodEnd]
+      properties:
+        status:
+          type: string
+        paidThroughAt:
+          type: ["string", "null"]
+          format: date-time
+        cancelAtPeriodEnd:
+          type: boolean
+
+    AdminSubscriptionState:
+      type: object
+      required: [status, paidThroughAt, provider, providerCustomerId, providerSubscriptionId, cancelAtPeriodEnd]
+      properties:
+        status:
+          type: string
+        paidThroughAt:
+          type: ["string", "null"]
+          format: date-time
+        provider:
+          type: ["string", "null"]
+        providerCustomerId:
+          type: ["string", "null"]
+        providerSubscriptionId:
+          type: ["string", "null"]
+        cancelAtPeriodEnd:
+          type: boolean
+
+    SubscriptionBillingEventInput:
+      type: object
+      required: [providerEventId, provider, eventType, occurredAt, status]
+      properties:
+        providerEventId:
+          type: string
+          minLength: 1
+        provider:
+          type: string
+          minLength: 1
+        providerCustomerId:
+          type: ["string", "null"]
+        providerSubscriptionId:
+          type: ["string", "null"]
+        learnerId:
+          type: ["integer", "null"]
+        learnerEmail:
+          type: ["string", "null"]
+          format: email
+        eventType:
+          type: string
+          minLength: 1
+        occurredAt:
+          type: string
+          format: date-time
+        sequence:
+          type: ["integer", "null"]
+        status:
+          type: string
+          minLength: 1
+        paidThroughAt:
+          type: ["string", "null"]
+          format: date-time
+        cancelAtPeriodEnd:
+          type: ["boolean", "null"]
+
+    SubscriptionBillingEventResult:
+      type: object
+      required: [accepted, duplicate, applied]
+      properties:
+        accepted:
+          type: boolean
+        duplicate:
+          type: boolean
+        applied:
+          type: boolean
+
+    EnrollmentSummary:
+      type: object
+      required: [enrollmentId, activatedAt, accessExpiresAt, status, isCurrent]
+      properties:
+        enrollmentId:
+          type: integer
+        enrolmentId:
+          type: integer
+        activatedAt:
+          type: string
+          format: date-time
+        accessExpiresAt:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+        courseCompletedAt:
+          type: ["string", "null"]
+          format: date-time
+        certificateIssuedAt:
+          type: ["string", "null"]
+          format: date-time
+        isCurrent:
+          type: boolean
+
+    EnrollmentHistory:
+      type: object
+      required: [currentEnrollmentId, enrollments]
+      properties:
+        currentEnrollmentId:
+          type: ["integer", "null"]
+        enrollments:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnrollmentHistoryEntry"
+
+    EnrollmentHistoryEntry:
+      allOf:
+        - $ref: "#/components/schemas/EnrollmentSummary"
+        - type: object
+          required: [progress, waiverSigned]
+          properties:
+            certificateReference:
+              type: ["string", "null"]
+            certificateUrl:
+              type: ["string", "null"]
+            waiverSigned:
+              type: boolean
+            progress:
+              type: object
+              required: [totalModules, completedModules, quizAttempts, examAttempts, examPassed]
+              properties:
+                totalModules:
+                  type: integer
+                completedModules:
+                  type: integer
+                quizAttempts:
+                  type: integer
+                examAttempts:
+                  type: integer
+                examPassed:
+                  type: boolean
 
     Module:
       type: object
@@ -1430,7 +3137,7 @@ components:
 
     CompleteVideoInput:
       type: object
-      required: [moduleId, deviceId, activationCode]
+      required: [moduleId, deviceId, activationCode, enrollmentId]
       properties:
         moduleId:
           type: integer
@@ -1438,6 +3145,8 @@ components:
           type: string
         activationCode:
           type: string
+        enrollmentId:
+          type: integer
 
     ProgressSummary:
       type: object
@@ -1629,6 +3338,18 @@ components:
         passedScore:
           type: ["integer", "null"]
         certificateReference:
+          type: string
+
+    CertificateAccessToken:
+      type: object
+      required: [token, expiresAt, viewUrl]
+      properties:
+        token:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        viewUrl:
           type: string
 
     FeedbackInput:
@@ -1915,6 +3636,25 @@ components:
           type: string
           description: JSON snapshot of clause titles and texts at the moment of signing
 
+    VideoEngagementInput:
+      type: object
+      required: [moduleId]
+      properties:
+        moduleId:
+          type: integer
+        launchedAt:
+          type: string
+          format: date-time
+        completed:
+          type: boolean
+        seekAttempted:
+          type: boolean
+        seekAttemptCount:
+          type: integer
+          minimum: 0
+        warningAcknowledged:
+          type: boolean
+
     AiChatInput:
       type: object
       required: [message, deviceId, activationCode]
@@ -2003,10 +3743,15 @@ components:
           type: integer
         totalQuizAttempts:
           type: integer
+        subscriptionStatus:
+          type: string
+        subscriptionPaidThroughAt:
+          type: ["string", "null"]
+          format: date-time
 
     StudentDetail:
       type: object
-      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned, videoProgress, moduleFeedback, courseFeedback]
+      required: [id, fullName, email, activatedAt, deviceId, completedModules, quizResults, examAttempts, waiverSigned, videoProgress, moduleFeedback, courseFeedback, subscription, subscriptionHistory, deliveryAttempts]
       properties:
         id:
           type: integer
@@ -2050,8 +3795,206 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/StudentCourseFeedback"
+        enrollments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminEnrollmentSummary"
         lastActivity:
           type: ["string", "null"]
+        subscription:
+          $ref: "#/components/schemas/AdminSubscriptionState"
+        subscriptionHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionBillingHistoryEntry"
+        deliveryAttempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionDeliveryAttempt"
+
+    SubscriptionBillingHistoryEntry:
+      type: object
+      required: [providerEventId, provider, eventType, eventOccurredAt, sequence, status, paidThroughAt, cancelAtPeriodEnd, receivedAt]
+      properties:
+        providerEventId:
+          type: string
+        provider:
+          type: string
+        providerCustomerId:
+          type: ["string", "null"]
+        providerSubscriptionId:
+          type: ["string", "null"]
+        eventType:
+          type: string
+        eventOccurredAt:
+          type: string
+          format: date-time
+        sequence:
+          type: ["integer", "null"]
+        status:
+          type: string
+        paidThroughAt:
+          type: ["string", "null"]
+          format: date-time
+        cancelAtPeriodEnd:
+          type: ["boolean", "null"]
+        receivedAt:
+          type: string
+          format: date-time
+
+    SubscriptionDeliveryAttempt:
+      type: object
+      required: [id, providerEventId, provider, eventType, eventOccurredAt, outcome, httpStatus, duplicate, applied, errorCode, receivedAt]
+      properties:
+        id:
+          type: integer
+        providerEventId:
+          type: string
+        provider:
+          type: string
+        eventType:
+          type: string
+        eventOccurredAt:
+          type: ["string", "null"]
+          format: date-time
+        outcome:
+          type: string
+        httpStatus:
+          type: integer
+        duplicate:
+          type: boolean
+        applied:
+          type: boolean
+        errorCode:
+          type: ["string", "null"]
+        receivedAt:
+          type: string
+          format: date-time
+
+    BillingAlert:
+      type: object
+      required: [id, type, severity, title, description, userId, providerEventId, createdAt]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        severity:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        userId:
+          type: ["integer", "null"]
+        providerEventId:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        supportNotification:
+          oneOf:
+            - $ref: "#/components/schemas/BillingAlertSupportNotification"
+            - type: "null"
+
+    BillingAlertSupportNotification:
+      type: object
+      required: [status, deliveryStatus, deliveryError]
+      properties:
+        status:
+          type: string
+        deliveryStatus:
+          type: string
+        deliveryError:
+          type: ["string", "null"]
+
+    BillingSupportNotification:
+      type: object
+      required: [notificationId, alertType, learnerId, title, status, openDeliveryStatus, openDeliveryError, resolutionDeliveryStatus, resolutionDeliveryError, openedAt, resolvedAt, updatedAt]
+      properties:
+        notificationId:
+          type: integer
+        alertType:
+          type: string
+        learnerId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        status:
+          type: string
+        openDeliveryStatus:
+          type: string
+        openDeliveryError:
+          type: ["string", "null"]
+        resolutionDeliveryStatus:
+          type: ["string", "null"]
+        resolutionDeliveryError:
+          type: ["string", "null"]
+        openedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: ["string", "null"]
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SubscriptionRepairResult:
+      type: object
+      required: [repaired, subscription]
+      properties:
+        repaired:
+          type: boolean
+        subscription:
+          $ref: "#/components/schemas/AdminSubscriptionState"
+
+    AdminEnrollmentSummary:
+      type: object
+      required: [enrollmentId, activatedAt, accessExpiresAt, status, isCurrent, progress]
+      properties:
+        enrollmentId:
+          type: integer
+        purchaseCode:
+          type: string
+        activatedAt:
+          type: string
+          format: date-time
+        accessExpiresAt:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+        courseCompletedAt:
+          type: ["string", "null"]
+          format: date-time
+        certificateIssuedAt:
+          type: ["string", "null"]
+          format: date-time
+        isCurrent:
+          type: boolean
+        progress:
+          type: object
+          required: [completedModules, totalProgressRecords, quizAttempts, examAttempts, examPassed]
+          properties:
+            completedModules:
+              type: integer
+            totalProgressRecords:
+              type: integer
+            quizAttempts:
+              type: integer
+            examAttempts:
+              type: integer
+            examPassed:
+              type: boolean
+        certificate:
+          type: ["object", "null"]
+          properties:
+            reference:
+              type: string
+            completedAt:
+              type: string
+              format: date-time
 
     StudentVideoProgress:
       type: object
@@ -2138,7 +4081,7 @@ components:
 
     AdminStats:
       type: object
-      required: [totalLearners, activeLearners, completedLearners, certificatesIssued, waiversSigned, totalExamAttempts, passRate, averagePassScore, moduleStats, recentActivity]
+      required: [totalLearners, activeLearners, completedLearners, certificatesIssued, waiversSigned, totalExamAttempts, passRate, averagePassScore, moduleStats, recentActivity, billingAlerts, billingAlertCount]
       properties:
         totalLearners:
           type: integer
@@ -2190,6 +4133,34 @@ components:
                 type: integer
               at:
                 type: string
+        billingAlerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillingAlert"
+        billingAlertCount:
+          type: integer
+
+    AssessmentMediaCleanupHealth:
+      type: object
+      required: [warning, consecutiveFailures, lastAttemptAt, lastSuccessAt, lastFailureAt, lastRemovedCount]
+      properties:
+        warning:
+          type: boolean
+        consecutiveFailures:
+          type: integer
+          minimum: 0
+        lastAttemptAt:
+          type: ["string", "null"]
+          format: date-time
+        lastSuccessAt:
+          type: ["string", "null"]
+          format: date-time
+        lastFailureAt:
+          type: ["string", "null"]
+          format: date-time
+        lastRemovedCount:
+          type: integer
+          minimum: 0
 
     ActivationCodeInput:
       type: object

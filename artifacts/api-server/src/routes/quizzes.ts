@@ -5,6 +5,7 @@ import { SubmitQuizBody } from "@workspace/api-zod";
 import { eq, and, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
 
 const router = Router();
 const MODULE_QUIZ_PASS_SCORE = 100;
@@ -22,6 +23,10 @@ router.get("/quizzes/:moduleId", async (req, res) => {
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
     return;
   }
 
@@ -70,6 +75,10 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   try {
     const questions = await db
@@ -105,6 +114,7 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
 
     await db.insert(quizAttemptsTable).values({
       userId: user.id,
+      enrollmentId: user.enrollmentId,
       moduleId,
       score,
       passed,
@@ -114,22 +124,23 @@ router.post("/quizzes/:moduleId/submit", async (req, res) => {
       const existing = await db
         .select()
         .from(userProgressTable)
-        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
 
       if (existing.length > 0) {
         await db
           .update(userProgressTable)
           .set({ videoCompleted: true, quizPassed: true, quizScore: score, completedAt: new Date(), updatedAt: new Date() })
-          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
       } else {
         await db.insert(userProgressTable).values({
           userId: user.id,
+          enrollmentId: user.enrollmentId,
           moduleId,
           videoCompleted: true,
           quizPassed: true,
           quizScore: score,
           completedAt: new Date(),
-        });
+        }).onConflictDoNothing();
       }
     }
 

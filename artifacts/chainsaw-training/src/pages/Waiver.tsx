@@ -59,7 +59,7 @@ export default function Waiver() {
   const [, setLocation] = useLocation();
   const navigate = setLocation;
   const { toast } = useToast();
-  const { deviceId, activationCode, clearSession } = useUserSession();
+  const { deviceId, activationCode, suspendSession } = useUserSession();
   const signWaiver = useSignWaiver();
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -267,10 +267,13 @@ export default function Waiver() {
 
         <div className="text-center mt-3">
           <button
-            onClick={() => { clearSession(); navigate("/"); }}
+            onClick={async () => {
+              await suspendSession();
+              navigate("/");
+            }}
             className="text-xs font-mono text-muted-foreground/40 hover:text-muted-foreground underline underline-offset-2 transition-colors"
           >
-            Sign out / use a different code
+            Leave for now
           </button>
         </div>
       </div>

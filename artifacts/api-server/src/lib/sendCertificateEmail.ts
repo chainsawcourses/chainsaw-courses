@@ -1,12 +1,15 @@
 import nodemailer from "nodemailer";
 import { generateCertificatePdf, CertUser } from "./generateCertificate";
 import { logger } from "./logger";
+import { generateSampleCertificatePdf } from "./sampleCertificate";
 
 export async function sendCertificateEmail(
   user: CertUser,
   passedAt: Date,
   score: number | null,
+  options: { sample?: boolean } = {},
 ): Promise<void> {
+  const sample = options.sample === true;
   const host = process.env.SMTP_HOST?.trim();
   if (!host) {
     logger.warn({ userId: user.id }, "SMTP not configured — certificate email skipped");
@@ -14,7 +17,9 @@ export async function sendCertificateEmail(
   }
 
   try {
-    const pdfBytes = await generateCertificatePdf(user, passedAt, score);
+    const pdfBytes = sample
+      ? await generateSampleCertificatePdf(user.fullName, user.email)
+      : await generateCertificatePdf(user, passedAt, score);
 
     const transporter = nodemailer.createTransport({
       host,
@@ -32,8 +37,16 @@ export async function sendCertificateEmail(
     await transporter.sendMail({
       from,
       to: user.email,
-      subject: "Your Chainsaw Courses Certificate of Completion",
-      text: [
+      subject: sample ? "TEST CERT NOT VALID - Chainsaw Courses sample certificate" : "Your Chainsaw Courses Certificate of Completion",
+      text: sample ? [
+        `Dear ${user.fullName},`,
+        "",
+        "This is a test of the Chainsaw Courses certificate email and PDF delivery for app review.",
+        "The attached certificate layout is watermarked TEST CERT NOT VALID.",
+        "It is not proof of course completion, qualification, CPD points or an exam pass.",
+        "",
+        "Chainsaw Courses",
+      ].join("\n") : [
         `Dear ${user.fullName},`,
         "",
         "Congratulations on successfully completing the Chainsaw Maintenance & Cross Cutting professional training course.",
@@ -56,14 +69,14 @@ export async function sendCertificateEmail(
       ].join("\n"),
       attachments: [
         {
-          filename: `Certificate_${safeName}.pdf`,
+          filename: sample ? "TEST_CERT_NOT_VALID.pdf" : `Certificate_${safeName}.pdf`,
           content: Buffer.from(pdfBytes),
           contentType: "application/pdf",
         },
       ],
     });
 
-    logger.info({ userId: user.id, email: user.email }, "Certificate email sent");
+    logger.info({ userId: user.id, sample }, "Certificate email sent");
   } catch (err) {
     logger.error({ err, userId: user.id }, "Failed to send certificate email");
     throw err;

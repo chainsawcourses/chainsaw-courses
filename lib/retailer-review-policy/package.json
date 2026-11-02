@@ -1,0 +1,15 @@
+{
+  "name": "@workspace/retailer-review-policy",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --test tests/retailer-review-policy.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
+}

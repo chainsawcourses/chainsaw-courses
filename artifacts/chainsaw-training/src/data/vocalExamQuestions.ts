@@ -374,7 +374,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 16,
     question: "So what's this?",
-    image: '/question-images/air-filter.jpg',
+    image: '/api/assessment-images/bundled/air-filter.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -417,7 +417,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 19,
     question: "So what's this? (spark plug)",
-    image: '/question-images/spark-plug.jpg',
+    image: '/api/assessment-images/bundled/spark-plug.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -460,7 +460,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 22,
     question: "In conjunction with the flywheel, what do these cylinder fins help do?",
-    image: '/question-images/cooling-system.jpg',
+    image: '/api/assessment-images/bundled/cooling-system.jpg',
     prompts: [{
       prompt: "In conjunction with the flywheel, what do these cylinder fins help do?",
       threshold: 1,
@@ -489,7 +489,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 24,
     question: "So what's this? (exhaust)",
-    image: '/question-images/exhaust.jpg',
+    image: '/api/assessment-images/bundled/exhaust.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -535,7 +535,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 27,
     question: "What is in here that you need to maintain and how would you do it? (fuel tank)",
-    image: '/question-images/fuel-filter.jpg',
+    image: '/api/assessment-images/bundled/fuel-filter.jpg',
     prompts: [{
       prompt: "What is in here that you need to maintain and how would you do it?",
       threshold: 2,
@@ -550,7 +550,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 28,
     question: "What is in here that you need to maintain and how would you do it? (oil tank)",
-    image: '/question-images/oil-filter.jpg',
+    image: '/api/assessment-images/bundled/oil-filter.jpg',
     prompts: [{
       prompt: "So what is in here that you need to maintain and how would you do it?",
       threshold: 2,
@@ -565,7 +565,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 29,
     question: "This is the recoil housing — can you take it off and de-tension the pull cord please.",
-    image: '/question-images/recoil-starter.jpg',
+    image: '/api/assessment-images/bundled/recoil-starter.jpg',
     prompts: [{
       prompt: "This is the recoil housing, can you take it off and de-tension the pull cord please.",
       threshold: 0,
@@ -607,7 +607,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 32,
     question: "So what's this? (sprocket)",
-    image: '/question-images/sprocket.jpg',
+    image: '/api/assessment-images/bundled/sprocket.jpg',
     prompts: [{
       prompt: "So what's this?",
       threshold: 1,
@@ -651,7 +651,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 35,
     question: "If you need to replace the sprocket, how are you going to do that?",
-    image: '/question-images/clutch-assembly.jpg',
+    image: '/api/assessment-images/bundled/clutch-assembly.jpg',
     prompts: [{
       prompt: "If you need to replace the sprocket, how are you going to do that?",
       threshold: 1,
@@ -667,7 +667,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 36,
     question: "Now on to the chain brake — where would you find it on your saw?",
-    image: '/question-images/chain-brake.jpg',
+    image: '/api/assessment-images/bundled/chain-brake.jpg',
     prompts: [{
       prompt: "Now on to the chain brake — where would you find it on your saw?",
       threshold: 1,
@@ -695,7 +695,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 38,
     question: "How do you check the chain brake for any wear or damage?",
-    image: '/question-images/chain-brake-band.jpg',
+    image: '/api/assessment-images/bundled/chain-brake-band.jpg',
     prompts: [{
       prompt: "How do you check for any wear or damage?",
       threshold: 1,
@@ -790,7 +790,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 44,
     question: "How do you identify your chain?",
-    image: '/question-images/chain-id.jpg',
+    image: '/api/assessment-images/bundled/chain-id.jpg',
     prompts: [{
       prompt: "How do you identify your chain?",
       threshold: 1,
@@ -807,7 +807,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 45,
     question: "What information do you need to replace your chain?",
-    image: '/question-images/chain.jpg',
+    image: '/api/assessment-images/bundled/chain.jpg',
     prompts: [{
       prompt: "What information do you need to replace your chain?",
       threshold: 5,
@@ -829,7 +829,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 46,
     question: "What cutter profile do you have on your chain?",
-    image: '/question-images/cutter-profile.jpg',
+    image: '/api/assessment-images/bundled/cutter-profile.jpg',
     prompts: [{
       prompt: "What cutter profile do you have on your chain?",
       threshold: 1,
@@ -843,7 +843,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 47,
     question: "What is the other main type of cutter profile?",
-    image: '/question-images/full-chisel.jpg',
+    image: '/api/assessment-images/bundled/full-chisel.jpg',
     prompts: [{
       prompt: "What is the other main type of cutter profile?",
       threshold: 1,
@@ -1050,7 +1050,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 61,
     question: "In this picture, where is the compression found?",
-    image: '/question-images/compression-61.jpg',
+    image: '/api/assessment-images/bundled/compression-61.jpg',
     prompts: [{
       prompt: "In this picture, where is the compression found?",
       threshold: 1,
@@ -1064,7 +1064,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 62,
     question: "And in this picture, where is the compression?",
-    image: '/question-images/compression-62.jpg',
+    image: '/api/assessment-images/bundled/compression-62.jpg',
     prompts: [{
       prompt: "And in this picture, where is the compression?",
       threshold: 1,
@@ -1290,7 +1290,7 @@ export const VOCAL_EXAM_QUESTIONS: VocalQuestion[] = [
   {
     id: 76,
     question: "What bit of the bar do you need to avoid cutting with?",
-    image: '/question-images/kickback.jpg',
+    image: '/api/assessment-images/bundled/kickback.jpg',
     prompts: [{
       prompt: "What bit of the bar do you need to avoid cutting with?",
       threshold: 1,

@@ -78,7 +78,7 @@ export default function News() {
             Stay Safe, Stay Sharp
           </h1>
           <p className="text-muted-foreground text-sm font-mono leading-relaxed">
-            The industry moves fast — new legislation, equipment recalls, biosecurity alerts, and best-practice updates can directly affect how you work safely. These articles are hand-picked especially for you as a paying member and subscriber of chainsaw courses. Tap any headline to read the full story.
+            The industry moves fast — new legislation, equipment recalls, biosecurity alerts, and best-practice updates can directly affect how you work safely. These articles are hand-picked especially for Chainsaw Courses learners. Tap any headline to read the full story.
           </p>
         </div>
 

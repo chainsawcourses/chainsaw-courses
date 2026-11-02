@@ -1,4 +1,5 @@
-import { pgTable, text, serial, integer, boolean, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -25,6 +26,7 @@ export const modulesTable = pgTable("modules", {
 export const userProgressTable = pgTable("user_progress", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   moduleId: integer("module_id").notNull(),
   videoCompleted: boolean("video_completed").notNull().default(false),
   quizPassed: boolean("quiz_passed").notNull().default(false),
@@ -32,7 +34,11 @@ export const userProgressTable = pgTable("user_progress", {
   lastTimestamp: integer("last_timestamp").notNull().default(0),
   completedAt: timestamp("completed_at"),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("user_progress_user_enrollment_module_idx")
+    .on(t.userId, t.enrollmentId, t.moduleId)
+    .where(sql`${t.enrollmentId} IS NOT NULL`),
+]);
 
 export const quizQuestionsTable = pgTable("quiz_questions", {
   id: serial("id").primaryKey(),
@@ -46,6 +52,7 @@ export const quizQuestionsTable = pgTable("quiz_questions", {
 export const quizAttemptsTable = pgTable("quiz_attempts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   moduleId: integer("module_id").notNull(),
   score: integer("score").notNull(),
   passed: boolean("passed").notNull(),
@@ -55,6 +62,7 @@ export const quizAttemptsTable = pgTable("quiz_attempts", {
 export const chatMessagesTable = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   role: text("role").notNull(), // 'user' | 'assistant'
   content: text("content").notNull(),
   mode: text("mode").notNull().default("exam"), // 'exam' | 'tutor'
@@ -82,6 +90,7 @@ export const hazardReferenceTable = pgTable("hazard_reference", {
 export const videoEngagementTable = pgTable("video_engagement", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   moduleId: integer("module_id").notNull(),
   launchedAt: timestamp("launched_at").notNull().defaultNow(),
   completedAt: timestamp("completed_at"),
@@ -93,6 +102,7 @@ export const videoEngagementTable = pgTable("video_engagement", {
 export const moduleFeedbackTable = pgTable("module_feedback", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   moduleId: integer("module_id").notNull(),
   rating: integer("rating").notNull(),
   comment: text("comment"),
@@ -113,6 +123,7 @@ export const examQuestionsTable = pgTable("exam_questions", {
 export const examAttemptsTable = pgTable("exam_attempts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
+  enrollmentId: integer("enrollment_id"),
   score: integer("score").notNull(),
   passed: boolean("passed").notNull(),
   totalQuestions: integer("total_questions").notNull(),

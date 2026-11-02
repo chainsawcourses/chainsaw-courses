@@ -192,7 +192,7 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   const sub = "Chainsaw Courses — Vocational Safety Training Platform";
   ctx.page.drawText(sub, { x: (PW - reg.widthOfTextAtSize(sub, 9)) / 2, y: ctx.y, size: 9, font: reg, color: GREY });
   ctx.y -= 14;
-  const ver = "Last updated: July 2025  |  Version 1.0";
+  const ver = "Last updated: 15 September 2026  |  Version 1.2";
   ctx.page.drawText(ver, { x: (PW - reg.widthOfTextAtSize(ver, 8)) / 2, y: ctx.y, size: 8, font: reg, color: GREY });
   ctx.y -= 16;
   ctx.page.drawLine({ start: { x: ML, y: ctx.y }, end: { x: PW - MR, y: ctx.y }, thickness: 1, color: ORANGE });
@@ -203,7 +203,7 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   body(ctx, "The data controller for this platform is Chainsaw Courses, the operator of the vocational chainsaw safety training service available at chainsawcourses.com.");
   gap(ctx, 5);
   body(ctx, "Contact: info@chainsawcourses.com");
-  body(ctx, "Postal address: [YOUR BUSINESS ADDRESS — update before publishing]");
+  body(ctx, "Postal address: BR6 9RW");
   gap(ctx, 5);
   body(ctx, "If you have questions about how your data is handled, or wish to exercise any of your rights under UK GDPR, please contact us using the details above.", 8, 0);
 
@@ -222,6 +222,8 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   tableRow(ctx, ["Risk assessment records", "Provide a personal dynamic risk assessment log for chainsaw operations; support statutory compliance", "Legitimate interests; legal obligation (Management of Health & Safety at Work Regulations 1999)"], tw2, false);
   tableRow(ctx, ["AI chat / mock-test messages", "Facilitate AI-assisted exam preparation; improve AI response quality", "Contract performance / legitimate interests"], tw2, false);
   tableRow(ctx, ["Module feedback ratings", "Improve course content quality", "Legitimate interests"], tw2, false);
+  tableRow(ctx, ["Published app traffic and coarse operational events", "Understand approximate visitor numbers and diagnose whether manual pages load and recover successfully", "Legitimate interests — operating and improving a reliable service"], tw2, false);
+  tableRow(ctx, ["Postcode entered in the Chainsaw Retailers directory", "Centre the map and calculate approximate distances to retailers. The postcode is used only for that lookup and is not retained or shared with retailers", "Legitimate interests — helping learners locate independent suppliers"], tw2, false);
 
   // ── 3. Professional Standards ──────────────────────────────────────────────
   gap(ctx, 4);
@@ -273,16 +275,22 @@ export async function generatePrivacyPolicyPdf(): Promise<Uint8Array> {
   heading(ctx, "7. Third-Party Services");
   const tw7 = [CW * 0.22, CW * 0.38, CW * 0.40];
   tableRow(ctx, ["Service", "Purpose", "Data Shared"], tw7, true);
+  tableRow(ctx, ["Apple (iPhone and iPad purchases)", "Payment verification, course access, purchase restoration and fraud prevention", "Verified transaction identifiers, product, purchase and refund dates, and a random app-account token. We do not receive your card details or Apple Account password."], tw7, false);
   tableRow(ctx, ["Vimeo", "Video hosting & streaming", "IP address (standard CDN delivery); no personal data sent by us"], tw7, false);
   tableRow(ctx, ["OpenAI (via Replit AI proxy)", "AI mock-test & tutor responses", "Chat message content only (no name, email, or identifiers sent)"], tw7, false);
-  tableRow(ctx, ["Replit", "Platform hosting & infrastructure", "All platform traffic passes through Replit infrastructure; governed by Replit's DPA"], tw7, false);
+  tableRow(ctx, ["Replit", "Platform hosting, infrastructure and optional published analytics", "Network and browser data for approximate traffic metrics; coarse manual delivery event names and status properties"], tw7, false);
   gap(ctx, 6);
+  body(ctx, "Email sign-in uses your name, email address, device identifier and a short-lived verification code. Apple course access lasts six calendar months from the verified purchase date and does not renew automatically. After in-app account deletion, an unlinked purchase record is retained to prevent an erased purchase from being claimed again. Apple retains its own payment records and handles App Store refunds separately.", 8);
   body(ctx, "We do not sell, rent, or share your personal data with any third parties for marketing purposes.", 8);
 
   // ── 8. Cookies ────────────────────────────────────────────────────────────
   gap(ctx, 4);
   heading(ctx, "8. Cookies & Local Storage");
-  body(ctx, "This application uses browser localStorage and cookies solely to persist your session credentials (activation code, device identifier, user ID) between visits. No advertising, analytics, or tracking cookies are set. No third-party tracking scripts are loaded.");
+  body(ctx, "This application uses browser localStorage and essential cookies to persist your session credentials (activation code, device identifier, user ID) between visits. We do not use advertising cookies.");
+  gap(ctx, 5);
+  body(ctx, "When analytics is enabled for the published app, Replit adds its hosted analytics tracker. Replit uses IP traffic, network and browser data to provide approximate visitor numbers, top pages, countries, browsers and device types. The app also sends coarse events when a manual page fails to load, a retry is attempted, or a retry succeeds. Event properties are limited to reader surface, layout, attempt and failure type.");
+  gap(ctx, 5);
+  body(ctx, "Learner identity, manual page numbers, search text and manual content are not sent to analytics. Analytics is not used for advertising or cross-site profiling. Replit retains analytics with the published project's history; its dashboard currently provides reporting periods of up to 30 days.");
 
   // ── 9. Children ───────────────────────────────────────────────────────────
   gap(ctx, 4);

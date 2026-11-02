@@ -1,16 +1,58 @@
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, ChevronDown, ChevronRight, Plus, Pencil, Trash2, Save, X, Upload, ToggleLeft, ToggleRight, AlertTriangle, ImagePlus, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight, Plus, Pencil, Trash2, Save, X, Upload, ToggleLeft, ToggleRight, AlertTriangle, ImagePlus } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { VOCAL_EXAM_QUESTIONS } from "../../data/vocalExamQuestions";
+import { ProtectedAssessmentImage } from "../../components/ProtectedAssessmentImage";
+import { ProtectedAssessmentAudio } from "../../components/ProtectedAssessmentAudio";
 
 const ORANGE = "#e27226";
 
 interface KeyPoint { label: string; keywords: string[]; }
 interface VocalPrompt { prompt: string; keyPoints: KeyPoint[]; threshold: number; isAction?: boolean; }
 interface MockQuestion { id: number; question: string; prompts: VocalPrompt[]; image?: string; audioUrl?: string; sortOrder: number; isActive: boolean; }
+
+async function uploadAssessmentMedia(file: File, kind: "image" | "audio", adminToken: string): Promise<string> {
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  const inferredTypes: Record<string, string> = {
+    jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif",
+    mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg", m4a: "audio/mp4", aac: "audio/aac",
+  };
+  const contentType = file.type || (extension ? inferredTypes[extension] : undefined);
+  if (!contentType) throw new Error("Unsupported media type");
+  const request = await fetch("/api/admin/mock-questions/request-media-upload", {
+    method: "POST",
+    headers: { admintoken: adminToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ kind, name: file.name, size: file.size, contentType }),
+  });
+  if (!request.ok) throw new Error("Could not prepare upload");
+  const { uploadURL, url } = await request.json() as { uploadURL: string; url: string };
+  const upload = await fetch(uploadURL, {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body: file,
+  });
+  if (!upload.ok) throw new Error("Upload failed");
+  const finalized = await fetch("/api/admin/mock-questions/finalize-media-upload", {
+    method: "POST",
+    headers: { admintoken: adminToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  if (!finalized.ok) throw new Error("Uploaded media failed validation");
+  return (await finalized.json() as { url: string }).url;
+}
+
+function deleteUnreferencedMedia(url: string | undefined, adminToken: string): void {
+  if (!url?.includes("/objects/assessment-media/")) return;
+  void fetch("/api/admin/mock-questions/media", {
+    method: "DELETE",
+    headers: { admintoken: adminToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+}
 
 const BLANK_Q: Omit<MockQuestion, "id"> = {
   question: "",
@@ -150,16 +192,7 @@ function ImageUploader({
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("image", file);
-      const res = await fetch("/api/admin/mock-questions/upload-image", {
-        method: "POST",
-        headers: { admintoken: adminToken },
-        body: fd,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const { url } = await res.json();
-      onChange(url);
+      onChange(await uploadAssessmentMedia(file, "image", adminToken));
     } catch {
       alert("Image upload failed — please try again.");
     } finally {
@@ -180,7 +213,7 @@ function ImageUploader({
           disabled={uploading}
           className="font-mono text-xs gap-1.5 h-8"
         >
-          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5" />}
+          {uploading ? <ChainsawLoader className="w-3.5 h-3.5" /> : <ImagePlus className="w-3.5 h-3.5" />}
           {uploading ? "Uploading…" : "Upload photo"}
         </Button>
         {value && (
@@ -195,7 +228,12 @@ function ImageUploader({
         <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFile} />
       </div>
       {value && (
-        <img src={value} alt="Question image" className="rounded-md border border-border max-h-40 object-contain bg-secondary/10" />
+        <ProtectedAssessmentImage
+          src={value}
+          adminToken={adminToken}
+          alt="Question image"
+          className="rounded-md border border-border max-h-40 object-contain bg-secondary/10"
+        />
       )}
       {!value && (
         <p className="font-mono text-[10px] text-muted-foreground">JPG, PNG, WebP or GIF · max 5 MB</p>
@@ -215,16 +253,7 @@ function AudioUploader({
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("audio", file);
-      const res = await fetch("/api/admin/mock-questions/upload-audio", {
-        method: "POST",
-        headers: { admintoken: adminToken },
-        body: fd,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const { url } = await res.json();
-      onChange(url);
+      onChange(await uploadAssessmentMedia(file, "audio", adminToken));
     } catch {
       alert("Audio upload failed — please try again.");
     } finally {
@@ -245,7 +274,7 @@ function AudioUploader({
           disabled={uploading}
           className="font-mono text-xs gap-1.5 h-8"
         >
-          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+          {uploading ? <ChainsawLoader className="w-3.5 h-3.5" /> : <Upload className="w-3.5 h-3.5" />}
           {uploading ? "Uploading…" : value ? "Replace audio" : "Upload audio"}
         </Button>
         {value && (
@@ -260,7 +289,7 @@ function AudioUploader({
         <input ref={fileRef} type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac,.mp3,.wav,.ogg,.m4a,.aac" className="hidden" onChange={handleFile} />
       </div>
       {value && (
-        <audio controls src={value} className="w-full h-9 mt-1" />
+        <ProtectedAssessmentAudio controls src={value} adminToken={adminToken} className="w-full h-9 mt-1" />
       )}
       {!value && (
         <p className="font-mono text-[10px] text-muted-foreground">MP3, WAV, OGG or M4A · max 20 MB</p>
@@ -280,6 +309,20 @@ function QuestionEditor({
     sortOrder: initial.sortOrder,
     isActive: initial.isActive,
   });
+
+  const replaceMedia = (field: "image" | "audioUrl", url: string | undefined) => {
+    setForm(current => {
+      const oldUrl = current[field];
+      if (oldUrl && oldUrl !== initial[field]) deleteUnreferencedMedia(oldUrl, adminToken);
+      return { ...current, [field]: url };
+    });
+  };
+
+  const cancel = () => {
+    if (form.image && form.image !== initial.image) deleteUnreferencedMedia(form.image, adminToken);
+    if (form.audioUrl && form.audioUrl !== initial.audioUrl) deleteUnreferencedMedia(form.audioUrl, adminToken);
+    onCancel();
+  };
 
   const setPrompt = (i: number, p: VocalPrompt) => {
     const next = [...form.prompts];
@@ -303,12 +346,12 @@ function QuestionEditor({
       <ImageUploader
         adminToken={adminToken}
         value={form.image}
-        onChange={url => setForm(f => ({ ...f, image: url }))}
+        onChange={url => replaceMedia("image", url)}
       />
       <AudioUploader
         adminToken={adminToken}
         value={form.audioUrl}
-        onChange={url => setForm(f => ({ ...f, audioUrl: url }))}
+        onChange={url => replaceMedia("audioUrl", url)}
       />
       <div className="flex items-center gap-3">
         <label className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort order</label>
@@ -341,7 +384,7 @@ function QuestionEditor({
         <Button size="sm" onClick={() => onSave(form)} disabled={saving || !form.question.trim()} className="font-mono text-xs gap-1.5">
           <Save className="w-3.5 h-3.5" /> {saving ? "Saving…" : "Save"}
         </Button>
-        <Button size="sm" variant="outline" onClick={onCancel} className="font-mono text-xs gap-1.5">
+        <Button size="sm" variant="outline" onClick={cancel} className="font-mono text-xs gap-1.5">
           <X className="w-3.5 h-3.5" /> Cancel
         </Button>
       </div>
@@ -571,7 +614,7 @@ export default function MockQuestions() {
                       {q.audioUrl && (
                         <div className="space-y-1">
                           <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Audio</p>
-                          <audio controls src={q.audioUrl} className="w-full h-9" />
+                          <ProtectedAssessmentAudio controls src={q.audioUrl} adminToken={adminToken ?? ""} className="w-full h-9" />
                         </div>
                       )}
                       {q.prompts.map((p, pi) => (

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 /**
  * ShareTarget — handles content shared to the app via the OS share tray.
@@ -102,7 +103,7 @@ export default function ShareTarget() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center space-y-3">
-        <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto" />
+        <ChainsawLoader className="w-10 h-10 mx-auto text-primary" />
         <p className="text-sm text-gray-500">Opening Chainsaw Courses…</p>
       </div>
     </div>

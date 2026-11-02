@@ -15,7 +15,11 @@ async function buildAll() {
   await rm(distDir, { recursive: true, force: true });
 
   await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+    entryPoints: {
+      index: path.resolve(artifactDir, "src/index.ts"),
+      "scripts/run-scheduled-backup": path.resolve(artifactDir, "scripts/run-scheduled-backup.ts"),
+      "scripts/run-portable-server": path.resolve(artifactDir, "scripts/run-portable-server.ts"),
+    },
     platform: "node",
     bundle: true,
     format: "esm",
@@ -139,8 +143,15 @@ async function copyStaticData() {
   }
 }
 
+async function copyProtectedAssets() {
+  const src = path.resolve(artifactDir, "src/assets");
+  const dest = path.resolve(artifactDir, "dist/assets");
+  await mkdir(dest, { recursive: true });
+  await cp(src, dest, { recursive: true });
+}
+
 buildAll()
-  .then(copyStaticData)
+  .then(() => Promise.all([copyStaticData(), copyProtectedAssets()]))
   .catch((err) => {
     console.error(err);
     process.exit(1);

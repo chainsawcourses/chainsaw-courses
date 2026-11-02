@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, Loader2, FileDown, ClipboardCopy, Copy, Edit2, X,
+  ArrowLeft, ClipboardCheck, CheckCircle2, XCircle, MinusCircle, AlertTriangle, History, FileDown, ClipboardCopy, Copy, Edit2, X,
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { copyInspectionText, type InspectionExportData } from "../lib/exportPrint";
@@ -16,6 +16,7 @@ import PdfSaveDialog from "../components/PdfSaveDialog";
 const BASE = import.meta.env.BASE_URL as string;
 import { useSubmitInspection, useListMyInspections, getListMyInspectionsQueryKey, usePatchInspection } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 type Status = "pass" | "fail" | "na";
 
@@ -401,7 +402,7 @@ export default function Inspection() {
               </div>
               {history.isLoading && (
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <ChainsawLoader className="w-4 h-4" />
                   <span className="font-mono text-xs">Loading...</span>
                 </div>
               )}
@@ -465,7 +466,7 @@ export default function Inspection() {
                         disabled={isDownloading}
                         onClick={handleDownload}
                       >
-                        {isDownloading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <FileDown className="w-3 h-3 mr-1" />}
+                        {isDownloading ? <ChainsawLoader className="w-3 h-3 mr-1" /> : <FileDown className="w-3 h-3 mr-1" />}
                         {isDownloading ? "PDF downloading…" : "PDF"}
                       </Button>
                       <Button
@@ -595,7 +596,7 @@ export default function Inspection() {
                       }}
                     >
                       {pdfDownloading
-                        ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        ? <ChainsawLoader className="w-3.5 h-3.5 mr-1.5" />
                         : <FileDown className="w-3.5 h-3.5 mr-1.5" />}
                       {pdfDownloading ? "PDF downloading…" : "Download PDF"}
                     </Button>
@@ -649,7 +650,7 @@ export default function Inspection() {
                 className="w-full justify-center font-mono text-sm uppercase tracking-widest px-5 sm:w-auto"
               >
                 {(submitInspection.isPending || patchInspection.isPending) ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <ChainsawLoader className="w-4 h-4 mr-2" />
                 ) : (
                   <ClipboardCheck className="w-4 h-4 mr-2" />
                 )}

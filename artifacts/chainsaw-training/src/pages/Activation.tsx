@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,8 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useActivateCode } from "@workspace/api-client-react";
+import { useActivateCode, useCreateCodeResetRequest } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
+import { isAppleNative } from "../lib/appleStore";
+import AppleAccess from "@/components/AppleAccess";
 
 const formSchema = z.object({
   code: z.string().min(1, "Activation code is required"),
@@ -17,10 +19,24 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+function normalizePurchaseCode(value: string): string {
+  return value
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim()
+    .replace(/[.,;:]+$/g, "")
+    .trim()
+    .toUpperCase();
+}
+
 export default function Activation() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { deviceId, activationCode, setSession } = useUserSession();
+  const { deviceId, activationCode, bondedLearner, resumeSession, setSession } = useUserSession();
+  const [isResuming, setIsResuming] = useState(false);
+  const [activatingNewPurchase, setActivatingNewPurchase] = useState(false);
+  const [resetRequestOpen, setResetRequestOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [appleNative] = useState(isAppleNative);
 
   // Redirect synchronously before the first paint so returning users never see
   // the activation form, even for a single frame. useLayoutEffect fires after
@@ -33,6 +49,75 @@ export default function Activation() {
   }, []);
 
   const activateCode = useActivateCode();
+  const createResetRequest = useCreateCodeResetRequest();
+
+  function handleResetRequest() {
+    const email = resetEmail.trim();
+    if (!z.string().email().safeParse(email).success) {
+      toast({
+        variant: "destructive",
+        title: "Enter a valid email",
+        description: "Use the email address connected to your purchase.",
+      });
+      return;
+    }
+    createResetRequest.mutate(
+      { data: { email } },
+      {
+        onSuccess: (response) => {
+          toast({ title: "Request sent", description: response.message });
+          setResetEmail("");
+          setResetRequestOpen(false);
+        },
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Request not sent",
+            description: "Please check your connection and try again.",
+          });
+        },
+      },
+    );
+  }
+
+  async function handleContinue() {
+    if (!bondedLearner || !deviceId || isResuming) return;
+    setIsResuming(true);
+    try {
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          activationcode: bondedLearner.activationCode,
+          deviceid: deviceId,
+          userid: String(bondedLearner.userId),
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => null) as
+          | { error?: string; message?: string }
+          | null;
+        if (response.status === 403 && error?.error === "access_paused") {
+          toast({
+            variant: "destructive",
+            title: "Access unavailable",
+            description: error.message || "You no longer have access to this app.",
+          });
+          setIsResuming(false);
+          return;
+        }
+        throw new Error("Bonded session could not be verified");
+      }
+      const learner = await response.json() as { waiverSigned?: boolean };
+      await resumeSession();
+      setLocation(learner.waiverSigned ? "/training" : "/waiver");
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Could not continue",
+        description: "Please check your connection and try again. Your bonded learner account is still saved on this device.",
+      });
+      setIsResuming(false);
+    }
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,26 +128,47 @@ export default function Activation() {
     },
   });
 
+  function handleNewPurchase() {
+    if (!bondedLearner) return;
+    form.reset({
+      code: "",
+      fullName: bondedLearner.fullName,
+      email: bondedLearner.email,
+    });
+    setActivatingNewPurchase(true);
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!deviceId) return;
+    const normalizedCode = normalizePurchaseCode(values.code);
     
     activateCode.mutate(
       {
         data: {
-          code: values.code,
+          code: normalizedCode,
           deviceId: deviceId,
           fullName: values.fullName,
           email: values.email,
         },
       },
       {
-        onSuccess: (res) => {
-          setSession({
-            activationCode: values.code,
-            fullName: values.fullName,
-            email: values.email,
-            userId: res.userId,
-          });
+        onSuccess: async (res) => {
+          try {
+            await setSession({
+              activationCode: normalizedCode,
+              fullName: values.fullName,
+              email: values.email,
+              userId: res.userId,
+              enrollmentId: res.enrollmentId ?? null,
+            });
+          } catch {
+            toast({
+              variant: "destructive",
+              title: "Secure session could not be saved",
+              description: "Your licence was accepted, but this device could not save your session. Please contact support before trying the code again.",
+            });
+            return;
+          }
           
           if (res.waiverRequired) {
             setLocation("/waiver");
@@ -72,13 +178,21 @@ export default function Activation() {
         },
         onError: (err) => {
           const status = (err as any)?.status;
-          const isBondError = status === 409;
+          const data = (err as any)?.data as
+            | { message?: string; error?: string }
+            | undefined;
           toast({
             variant: "destructive",
             title: "Activation Failed",
-            description: isBondError
-              ? "This code is already linked to another device. Go to the Admin Panel to reset it."
-              : (err as any)?.response?.data?.error || "Invalid activation code.",
+            description:
+              data?.message ||
+              data?.error ||
+              (err instanceof Error && err.message
+                ? err.message.replace(/^Request failed(?: \(\d+\))?:\s*/i, "")
+                : "") ||
+              (status === 409
+                ? "This code is already linked to another device. Go to the Admin Panel to reset it."
+                : "Activation could not be completed. Please try again."),
           });
         },
       }
@@ -111,10 +225,82 @@ export default function Activation() {
         </div>
         
         <Card className="border-border bg-card/80 backdrop-blur-sm">
+          {bondedLearner && !activatingNewPurchase ? (
+            <>
+              <CardHeader className="space-y-1 text-center border-b border-border p-4 pb-3 sm:p-6 sm:pb-4">
+                <CardTitle className="text-lg font-mono uppercase tracking-wide sm:text-xl">Welcome Back</CardTitle>
+                <CardDescription className="font-mono text-xs">
+                  This learner account is bonded to this device.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                <p className="mb-4 text-center text-sm font-semibold text-foreground sm:mb-6">
+                  {bondedLearner.fullName}
+                </p>
+                <Button
+                  type="button"
+                  className="h-12 w-full font-mono text-sm font-bold tracking-widest sm:h-14"
+                  disabled={isResuming}
+                  onClick={handleContinue}
+                >
+                  {isResuming ? "CHECKING ACCESS..." : `CONTINUE AS ${bondedLearner.fullName.toUpperCase()}`}
+                </Button>
+                <div className="my-4 flex items-center gap-3" aria-hidden="true">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    New course
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 w-full font-mono text-xs font-bold uppercase tracking-widest sm:h-12"
+                  disabled={isResuming}
+                  onClick={handleNewPurchase}
+                >
+                  {appleNative ? "Sign in as a different learner" : "Activate a new purchase"}
+                </Button>
+                <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+                  {appleNative
+                    ? "Verify another learner's email to move their course to this device."
+                    : "Start a new refresher course while keeping your previous training and certificates."}
+                </p>
+              </CardContent>
+            </>
+          ) : appleNative ? (
+            <>
+              <CardHeader className="space-y-1 text-center border-b border-border p-4 pb-3 sm:p-6 sm:pb-4">
+                <CardTitle className="text-lg font-mono uppercase tracking-wide sm:text-xl">Course Access</CardTitle>
+                <CardDescription className="font-mono text-xs">
+                  Buy the course in the app, or sign in if you are an existing customer.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                <AppleAccess hasBondedLearner={!!bondedLearner} />
+                {bondedLearner && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="mt-3 w-full font-mono text-xs font-bold uppercase tracking-widest"
+                    onClick={() => setActivatingNewPurchase(false)}
+                    data-testid="button-back-bonded"
+                  >
+                    Back to {bondedLearner.fullName}
+                  </Button>
+                )}
+              </CardContent>
+            </>
+          ) : (
+            <>
           <CardHeader className="space-y-1 text-center border-b border-border p-4 mb-3 pb-3 sm:p-6 sm:mb-4 sm:pb-4">
-            <CardTitle className="text-lg font-mono uppercase tracking-wide sm:text-xl">System Activation</CardTitle>
+            <CardTitle className="text-lg font-mono uppercase tracking-wide sm:text-xl">
+              {activatingNewPurchase ? "Activate New Purchase" : "System Activation"}
+            </CardTitle>
             <CardDescription className="font-mono text-xs">
-              Enter your access credentials to unlock the training modules.
+              {activatingNewPurchase
+                ? "Enter the new purchase code for your next refresher course."
+                : "Enter your access credentials to unlock the training modules."}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
@@ -180,9 +366,73 @@ export default function Activation() {
                 >
                   {activateCode.isPending ? "ACTIVATING..." : "ACTIVATE"}
                 </Button>
+                {activatingNewPurchase && bondedLearner && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full font-mono text-xs font-bold uppercase tracking-widest"
+                    disabled={activateCode.isPending}
+                    onClick={() => setActivatingNewPurchase(false)}
+                  >
+                    Back to {bondedLearner.fullName}
+                  </Button>
+                )}
               </form>
             </Form>
+             {!activatingNewPurchase && (
+               <div className="mt-5 border-t border-border pt-4">
+                 {!resetRequestOpen ? (
+                   <Button
+                     type="button"
+                     variant="ghost"
+                     className="w-full font-mono text-xs font-bold uppercase tracking-widest"
+                     onClick={() => setResetRequestOpen(true)}
+                   >
+                     Need a replacement code?
+                   </Button>
+                 ) : (
+                   <div className="space-y-3">
+                     <div>
+                       <label htmlFor="reset-email" className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                         Purchase email
+                       </label>
+                       <Input
+                         id="reset-email"
+                         type="email"
+                         autoComplete="email"
+                         value={resetEmail}
+                         onChange={(event) => setResetEmail(event.target.value)}
+                         placeholder="john@example.com"
+                         className="mt-2 h-11 bg-secondary/50"
+                       />
+                     </div>
+                     <p className="text-xs leading-relaxed text-muted-foreground">
+                       Send us a request and we will email you a new code after checking your purchase.
+                     </p>
+                     <div className="grid grid-cols-2 gap-2">
+                       <Button
+                         type="button"
+                         variant="outline"
+                         disabled={createResetRequest.isPending}
+                         onClick={() => setResetRequestOpen(false)}
+                       >
+                         Cancel
+                       </Button>
+                       <Button
+                         type="button"
+                         disabled={createResetRequest.isPending}
+                         onClick={handleResetRequest}
+                       >
+                         {createResetRequest.isPending ? "Sending…" : "Send request"}
+                       </Button>
+                     </div>
+                   </div>
+                 )}
+               </div>
+             )}
           </CardContent>
+            </>
+          )}
         </Card>
         
         <div className="mt-5 shrink-0 text-center text-xs text-muted-foreground font-mono sm:mt-8">

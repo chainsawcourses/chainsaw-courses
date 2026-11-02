@@ -7,6 +7,7 @@ import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Award, FileDown, Star, Ch
 import { useGetExam, useSubmitExam, useSubmitAppFeedback, useGetExamStatus, getGetExamStatusQueryKey, ExamResult, getGetExamQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { DISAPPOINTMENT_URL } from "../data/audioFiles";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 const CROWD_APPLAUSE_URL = `${import.meta.env.BASE_URL}crowd-applause.mp3`;
 
@@ -423,7 +424,7 @@ export default function Exam() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <ChainsawLoader className="w-12 h-12 mb-4 text-primary" />
         <div className="text-primary font-mono tracking-widest uppercase">Loading Final Exam...</div>
       </div>
     );

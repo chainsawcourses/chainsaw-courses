@@ -1,6 +1,7 @@
 import { Router } from "express";
 import mammoth from "mammoth";
 import { logger } from "../lib/logger";
+import { requireActiveCourseAccess } from "./auth";
 
 const router = Router();
 
@@ -8,6 +9,7 @@ let cached: { text: string; fetchedAt: number } | null = null;
 const CACHE_TTL_MS = 1000 * 60 * 60;
 
 router.get("/how-to-use", async (req, res) => {
+  if (!await requireActiveCourseAccess(req, res)) return;
   const url = req.query["url"] as string | undefined;
   if (!url) {
     res.status(400).json({ error: "Missing ?url= parameter" });

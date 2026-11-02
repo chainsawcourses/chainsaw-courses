@@ -1,24 +1,9 @@
 import { useEffect, useState } from "react";
 import { appPath } from "../lib/routing";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import { saveLearnerSession } from "../lib/sessionStorage";
 
 const PREVIEW_CODE = "ADMIN-PREVIEW";
-
-/** Persist credentials to both localStorage and cookies so all auth paths are covered. */
-function storeCredentials(activationCode: string, deviceId: string, fullName: string, email: string, userId: number) {
-  localStorage.setItem("activationCode", activationCode);
-  localStorage.setItem("deviceId",       deviceId);
-  localStorage.setItem("fullName",        fullName);
-  localStorage.setItem("email",           email);
-  localStorage.setItem("userId",          String(userId));
-
-  const expires = new Date(Date.now() + 365 * 864e5).toUTCString();
-  const base = `; expires=${expires}; path=/; SameSite=Lax`;
-  document.cookie = `activationCode=${encodeURIComponent(activationCode)}${base}`;
-  document.cookie = `deviceId=${encodeURIComponent(deviceId)}${base}`;
-  document.cookie = `fullName=${encodeURIComponent(fullName)}${base}`;
-  document.cookie = `email=${encodeURIComponent(email)}${base}`;
-  document.cookie = `userId=${encodeURIComponent(userId)}${base}`;
-}
 
 export default function AdminPreviewLogin() {
   const [status, setStatus] = useState("Setting up preview...");
@@ -66,8 +51,16 @@ export default function AdminPreviewLogin() {
           email: string;
         };
 
+        // Use the canonical learner-session path so a previously suspended
+        // browser session is reactivated and stale enrolment data is cleared.
         // bind-preview signs the waiver server-side before returning.
-        storeCredentials(PREVIEW_CODE, deviceId, fullName, email, userId);
+        await saveLearnerSession(deviceId, {
+          activationCode: PREVIEW_CODE,
+          fullName,
+          email,
+          userId,
+          enrollmentId: null,
+        });
 
         setStatus("Launching preview...");
         window.location.href = appPath("training");
@@ -84,7 +77,7 @@ export default function AdminPreviewLogin() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4">
       {!failed && (
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <ChainsawLoader className="w-10 h-10 text-primary" />
       )}
       <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest text-center max-w-xs">
         {status}

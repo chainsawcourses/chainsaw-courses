@@ -1,13 +1,78 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { modulesTable, userProgressTable, usersTable, quizQuestionsTable, examAttemptsTable } from "@workspace/db";
+import { modulesTable, userProgressTable, usersTable, quizQuestionsTable, examAttemptsTable, videoEngagementTable } from "@workspace/db";
 import { SaveHeartbeatBody, CompleteVideoBody } from "@workspace/api-zod";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { z } from "zod";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
 
 const router = Router();
+
+const VideoEngagementBody = z.object({
+  moduleId: z.number().int(),
+  launchedAt: z.string().datetime().optional(),
+  completed: z.boolean().optional(),
+  seekAttempted: z.boolean().optional(),
+  seekAttemptCount: z.number().int().min(0).optional(),
+  warningAcknowledged: z.boolean().optional(),
+});
+
+router.post("/progress/video-engagement", async (req, res) => {
+  const parsed = VideoEngagementBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid request body" });
+    return;
+  }
+  const deviceId = (req.headers["deviceid"] as string) || "";
+  const activationCode = (req.headers["activationcode"] as string) || "";
+  const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
+  if (user.id === 0) {
+    res.json({ success: true });
+    return;
+  }
+  try {
+    const input = parsed.data;
+    const [existing] = await db.select().from(videoEngagementTable).where(and(
+      eq(videoEngagementTable.userId, user.id),
+      eq(videoEngagementTable.enrollmentId, user.enrollmentId),
+      eq(videoEngagementTable.moduleId, input.moduleId),
+    )).orderBy(videoEngagementTable.id).limit(1);
+    const update = {
+      completedAt: input.completed ? new Date() : undefined,
+      seekAttempted: input.seekAttempted,
+      seekAttemptCount: input.seekAttemptCount,
+      warningAcknowledgedAt: input.warningAcknowledged ? new Date() : undefined,
+    };
+    if (existing) {
+      await db.update(videoEngagementTable).set(update).where(eq(videoEngagementTable.id, existing.id));
+    } else {
+      await db.insert(videoEngagementTable).values({
+        userId: user.id,
+        enrollmentId: user.enrollmentId,
+        moduleId: input.moduleId,
+        launchedAt: input.launchedAt ? new Date(input.launchedAt) : new Date(),
+        seekAttempted: input.seekAttempted ?? false,
+        seekAttemptCount: input.seekAttemptCount ?? 0,
+        warningAcknowledgedAt: input.warningAcknowledged ? new Date() : null,
+        completedAt: input.completed ? new Date() : null,
+      });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    logger.error({ err }, "Error saving video engagement");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.post("/progress/heartbeat", async (req, res) => {
   const parse = SaveHeartbeatBody.safeParse(req.body);
@@ -22,6 +87,10 @@ router.post("/progress/heartbeat", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   // Demo mode: acknowledge but skip all DB writes
   if (user.id === 0) { res.json({ success: true, message: "Heartbeat saved" }); return; }
@@ -30,19 +99,20 @@ router.post("/progress/heartbeat", async (req, res) => {
     const existing = await db
       .select()
       .from(userProgressTable)
-      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
 
     if (existing.length > 0) {
       await db
         .update(userProgressTable)
         .set({ lastTimestamp: timestamp, updatedAt: new Date() })
-        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
     } else {
       await db.insert(userProgressTable).values({
         userId: user.id,
+        enrollmentId: user.enrollmentId,
         moduleId,
         lastTimestamp: timestamp,
-      });
+      }).onConflictDoNothing();
     }
 
     await db
@@ -64,10 +134,18 @@ router.post("/progress/complete-video", async (req, res) => {
     return;
   }
 
-  const { moduleId, deviceId, activationCode } = parse.data;
+  const { moduleId, deviceId, activationCode, enrollmentId } = parse.data;
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
+  if (user.enrollmentId !== enrollmentId) {
+    res.status(409).json({ error: "stale_enrollment", message: "The completion belongs to a different enrolment." });
     return;
   }
 
@@ -82,31 +160,30 @@ router.post("/progress/complete-video", async (req, res) => {
       .where(eq(quizQuestionsTable.moduleId, moduleId));
     const hasQuiz = (quizCountResult[0]?.count ?? 0) > 0;
 
-    const existing = await db
-      .select()
-      .from(userProgressTable)
-      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
-
-    if (existing.length > 0) {
-      const updateData: Record<string, unknown> = { videoCompleted: true, updatedAt: new Date() };
-      if (!hasQuiz) {
-        updateData.quizPassed = true;
-        updateData.completedAt = new Date();
-      }
-      await db
-        .update(userProgressTable)
-        .set(updateData)
-        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
-    } else {
-      const insertData = {
+    const completedAt = !hasQuiz ? new Date() : undefined;
+    await db
+      .insert(userProgressTable)
+      .values({
         userId: user.id,
+        enrollmentId: user.enrollmentId,
         moduleId,
         videoCompleted: true,
         quizPassed: !hasQuiz,
-        completedAt: !hasQuiz ? new Date() : undefined,
-      };
-      await db.insert(userProgressTable).values(insertData);
-    }
+        completedAt,
+      })
+      .onConflictDoUpdate({
+        target: [
+          userProgressTable.userId,
+          userProgressTable.enrollmentId,
+          userProgressTable.moduleId,
+        ],
+        targetWhere: sql`${userProgressTable.enrollmentId} IS NOT NULL`,
+        set: {
+          videoCompleted: true,
+          ...(!hasQuiz ? { quizPassed: true, completedAt } : {}),
+          updatedAt: new Date(),
+        },
+      });
 
     res.json({ success: true, message: "Video marked complete" });
   } catch (err) {
@@ -136,6 +213,10 @@ router.post("/progress/complete-assessment", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   // Demo mode: acknowledge but skip all DB writes
   if (user.id === 0) { res.json({ success: true, message: "Assessment result recorded" }); return; }
@@ -149,22 +230,23 @@ router.post("/progress/complete-assessment", async (req, res) => {
     const existing = await db
       .select()
       .from(userProgressTable)
-      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
 
     if (existing.length > 0) {
       await db
         .update(userProgressTable)
         .set({ videoCompleted: true, quizPassed: true, quizScore: score ?? null, completedAt: new Date(), updatedAt: new Date() })
-        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
     } else {
       await db.insert(userProgressTable).values({
         userId: user.id,
+        enrollmentId: user.enrollmentId,
         moduleId,
         videoCompleted: true,
         quizPassed: true,
         quizScore: score ?? null,
         completedAt: new Date(),
-      });
+      }).onConflictDoNothing();
     }
 
     logger.info({ moduleId }, "Assessment passed and recorded");
@@ -209,7 +291,7 @@ router.get("/progress/summary", async (req, res) => {
     const progressRecords = await db
       .select()
       .from(userProgressTable)
-      .where(eq(userProgressTable.userId, user.id));
+      .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId)));
 
     const progressMap = new Map(progressRecords.map((p) => [p.moduleId, p]));
     const totalModules = modules.length;
@@ -232,7 +314,7 @@ router.get("/progress/summary", async (req, res) => {
     const examAttempts = await db
       .select()
       .from(examAttemptsTable)
-      .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.passed, true)));
+      .where(and(eq(examAttemptsTable.userId, user.id), eq(examAttemptsTable.enrollmentId, user.enrollmentId), eq(examAttemptsTable.passed, true)));
     const examPassed = examAttempts.length > 0;
 
     const certificateEarned = completedModules === totalModules && totalModules > 0 && examPassed;

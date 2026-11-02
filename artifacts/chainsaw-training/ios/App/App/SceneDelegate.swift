@@ -1,6 +1,16 @@
 import UIKit
 import Capacitor
 
+final class LearnerBridgeViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        bridge?.registerPluginInstance(PdfSaverPlugin())
+        bridge?.registerPluginInstance(LearnerSecureSessionPlugin())
+        if #available(iOS 15.0, *) {
+            bridge?.registerPluginInstance(AppleStorePlugin())
+        }
+    }
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
@@ -8,8 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        let bridgeViewController = CAPBridgeViewController()
-        bridgeViewController.bridge?.registerPluginInstance(PdfSaverPlugin())
+        let bridgeViewController = LearnerBridgeViewController()
         window?.rootViewController = bridgeViewController
         window?.makeKeyAndVisible()
 

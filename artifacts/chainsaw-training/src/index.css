@@ -407,7 +407,6 @@ html[data-screen-reader="true"] *:focus {
     height: 80px !important;
   }
 
-  .welcome-modal-assigned,
   .welcome-modal-intro,
   .welcome-modal-step,
   .brand-dropdown-nav-link,
@@ -421,5 +420,29 @@ html[data-screen-reader="true"] *:focus {
 
   .brand-dropdown-action {
     width: 100%;
+  }
+}
+
+@keyframes chainsaw-travel {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+.chainsaw-chain-path {
+  --chainsaw-duration: 4s;
+  offset-path: path("M 12 5 A 7 7 0 1 1 12 19 A 7 7 0 1 1 12 5 Z");
+  offset-rotate: auto;
+  transform-box: view-box;
+  transform-origin: 0px 0px;
+  animation: chainsaw-travel var(--chainsaw-duration) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chainsaw-chain-path {
+    animation: none;
   }
 }

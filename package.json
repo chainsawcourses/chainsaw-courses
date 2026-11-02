@@ -6,16 +6,40 @@
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run check:release && pnpm -r --if-present run build",
     "build:android:aab": "pnpm run check:release && bash ./scripts/build-android-aab.sh",
+    "verify:mobile-handoff": "bash ./scripts/mobile-handoff-checksum.sh verify",
+    "check:mobile-handoffs": "bash ./scripts/mobile-handoff-checksum.sh audit",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "check:uk-english": "pnpm --filter @workspace/chainsaw-training run check:uk-english",
-    "check:release": "pnpm run check:uk-english && pnpm run typecheck",
-    "check:gateway-browser": "playwright test --config playwright.config.ts"
+    "check:deployment-size": "node scripts/check-deployment-size.mjs",
+    "check:project-secrets": "node scripts/check-project-secrets.mjs",
+    "check:mobile-packages": "node scripts/check-mobile-package-boundaries.mjs",
+    "check:assessment-media": "pnpm --filter @workspace/api-server run check:assessment-media",
+    "check:privacy-policy-download": "pnpm --filter @workspace/api-server run check:privacy-policy-pdf",
+    "check:release-contract": "node --test scripts/check-release-gate.test.mjs scripts/nix-webkit-runtime.test.mjs",
+    "check:release": "pnpm run check:release-contract && pnpm run check:mobile-packages && pnpm run check:mobile-handoffs && pnpm --filter @workspace/chainsaw-training run check:manual-pages && pnpm --filter @workspace/chainsaw-training run check:privacy-policy && pnpm run check:privacy-policy-download && pnpm --filter @workspace/chainsaw-training run test:store-policy && pnpm --filter @workspace/chainsaw-training run test:manual-delivery-analytics && pnpm --filter @workspace/chainsaw-training run test:manual-delivery-browser && pnpm --filter @workspace/chainsaw-training run test:billing-history-browser && pnpm --filter @workspace/chainsaw-training run test:retailer-directory-browser && pnpm --filter @workspace/chainsaw-training run test:admin-retailer-review-browser && pnpm run check:uk-english && pnpm run typecheck && pnpm run check:project-secrets && pnpm run check:deployment-size && pnpm run check:lifecycle-browser",
+    "check:lifecycle-browser": "pnpm exec playwright install chromium webkit && pnpm --filter @workspace/chainsaw-training run test:lifecycle-browser:chromium && pnpm --filter @workspace/chainsaw-training run test:admin-retailer-review-browser:webkit",
+    "check:gateway-browser": "playwright test --config playwright.config.ts",
+    "check:billing-monitoring": "pnpm --filter @workspace/api-server run check:billing-monitoring",
+    "check:production-billing-monitoring": "pnpm --filter @workspace/api-server run check:production-billing-monitoring"
+  },
+  "releaseGate": {
+    "productionScriptNames": [
+      "build",
+      "build:*",
+      "package:*"
+    ],
+    "productionDeploymentConfigurations": [
+      ".replit"
+    ]
   },
   "private": true,
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "prettier": "^3.8.3",
     "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
   }
 }

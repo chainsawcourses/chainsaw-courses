@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, FileText, Loader2, ShieldAlert } from "lucide-react";
+import { ArrowLeft, FileText, ShieldAlert } from "lucide-react";
 import { useGetHazardsReference } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 function riskBand(likelihood: number, severity: number) {
   const score = likelihood * severity;
@@ -36,7 +37,7 @@ export default function HazardsReference() {
       <main className="mx-auto max-w-3xl space-y-4 px-4 py-5">
         {isLoading && (
           <div className="flex min-h-64 items-center justify-center text-primary">
-            <Loader2 className="h-7 w-7 animate-spin" />
+            <ChainsawLoader className="h-7 w-7" />
           </div>
         )}
 

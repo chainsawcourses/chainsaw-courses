@@ -2,7 +2,7 @@
  * Shared helpers for uploading certificate PDFs to Google Drive.
  * Target folder: Chainsaw Courses User Backup / User Certificates
  */
-import { ReplitConnectors } from "@replit/connectors-sdk";
+import { AppConnectors as ReplitConnectors } from "./appConnectors";
 import { generateCertificatePdf, CertUser } from "./generateCertificate";
 import { logger } from "./logger";
 

@@ -10,6 +10,9 @@ import {
   sendNudge12,
 } from "./gatewayEmails";
 import { sendEmail } from "./email";
+import { reconcileBillingSupportNotifications } from "./billingSupportNotifications";
+import { runRetailerReviewReminders } from "./retailerReviewReminders";
+import { runScheduledBackupIfDue } from "./backupJobs";
 
 const ADMIN_EMAIL = "info@chainsawcourses.com";
 const BASE_URL = process.env.REPLIT_DEV_DOMAIN
@@ -151,50 +154,6 @@ async function runGatewayTick() {
   await runNudge12().catch((err) => logger.error({ err }, "Gateway nudge12 error"));
 }
 
-// ─── Admin reminder: weekly backup ────────────────────────────────────────────
-
-async function sendWeeklyBackupReminder(): Promise<void> {
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  const adminUrl = `${BASE_URL}/admin`;
-
-  const text = [
-    `Weekly Backup Reminder — ${today}`,
-    "",
-    "This is your automated Monday reminder to download and save a copy of the Chainsaw Courses learner data.",
-    "",
-    "Steps:",
-    "1. Log in to the admin dashboard: " + adminUrl,
-    "2. Scroll to the Data & Backup section.",
-    "3. Click Download CSV.",
-    "4. Save the file to your secure cloud location (e.g. Google Drive / encrypted folder).",
-    "",
-    "This takes less than a minute and satisfies the weekly export requirement in your Business Continuity and Disaster Recovery Plan (QMS-006).",
-    "",
-    "— Chainsaw Courses automated reminder",
-  ].join("\n");
-
-  const html = `
-    <div style="font-family:monospace;max-width:560px;margin:0 auto;color:#1C1C1C;">
-      <div style="background:#e27226;padding:16px 24px;">
-        <span style="color:#fff;font-size:14px;font-weight:bold;letter-spacing:2px;">CHAINSAW COURSES — WEEKLY BACKUP REMINDER</span>
-      </div>
-      <div style="padding:24px;background:#f9f9f9;border:1px solid #e5e7eb;">
-        <p style="margin:0 0 12px;font-size:13px;color:#555;">${today}</p>
-        <p style="margin:0 0 16px;font-size:14px;">This is your automated Monday reminder to download and save a copy of your learner data.</p>
-        <ol style="padding-left:20px;margin:0 0 20px;font-size:13px;line-height:1.8;">
-          <li>Log in to the <a href="${adminUrl}" style="color:#e27226;">admin dashboard</a></li>
-          <li>Scroll to the <strong>Data &amp; Backup</strong> section</li>
-          <li>Click <strong>Download CSV</strong></li>
-          <li>Save the file to your secure cloud location</li>
-        </ol>
-        <p style="margin:0;font-size:12px;color:#888;">Required by BCDR Plan (QMS-006) · Overleaf Publishers Ltd · Co. No. 15735226</p>
-      </div>
-    </div>`;
-
-  const sent = await sendEmail({ to: ADMIN_EMAIL, subject: `Weekly Backup Reminder — ${today}`, text, html });
-  if (sent) logger.info("Weekly backup reminder sent to admin");
-}
-
 // ─── Admin reminder: quarterly restoration test ───────────────────────────────
 
 async function sendQuarterlyRestoreReminder(): Promise<void> {
@@ -247,6 +206,25 @@ async function sendQuarterlyRestoreReminder(): Promise<void> {
 // ─── Main scheduler ───────────────────────────────────────────────────────────
 
 export function startScheduler(): void {
+  // With an external scheduler configured, only its held-open HTTP request may
+  // start the backup. Startup/cron fire-and-forget work can be paused by Autoscale.
+  const externalBackupTriggerConfigured = Boolean(process.env.BACKUP_TRIGGER_SECRET);
+  void reconcileBillingSupportNotifications().catch((err) =>
+    logger.error({ err }, "Initial billing support notification reconciliation failed"));
+  void runRetailerReviewReminders().catch((err) =>
+    logger.error({ err }, "Initial retailer review reminder run failed"));
+  if (!externalBackupTriggerConfigured) void runScheduledBackupIfDue();
+
+  cron.schedule("*/5 * * * *", async () => {
+    await reconcileBillingSupportNotifications().catch((err) =>
+      logger.error({ err }, "Scheduled billing support notification reconciliation failed"));
+  });
+
+  // Retailer verification reminders — daily at 08:30
+  cron.schedule("30 8 * * *", async () => {
+    await runRetailerReviewReminders().catch((err) =>
+      logger.error({ err }, "Scheduled retailer review reminder run failed"));
+  });
   // RSS fetch at 07:00 daily
   cron.schedule("0 7 * * *", async () => {
     logger.info("Scheduled RSS fetch starting");
@@ -265,17 +243,16 @@ export function startScheduler(): void {
     logger.info("Gateway scheduler tick complete");
   });
 
-  // Weekly backup reminder — every Monday at 09:00
-  cron.schedule("0 9 * * 1", async () => {
-    logger.info("Weekly backup reminder: sending");
-    await sendWeeklyBackupReminder().catch((err) => logger.error({ err }, "Weekly backup reminder error"));
-  });
-
   // Quarterly restoration test reminder — 1st of Jan, Apr, Jul, Oct at 09:00
   cron.schedule("0 9 1 1,4,7,10 *", async () => {
     logger.info("Quarterly restore reminder: sending");
     await sendQuarterlyRestoreReminder().catch((err) => logger.error({ err }, "Quarterly restore reminder error"));
   });
 
-  logger.info("Schedulers registered (RSS: 07:00, Gateway: 08:00, Backup reminder: Mon 09:00, Restore reminder: quarterly)");
+  // Encrypted backup at 06:00 UK time; startup catches up after downtime.
+  cron.schedule("0 6 * * *", async () => {
+    if (!externalBackupTriggerConfigured) await runScheduledBackupIfDue();
+  }, { timezone: "Europe/London" });
+
+  logger.info(`Schedulers registered (billing alerts: every 5 minutes, RSS: 07:00, Gateway: 08:00, Retailer reviews: 08:30, readable backup: daily 06:00 UK${externalBackupTriggerConfigured ? " via external trigger" : ""}, Restore reminder: quarterly)`);
 }

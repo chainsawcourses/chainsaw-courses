@@ -22,6 +22,7 @@ test("a saved venue is active and returned by the public gateway route", async (
     env: {
       ...process.env,
       ADMIN_PASSWORD: "gateway-route-test-password",
+      SESSION_SECRET: "gateway-route-test-session-secret",
       DEMO_MODE: "true",
       NODE_ENV: "test",
       PORT: String(port),

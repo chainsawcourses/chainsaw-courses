@@ -9,10 +9,14 @@ import {
   quizQuestionsTable,
   iqaRecordsTable,
   reasonableAdjustmentsTable,
+  courseEnrolmentsTable,
+  learnerSubscriptionsTable,
 } from "@workspace/db";
 import { eq, isNull, not, desc, asc, count, sql, and } from "drizzle-orm";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
+import { ensureCurrentEnrollment } from "../lib/enrollment";
+import { certRef } from "../lib/generateCertificate";
 
 const router = Router();
 
@@ -31,17 +35,21 @@ router.get("/admin/stats-quality", async (req, res) => {
   try {
     const now = new Date();
 
-    const [users, examAttempts, progress, modules, quizQuestions] = await Promise.all([
+    const [users, subscriptions, examAttempts, progress, modules, quizQuestions] = await Promise.all([
       db.select().from(usersTable).where(isNull(usersTable.deletedAt)),
+      db.select().from(learnerSubscriptionsTable),
       db.select().from(examAttemptsTable),
       db.select().from(userProgressTable),
       db.select().from(modulesTable).where(eq(modulesTable.isActive, true)),
       db.select({ moduleId: quizQuestionsTable.moduleId, cnt: count() }).from(quizQuestionsTable).groupBy(quizQuestionsTable.moduleId),
     ]);
 
+    const subscriptionByUser = new Map(subscriptions.map((subscription) => [subscription.userId, subscription]));
     const activeUsers = users.filter(u =>
       u.accessExpiresAt === null || u.accessExpiresAt > now ||
-      (u.subscriptionExpiresAt !== null && u.subscriptionExpiresAt > now)
+      (u.subscriptionExpiresAt !== null && u.subscriptionExpiresAt > now) ||
+      ((subscriptionByUser.get(u.id)?.paidThroughAt ?? null) !== null &&
+        subscriptionByUser.get(u.id)!.paidThroughAt! > now)
     );
     const completedUsers = users.filter(u => u.courseCompletedAt !== null);
     const passedAttempts = examAttempts.filter(a => a.passed);
@@ -105,31 +113,44 @@ router.get("/admin/stats-quality", async (req, res) => {
 router.get("/admin/certificates", async (req, res) => {
   if (!adminGuard(req, res)) return;
   try {
-    const users = await db.select().from(usersTable)
-      .where(and(isNull(usersTable.deletedAt), not(isNull(usersTable.courseCompletedAt))))
-      .orderBy(desc(usersTable.courseCompletedAt));
-
-    const userIds = users.map(u => u.id);
-    const allAttempts = userIds.length > 0
+    const legacyCompletedUsers = await db.select().from(usersTable)
+      .where(and(isNull(usersTable.deletedAt), not(isNull(usersTable.courseCompletedAt))));
+    for (const user of legacyCompletedUsers) {
+      await db.transaction((tx) => ensureCurrentEnrollment(tx, user));
+    }
+    const rows = await db
+      .select({ user: usersTable, enrollment: courseEnrolmentsTable })
+      .from(courseEnrolmentsTable)
+      .innerJoin(usersTable, eq(courseEnrolmentsTable.userId, usersTable.id))
+      .where(and(
+        isNull(usersTable.deletedAt),
+        eq(courseEnrolmentsTable.isDeleted, false),
+        not(isNull(courseEnrolmentsTable.courseCompletedAt)),
+      ))
+      .orderBy(desc(courseEnrolmentsTable.courseCompletedAt));
+    const attempts = rows.length > 0
       ? await db.select().from(examAttemptsTable).where(eq(examAttemptsTable.passed, true))
       : [];
-
-    const bestScoreMap = new Map<number, number>();
-    for (const a of allAttempts) {
-      const prev = bestScoreMap.get(a.userId) ?? 0;
-      if (a.score > prev) bestScoreMap.set(a.userId, a.score);
-    }
-
-    res.json(users.map(u => ({
-      id: u.id,
-      fullName: u.fullName,
-      email: u.email,
-      activationCode: u.activationCode,
-      courseCompletedAt: u.courseCompletedAt!.toISOString(),
-      certificateIssuedAt: u.certificateIssuedAt?.toISOString() ?? null,
-      examScore: bestScoreMap.get(u.id) ?? null,
-      accessExpiresAt: u.accessExpiresAt?.toISOString() ?? null,
-    })));
+    res.json(rows.filter(({ user, enrollment }) =>
+      attempts.some((attempt) => attempt.userId === user.id && attempt.enrollmentId === enrollment.id),
+    ).map(({ user, enrollment }) => {
+      const passed = attempts.filter((attempt) => attempt.userId === user.id && attempt.enrollmentId === enrollment.id);
+      const bestScore = passed.length ? Math.max(...passed.map((attempt) => attempt.score)) : null;
+      const firstPass = passed.reduce((earliest, attempt) =>
+        !earliest || attempt.attemptedAt < earliest.attemptedAt ? attempt : earliest, passed[0]);
+      return {
+        id: user.id,
+        enrollmentId: enrollment.id,
+        fullName: user.fullName,
+        email: user.email,
+        activationCode: enrollment.activationCode,
+        courseCompletedAt: enrollment.courseCompletedAt!.toISOString(),
+        certificateIssuedAt: enrollment.certificateIssuedAt?.toISOString() ?? null,
+        certificateReference: firstPass ? certRef(user.id, firstPass.attemptedAt, enrollment.id) : null,
+        examScore: bestScore,
+        accessExpiresAt: enrollment.accessExpiresAt?.toISOString() ?? null,
+      };
+    }));
   } catch (err) {
     logger.error({ err }, "Error fetching certificates");
     res.status(500).json({ error: "Internal server error" });

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@workspace/db";
-import { activationCodesTable } from "@workspace/db/schema";
-import { eq } from "drizzle-orm";
+import { activationCodesTable, websitePurchaseSeatsTable } from "@workspace/db/schema";
+import { eq, like, sql } from "drizzle-orm";
 import { sendEmail } from "../lib/email";
 import { logger } from "../lib/logger";
 
@@ -13,18 +13,6 @@ function generateCode(): string {
   const segment = (len: number) =>
     Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
   return `CC-${segment(6)}-${segment(4)}`;
-}
-
-async function makeUniqueCode(): Promise<string> {
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const code = generateCode();
-    const [existing] = await db
-      .select({ id: activationCodesTable.id })
-      .from(activationCodesTable)
-      .where(eq(activationCodesTable.code, code));
-    if (!existing) return code;
-  }
-  throw new Error("Failed to generate unique activation code after 10 attempts");
 }
 
 function verifyShopifyHmac(rawBody: Buffer, hmacHeader: string, secret: string): boolean {
@@ -88,68 +76,106 @@ router.post("/api/shopify/webhook", async (req, res) => {
       : order.billing_address?.name ?? "Valued Customer"
   ).trim();
   const orderRef = order.order_number ?? order.id ?? "unknown";
+  const orderKey = String(order.id ?? order.order_number ?? "");
 
-  if (!buyerEmail) {
+  if (!buyerEmail || !orderKey) {
     req.log.warn({ orderRef }, "Shopify webhook: order has no email — skipping");
-    res.status(200).json({ skipped: "no email" });
+    res.status(200).json({ skipped: !buyerEmail ? "no email" : "no order id" });
     return;
   }
 
   try {
-    const code = await makeUniqueCode();
+    const result = await db.transaction(async (tx) => {
+      const dedupeMarker = `Shopify order id ${orderKey} |`;
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${"shopify-order:" + orderKey}))`);
+      // A website-forwarded purchase owns seat-level fulfilment for this order.
+      // Never issue the webhook's legacy order-wide code as well.
+      const [websiteSeat] = await tx.select({ id: websitePurchaseSeatsTable.id })
+        .from(websitePurchaseSeatsTable)
+        .where(eq(websitePurchaseSeatsTable.orderId, orderKey))
+        .limit(1);
+      if (websiteSeat) return { duplicate: true, activationCodeId: null };
 
-    await db.insert(activationCodesTable).values({
-      code,
-      notes: `Shopify order #${orderRef} — ${buyerName} <${buyerEmail}>`,
-    });
+      const [existing] = await tx
+        .select({ id: activationCodesTable.id })
+        .from(activationCodesTable)
+        .where(like(activationCodesTable.notes, `${dedupeMarker}%`))
+        .limit(1);
+      if (existing) return { duplicate: true, activationCodeId: existing.id };
 
-    const url = appUrl();
+      let activationCodeId: number | null = null;
+      let code = "";
+      for (let attempt = 0; attempt < 10 && activationCodeId === null; attempt++) {
+        code = generateCode();
+        const [inserted] = await tx
+          .insert(activationCodesTable)
+          .values({
+            code,
+            assignedTo: buyerEmail.toLowerCase(),
+            notes: `${dedupeMarker} Shopify order #${orderRef} — ${buyerName} <${buyerEmail}>`,
+          })
+          .onConflictDoNothing({ target: activationCodesTable.code })
+          .returning({ id: activationCodesTable.id });
+        activationCodeId = inserted?.id ?? null;
+      }
+      if (activationCodeId === null) {
+        throw new Error("Failed to generate unique activation code after 10 attempts");
+      }
 
-    const sent = await sendEmail({
-      to: buyerEmail,
-      subject: "Your Chainsaw Courses Access Code",
-      text: [
-        `Hi ${buyerName},`,
-        "",
-        "Thank you for purchasing the Chainsaw Maintenance & Cross Cutting professional training course.",
-        "",
-        "Your personal access code is:",
-        "",
-        `    ${code}`,
-        "",
-        "To get started:",
-        `  1. Go to ${url}`,
-        "  2. Enter your full name, email address, and the code above.",
-        "  3. Your progress is saved automatically and your certificate is issued once you pass the final exam.",
-        "",
-        "If you have any questions, reply to this email and we will be happy to help.",
-        "",
-        "Kind regards,",
-        "Chainsaw Courses",
-        "chainsawcourses.com",
-      ].join("\n"),
-      html: `
-        <div style="font-family:sans-serif;max-width:520px;margin:auto;color:#222;">
-          <p>Hi ${buyerName},</p>
-          <p>Thank you for purchasing the <strong>Chainsaw Maintenance &amp; Cross Cutting</strong> professional training course.</p>
-          <p>Your personal access code is:</p>
-          <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:16px 24px;text-align:center;margin:24px 0;">
-            <span style="font-family:monospace;font-size:24px;font-weight:700;letter-spacing:4px;color:#e27226;">${code}</span>
+      const url = appUrl();
+      const sent = await sendEmail({
+        to: buyerEmail,
+        subject: "Your Chainsaw Courses Access Code",
+        text: [
+          `Hi ${buyerName},`,
+          "",
+          "Thank you for purchasing the Chainsaw Maintenance & Cross Cutting professional training course.",
+          "",
+          "Your personal access code is:",
+          "",
+          `    ${code}`,
+          "",
+          "To get started:",
+          `  1. Go to ${url}`,
+          "  2. Enter your full name, email address, and the code above.",
+          "  3. Your progress is saved automatically and your certificate is issued once you pass the final exam.",
+          "",
+          "If you have any questions, reply to this email and we will be happy to help.",
+          "",
+          "Kind regards,",
+          "Chainsaw Courses",
+          "chainsawcourses.com",
+        ].join("\n"),
+        html: `
+          <div style="font-family:sans-serif;max-width:520px;margin:auto;color:#222;">
+            <p>Hi ${buyerName},</p>
+            <p>Thank you for purchasing the <strong>Chainsaw Maintenance &amp; Cross Cutting</strong> professional training course.</p>
+            <p>Your personal access code is:</p>
+            <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:16px 24px;text-align:center;margin:24px 0;">
+              <span style="font-family:monospace;font-size:24px;font-weight:700;letter-spacing:4px;color:#e27226;">${code}</span>
+            </div>
+            <p><strong>To get started:</strong></p>
+            <ol>
+              <li>Go to <a href="${url}">${url}</a></li>
+              <li>Enter your full name, email address, and the code above.</li>
+              <li>Your progress is saved automatically and your certificate is issued once you pass the final exam.</li>
+            </ol>
+            <p>If you have any questions, just reply to this email.</p>
+            <p>Kind regards,<br/><strong>Chainsaw Courses</strong><br/>chainsawcourses.com</p>
           </div>
-          <p><strong>To get started:</strong></p>
-          <ol>
-            <li>Go to <a href="${url}">${url}</a></li>
-            <li>Enter your full name, email address, and the code above.</li>
-            <li>Your progress is saved automatically and your certificate is issued once you pass the final exam.</li>
-          </ol>
-          <p>If you have any questions, just reply to this email.</p>
-          <p>Kind regards,<br/><strong>Chainsaw Courses</strong><br/>chainsawcourses.com</p>
-        </div>
-      `,
+        `,
+      });
+      if (!sent) throw new Error("Activation email could not be sent");
+      return { duplicate: false, activationCodeId };
     });
 
-    req.log.info({ orderRef, buyerEmail, code, emailSent: sent }, "Shopify order fulfilled — activation code created");
-    res.status(200).json({ ok: true });
+    req.log.info(
+      { orderRef, activationCodeId: result.activationCodeId, duplicate: result.duplicate },
+      result.duplicate
+        ? "Duplicate Shopify order webhook ignored"
+        : "Shopify order fulfilled — activation code created",
+    );
+    res.status(200).json({ ok: true, duplicate: result.duplicate });
   } catch (err) {
     req.log.error({ err, orderRef }, "Failed to fulfil Shopify order");
     res.status(500).json({ error: "Fulfilment failed" });

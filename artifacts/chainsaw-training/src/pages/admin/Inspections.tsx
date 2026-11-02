@@ -3,11 +3,13 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, ClipboardCheck, Download, ExternalLink, HardDrive, Loader2, MinusCircle, Search, Trash2, X, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, ClipboardCheck, Download, ExternalLink, HardDrive, MinusCircle, Search, Trash2, X, XCircle } from "lucide-react";
 import { useListAllInspections, getListAllInspectionsQueryKey, useDeleteInspection, useDeleteAllInspections } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { deliverPdf } from "../../lib/pdfDownload";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import AdminReadError from "./AdminReadError";
 
 export default function Inspections() {
   const [, setLocation] = useLocation();
@@ -18,7 +20,7 @@ export default function Inspections() {
     if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
-  const { data: inspections, isLoading } = useListAllInspections({
+  const { data: inspections, isLoading, isError, refetch } = useListAllInspections({
     query: { queryKey: getListAllInspectionsQueryKey(), enabled: !!adminToken },
   });
 
@@ -136,7 +138,7 @@ export default function Inspections() {
             {(inspections?.length ?? 0) > 0 && (
               bulkState === "exporting" ? (
                 <Button size="sm" variant="outline" disabled className="font-mono text-xs">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Exporting…
+                  <ChainsawLoader className="w-4 h-4 mr-2" /> Exporting…
                 </Button>
               ) : (
                 <Button size="sm" variant="outline" onClick={handleExportAll} className="font-mono text-xs">
@@ -154,6 +156,7 @@ export default function Inspections() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {isError && <AdminReadError subject="inspections" retry={() => void refetch()} />}
 
         {/* Bulk export result banner */}
         {bulkState === "done" && bulkResult && (
@@ -190,7 +193,7 @@ export default function Inspections() {
               <span className="font-mono text-sm">
                 {inspections
                   ? `${inspections.length} inspection${inspections.length === 1 ? "" : "s"} recorded, ${failureCount} with failed items`
-                  : "No inspections submitted yet"}
+                  : isError ? "Inspection count unavailable" : "Loading inspections…"}
               </span>
             </CardContent>
           </Card>
@@ -244,7 +247,7 @@ export default function Inspections() {
           <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
         )}
 
-        {!isLoading && filtered?.length === 0 && (
+         {!isLoading && !isError && filtered?.length === 0 && (
           <p className="text-center text-muted-foreground font-mono text-sm py-8">
             {q || failuresOnly ? "No records match your search" : "No inspections submitted yet"}
           </p>
@@ -300,7 +303,7 @@ export default function Inspections() {
                       className={`p-1.5 rounded transition-colors ${dls === "error" ? "text-destructive hover:text-destructive/80" : dls === "done" ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
                     >
                       {dls === "downloading"
-                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ? <ChainsawLoader className="w-3.5 h-3.5" />
                         : <Download className="w-3.5 h-3.5" />}
                     </button>
 
@@ -320,7 +323,7 @@ export default function Inspections() {
                         className={`p-1.5 rounded transition-colors ${ds === "error" ? "text-destructive hover:text-destructive/80" : "text-muted-foreground hover:text-primary"}`}
                       >
                         {ds === "saving"
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ? <ChainsawLoader className="w-3.5 h-3.5" />
                           : <HardDrive className="w-3.5 h-3.5" />}
                       </button>
                     )}

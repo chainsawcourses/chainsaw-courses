@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { chatMessagesTable } from "@workspace/db";
 import { SendAiMessageBody } from "@workspace/api-zod";
-import { eq, asc } from "drizzle-orm";
+import { and, eq, asc } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import { getManualText, getQaResource, findQaForQuestion } from "../lib/ai-resource";
@@ -10,6 +10,7 @@ import { searchManual, buildTutorAnswer } from "../lib/manual-search";
 import { getIirsmFramework } from "../lib/iirsm-framework";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
 
 const router = Router();
 
@@ -147,12 +148,17 @@ router.post("/ai/chat", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   let reply: string;
 
   try {
     await db.insert(chatMessagesTable).values({
       userId: user.id,
+      enrollmentId: user.enrollmentId,
       role: "user",
       content: message,
       mode: chatMode,
@@ -161,7 +167,7 @@ router.post("/ai/chat", async (req, res) => {
     const history = await db
       .select()
       .from(chatMessagesTable)
-      .where(eq(chatMessagesTable.userId, user.id))
+      .where(and(eq(chatMessagesTable.userId, user.id), eq(chatMessagesTable.enrollmentId, user.enrollmentId)))
       .orderBy(asc(chatMessagesTable.createdAt));
 
     // Only include messages from the same mode in the context window
@@ -213,6 +219,7 @@ router.post("/ai/chat", async (req, res) => {
   try {
     await db.insert(chatMessagesTable).values({
       userId: user.id,
+      enrollmentId: user.enrollmentId,
       role: "assistant",
       content: reply,
       mode: chatMode,
@@ -243,6 +250,10 @@ router.post("/ai/grade-answer", async (req, res) => {
   const user = await resolveUser(activationCode, deviceId, req.headers["userid"] ? Number(req.headers["userid"]) : undefined);
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
     return;
   }
 
@@ -322,12 +333,16 @@ router.get("/ai/chat-history", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   try {
     const allMessages = await db
       .select()
       .from(chatMessagesTable)
-      .where(eq(chatMessagesTable.userId, user.id))
+      .where(and(eq(chatMessagesTable.userId, user.id), eq(chatMessagesTable.enrollmentId, user.enrollmentId)))
       .orderBy(asc(chatMessagesTable.createdAt));
 
     const filtered = allMessages.filter((m) => m.mode === mode);

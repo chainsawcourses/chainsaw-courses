@@ -1,39 +1,70 @@
 import { useState } from "react";
 import { useUserSession } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Download, Loader2 } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import { deliverPdf } from "../lib/pdfDownload";
 import { useToast } from "@/hooks/use-toast";
 import { getGetCertificateDetailsQueryKey, useGetCertificateDetails } from "@workspace/api-client-react";
 import { CertificateSheet } from "../components/CertificateSheet";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import { useQuery } from "@tanstack/react-query";
+import type { CertificateDetails } from "@workspace/api-client-react";
 
 export default function CertificatePage() {
-  const { activationCode, deviceId } = useUserSession();
+  const { activationCode, deviceId, userId } = useUserSession();
+  const isSampleReviewer = activationCode?.trim().toUpperCase() === "APPTEST26";
   const { toast } = useToast();
   const [downloading, setDownloading] = useState(false);
 
   const {
-    data: certificate,
+    data: realCertificate,
     isLoading,
     isError,
   } = useGetCertificateDetails({
     query: {
       queryKey: getGetCertificateDetailsQueryKey(),
-      enabled: !!activationCode && !!deviceId,
+      enabled: !!activationCode && !!deviceId && !isSampleReviewer,
       staleTime: 5 * 60 * 1000,
     },
   });
+  const sampleQuery = useQuery({
+    queryKey: ["reviewer-sample-certificate", userId],
+    enabled: isSampleReviewer && !!activationCode && !!deviceId && !!userId,
+    queryFn: async (): Promise<CertificateDetails> => {
+      const response = await fetch("/api/certificate/sample/details", {
+        headers: { activationcode: activationCode!, deviceid: deviceId!, userid: String(userId) },
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error("Sample certificate unavailable");
+      return response.json();
+    },
+    staleTime: 0,
+  });
+  const certificate = isSampleReviewer ? sampleQuery.data : realCertificate;
+  const certificateLoading = isSampleReviewer ? sampleQuery.isLoading : isLoading;
+  const certificateError = isSampleReviewer ? sampleQuery.isError : isError;
 
   const handleDownload = async () => {
-    if (!activationCode || !deviceId || downloading) return;
+    if (!activationCode || !deviceId || downloading || (isSampleReviewer && !userId)) return;
     setDownloading(true);
     try {
-      const res = await fetch("/api/certificate?download=1", {
-        headers: { activationcode: activationCode, deviceid: deviceId },
-      });
+      let res: Response;
+      if (isSampleReviewer) {
+        res = await fetch("/api/certificate/sample", {
+          headers: { activationcode: activationCode, deviceid: deviceId, userid: String(userId) },
+          cache: "no-store",
+        });
+      } else {
+        const tokenResponse = await fetch("/api/certificate/access-token", {
+          headers: { activationcode: activationCode, deviceid: deviceId },
+        });
+        if (!tokenResponse.ok) throw new Error("Failed");
+        const access = await tokenResponse.json() as { viewUrl: string };
+        res = await fetch(access.viewUrl, { referrerPolicy: "no-referrer" });
+      }
       if (!res.ok) throw new Error("Failed");
       const blob = await res.blob();
-      const result = await deliverPdf(blob, "Chainsaw_Certificate.pdf");
+      const result = await deliverPdf(blob, isSampleReviewer ? "Chainsaw_Sample_Certificate_NOT_VALID.pdf" : "Chainsaw_Certificate.pdf");
       if (result === "saved") {
         toast({ title: "Certificate saved", description: "Your certificate was saved to the selected location." });
       } else if (result === "shared") {
@@ -66,27 +97,27 @@ export default function CertificatePage() {
           size="sm"
           variant="outline"
           onClick={handleDownload}
-          disabled={downloading}
+          disabled={downloading || !certificate}
           className="font-mono text-xs uppercase tracking-widest gap-1.5 h-8"
         >
           {downloading
-            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ? <ChainsawLoader className="w-3.5 h-3.5" />
             : <Download className="w-3.5 h-3.5" />}
           Download
         </Button>
       </div>
 
       <main className="flex flex-1 items-start justify-center overflow-auto p-3 sm:p-6">
-        {isLoading && (
+        {certificateLoading && (
           <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <ChainsawLoader className="w-8 h-8 text-primary" />
             <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest">
-              Generating certificate…
+              {isSampleReviewer ? "Loading sample certificate…" : "Generating certificate…"}
             </p>
           </div>
         )}
 
-        {isError && (
+        {certificateError && (
           <div className="flex min-h-[60dvh] max-w-sm flex-col items-center justify-center gap-3 text-center">
             <p className="font-mono text-sm font-bold uppercase tracking-widest text-foreground">
               Certificate unavailable
@@ -99,7 +130,7 @@ export default function CertificatePage() {
 
         {certificate && (
           <div className="w-full max-w-[595px]">
-            <CertificateSheet certificate={certificate} />
+            <CertificateSheet certificate={certificate} sample={isSampleReviewer} />
           </div>
         )}
       </main>

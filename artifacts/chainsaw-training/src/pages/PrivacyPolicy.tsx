@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, FileDown, Loader2 } from "lucide-react";
+import { ArrowLeft, FileDown } from "lucide-react";
 import { downloadPdf } from "../lib/downloadPdf";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 export default function PrivacyPolicy() {
   const [downloading, setDownloading] = useState(false);
@@ -41,7 +42,7 @@ export default function PrivacyPolicy() {
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
           >
             {downloading
-              ? <Loader2 className="w-3 h-3 text-[#e27226] animate-spin" />
+              ? <ChainsawLoader className="w-3 h-3 text-[#e27226]" />
               : <FileDown className="w-3 h-3 text-[#e27226]" />}
             {downloading ? "Downloading…" : "Download"}
           </button>
@@ -58,7 +59,7 @@ export default function PrivacyPolicy() {
           />
           <h1 className="font-black tracking-tighter text-2xl uppercase text-foreground">Privacy Policy</h1>
           <p className="text-muted-foreground text-sm mt-1">Chainsaw Courses &mdash; Vocational Safety Training Platform</p>
-          <p className="text-muted-foreground text-xs mt-0.5">Last updated: July 2025 &nbsp;|&nbsp; Version 1.0</p>
+          <p className="text-muted-foreground text-xs mt-0.5">Last updated: 15 September 2026 &nbsp;|&nbsp; Version 1.2</p>
         </div>
 
         <div className="space-y-7 text-sm leading-relaxed text-foreground font-mono">
@@ -70,7 +71,7 @@ export default function PrivacyPolicy() {
             </p>
             <p className="mt-2">
               Contact: <a href="mailto:info@chainsawcourses.com" className="text-primary hover:underline">info@chainsawcourses.com</a><br />
-              Postal address: <span className="text-muted-foreground">[YOUR BUSINESS ADDRESS — update before publishing]</span>
+              Postal address: <span className="text-muted-foreground">BR6 9RW</span>
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
               If you have questions about how your data is handled, or wish to exercise any of your rights under UK GDPR, please contact us using the details above.
@@ -89,6 +90,11 @@ export default function PrivacyPolicy() {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr>
+                    <td className="border border-border px-3 py-2">Apple (iPhone and iPad purchases)</td>
+                    <td className="border border-border px-3 py-2">Payment verification, course access, purchase restoration and fraud prevention</td>
+                    <td className="border border-border px-3 py-2">Verified transaction identifiers, product, purchase and refund dates, and a random app-account token. We do not receive your card details or Apple Account password.</td>
+                  </tr>
                   <tr>
                     <td className="border border-border px-3 py-2">Full name &amp; email address</td>
                     <td className="border border-border px-3 py-2">Identify the licensed learner; personalise the training experience; embed dynamic watermark on course videos</td>
@@ -139,9 +145,22 @@ export default function PrivacyPolicy() {
                     <td className="border border-border px-3 py-2">Improve course content quality</td>
                     <td className="border border-border px-3 py-2">Legitimate interests</td>
                   </tr>
+                  <tr>
+                    <td className="border border-border px-3 py-2">Postcode (Retailers Map)</td>
+                    <td className="border border-border px-3 py-2">Used transiently to calculate distance to nearest retailers and centre the map. Not retained or shared with retailers.</td>
+                    <td className="border border-border px-3 py-2">Legitimate interests — providing location-based search functionality</td>
+                  </tr>
+                  <tr>
+                    <td className="border border-border px-3 py-2">Published app traffic and coarse operational events</td>
+                    <td className="border border-border px-3 py-2">Understand approximate visitor numbers and diagnose whether manual pages load and recover successfully</td>
+                    <td className="border border-border px-3 py-2">Legitimate interests — operating and improving a reliable service</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
+            <p className="mt-2 text-xs">
+              Email sign-in uses your name, email address, device identifier and a short-lived verification code. Apple course access lasts six calendar months from the verified purchase date and does not renew automatically. After in-app account deletion, an unlinked purchase record is retained to prevent an erased purchase from being claimed again. Apple retains its own payment records and handles App Store refunds separately.
+            </p>
           </section>
 
           <section>
@@ -228,8 +247,8 @@ export default function PrivacyPolicy() {
                   </tr>
                   <tr>
                     <td className="border border-border px-3 py-2">Replit</td>
-                    <td className="border border-border px-3 py-2">Platform hosting &amp; infrastructure</td>
-                    <td className="border border-border px-3 py-2">All platform traffic passes through Replit infrastructure; governed by Replit&rsquo;s DPA</td>
+                    <td className="border border-border px-3 py-2">Platform hosting, infrastructure and, when enabled for the published app, analytics</td>
+                    <td className="border border-border px-3 py-2">Network and browser data used for approximate visitor, page, country, browser and device metrics; coarse manual delivery event names and status properties</td>
                   </tr>
                 </tbody>
               </table>
@@ -242,7 +261,13 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="font-black uppercase tracking-widest text-xs text-[#e27226] mb-2">8. Cookies &amp; Local Storage</h2>
             <p>
-              This application uses browser <strong>localStorage</strong> and <strong>cookies</strong> solely to persist your session credentials (activation code, device identifier, user ID) between visits. No advertising, analytics, or tracking cookies are set. No third-party tracking scripts are loaded.
+              This application uses browser <strong>localStorage</strong> and essential <strong>cookies</strong> to persist your session credentials (activation code, device identifier, user ID) between visits. We do not use advertising cookies.
+            </p>
+            <p className="mt-2">
+              When analytics is enabled for the published app, Replit adds its hosted analytics tracker. Replit uses IP traffic, network and browser data to provide approximate visitor numbers, top pages, countries, browsers and device types. The app also sends coarse operational events when a manual page fails to load, a retry is attempted, or a retry succeeds. Event properties are limited to the reader surface, single-page or spread layout, initial or retry attempt, and request or image-decode failure type.
+            </p>
+            <p className="mt-2">
+              <strong>Learner identity, manual page numbers, search text and manual content are not sent to analytics.</strong> Analytics is not used for advertising or cross-site profiling. Replit retains analytics with the published project&rsquo;s history; the Publishing Analytics dashboard currently provides reporting periods of up to 30 days.
             </p>
           </section>
 

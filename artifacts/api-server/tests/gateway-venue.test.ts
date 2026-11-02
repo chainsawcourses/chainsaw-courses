@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  type PostcodeLookupEvent,
   prepareNewGatewayVenue,
   resolveVenueCoordinates,
   VenueMappingServiceError,
@@ -72,6 +73,7 @@ test("an unmappable venue is rejected before it can be inserted", async () => {
 
 test("a temporary postcode service failure is retried", async () => {
   let attempts = 0;
+  const events: PostcodeLookupEvent[] = [];
   const recoveringFetch = async () => {
     attempts += 1;
     if (attempts === 1) {
@@ -83,14 +85,25 @@ test("a temporary postcode service failure is retried", async () => {
   const coordinates = await resolveVenueCoordinates(
     { postcode: "SW1A 1AA", lat: 0, lng: 0 },
     recoveringFetch,
+    event => events.push(event),
   );
 
   assert.equal(attempts, 2);
   assert.deepEqual(coordinates, { lat: 51.501009, lng: -0.141588 });
+  assert.deepEqual(events.map(({ provider, outcome, attempt }) => ({
+    provider,
+    outcome,
+    attempt,
+  })), [
+    { provider: "postcodes.io", outcome: "provider_failure", attempt: 1 },
+    { provider: "postcodes.io", outcome: "retry", attempt: 2 },
+    { provider: "postcodes.io", outcome: "success", attempt: 2 },
+  ]);
 });
 
 test("the secondary provider is used only after primary retries are exhausted", async () => {
   const urls: string[] = [];
+  const events: PostcodeLookupEvent[] = [];
   const fallbackFetch: typeof fetch = async (input) => {
     const url = String(input);
     urls.push(url);
@@ -106,6 +119,7 @@ test("the secondary provider is used only after primary retries are exhausted", 
   const coordinates = await resolveVenueCoordinates(
     { postcode: "SW1A 1AA", lat: 0, lng: 0 },
     fallbackFetch,
+    event => events.push(event),
   );
 
   assert.deepEqual(coordinates, { lat: 51.501009, lng: -0.141588 });
@@ -113,10 +127,14 @@ test("the secondary provider is used only after primary retries are exhausted", 
   assert.ok(urls[0].includes("postcodes.io"));
   assert.ok(urls[1].includes("postcodes.io"));
   assert.ok(urls[2].includes("getthedata.com"));
+  assert.equal(events.at(-1)?.provider, "getthedata.com");
+  assert.equal(events.at(-1)?.outcome, "fallback_success");
+  assert.ok(events.every(event => !("postcode" in event)));
 });
 
 test("an invalid postcode from the secondary provider remains an input error", async () => {
   let attempts = 0;
+  const events: PostcodeLookupEvent[] = [];
   const invalidFallbackFetch: typeof fetch = async (input) => {
     attempts += 1;
     if (String(input).includes("postcodes.io")) {
@@ -129,14 +147,18 @@ test("an invalid postcode from the secondary provider remains an input error", a
     await resolveVenueCoordinates(
       { postcode: "NOT A POSTCODE", lat: 0, lng: 0 },
       invalidFallbackFetch,
+      event => events.push(event),
     ),
     null,
   );
   assert.equal(attempts, 3);
+  assert.equal(events.at(-1)?.provider, "getthedata.com");
+  assert.equal(events.at(-1)?.outcome, "invalid_result");
 });
 
 test("failures from both postcode providers are reported as a service error", async () => {
   let attempts = 0;
+  const events: PostcodeLookupEvent[] = [];
   const unavailableFetch = async () => {
     attempts += 1;
     return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
@@ -146,10 +168,15 @@ test("failures from both postcode providers are reported as a service error", as
     resolveVenueCoordinates(
       { postcode: "SW1A 1AA", lat: 0, lng: 0 },
       unavailableFetch,
+      event => events.push(event),
     ),
     VenueMappingServiceError,
   );
   assert.equal(attempts, 3);
+  assert.deepEqual(
+    events.filter(event => event.outcome === "provider_failure").map(event => event.provider),
+    ["postcodes.io", "postcodes.io", "getthedata.com"],
+  );
 });
 
 test("zero coordinates returned by the postcode service are rejected", async () => {

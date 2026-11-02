@@ -3,10 +3,12 @@ import { Link, useLocation, useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle, ClipboardList, FileSignature, MessageSquare, MonitorSmartphone, PlayCircle, Star, Trash2, User, XCircle } from "lucide-react";
-import { useGetStudent, useResetDeviceBond, useAdminDeleteStudent, getGetStudentQueryKey } from "@workspace/api-client-react";
+import { ArrowLeft, Award, Biohazard, CheckCircle, ClipboardList, FileSignature, MessageSquare, MonitorSmartphone, PlayCircle, RefreshCw, Star, Trash2, User, XCircle } from "lucide-react";
+import { useGetStudent, useResetDeviceBond, useAdminDeleteStudent, useRepairStudentSubscription, getGetStudentQueryKey, getListStudentsQueryKey } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import AdminReadError from "./AdminReadError";
 
 export default function StudentDetail() {
   const { id } = useParams();
@@ -15,12 +17,14 @@ export default function StudentDetail() {
   const [, setLocation] = useLocation();
   const { adminToken, isReady } = useAdminSession();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const { data: student, isLoading, refetch } = useGetStudent(studentId, {
+  const { data: student, isLoading, isError, refetch } = useGetStudent(studentId, {
     query: { queryKey: getGetStudentQueryKey(studentId), enabled: !!adminToken && !!studentId }
   });
   const resetBond = useResetDeviceBond();
   const deleteStudent = useAdminDeleteStudent();
+  const repairSubscription = useRepairStudentSubscription();
 
   useEffect(() => {
     if (isReady && !adminToken) {
@@ -47,6 +51,8 @@ export default function StudentDetail() {
     if (!confirmed) return;
     deleteStudent.mutate({ studentId }, {
       onSuccess: () => {
+        queryClient.removeQueries({ queryKey: getGetStudentQueryKey(studentId) });
+        void queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
         toast({ title: "Student Deleted", description: `${student.fullName}'s account has been permanently deleted.` });
         setLocation("/admin/dashboard");
       },
@@ -56,8 +62,27 @@ export default function StudentDetail() {
     });
   };
 
-  if (isLoading || !student) {
+  const handleRepairSubscription = () => {
+    if (!confirm("Rebuild the learner subscription state from its immutable provider history? Enrolments, progress and certificate evidence will not be changed.")) return;
+    repairSubscription.mutate({ studentId }, {
+      onSuccess: () => {
+        toast({ title: "Subscription Reconciled", description: "Provider state was repaired without changing learner evidence." });
+        void queryClient.invalidateQueries({ queryKey: getGetStudentQueryKey(studentId) });
+      },
+      onError: () => {
+        toast({ variant: "destructive", title: "Repair Failed", description: "No subscription repair was made. Please try again." });
+      },
+    });
+  };
+
+  if (isLoading || !isReady || !adminToken) {
     return <div className="min-h-screen bg-background flex justify-center items-center font-mono text-primary uppercase">Retrieving Data...</div>;
+  }
+  if (isError) {
+    return <main className="min-h-screen bg-background p-4 sm:p-8"><AdminReadError subject="the learner record" retry={() => void refetch()} /></main>;
+  }
+  if (!student) {
+    return <main className="min-h-screen bg-background p-4 sm:p-8 font-mono">Learner record not found.</main>;
   }
 
   const renderStars = (rating: number) => (
@@ -170,6 +195,137 @@ export default function StudentDetail() {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="border-border bg-card/30">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+              <ClipboardList className="w-4 h-4 mr-2" /> Learner Subscription
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono text-xs">
+              <div>
+                <div className="text-muted-foreground uppercase">Lifecycle</div>
+                <div className="font-bold uppercase mt-1">{student.subscription?.status ?? "INACTIVE"}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground uppercase">Paid Through</div>
+                <div className="font-bold mt-1">
+                  {student.subscription?.paidThroughAt
+                    ? new Date(student.subscription.paidThroughAt).toLocaleString()
+                    : "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-muted-foreground uppercase">Provider Customer</div>
+                <div className="font-bold mt-1 break-all">{student.subscription?.providerCustomerId ?? "—"}</div>
+              </div>
+              <div>
+                <div className="text-muted-foreground uppercase">Provider Subscription</div>
+                <div className="font-bold mt-1 break-all">{student.subscription?.providerSubscriptionId ?? "—"}</div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Subscription access is learner-level and does not change enrolment progress, certificates, or CPD evidence.
+            </p>
+            <div className="mt-5 pt-4 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <p className="text-[10px] font-mono text-muted-foreground">
+                Compare current provider state with the immutable event history.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="font-mono text-xs shrink-0"
+                onClick={handleRepairSubscription}
+                disabled={repairSubscription.isPending || !student.subscriptionHistory?.length}
+              >
+                <RefreshCw className={`w-3.5 h-3.5 mr-2 ${repairSubscription.isPending ? "animate-spin" : ""}`} />
+                {repairSubscription.isPending ? "REPAIRING…" : "REPAIR FROM HISTORY"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border bg-card/30">
+          <CardHeader>
+            <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+              <RefreshCw className="w-4 h-4 mr-2" /> Provider Event History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {student.subscriptionHistory?.length ? (
+              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                {student.subscriptionHistory.map((event) => (
+                  <div key={event.providerEventId} className="rounded border border-border bg-secondary/20 p-3 text-xs font-mono">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                      <span className="font-bold uppercase">{event.eventType}</span>
+                      <Badge variant="outline" className="rounded-none text-[9px] w-fit">{event.status.toUpperCase()}</Badge>
+                      <span className="text-muted-foreground sm:ml-auto">{new Date(event.eventOccurredAt).toLocaleString("en-GB")}</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2 text-[10px] text-muted-foreground">
+                      <span>Sequence: {event.sequence ?? "—"}</span>
+                      <span>Paid through: {event.paidThroughAt ? new Date(event.paidThroughAt).toLocaleDateString("en-GB") : "—"}</span>
+                      <span>Provider: {event.provider}</span>
+                      <span>Received: {new Date(event.receivedAt).toLocaleDateString("en-GB")}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="font-mono text-xs text-muted-foreground">No immutable provider events recorded.</p>
+            )}
+            {student.deliveryAttempts?.length ? (
+              <div className="mt-4 pt-4 border-t border-border">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Delivery attempts</div>
+                <div className="flex flex-wrap gap-2">
+                  {student.deliveryAttempts.slice(0, 8).map((attempt) => (
+                    <Badge key={attempt.id} variant="outline" className={`rounded-none font-mono text-[9px] ${attempt.outcome.includes("ambiguous") || attempt.outcome.includes("missing") ? "text-destructive border-destructive" : ""}`}>
+                      {attempt.outcome.replaceAll("_", " ")} · {new Date(attempt.receivedAt).toLocaleDateString("en-GB")}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        {student.enrollments && student.enrollments.length > 0 && (
+          <Card className="border-border bg-card/30">
+            <CardHeader>
+              <CardTitle className="font-mono uppercase tracking-widest flex items-center">
+                <Award className="w-4 h-4 mr-2" /> CPD Enrolments
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {student.enrollments.map((enrollment) => (
+                <div key={enrollment.enrollmentId} className="rounded border border-border bg-secondary/20 p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="font-mono font-bold text-sm uppercase">
+                        Enrolment {enrollment.enrollmentId} {enrollment.isCurrent && <Badge className="ml-2 text-[9px]">CURRENT</Badge>}
+                      </div>
+                      <div className="font-mono text-xs text-muted-foreground mt-1">
+                        {new Date(enrollment.activatedAt).toLocaleDateString()} · {enrollment.status}
+                        {enrollment.courseCompletedAt ? ` · completed ${new Date(enrollment.courseCompletedAt).toLocaleDateString()}` : ""}
+                      </div>
+                    </div>
+                    {enrollment.certificate?.reference && (
+                      <Badge variant="outline" className="font-mono text-[10px] text-primary border-primary">
+                        CERTIFICATE {enrollment.certificate.reference}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-xs font-mono">
+                    <span>{enrollment.progress.completedModules} modules complete</span>
+                    <span>{enrollment.progress.quizAttempts} quiz attempts</span>
+                    <span>{enrollment.progress.examAttempts} exam attempts</span>
+                    <span>{enrollment.progress.examPassed ? "EXAM PASSED" : "EXAM INCOMPLETE"}</span>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Final Exam History */}
         <Card className="border-border bg-card/30">

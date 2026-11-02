@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle2, XCircle, ArrowRight, RotateCcw, Star, PlayCirc
 import { useGetQuiz, useSubmitQuiz, useSubmitModuleFeedback, QuizResult, getGetQuizQueryKey, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { APPLAUSE_URL, DISAPPOINTMENT_URL } from "../data/audioFiles";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 const dingAudio = new Audio("/audio/ding.wav");
 dingAudio.volume = 0.5;
@@ -92,7 +93,7 @@ export default function Quiz() {
   if (isLoading || !quiz) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <ChainsawLoader className="w-12 h-12 mb-4 text-primary" />
         <div className="text-primary font-mono tracking-widest uppercase">Loading Assessment...</div>
       </div>
     );

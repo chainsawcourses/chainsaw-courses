@@ -16,8 +16,11 @@ CACHE_DIR="${ANDROID_BUILD_CACHE:-$ROOT_DIR/.cache/android-build}"
 JDK_DIR="$CACHE_DIR/jdk-21"
 DEFAULT_SDK_DIR="$CACHE_DIR/android-sdk"
 GRADLE_CACHE_DIR="$CACHE_DIR/gradle"
+BUNDLETOOL_JAR="$CACHE_DIR/bundletool-all-1.18.1.jar"
 JDK_DOWNLOAD_URL="${ANDROID_JDK_DOWNLOAD_URL:-https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse}"
 CMDLINE_TOOLS_DOWNLOAD_URL="${ANDROID_CMDLINE_TOOLS_DOWNLOAD_URL:-https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip}"
+BUNDLETOOL_DOWNLOAD_URL="${ANDROID_BUNDLETOOL_DOWNLOAD_URL:-https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar}"
+BUNDLETOOL_SHA256="675786493983787ffa11550bdb7c0715679a44e1643f3ff980a529e9c822595c"
 ANDROID_API="android-36"
 ANDROID_BUILD_TOOLS="36.0.0"
 EXPECTED_SIGNING_SHA1="4F:5C:4C:21:43:74:90:B4:BF:31:55:B9:88:EB:32:69:11:EC:58:05"
@@ -169,6 +172,26 @@ download_command_line_tools() {
     mv -- "$extracted" "$sdk_root/cmdline-tools/latest"
 }
 
+install_bundletool() {
+    local actual_sha256
+
+    mkdir -p -- "$CACHE_DIR"
+    if [[ -f "$BUNDLETOOL_JAR" ]]; then
+        actual_sha256="$(sha256sum "$BUNDLETOOL_JAR" | awk '{print $1}')"
+        if [[ "$actual_sha256" == "$BUNDLETOOL_SHA256" ]]; then
+            return
+        fi
+        rm -f -- "$BUNDLETOOL_JAR"
+    fi
+
+    echo "Downloading pinned bundletool for release verification..."
+    curl --fail --location --retry 3 --retry-delay 2 --silent --show-error \
+        "$BUNDLETOOL_DOWNLOAD_URL" --output "$BUNDLETOOL_JAR"
+    actual_sha256="$(sha256sum "$BUNDLETOOL_JAR" | awk '{print $1}')"
+    [[ "$actual_sha256" == "$BUNDLETOOL_SHA256" ]] \
+        || die "downloaded bundletool checksum did not match the pinned release"
+}
+
 install_android_sdk() {
     local sdk_root="$1"
     local sdkmanager="$2"
@@ -222,6 +245,7 @@ validate_release_certificate() {
 require_command pnpm
 require_command node
 require_command sha256sum
+require_command curl
 require_command unzip
 require_command keytool
 
@@ -247,6 +271,7 @@ fi
 export JAVA_HOME="$JAVA_HOME_DIR"
 export PATH="$JAVA_HOME/bin:$PATH"
 echo "Using standard Java 21 from $JAVA_HOME"
+install_bundletool
 
 SDK_ROOT="$(select_sdk_root)"
 mkdir -p -- "$SDK_ROOT"
@@ -268,17 +293,29 @@ export PORT="${PORT:-5173}"
 export BASE_PATH="${BASE_PATH:-/}"
 pnpm --filter @workspace/chainsaw-training run build
 pnpm --filter @workspace/chainsaw-training exec cap sync android
+pnpm run check:mobile-packages
 
 echo "Building the signed release App Bundle..."
 (
     cd "$ANDROID_DIR"
-    ./gradlew --no-daemon bundleRelease
+    # Capacitor removes protected web assets from its source directory, but
+    # Gradle's merged-assets intermediates can otherwise retain an older copy.
+    ./gradlew --no-daemon clean bundleRelease
 )
 
 SOURCE_AAB="$ANDROID_DIR/app/build/outputs/bundle/release/app-release.aab"
-BUNDLE_MANIFEST_FILE="$ANDROID_DIR/app/build/intermediates/bundle_manifest/release/processApplicationManifestReleaseForBundle/AndroidManifest.xml"
+R8_MAPPING_FILE="$ANDROID_DIR/app/build/outputs/mapping/release/mapping.txt"
 [[ -s "$SOURCE_AAB" ]] || die "Gradle did not produce a release AAB"
-[[ -s "$BUNDLE_MANIFEST_FILE" ]] || die "Gradle did not produce a release bundle manifest"
+[[ -s "$R8_MAPPING_FILE" ]] || die "R8 did not produce a release mapping file"
+
+TEMP_DIR="${TEMP_DIR:-$(mktemp -d "$CACHE_DIR/.tmp.XXXXXX")}"
+BUNDLE_MANIFEST_FILE="$TEMP_DIR/release-aab-manifest.xml"
+"$JAVA_HOME/bin/java" -jar "$BUNDLETOOL_JAR" dump manifest \
+    --bundle="$SOURCE_AAB" \
+    --module=base \
+    > "$BUNDLE_MANIFEST_FILE"
+[[ -s "$BUNDLE_MANIFEST_FILE" ]] \
+    || die "bundletool could not read the manifest from the release AAB"
 
 APPLICATION_ID="$(sed -nE 's/^[[:space:]]*applicationId[[:space:]]+"([^"]+)".*$/\1/p' "$APP_BUILD_FILE" | head -n 1)"
 VERSION_CODE="$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]+([0-9]+).*$/\1/p' "$APP_BUILD_FILE" | head -n 1)"
@@ -296,18 +333,10 @@ unzip -tqq "$SOURCE_AAB"
 
 EXPORT_DIR="$ROOT_DIR/exports"
 EXPORT_AAB="$EXPORT_DIR/Chainsaw_Courses_Android_${APPLICATION_ID}_v${VERSION_NAME}_code${VERSION_CODE}.aab"
-EXPORT_CHECKSUM="$EXPORT_AAB.sha256"
 mkdir -p -- "$EXPORT_DIR"
 cp -- "$SOURCE_AAB" "$EXPORT_AAB"
+bash "$SCRIPT_DIR/mobile-handoff-checksum.sh" create "$EXPORT_AAB"
 CHECKSUM="$(sha256sum "$EXPORT_AAB" | awk '{print $1}')"
-printf '%s  %s\n' "$CHECKSUM" "$(basename "$EXPORT_AAB")" > "$EXPORT_CHECKSUM"
-
-(
-    cd "$EXPORT_DIR"
-    sha256sum --check "$(basename "$EXPORT_CHECKSUM")" >/dev/null
-)
-COPIED_CHECKSUM="$(sha256sum "$EXPORT_AAB" | awk '{print $1}')"
-[[ "$CHECKSUM" == "$COPIED_CHECKSUM" ]] || die "export checksum changed while copying"
 
 echo "Android release export verified:"
 echo "  package:    $APPLICATION_ID"

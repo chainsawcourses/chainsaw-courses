@@ -13,6 +13,7 @@ import { VOCAL_EXAM_QUESTIONS, type VocalPrompt } from "../data/vocalExamQuestio
 import { MODULE_QUESTION_MAP } from "../data/moduleQuestionMap";
 import { getAudioUrl, APPLAUSE_URL } from "../data/audioFiles";
 import { useUserSession } from "../contexts/UserContext";
+import { ProtectedAssessmentImage } from "../components/ProtectedAssessmentImage";
 import { useListModules, getListModulesQueryKey, getGetProgressSummaryQueryKey } from "@workspace/api-client-react";
 
 interface HazardRef {
@@ -124,8 +125,9 @@ export default function MockTest() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: allModules } = useListModules();
 
-  const [dbQuestions, setDbQuestions] = useState<typeof VOCAL_EXAM_QUESTIONS | null>(null);
-  const allQuestions = dbQuestions ?? VOCAL_EXAM_QUESTIONS;
+  type LiveQuestion = (typeof VOCAL_EXAM_QUESTIONS)[number] & { audioUrl?: string };
+  const [dbQuestions, setDbQuestions] = useState<LiveQuestion[] | null>(null);
+  const allQuestions: LiveQuestion[] = dbQuestions ?? [...VOCAL_EXAM_QUESTIONS];
 
   const activeQuestions = (() => {
     if (!moduleId) return allQuestions;
@@ -211,6 +213,8 @@ export default function MockTest() {
   const isRecordingRef = useRef(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioObjectUrlRef = useRef<string | null>(null);
+  const audioFetchControllerRef = useRef<AbortController | null>(null);
 
   const question = activeQuestions[questionIdx];
   const prompt = question.prompts[promptIdx];
@@ -243,11 +247,17 @@ export default function MockTest() {
 
   // ── Audio helpers ─────────────────────────────────────────────────────
   const stopSpeaking = useCallback(() => {
+    audioFetchControllerRef.current?.abort();
+    audioFetchControllerRef.current = null;
     if (hasSpeechSynthesis()) window.speechSynthesis.cancel();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current = null;
+    }
+    if (audioObjectUrlRef.current) {
+      URL.revokeObjectURL(audioObjectUrlRef.current);
+      audioObjectUrlRef.current = null;
     }
     setIsSpeaking(false);
   }, []);
@@ -271,11 +281,39 @@ export default function MockTest() {
   }, []);
 
   // Play recorded audio file, falling back to TTS if the file doesn't exist yet
-  const playPrompt = useCallback((qIdx: number, pIdx: number) => {
+  const playPrompt = useCallback(async (qIdx: number, pIdx: number) => {
     stopSpeaking();
     const q = activeQuestions[qIdx];
     const p = q.prompts[pIdx];
-    const src = getAudioUrl(q.id);
+    let src = getAudioUrl(q.id);
+    let objectUrl: string | null = null;
+
+    if (q.audioUrl && activationCode && deviceId) {
+      const controller = new AbortController();
+      audioFetchControllerRef.current = controller;
+      try {
+        const response = await fetch(q.audioUrl, {
+          cache: "no-store",
+          signal: controller.signal,
+          headers: {
+            activationcode: activationCode,
+            deviceid: deviceId,
+            ...(userId ? { userid: String(userId) } : {}),
+          },
+        });
+        if (!response.ok) throw new Error("Protected question audio unavailable");
+        const blob = await response.blob();
+        if (controller.signal.aborted || audioFetchControllerRef.current !== controller) return;
+        audioFetchControllerRef.current = null;
+        objectUrl = URL.createObjectURL(blob);
+        audioObjectUrlRef.current = objectUrl;
+        src = objectUrl;
+      } catch {
+        if (controller.signal.aborted || audioFetchControllerRef.current !== controller) return;
+        audioFetchControllerRef.current = null;
+        src = getAudioUrl(q.id);
+      }
+    }
 
     if (!src) {
       speakViaTTS(p.prompt);
@@ -285,16 +323,27 @@ export default function MockTest() {
     const audio = new Audio(src);
     audioRef.current = audio;
     audio.onplay = () => setIsSpeaking(true);
-    audio.onended = () => { setIsSpeaking(false); audioRef.current = null; };
+    audio.onended = () => {
+      setIsSpeaking(false);
+      audioRef.current = null;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      if (audioObjectUrlRef.current === objectUrl) audioObjectUrlRef.current = null;
+    };
     audio.onerror = () => {
       audioRef.current = null;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      if (audioObjectUrlRef.current === objectUrl) audioObjectUrlRef.current = null;
       speakViaTTS(p.prompt);
     };
     audio.play().catch(() => {
       audioRef.current = null;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      if (audioObjectUrlRef.current === objectUrl) audioObjectUrlRef.current = null;
       speakViaTTS(p.prompt);
     });
-  }, [stopSpeaking, speakViaTTS]);
+  }, [activationCode, activeQuestions, deviceId, speakViaTTS, stopSpeaking, userId]);
+
+  useEffect(() => stopSpeaking, [stopSpeaking]);
 
   // ── Auto-play prompt when entering prompt phase ───────────────────────
   useEffect(() => {
@@ -681,7 +730,7 @@ export default function MockTest() {
 
             {/* Question image */}
             {question.image && (
-              <img
+              <ProtectedAssessmentImage
                 src={question.image}
                 alt="Question reference"
                 className="rounded-lg border border-border w-full max-h-72 object-contain bg-black/20"
@@ -829,7 +878,7 @@ export default function MockTest() {
 
             {/* Question image (review) */}
             {question.image && (
-              <img
+              <ProtectedAssessmentImage
                 src={question.image}
                 alt="Question reference"
                 className="rounded-lg border border-border w-full max-h-56 object-contain bg-black/20"

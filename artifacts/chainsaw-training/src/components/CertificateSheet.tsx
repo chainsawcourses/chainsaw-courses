@@ -18,7 +18,7 @@ function nameSize(name: string) {
   return 34;
 }
 
-export function CertificateSheet({ certificate }: { certificate: CertificateDetails }) {
+export function CertificateSheet({ certificate, sample = false }: { certificate: CertificateDetails; sample?: boolean }) {
   const scoreLine = certificate.passedScore === null
     ? "Course Version 1.1 · July 2026"
     : `Assessment Score: ${certificate.passedScore}%  ·  Course Version 1.1 · July 2026`;
@@ -27,7 +27,7 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
     <svg
       viewBox="0 0 595 842"
       role="img"
-      aria-label={`Certificate of completion for ${certificate.fullName}`}
+      aria-label={sample ? `ADMIN TEST sample certificate for ${certificate.fullName}, not valid` : `Certificate of completion for ${certificate.fullName}`}
       className="block h-auto w-full bg-white shadow-2xl"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -59,10 +59,10 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
         />
 
         <text x="297.5" y="200" fontSize="20" fontWeight="700" fill="#141414">
-          CERTIFICATE OF COMPLETION
+          {sample ? "ADMIN TEST — SAMPLE / NOT VALID" : "CERTIFICATE OF COMPLETION"}
         </text>
         <text x="297.5" y="235" fontSize="10" fontStyle="italic" fill="#595959">
-          This is to certify that
+          {sample ? "Certificate feature demonstration for" : "This is to certify that"}
         </text>
         <text
           x="297.5"
@@ -77,7 +77,7 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
           {certificate.email}
         </text>
         <text x="297.5" y="338" fontSize="9.5" fontStyle="italic" fill="#595959">
-          has successfully completed the following IIRSM Approved Course:
+          {sample ? "No exam pass or course completion is recorded for this account." : "has successfully completed the following IIRSM Approved Course:"}
         </text>
 
         <image
@@ -96,13 +96,13 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
         </text>
 
         <text x="297.5" y="516" fontSize="9.5" fontWeight="700" fill="#141414">
-          Guided Learning Hours: 4  ·  CPD: 5 Verifiable CPD Points  ·  IIRSM Approved Course
+          {sample ? "SAMPLE ONLY — No qualification or CPD points awarded" : "Guided Learning Hours: 4  ·  CPD: 5 Verifiable CPD Points  ·  IIRSM Approved Course"}
         </text>
         <text x="297.5" y="535" fontSize="8.5" fill="#595959">
-          Unit Ref: 0039-20  ·  Module Quizzes: 100%  ·  Final Exam Pass Mark: 80%
+          {sample ? "For app review only — not proof of training" : "Unit Ref: 0039-20  ·  Module Quizzes: 100%  ·  Final Exam Pass Mark: 80%"}
         </text>
         <text x="297.5" y="554" fontSize="9" fill="#595959">
-          {scoreLine}
+          {sample ? "No assessment has been completed" : scoreLine}
         </text>
         <text x="297.5" y="573" fontSize="8.5" fontStyle="italic" fill="#949494">
           International Institute of Risk and Safety Management
@@ -110,20 +110,20 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
 
         <line x1="52" y1="593" x2="543" y2="593" stroke="#949494" strokeOpacity="0.28" strokeWidth="0.6" />
         <text x="297.5" y="612" fontSize="10" fill="#595959">
-          Date of Award:  {displayDate(certificate.passedAt)}
+          {sample ? "Demonstration only — no award issued" : `Date of Award:  ${displayDate(certificate.passedAt)}`}
         </text>
         <text x="297.5" y="630" fontSize="8" fontStyle="italic" fill="#949494">
           It is recommended to refresh your certificate every 3-5 years
         </text>
 
-        <image
+        {!sample && <image
           href={`${ASSET_BASE}signature_director.png`}
           x="212.5"
           y="656"
           width="170"
           height="42"
           preserveAspectRatio="xMidYMid meet"
-        />
+        />}
         <line x1="202.5" y1="702" x2="392.5" y2="702" stroke="#949494" strokeWidth="0.8" />
         <text x="297.5" y="718" fontSize="7.5" fill="#949494">
           Course Director
@@ -138,13 +138,19 @@ export function CertificateSheet({ certificate }: { certificate: CertificateDeta
         />
 
         <text x="297.5" y="784" fontSize="7" fill="#949494">
-          Certificate Ref: {certificate.certificateReference}
+          {sample ? "SAMPLE — NOT VALID" : `Certificate Ref: ${certificate.certificateReference}`}
         </text>
         <line x1="52" y1="798" x2="543" y2="798" stroke="#c7c7c7" strokeOpacity="0.6" strokeWidth="0.5" />
         <text x="297.5" y="812" fontSize="7.5" fill="#949494">
           chainsawcourses.com  |  IIRSM Approved Course
         </text>
       </g>
+      {sample && (
+        <g fontFamily="Arial, Helvetica, sans-serif" fontWeight="800" fontSize="37" fill="#d1610d" fillOpacity="0.64" textAnchor="middle" aria-hidden="true">
+          <text x="297.5" y="332">TEST CERT NOT VALID</text>
+          <text x="297.5" y="452">TEST CERT NOT VALID</text>
+        </g>
+      )}
     </svg>
   );
 }

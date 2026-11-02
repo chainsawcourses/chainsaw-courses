@@ -1,3 +1,4 @@
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import WelcomeModal from "../components/WelcomeModal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -6,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Library, Loader2, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
+import { Award, BookMarked, BookOpen, CheckCircle, ChevronDown, ChevronRight, ClipboardCheck, Cog, ExternalLink, FileText, Leaf, Library, Lock, LogOut, Mail, MapPin, MessageSquarePlus, Newspaper, PlayCircle, ScrollText, Shield, Trash2, Users, LockKeyhole } from "lucide-react";
 
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -18,37 +19,25 @@ import { IS_DEMO } from "../lib/demo";
 import { useRemoteConfig } from "../hooks/useRemoteConfig";
 import { useHowToUse } from "../hooks/useHowToUse";
 import { COURSE_CONTENT_VERSION } from "../data/version";
+import { formatCourseAccessStatus } from "../lib/accessStatus";
+import chainsawRetailerIcon from "@assets/chainsaw-retailer-header-icon.png";
+import {
 
-function AccessCountdownBanner() {
-  const { accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
-  const [, navigate] = useLocation();
+  markAccountDeletionPending,
+  preflightAccountDeletion,
+} from "../lib/sessionStorage";
 
-  if (IS_DEMO) return null;
-  if (!accessExpiresAt || accessStatus === "expired") return null;
-
-  const now = Date.now();
-  const expiresMs = new Date(accessExpiresAt).getTime();
-  const daysLeft = Math.max(0, Math.ceil((expiresMs - now) / (24 * 60 * 60 * 1000)));
-
-  if (daysLeft > 30) return null;
-
-  const isCertWindow = !!courseCompletedAt;
-  const urgentColor = daysLeft <= 7 ? "#dc2626" : "#e27226";
-  const label = isCertWindow
-    ? `Certificate access window: ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`
-    : `Trial window: ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`;
-
-  return (
-    <div
-      className="flex items-center justify-between gap-3 px-4 py-2 text-white text-xs font-medium cursor-pointer"
-      style={{ background: urgentColor }}
-      onClick={() => navigate("/expired")}
-    >
-      <span>⏰ {label}</span>
-      <span className="underline flex-shrink-0">Subscribe →</span>
-    </div>
-  );
-}
+type EnrollmentHistoryEntry = {
+  enrollmentId: number;
+  activatedAt: string;
+  accessExpiresAt: string | null;
+  status: string;
+  courseCompletedAt: string | null;
+  certificateIssuedAt: string | null;
+  certificateUrl: string | null;
+  isCurrent: boolean;
+  progress: { completedModules: number; totalModules: number; examPassed: boolean };
+};
 
 function LogEndIcon({ className }: { className?: string }) {
   return (
@@ -66,8 +55,8 @@ function LogEndIcon({ className }: { className?: string }) {
 
 export default function TrainingList() {
   const [, setLocation] = useLocation();
-  const { activationCode, deviceId, fullName, clearSession, userId, accessExpiresAt, courseCompletedAt, accessStatus } = useUserSession();
-  void accessExpiresAt; void courseCompletedAt; void accessStatus;
+  const { activationCode, deviceId, fullName, clearSession, suspendSession, userId, accessExpiresAt, accessStatus } = useUserSession();
+  const isSampleReviewer = activationCode?.trim().toUpperCase() === "APPTEST26";
   const [equipmentOpen, setEquipmentOpen] = useState(false);
 
 
@@ -99,12 +88,26 @@ export default function TrainingList() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [certResending, setCertResending] = useState(false);
+  const [enrollmentHistory, setEnrollmentHistory] = useState<EnrollmentHistoryEntry[]>([]);
+  const [cpdHistoryOpen, setCpdHistoryOpen] = useState(false);
   const { toast } = useToast();
 
   const { disclaimerText } = useRemoteConfig();
   const { text: howToUseText, isLoading: howToUseLoading } = useHowToUse();
 
   const certHeaders = { activationcode: activationCode ?? "", deviceid: deviceId ?? "" };
+
+  useEffect(() => {
+    if (IS_DEMO || !activationCode || !deviceId) return;
+    const headers: Record<string, string> = { ...certHeaders };
+    if (userId !== null) headers.userid = String(userId);
+    fetch("/api/auth/history", { headers })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data: { enrollments?: EnrollmentHistoryEntry[] } | null) => {
+        if (data?.enrollments) setEnrollmentHistory(data.enrollments);
+      })
+      .catch(() => {});
+  }, [activationCode, deviceId, userId]);
 
   const handleViewCertificate = () => {
     setLocation("/certificate");
@@ -114,9 +117,18 @@ export default function TrainingList() {
     if (!activationCode || !deviceId || certResending) return;
     setCertResending(true);
     try {
-      const res = await fetch("/api/certificate/resend", { method: "POST", headers: certHeaders });
+      const res = await fetch(
+        isSampleReviewer ? "/api/certificate/sample/email" : "/api/certificate/resend",
+        {
+          method: "POST",
+          headers: isSampleReviewer && userId ? { ...certHeaders, userid: String(userId) } : certHeaders,
+        },
+      );
       if (res.ok) {
-        toast({ title: "Certificate sent", description: "Check your registered email — it may take a minute to arrive." });
+        toast({
+          title: "Certificate sent",
+          description: "Check your registered email — it may take a minute to arrive.",
+        });
       } else {
         toast({ variant: "destructive", title: "Could not send", description: "Please try again or contact support." });
       }
@@ -130,6 +142,7 @@ export default function TrainingList() {
     if (!activationCode || !deviceId) return;
     setDeletingAccount(true);
     try {
+      preflightAccountDeletion();
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
         activationcode: activationCode,
@@ -138,26 +151,45 @@ export default function TrainingList() {
       if (userId) headers["userid"] = String(userId);
       const res = await fetch("/api/auth/delete-account", { method: "DELETE", headers });
       if (!res.ok) throw new Error("Delete failed");
-      clearSession();
-      localStorage.removeItem("deviceId");
+      // The server has now accepted deletion. Persist this before any
+      // asynchronous native work so startup can retry without another server
+      // request.
+      try {
+        markAccountDeletionPending();
+      } catch (tombstoneError) {
+        // Continue signing out even if storage is temporarily unavailable;
+        // the browser identity is still cleared below and no server retry is
+        // ever attempted after a successful deletion response.
+        console.error("Could not persist account deletion tombstone:", tombstoneError);
+      }
+      queryClient.clear();
+      try {
+        await clearSession({ forgetDevice: true });
+      } catch (cleanupError) {
+        console.error("Local account deletion cleanup deferred:", cleanupError);
+      }
       window.location.href = import.meta.env.BASE_URL;
-    } catch {
+    } catch (error) {
       setDeletingAccount(false);
       setDeleteConfirmOpen(false);
-      alert("Something went wrong. Please try again or contact support.");
+      alert(error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again or contact support.");
     }
   };
 
   const queryClient = useQueryClient();
+  const developmentPreviewExpiry = useMemo(() => {
+    if (!import.meta.env.DEV || accessExpiresAt) return null;
+    const previewDate = new Date();
+    previewDate.setMonth(previewDate.getMonth() + 6);
+    return previewDate.toISOString();
+  }, [accessExpiresAt]);
+  const accessStatusText = formatCourseAccessStatus(
+    accessExpiresAt ?? developmentPreviewExpiry,
+    accessStatus === "unknown" && developmentPreviewExpiry ? "active" : accessStatus,
+  );
   const completeVideo = useCompleteVideo();
-  const handleSignInAgain = () => {
-    // Keep the device ID so a returning learner can be matched to their
-    // existing progress, but clear stale login details before reactivation.
-    queryClient.clear();
-    clearSession();
-    setLocation("/");
-  };
-
   const { data: modulesResponse, isLoading: isLoadingModules, isError: hasModulesError } = useListModules({
     query: {
       queryKey: getListModulesQueryKey(),
@@ -317,7 +349,7 @@ export default function TrainingList() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 text-primary font-mono tracking-widest uppercase">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <ChainsawLoader className="w-12 h-12 mb-4 text-primary" />
           Loading Modules...
         </div>
       </div>
@@ -332,15 +364,12 @@ export default function TrainingList() {
             Couldn&apos;t load your training
           </h1>
           <p className="text-sm text-muted-foreground">
-            Please check your connection and reload the app. If you have changed devices, sign in again. Your progress is still saved.
+            Please check your connection and reload the app. Your progress is still saved.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button onClick={() => window.location.reload()}>
             Reload app
-          </Button>
-          <Button variant="outline" onClick={handleSignInAgain}>
-            Sign in again
           </Button>
         </div>
       </div>
@@ -352,19 +381,23 @@ export default function TrainingList() {
     <div className="min-h-screen pb-20">
       <WelcomeModal />
       <header className="app-header border-b border-border bg-card/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+        <div
+          className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4"
+          data-testid="training-header-actions"
+        >
           {/* Left — brand dropdown: logo above title */}
           <div className="relative flex items-center">
             <button
               ref={(el) => { if (el) activeTriggerRef.current = el; }}
               onClick={(e) => { e.stopPropagation(); setBrandMenuOpen((o) => !o); }}
+              aria-label="Chainsaw Courses menu"
               className="flex items-center gap-1 group"
             >
               <div className="flex flex-col leading-none">
                 <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Chainsaw</span>
                 <span className="font-black tracking-tighter text-[15px] uppercase text-muted-foreground group-hover:text-foreground transition-colors">Courses</span>
               </div>
-              <ChevronDown className={`w-5 h-5 text-[#e27226] transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
+              <ChevronDown data-testid="chainsaw-courses-menu-chevron" className={`h-5 w-5 text-[#e27226] transition-all ${brandMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {brandMenuOpen && (
@@ -407,7 +440,7 @@ export default function TrainingList() {
                  <div className="brand-dropdown-help border-b border-border">
                    <button
                     onClick={(e) => { e.stopPropagation(); setHelpHowItWorksOpen((o) => !o); }}
-                     className="brand-dropdown-help-trigger w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-sm text-left hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-help-trigger w-full flex items-center justify-between px-3 py-2.5 uppercase tracking-widest font-black text-xs text-left hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     <span>How It Works</span>
                     <ChevronDown className={`w-4 h-4 transition-all shrink-0 ${helpHowItWorksOpen ? "rotate-180" : ""}`} />
@@ -494,7 +527,7 @@ export default function TrainingList() {
                   {/* Community link kept for future use — hidden for now */}
                   <Link
                     href="/manual"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <BookOpen className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -502,7 +535,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/inspection"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ClipboardCheck className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -510,7 +543,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/risk-assessment"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <MapPin className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -518,7 +551,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/biosecurity-map"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Leaf className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -526,7 +559,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/chain-chart"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Cog className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -534,7 +567,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/news"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Newspaper className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -542,7 +575,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/species-guide"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <LogEndIcon className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -550,7 +583,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/glossary"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <ScrollText className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -558,7 +591,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/resources"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Library className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -566,7 +599,7 @@ export default function TrainingList() {
                   </Link>
                   <Link
                     href="/privacy"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <Shield className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -575,7 +608,7 @@ export default function TrainingList() {
 
                   <Link
                     href="/feedback"
-                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                     className="brand-dropdown-nav-link w-full flex items-center gap-3 px-3 py-2.5 uppercase tracking-widest font-black text-xs hover:bg-accent hover:text-accent-foreground transition-colors"
                     onClick={() => setBrandMenuOpen(false)}
                   >
                     <MessageSquarePlus className="w-4 h-4 shrink-0 text-[#e27226]" />
@@ -583,11 +616,28 @@ export default function TrainingList() {
                   </Link>
                 </div>
 
+                {accessStatusText && (
+                  <div
+                    className="border-t border-border px-3 py-2 text-muted-foreground"
+                    aria-label={`${accessStatusText.label} ${accessStatusText.date}`}
+                  >
+                    <span className="block text-[10px] font-semibold uppercase tracking-wider">
+                      {accessStatusText.label}
+                    </span>
+                    <span className="mt-0.5 block text-xs font-bold text-foreground">
+                      {accessStatusText.date}
+                    </span>
+                  </div>
+                )}
                 {/* Log Out + Delete Account */}
                 {!deleteConfirmOpen ? (
                    <div className="brand-dropdown-actions flex border-t border-border">
                     <button
-                      onClick={() => { clearSession(); window.location.href = import.meta.env.BASE_URL; }}
+                      onClick={async () => {
+                        queryClient.clear();
+                        await suspendSession();
+                        setLocation("/");
+                      }}
                        className="brand-dropdown-action flex-1 flex items-center gap-2 px-3 py-2 uppercase tracking-widest font-bold text-left hover:bg-accent hover:text-destructive transition-colors"
                     >
                       <LogOut className="w-3 h-3" /> Log Out
@@ -603,7 +653,7 @@ export default function TrainingList() {
                 ) : (
                   <div className="border-t border-border p-3 space-y-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-destructive">Delete your account?</p>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed">All personal data, progress, quiz records, and your waiver will be permanently erased. Your activation code cannot be reused and you will have to purchase another course. This cannot be undone.</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">All personal data, progress, quiz records, and your waiver will be permanently erased. Save any certificates and documents you need first. Your activation code or linked Apple purchase cannot be reused for a new account. This cannot be undone. Account deletion does not request an Apple refund or cancel a separately billed subscription; manage refunds or subscriptions with the original payment provider.</p>
                     <div className="flex gap-2 pt-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeleteConfirmOpen(false); }}
@@ -626,37 +676,54 @@ export default function TrainingList() {
           </div>
 
           {/* Right — nav icons */}
-          <div className="flex-1 flex items-center justify-evenly">
+          <div className="flex min-w-0 flex-1 items-center justify-evenly">
             {/* Community link kept for future use — icon hidden for now */}
-            <Link href="/inspection" className="text-muted-foreground hover:text-primary" title="Inspection Checklist">
-              <ClipboardCheck className="w-5 h-5" />
-            </Link>
             <Link href="/risk-assessment" className="text-muted-foreground hover:text-primary" title="Dynamic Risk Assessment">
-              <MapPin className="w-5 h-5" />
+              <MapPin className="h-5 w-5" />
             </Link>
             <Link href="/biosecurity-map" className="text-muted-foreground hover:text-primary" title="Biosecurity & Hazard Map">
-              <Leaf className="w-5 h-5" />
+              <Leaf className="h-5 w-5" />
             </Link>
             <Link href="/chain-chart" className="text-muted-foreground hover:text-primary" title="Chain ID Chart">
-              <Cog className="w-5 h-5" />
+              <Cog className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/retailers"
+              className="text-muted-foreground hover:text-primary"
+              title="Chainsaw Retailers"
+              aria-label="Chainsaw Retailers"
+              data-testid="link-header-retailers"
+            >
+              <span
+                aria-hidden="true"
+                data-testid="icon-header-retailer-chainsaw"
+                className="block h-5 w-9 bg-current"
+                style={{
+                  WebkitMaskImage: `url(${chainsawRetailerIcon})`,
+                  maskImage: `url(${chainsawRetailerIcon})`,
+                  WebkitMaskPosition: "50% 0%",
+                  maskPosition: "50% 0%",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskSize: "cover",
+                  maskSize: "cover",
+                }}
+              />
             </Link>
             <Link href="/news" className="text-muted-foreground hover:text-primary" title="Industry News">
-              <Newspaper className="w-5 h-5" />
+              <Newspaper className="h-5 w-5" />
             </Link>
             <Link href="/species-guide" className="text-muted-foreground hover:text-primary" title="Timber Characteristics">
-              <LogEndIcon className="w-5 h-5" />
+              <LogEndIcon className="h-5 w-5" />
             </Link>
             <Link href="/manual" className="text-muted-foreground hover:text-primary" title="Training Manual">
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="h-5 w-5" />
             </Link>
           </div>
         </div>
       </header>
 
-      <AccessCountdownBanner />
-
       <main className="max-w-5xl mx-auto px-4 pt-3 pb-0 space-y-6">
-
         {/* Page title + progress strip */}
         <div className="pb-2 border-b border-border text-center">
           <img
@@ -736,12 +803,32 @@ export default function TrainingList() {
             </div>
 
             {/* Certificate row */}
-            <div className="flex items-center justify-between pt-1 border-t border-border">
-              <span className={`font-mono font-semibold uppercase tracking-widest text-xs flex items-center gap-1.5 ${examPassed ? "text-green-600" : "text-muted-foreground/40"}`}>
-                {examPassed ? <Award className="w-3 h-3 shrink-0" /> : <LockKeyhole className="w-3 h-3 shrink-0" />}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-border">
+              <span className={`font-mono font-semibold uppercase tracking-widest text-xs flex items-center gap-1.5 ${examPassed || isSampleReviewer ? "text-green-600" : "text-muted-foreground/40"}`}>
+                {examPassed || isSampleReviewer ? <Award className="w-3 h-3 shrink-0" /> : <LockKeyhole className="w-3 h-3 shrink-0" />}
                 Certificate
               </span>
-              {examPassed ? (
+              {isSampleReviewer ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleViewCertificate}
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2"
+                    title="View certificate"
+                  >
+                    View
+                  </button>
+                  <span className="text-muted-foreground/30 text-[10px]">·</span>
+                  <button
+                    onClick={handleResendCertificate}
+                    disabled={certResending || !userId}
+                    className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 disabled:opacity-60 flex items-center gap-1"
+                    title="Resend certificate to your registered email"
+                  >
+                    {certResending ? <ChainsawLoader className="w-3 h-3" /> : <Mail className="w-3 h-3" />}
+                    Resend
+                  </button>
+                </div>
+              ) : examPassed ? (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleViewCertificate}
@@ -757,7 +844,7 @@ export default function TrainingList() {
                     className="font-mono text-[10px] uppercase tracking-widest text-green-600 hover:text-green-500 underline underline-offset-2 cursor-pointer active:scale-95 active:translate-y-px disabled:opacity-60 disabled:cursor-default disabled:no-underline flex items-center gap-1 transition-all"
                     title="Re-send certificate to your registered email"
                   >
-                    {certResending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                    {certResending ? <ChainsawLoader className="w-3 h-3" /> : <Mail className="w-3 h-3" />}
                     <span>Resend</span>
                   </button>
                 </div>
@@ -957,6 +1044,35 @@ export default function TrainingList() {
               )}
             </div>
 
+            {/* Chainsaw Retailers Link */}
+            <div>
+              <Link
+                href="/retailers"
+                className="w-full flex items-center gap-2 py-2 text-left group ml-4"
+              >
+                <div className="w-3 h-px bg-border shrink-0" />
+                <h3 className="font-mono font-semibold uppercase tracking-widest text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  Chainsaw Retailers
+                </h3>
+                <ChevronRight className="w-3.5 h-3.5 shrink-0 transition-all text-muted-foreground group-hover:text-primary" />
+                <span
+                  aria-hidden="true"
+                  data-testid="icon-retailer-chainsaw"
+                  className="h-6 w-12 shrink-0 bg-muted-foreground transition-colors group-hover:bg-primary"
+                  style={{
+                    WebkitMaskImage: `url(${chainsawRetailerIcon})`,
+                    maskImage: `url(${chainsawRetailerIcon})`,
+                    WebkitMaskPosition: "50% 0%",
+                    maskPosition: "50% 0%",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                  }}
+                />
+              </Link>
+            </div>
+
             {/* Preparing for Your Assessment — collapsible */}
             <div>
               <button
@@ -994,7 +1110,7 @@ export default function TrainingList() {
                       <span className="text-foreground font-semibold">Revisit weak areas.</span> A video-module quiz requires 100%, so if any answer is incorrect, rewatch the relevant video before retrying. The final exam requires 80%. Pay particular attention to your body and head position when cutting and the safe use of the saw — these are the primary issues for failure.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a written knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; read each question carefully before answering.
+                      <span className="text-foreground font-semibold">On the day.</span> The formal NPTC/Lantra assessment is conducted by an approved centre and includes both a spoken knowledge test and a practical skills assessment. Bring valid photo ID, your own PPE (unless the centre confirms provision), and arrive rested. The knowledge test typically takes 45–60 minutes; think carefully before answering and try and get as many points across as you can.
                     </p>
                     <p className="font-mono text-sm text-muted-foreground leading-relaxed">
                       <span className="text-foreground font-semibold">Your certificate.</span> Upon passing the online final exam here (80% or above), your Certificate of Theoretical Competency is issued automatically to your registered email. Present this alongside your practical assessment results to your employer or awarding body as evidence of your theoretical training hours.
@@ -1321,12 +1437,62 @@ export default function TrainingList() {
           ))}
         </div>
 
-        <div className="flex justify-center pt-2 pb-8" aria-label="IIRSM Approved Course">
+        <div className="flex flex-col items-center pt-2 pb-8" aria-label="IIRSM Approved Course">
           <img
             src={`${import.meta.env.BASE_URL}iirsm-horizontal-logo-transparent.png`}
             alt="IIRSM Approved Course"
             className="h-auto w-32 max-w-full object-contain sm:w-36"
           />
+          {enrollmentHistory.length > 0 && (
+            <div className="mt-4 w-full">
+              <Button
+                type="button"
+                variant="outline"
+                className="mx-auto flex h-11 w-full max-w-md items-center justify-between font-mono text-xs font-bold uppercase tracking-widest"
+                aria-expanded={cpdHistoryOpen}
+                aria-controls="cpd-course-history"
+                onClick={() => setCpdHistoryOpen((open) => !open)}
+              >
+                <span className="flex items-center gap-2">
+                  <BookMarked className="h-4 w-4 text-primary" />
+                  CPD Course History
+                </span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${cpdHistoryOpen ? "rotate-180" : ""}`} />
+              </Button>
+
+              {cpdHistoryOpen && (
+                <Card id="cpd-course-history" className="mx-auto mt-2 max-w-3xl border-border bg-card/60 text-left">
+                  <CardContent className="space-y-2 p-3 sm:p-4">
+                    {enrollmentHistory.map((entry) => (
+                      <div key={entry.enrollmentId} className="flex flex-col justify-between gap-3 rounded border border-border bg-secondary/20 px-3 py-3 sm:flex-row sm:items-center">
+                        <div className="min-w-0">
+                          <div className="font-mono text-xs font-bold uppercase">
+                            Enrolment {entry.enrollmentId} {entry.isCurrent && <Badge className="ml-2 text-[9px]">CURRENT</Badge>}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            Started {new Date(entry.activatedAt).toLocaleDateString()} · {entry.status}
+                            {entry.courseCompletedAt ? ` · completed ${new Date(entry.courseCompletedAt).toLocaleDateString()}` : ""}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          {entry.certificateUrl && (
+                            <Button size="sm" variant="outline" className="font-mono text-[10px]" asChild>
+                              <a href={entry.certificateUrl} target="_blank" rel="noreferrer">
+                                <Award className="mr-1 h-3 w-3" /> CERTIFICATE
+                              </a>
+                            </Button>
+                          )}
+                          <span className="font-mono text-[10px] text-muted-foreground">
+                            {entry.progress.completedModules}/{entry.progress.totalModules} modules
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       </main>
 

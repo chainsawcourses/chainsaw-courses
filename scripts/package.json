@@ -8,9 +8,12 @@
     "seed-quiz": "tsx ./src/seed-quiz-questions.ts",
     "add-battery-module": "tsx ./src/add-battery-chainsaw-module.ts",
     "seed-hazards": "tsx ./src/seed-hazard-reference.ts",
+    "clean-retailer-directory": "tsx ./src/clean-retailer-directory.ts",
     "seed-mock-questions": "tsx ./src/seed-mock-questions.ts",
+    "generate-mock-questions": "tsx ./extract-mock-questions.ts",
+    "check:mock-questions": "tsx ./extract-mock-questions.ts --check",
     "generate-pdfs": "tsx ./src/generate-pdfs.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm run check:mock-questions"
   },
   "dependencies": {
     "@replit/connectors-sdk": "^0.4.1",

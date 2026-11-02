@@ -12,6 +12,10 @@ const config: CapacitorConfig = {
     // full-screen WebView. This keeps the existing /api routes working on
     // iOS and Android without opening a browser tab.
     url: hostedAppUrl,
+    // This file is bundled inside each native binary and is shown by
+    // Capacitor when the hosted app cannot be loaded. Keep it self-contained:
+    // it must remain usable precisely when the network page is unavailable.
+    errorPath: "native-error.html",
     cleartext: false,
     allowNavigation: ["app.chainsawcourses.com"],
   },

@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Send, ArrowLeft, Trash2, Bot, User, Sparkles, Loader2
+  Send, ArrowLeft, Trash2, Bot, User, Sparkles
 } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useSendAiMessage } from "@workspace/api-client-react";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 interface ChatMsg {
   role: "user" | "assistant";
@@ -174,7 +175,7 @@ export default function AiTutor() {
               <Card className="border-border/50 bg-card/60">
                 <CardContent className="p-3">
                   <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <ChainsawLoader className="w-4 h-4 text-primary" />
                     <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
                       Thinking...
                     </span>

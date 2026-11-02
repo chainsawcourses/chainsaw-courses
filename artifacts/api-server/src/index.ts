@@ -1,16 +1,30 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { setPostcodeLookupRecorder } from "./lib/gatewayVenue";
 import { startScheduler } from "./lib/scheduler";
-import { db, waiversTable, usersTable, examAttemptsTable, activationCodesTable } from "@workspace/db";
-import { eq, and, isNull, sql } from "drizzle-orm";
+import { warnIfBillingNotificationTestScopeIsConfigured } from "./lib/billingSupportNotifications";
+import { db, waiversTable, usersTable, activationCodesTable } from "@workspace/db";
+import { eq } from "drizzle-orm";
+import { seedRetailerDirectoryIfEmpty } from "./lib/retailerDirectorySeed";
 
 const rawPort = process.env["PORT"];
+
+setPostcodeLookupRecorder((event) => {
+  const level = event.outcome === "provider_failure" ? "warn" : "info";
+  logger[level]({ event: "postcode_lookup", ...event }, "Postcode provider lookup");
+});
 
 if (!rawPort) {
   throw new Error(
     "PORT environment variable is required but was not provided.",
   );
 }
+
+if (process.env["NODE_ENV"] === "production" && !process.env["SESSION_SECRET"]) {
+  throw new Error("SESSION_SECRET environment variable is required in production.");
+}
+
+warnIfBillingNotificationTestScopeIsConfigured();
 
 const port = Number(rawPort);
 
@@ -30,23 +44,6 @@ async function runStartupDataFix() {
       logger.info({ waiverId: w.id, userId: w.userId }, "Startup: deleted orphaned waiver");
     }
 
-    // Stamp certificate fields for any user who passed the exam but has no cert date
-    const passedAttempts = await db
-      .select()
-      .from(examAttemptsTable)
-      .where(eq(examAttemptsTable.passed, true));
-    for (const attempt of passedAttempts) {
-      const [user] = await db.select().from(usersTable).where(eq(usersTable.id, attempt.userId));
-      if (user && !user.certificateIssuedAt) {
-        const expiresAt = new Date(attempt.attemptedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
-        await db.update(usersTable).set({
-          courseCompletedAt: attempt.attemptedAt,
-          certificateIssuedAt: attempt.attemptedAt,
-          accessExpiresAt: expiresAt,
-        }).where(eq(usersTable.id, user.id));
-        logger.info({ userId: user.id }, "Startup: stamped missing certificate fields");
-      }
-    }
     // Ensure the APPTEST26 reviewer code exists (upsert — safe to run on every boot)
     await db
       .insert(activationCodesTable)
@@ -79,6 +76,8 @@ async function runStartupDataFix() {
         set: { isUnlimited: true, allModulesUnlocked: true },
       });
     logger.info("Startup: ADMIN-PREVIEW reviewer code ensured");
+
+    await seedRetailerDirectoryIfEmpty();
   } catch (err) {
     logger.error({ err }, "Startup data-fix failed (non-fatal)");
   }
@@ -91,6 +90,8 @@ app.listen(port, (err) => {
   }
 
   logger.info({ port }, "Server listening");
-  startScheduler();
-  runStartupDataFix();
+  if (process.env["NODE_ENV"] !== "test") {
+    startScheduler();
+    runStartupDataFix();
+  }
 });

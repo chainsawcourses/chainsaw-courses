@@ -1,5 +1,28 @@
 # The format of this file is identical to `.dockerignore`.
 # It is used to reduce the size of deployed images to make the process of publishing faster.
 
-# No need to store the pnpm store twice.
+# Workspace-only state and dependency caches.
 .local
+.git
+.cache
+.config
+.pythonlibs
+
+# Release handoffs and source uploads are retained in the workspace, but the
+# production web/API services do not read them at build time or runtime.
+exports
+attached_assets
+preview-videos
+
+# Native platform projects are built separately from the hosted web/API app.
+/generated-artifacts/
+artifacts/chainsaw-training/android
+artifacts/chainsaw-training/ios
+
+# Development-only artifacts.
+artifacts/mockup-sandbox
+test-results
+playwright-report
+artifacts/chainsaw-training/tests
+artifacts/api-server/tests
+artifacts/api-server/source-documents

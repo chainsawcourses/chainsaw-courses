@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { ArrowLeft, Download, ExternalLink, FolderOpen, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, FolderOpen } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { downloadPdf } from "../../lib/downloadPdf";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import AdminReadError from "./AdminReadError";
 
 interface CertRecord {
-  id: number; fullName: string; email: string; activationCode: string;
+  id: number; enrollmentId: number; fullName: string; email: string; activationCode: string;
   courseCompletedAt: string; certificateIssuedAt: string | null;
-  examScore: number | null; accessExpiresAt: string | null;
+  certificateReference: string | null; examScore: number | null; accessExpiresAt: string | null;
 }
 
 export default function CertificateRegister() {
@@ -15,6 +17,8 @@ export default function CertificateRegister() {
   const { adminToken, isReady } = useAdminSession();
   const [certs, setCerts] = useState<CertRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [search, setSearch] = useState("");
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
@@ -32,9 +36,16 @@ export default function CertificateRegister() {
 
   useEffect(() => {
     if (!adminToken) return;
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
     fetch("/api/admin/certificates", { headers: { admintoken: adminToken } })
-      .then(r => r.json()).then(setCerts).catch(() => {}).finally(() => setLoading(false));
-  }, [adminToken]);
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(data => { if (!cancelled) setCerts(data); })
+      .catch(() => { if (!cancelled) { setCerts([]); setLoadError(true); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [adminToken, retryCount]);
 
   const filtered = certs.filter(c =>
     c.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,20 +53,20 @@ export default function CertificateRegister() {
     c.activationCode.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSaveToDrive = async (userId: number) => {
+  const handleSaveToDrive = async (certificate: CertRecord) => {
     if (!adminToken || savingId !== null) return;
-    setSavingId(userId);
-    setSaveErrors(prev => { const n = { ...prev }; delete n[userId]; return n; });
+    setSavingId(certificate.id);
+    setSaveErrors(prev => { const n = { ...prev }; delete n[certificate.id]; return n; });
     try {
-      const res = await fetch(`/api/admin/certificate/${userId}/save-to-drive`, {
+      const res = await fetch(`/api/admin/certificate/${certificate.id}/save-to-drive?enrollmentId=${certificate.enrollmentId}`, {
         method: "POST",
         headers: { admintoken: adminToken },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Save failed");
-      setSavedUrls(prev => ({ ...prev, [userId]: data.url }));
+      setSavedUrls(prev => ({ ...prev, [certificate.id]: data.url }));
     } catch (e) {
-      setSaveErrors(prev => ({ ...prev, [userId]: e instanceof Error ? e.message : "Save failed" }));
+      setSaveErrors(prev => ({ ...prev, [certificate.id]: e instanceof Error ? e.message : "Save failed" }));
     } finally {
       setSavingId(null);
     }
@@ -67,7 +78,7 @@ export default function CertificateRegister() {
     try {
       const safeName = certificate.fullName.replace(/[^a-z0-9]+/gi, "_");
       await downloadPdf(
-        `/api/admin/certificate/${certificate.id}`,
+        `/api/admin/certificate/${certificate.id}?enrollmentId=${certificate.enrollmentId}`,
         `Certificate_${safeName}.pdf`,
         { headers: { admintoken: adminToken } },
       );
@@ -114,12 +125,12 @@ export default function CertificateRegister() {
           <span className="font-semibold text-sm flex-1">Certificate Register</span>
           <button
             onClick={handleExportToDrive}
-            disabled={exporting}
+            disabled={exporting || loading || loadError || certs.length === 0}
             className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60"
             style={{ background: "#e27226" }}
           >
             {exporting
-              ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Exporting…</>
+              ? <><ChainsawLoader className="w-3.5 h-3.5" />Exporting…</>
               : <><FolderOpen className="w-3.5 h-3.5" />Export Certificates</>}
           </button>
         </div>
@@ -168,17 +179,19 @@ export default function CertificateRegister() {
         </div>
 
         {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {loadError && <AdminReadError subject="the certificate register" retry={() => setRetryCount(n => n + 1)} />}
 
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground text-sm">No certificates issued yet.</div>
+        {!loading && !loadError && filtered.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground text-sm">{certs.length ? "No certificates match your search." : "No certificates issued yet."}</div>
         )}
 
         <div className="space-y-2">
-          {filtered.map(c => (
-            <div key={c.id} className="bg-white rounded-xl border border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+           {filtered.map(c => (
+            <div key={`${c.id}-${c.enrollmentId}`} className="bg-white rounded-xl border border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-foreground">{c.fullName}</p>
-                <p className="text-xs text-muted-foreground">{c.email} · {c.activationCode}</p>
+                <p className="text-xs text-muted-foreground">{c.email} · {c.activationCode} · E{c.enrollmentId}</p>
+                {c.certificateReference && <p className="text-[10px] font-mono text-muted-foreground">{c.certificateReference}</p>}
                 {/* Drive save result */}
                 {savedUrls[c.id] && (
                   <a href={savedUrls[c.id]} target="_blank" rel="noopener noreferrer"
@@ -221,18 +234,18 @@ export default function CertificateRegister() {
                   title="Download certificate PDF"
                 >
                   {downloadingId === c.id
-                    ? <Loader2 className="w-3 h-3 animate-spin" />
+                    ? <ChainsawLoader className="w-3 h-3" />
                     : <Download className="w-3 h-3" />}
                   {downloadingId === c.id ? "Saving…" : "Download"}
                 </button>
                 <button
-                  onClick={() => handleSaveToDrive(c.id)}
+                   onClick={() => handleSaveToDrive(c)}
                   disabled={savingId !== null}
                   className="flex items-center gap-1 text-xs px-2.5 py-1 rounded border border-border bg-muted hover:bg-muted/70 transition-colors disabled:opacity-50"
                   title="Save PDF to Google Drive › User Certificates"
                 >
                   {savingId === c.id
-                    ? <Loader2 className="w-3 h-3 animate-spin" />
+                    ? <ChainsawLoader className="w-3 h-3" />
                     : <FolderOpen className="w-3 h-3" />}
                   {savingId === c.id ? "Saving…" : "Drive"}
                 </button>

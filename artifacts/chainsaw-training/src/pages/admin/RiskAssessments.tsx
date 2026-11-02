@@ -3,11 +3,13 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, Download, ExternalLink, HardDrive, Loader2, MapPin, Search, Trash2, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Biohazard, CheckCircle2, ChevronDown, ChevronRight, Download, ExternalLink, HardDrive, MapPin, Search, Trash2, X } from "lucide-react";
 import { useListAllRiskAssessments, getListAllRiskAssessmentsQueryKey, useDeleteRiskAssessment, useDeleteAllRiskAssessments } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { deliverPdf } from "../../lib/pdfDownload";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import AdminReadError from "./AdminReadError";
 
 function riskBand(rating: number): { label: string; className: string } {
   if (rating >= 15) return { label: "High", className: "text-destructive border-destructive bg-destructive/10" };
@@ -24,7 +26,7 @@ export default function RiskAssessments() {
     if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
-  const { data: assessments, isLoading } = useListAllRiskAssessments({
+  const { data: assessments, isLoading, isError, refetch } = useListAllRiskAssessments({
     query: { queryKey: getListAllRiskAssessmentsQueryKey(), enabled: !!adminToken },
   });
 
@@ -146,7 +148,7 @@ export default function RiskAssessments() {
             {(assessments?.length ?? 0) > 0 && (
               bulkState === "exporting" ? (
                 <Button size="sm" variant="outline" disabled className="font-mono text-xs">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Exporting…
+                  <ChainsawLoader className="w-4 h-4 mr-2" /> Exporting…
                 </Button>
               ) : (
                 <Button size="sm" variant="outline" onClick={handleExportAll} className="font-mono text-xs">
@@ -164,6 +166,7 @@ export default function RiskAssessments() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {isError && <AdminReadError subject="risk assessments" retry={() => void refetch()} />}
 
         {/* Bulk export result banner */}
         {bulkState === "done" && bulkResult && (
@@ -200,7 +203,7 @@ export default function RiskAssessments() {
               <span className="font-mono text-sm">
                 {assessments
                   ? `${assessments.length} assessment${assessments.length === 1 ? "" : "s"} recorded, ${highRiskCount} flagged high-risk`
-                  : "No risk assessments submitted yet"}
+                  : isError ? "Assessment count unavailable" : "Loading risk assessments…"}
               </span>
             </CardContent>
           </Card>
@@ -254,7 +257,7 @@ export default function RiskAssessments() {
           <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
         )}
 
-        {!isLoading && filtered?.length === 0 && (
+         {!isLoading && !isError && filtered?.length === 0 && (
           <p className="text-center text-muted-foreground font-mono text-sm py-8">
             {q || highRiskOnly ? "No records match your search" : "No risk assessments submitted yet"}
           </p>
@@ -302,7 +305,7 @@ export default function RiskAssessments() {
                       className={`p-1.5 rounded transition-colors ${dls === "error" ? "text-destructive hover:text-destructive/80" : dls === "done" ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
                     >
                       {dls === "downloading"
-                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ? <ChainsawLoader className="w-3.5 h-3.5" />
                         : <Download className="w-3.5 h-3.5" />}
                     </button>
 
@@ -322,7 +325,7 @@ export default function RiskAssessments() {
                         className={`p-1.5 rounded transition-colors ${ds === "error" ? "text-destructive hover:text-destructive/80" : "text-muted-foreground hover:text-primary"}`}
                       >
                         {ds === "saving"
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ? <ChainsawLoader className="w-3.5 h-3.5" />
                           : <HardDrive className="w-3.5 h-3.5" />}
                       </button>
                     )}

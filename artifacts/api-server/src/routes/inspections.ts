@@ -11,7 +11,7 @@ import PDFDocument from "pdfkit";
 import { generateInspectionPdf } from "../lib/generateInspectionPdf";
 import { drawApprovedPdfKitHeader } from "../lib/pdfBranding";
 import { getOrCreateDriveFolder, uploadPdfToDrive, BACKUP_FOLDER } from "../lib/driveCertificates";
-import { ReplitConnectors } from "@replit/connectors-sdk";
+import { AppConnectors as ReplitConnectors } from "../lib/appConnectors";
 
 const router = Router();
 

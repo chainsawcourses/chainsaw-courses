@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { waiversTable, usersTable } from "@workspace/db";
+import { waiversTable, usersTable, courseEnrolmentsTable } from "@workspace/db";
 import { SignWaiverBody } from "@workspace/api-zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
 import PDFDocument from "pdfkit";
@@ -29,7 +29,7 @@ router.get("/waiver", async (req, res) => {
     const [waiver] = await db
       .select()
       .from(waiversTable)
-      .where(eq(waiversTable.userId, user.id));
+      .where(and(eq(waiversTable.userId, user.id), eq(waiversTable.enrollmentId, user.enrollmentId!)));
 
     if (!waiver) {
       res.json({
@@ -79,7 +79,7 @@ router.get("/waiver/pdf", async (req, res) => {
     const [waiver] = await db
       .select()
       .from(waiversTable)
-      .where(eq(waiversTable.userId, user.id));
+      .where(and(eq(waiversTable.userId, user.id), eq(waiversTable.enrollmentId, user.enrollmentId!)));
 
     if (!waiver) {
       res.status(404).json({ error: "No waiver found" });
@@ -254,12 +254,28 @@ router.get("/waiver/pdf/:studentId", async (req, res) => {
     res.status(400).json({ error: "Invalid student ID" });
     return;
   }
+  const enrollmentId = Number(req.query["enrollmentId"]);
+  if (!enrollmentId || isNaN(enrollmentId)) {
+    res.status(400).json({ error: "enrollmentId is required" });
+    return;
+  }
 
   try {
+    const [enrollment] = await db.select({ id: courseEnrolmentsTable.id })
+      .from(courseEnrolmentsTable)
+      .where(and(
+        eq(courseEnrolmentsTable.id, enrollmentId),
+        eq(courseEnrolmentsTable.userId, studentId),
+        eq(courseEnrolmentsTable.isDeleted, false),
+      ));
+    if (!enrollment) {
+      res.status(404).json({ error: "Enrolment not found" });
+      return;
+    }
     const [waiver] = await db
       .select()
       .from(waiversTable)
-      .where(eq(waiversTable.userId, studentId));
+      .where(and(eq(waiversTable.userId, studentId), eq(waiversTable.enrollmentId, enrollmentId)));
 
     if (!waiver) {
       res.status(404).json({ error: "No waiver found" });
@@ -424,7 +440,7 @@ router.post("/waiver", async (req, res) => {
     const [existing] = await db
       .select()
       .from(waiversTable)
-      .where(eq(waiversTable.userId, user.id));
+      .where(and(eq(waiversTable.userId, user.id), eq(waiversTable.enrollmentId, user.enrollmentId!)));
 
     if (existing) {
       res.json({ success: true, message: "Waiver already signed" });
@@ -433,10 +449,11 @@ router.post("/waiver", async (req, res) => {
 
     await db.insert(waiversTable).values({
       userId: user.id,
+      enrollmentId: user.enrollmentId!,
       signatureData,
       agreedToTerms: true,
       clausesSnapshot: clausesSnapshot ?? null,
-    });
+    }).onConflictDoNothing();
 
     res.json({ success: true, message: "Waiver signed successfully" });
   } catch (err) {

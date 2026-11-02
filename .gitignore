@@ -40,6 +40,7 @@ testem.log
 /typings
 
 # System Files
+/generated-artifacts/
 .DS_Store
 Thumbs.db
 
@@ -53,3 +54,7 @@ Thumbs.db
 # Android release exports are generated deliverables, not source files.
 exports/Chainsaw_Courses_Android_*.aab
 exports/Chainsaw_Courses_Android_*.aab.sha256
+exports/archived-public-release-files/
+exports/private-transfer/
+exports/UK_Arborist_Forestry_Contacts_Cleaned.csv
+exports/UK_Arborist_Forestry_Contacts_Removed_Review.csv

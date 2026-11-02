@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { deliverFile } from "../../lib/pdfDownload";
 import { useToast } from "@/hooks/use-toast";
+import AdminReadError from "./AdminReadError";
 
 interface ExamAttempt {
   id: number; userId: number; fullName: string; email: string;
@@ -23,6 +24,8 @@ export default function ExamLog() {
   const { toast } = useToast();
   const [attempts, setAttempts] = useState<ExamAttempt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [filter, setFilter] = useState<"all" | "pass" | "fail">("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -31,9 +34,16 @@ export default function ExamLog() {
 
   useEffect(() => {
     if (!adminToken) return;
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
     fetch("/api/admin/exam-log", { headers: { admintoken: adminToken } })
-      .then(r => r.json()).then(setAttempts).catch(() => {}).finally(() => setLoading(false));
-  }, [adminToken]);
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(data => { if (!cancelled) setAttempts(data); })
+      .catch(() => { if (!cancelled) { setAttempts([]); setLoadError(true); } })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [adminToken, retryCount]);
 
   // Group attempts by student
   const students: StudentRow[] = (() => {
@@ -78,7 +88,7 @@ export default function ExamLog() {
     if (exporting) return;
     setExporting(true);
     const header = ["Student", "Email", "Date", "Score", "Result", "Attempt #", "Total Questions"];
-    const rows = attempts
+    const rows = [...attempts]
       .sort((a, b) => new Date(b.attemptedAt).getTime() - new Date(a.attemptedAt).getTime())
       .map(a => [
         a.fullName, a.email,
@@ -118,7 +128,7 @@ export default function ExamLog() {
           </Link>
           <span className="text-muted-foreground/40">·</span>
           <span className="font-semibold text-sm flex-1">Final Exam Log</span>
-          <button disabled={exporting} onClick={() => void exportCsv()} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60" style={{ background: "#e27226" }}>
+          <button disabled={exporting || loading || loadError} onClick={() => void exportCsv()} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-white font-medium disabled:opacity-60" style={{ background: "#e27226" }}>
             <Download className="w-3.5 h-3.5" />{exporting ? "Exporting…" : "Export CSV"}
           </button>
         </div>
@@ -154,8 +164,9 @@ export default function ExamLog() {
         </div>
 
         {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-        {!loading && filtered.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground text-sm">No results found.</div>
+        {loadError && <AdminReadError subject="final exam attempts" retry={() => setRetryCount(n => n + 1)} />}
+        {!loading && !loadError && filtered.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground text-sm">{attempts.length ? "No attempts match the filters." : "No exam attempts recorded yet."}</div>
         )}
 
         {/* Student rows */}

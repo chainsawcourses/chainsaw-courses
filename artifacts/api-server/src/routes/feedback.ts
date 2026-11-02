@@ -7,7 +7,7 @@ import { z } from "zod/v4";
 import { resolveUser } from "./auth";
 import { verifyAdmin } from "./admin";
 import { logger } from "../lib/logger";
-import { ReplitConnectors } from "@replit/connectors-sdk";
+import { AppConnectors as ReplitConnectors } from "../lib/appConnectors";
 import { getOrCreateDriveFolder, BACKUP_FOLDER } from "../lib/driveCertificates";
 
 const router = Router();
@@ -30,6 +30,7 @@ router.post("/feedback/:moduleId", async (req, res) => {
   try {
     await db.insert(moduleFeedbackTable).values({
       userId: user.id,
+      enrollmentId: user.enrollmentId,
       moduleId,
       rating,
       comment: comment ?? null,

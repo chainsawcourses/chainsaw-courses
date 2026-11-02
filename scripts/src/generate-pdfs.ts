@@ -403,6 +403,7 @@ async function genDataProtection(): Promise<void> {
       ["Risk assessment records", "Dynamic risk assessment log; statutory compliance. Lawful basis: Legitimate interests; legal obligation (MHSWR 1999)."],
       ["AI mock-test messages", "AI-assisted exam preparation; improve AI response quality. Lawful basis: Contract / legitimate interests."],
       ["Module feedback ratings", "Improve course content quality. Lawful basis: Legitimate interests."],
+      ["Published app traffic and coarse operational events", "Approximate traffic reporting and manual delivery reliability diagnostics. Lawful basis: Legitimate interests — operating and improving a reliable service."],
     ],
     190
   );
@@ -429,7 +430,7 @@ async function genDataProtection(): Promise<void> {
   twoColTable(doc, ["Service", "Data Shared and Purpose"], [
     ["Vimeo", "Video hosting & streaming. IP address only (standard CDN delivery); no personal data transmitted by us."],
     ["OpenAI (Replit AI proxy)", "AI mock-test & tutor responses. Chat message content only; no name, email, or identifiers transmitted."],
-    ["Replit", "Platform hosting & infrastructure. All platform traffic passes through Replit infrastructure; governed by Replit's DPA."],
+    ["Replit", "Platform hosting, infrastructure and optional published analytics. Network and browser data provides approximate traffic metrics; coarse manual delivery events contain status properties only."],
     ["OpenStreetMap Nominatim", "GPS reverse geocoding for risk assessments. Coordinates only; no personal identifiers transmitted."],
   ], 160);
 
@@ -440,7 +441,7 @@ async function genDataProtection(): Promise<void> {
 
   sectionHeading(doc, "7. Cookies & Local Storage");
   body(doc,
-    "This application uses browser localStorage and cookies solely to persist session credentials (activation code, device identifier, user ID) between visits. No advertising, analytics, or tracking cookies are set. No third-party tracking scripts are loaded."
+    "This application uses browser localStorage and essential cookies to persist session credentials (activation code, device identifier, user ID) between visits. We do not use advertising cookies. When analytics is enabled for the published app, Replit adds its hosted tracker and uses IP traffic, network and browser data for approximate visitor, page, country, browser and device metrics. The app sends coarse manual page load-failure and retry events with reader surface, layout, attempt and failure type only. Learner identity, manual page numbers, search text and manual content are not sent. Replit retains analytics with the published project's history; its dashboard currently provides reporting periods of up to 30 days."
   );
 
   sectionHeading(doc, "8. Complaints");

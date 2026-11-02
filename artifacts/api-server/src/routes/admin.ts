@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ReplitConnectors } from "@replit/connectors-sdk";
+import { AppConnectors as ReplitConnectors } from "../lib/appConnectors";
 import { db } from "@workspace/db";
 import {
   usersTable,
@@ -20,21 +20,115 @@ import {
   backupTestLogsTable,
   backupExportsTable,
   assessmentPassportsTable,
+  courseEnrolmentsTable,
+  learnerSubscriptionsTable,
+  subscriptionBillingEventsTable,
+  subscriptionDeliveryAttemptsTable,
+  billingSupportNotificationsTable,
+  websitePurchaseSeatsTable,
 } from "@workspace/db";
-import { AdminLoginBody, CreateActivationCodeBody } from "@workspace/api-zod";
-import { eq, isNull, gte, count, and, ne, desc } from "drizzle-orm";
+import { AdminLoginBody, CreateActivationCodeBody, ResolveWebsitePurchaseSeatBody } from "@workspace/api-zod";
+import { eq, isNull, gte, count, and, ne, desc, or, sql, type SQL } from "drizzle-orm";
 import { logger } from "../lib/logger";
 import crypto from "crypto";
 import { fetchPublicPdf } from "../lib/remotePdf";
+import { ensureCurrentEnrollment } from "../lib/enrollment";
+import { certRef } from "../lib/generateCertificate";
+import {
+  nextSubscriptionPaidThroughAt,
+  subscriptionEventClearsPaidThrough,
+  subscriptionEventIsNewer,
+  subscriptionStatusEndsAccess,
+} from "../lib/subscriptionEvents";
+import { getBillingAlerts } from "../lib/billingAlerts";
+import { runBillingMonitoringSmokeCheck } from "../lib/billingMonitoringSmoke";
+import { getLatestBackupRun, getLatestReadableBackupRun, startManualBackup } from "../lib/backupJobs";
 
 const router = Router();
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "chainsaw-admin-2024";
-const activeTokens = new Set<string>();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+const BILLING_MONITORING_SMOKE_SECRET = process.env.BILLING_MONITORING_SMOKE_SECRET;
+const ADMIN_TOKEN_TTL_SECONDS = 24 * 60 * 60;
+const BILLING_MONITORING_SMOKE_LIMIT = 3;
+const BILLING_MONITORING_SMOKE_WINDOW_MS = 15 * 60 * 1000;
+const SHARED_ADMIN_IDENTITY = "Shared administrator";
+const PURCHASE_SENDING_REVIEW_MS = 10 * 60 * 1000;
+const purchaseReviewable = (seat: { emailStatus: string; updatedAt: Date }) =>
+  seat.emailStatus === "needs_review" ||
+  (seat.emailStatus === "sending" && seat.updatedAt.getTime() <= Date.now() - PURCHASE_SENDING_REVIEW_MS);
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+let billingMonitoringSmokeAttempts = { count: 0, resetAt: 0 };
+
+function secretMatches(candidate: string | undefined, expectedSecret: string | undefined): boolean {
+  if (!candidate || !expectedSecret) return false;
+  const supplied = Buffer.from(candidate);
+  const expected = Buffer.from(expectedSecret);
+  return supplied.length === expected.length && crypto.timingSafeEqual(supplied, expected);
+}
+
+function passwordMatches(candidate: string): boolean {
+  return secretMatches(candidate, ADMIN_PASSWORD);
+}
+
+function verifyBillingMonitoringSmoke(req: {
+  headers: Record<string, string | string[] | undefined>;
+}): boolean {
+  const value = req.headers["billingmonitoringtoken"];
+  const token = Array.isArray(value) ? value[0] : value;
+  return secretMatches(token, BILLING_MONITORING_SMOKE_SECRET);
+}
+
+function consumeBillingMonitoringSmokeAttempt(now: number): { allowed: true } | { allowed: false; retryAfterSeconds: number } {
+  if (billingMonitoringSmokeAttempts.resetAt <= now) {
+    billingMonitoringSmokeAttempts = {
+      count: 0,
+      resetAt: now + BILLING_MONITORING_SMOKE_WINDOW_MS,
+    };
+  }
+  if (billingMonitoringSmokeAttempts.count >= BILLING_MONITORING_SMOKE_LIMIT) {
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.max(1, Math.ceil((billingMonitoringSmokeAttempts.resetAt - now) / 1000)),
+    };
+  }
+  billingMonitoringSmokeAttempts.count += 1;
+  return { allowed: true };
+}
+
+type AdminTokenPayload = {
+  exp?: number;
+  actorIdentity?: string;
+};
+
+export function getAuthenticatedAdminIdentity(
+  req: { headers: Record<string, string | string[] | undefined> },
+): string | null {
+  if (!SESSION_SECRET) return null;
+  const value = req.headers["admintoken"];
+  const token = Array.isArray(value) ? value[0] : value;
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !/^[a-f0-9]{64}$/i.test(parts[2])) return null;
+  let payload: AdminTokenPayload;
+  try {
+    payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+  const expiresAt = payload.exp;
+  if (typeof expiresAt !== "number" || !Number.isInteger(expiresAt) ||
+      expiresAt <= Math.floor(Date.now() / 1000)) return null;
+  const expected = crypto.createHmac("sha256", SESSION_SECRET).update(`${parts[0]}.${parts[1]}`).digest("hex");
+  const supplied = Buffer.from(parts[2], "hex");
+  const calculated = Buffer.from(expected, "hex");
+  if (supplied.length !== calculated.length || !crypto.timingSafeEqual(supplied, calculated)) return null;
+  const actorIdentity = payload.actorIdentity?.trim();
+  return actorIdentity || SHARED_ADMIN_IDENTITY;
+}
 
 export function verifyAdmin(req: { headers: Record<string, string | string[] | undefined> }): boolean {
-  const token = req.headers["admintoken"] as string;
-  return !!token && activeTokens.has(token);
+  return getAuthenticatedAdminIdentity(req) !== null;
 }
 
 router.post("/admin/login", async (req, res) => {
@@ -45,17 +139,240 @@ router.post("/admin/login", async (req, res) => {
   }
 
   const { password } = parse.data;
-  if (password !== ADMIN_PASSWORD) {
+  const now = Date.now();
+  const address = req.ip || req.socket.remoteAddress || "unknown";
+  const attempt = loginAttempts.get(address);
+  if (attempt && attempt.resetAt <= now) loginAttempts.delete(address);
+  const current = loginAttempts.get(address);
+  if (current && current.count >= 5) {
+    res.status(429).json({ error: "Too many login attempts" });
+    return;
+  }
+  if (current) current.count += 1;
+  else loginAttempts.set(address, { count: 1, resetAt: now + 15 * 60 * 1000 });
+  if (!SESSION_SECRET || !passwordMatches(password)) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
 
-  const token = crypto.randomBytes(32).toString("hex");
-  activeTokens.add(token);
-
-  setTimeout(() => activeTokens.delete(token), 24 * 60 * 60 * 1000);
+  loginAttempts.delete(address);
+  const payload = Buffer.from(JSON.stringify({
+    iat: Math.floor(now / 1000),
+    exp: Math.floor(now / 1000) + ADMIN_TOKEN_TTL_SECONDS,
+    actorIdentity: SHARED_ADMIN_IDENTITY,
+  })).toString("base64url");
+  const nonce = crypto.randomBytes(16).toString("base64url");
+  const signature = crypto.createHmac("sha256", SESSION_SECRET).update(`${nonce}.${payload}`).digest("hex");
+  const token = `${nonce}.${payload}.${signature}`;
 
   res.json({ success: true, token });
+});
+
+router.get("/admin/billing-alerts", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const [alerts, notificationRows] = await Promise.all([
+      getBillingAlerts(),
+      db.select().from(billingSupportNotificationsTable),
+    ]);
+    const notifications = new Map(notificationRows.map((row) => [row.alertId, row]));
+    res.json(alerts.map((alert) => {
+      const notification = notifications.get(alert.id);
+      return {
+        ...alert,
+        supportNotification: notification ? {
+          status: notification.status,
+          deliveryStatus: notification.openDeliveryStatus,
+          deliveryError: notification.openDeliveryError,
+        } : null,
+      };
+    }));
+  } catch (err) {
+    logger.error({ err }, "Error getting billing alerts");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/admin/billing-monitoring-smoke", async (req, res): Promise<void> => {
+  if (!verifyBillingMonitoringSmoke(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const rateLimit = consumeBillingMonitoringSmokeAttempt(Date.now());
+  if (!rateLimit.allowed) {
+    logger.warn("Billing monitoring smoke check rate limit exceeded");
+    res.setHeader("Retry-After", String(rateLimit.retryAfterSeconds));
+    res.status(429).json({ error: "Too many billing monitoring smoke checks" });
+    return;
+  }
+  try {
+    res.json(await runBillingMonitoringSmokeCheck());
+  } catch (err) {
+    logger.error({ err }, "Billing monitoring smoke check failed");
+    res.status(503).json({ error: "Billing monitoring smoke check failed" });
+  }
+});
+
+router.get("/admin/billing-support-notifications", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const deliveryOutcome = typeof req.query.deliveryOutcome === "string" ? req.query.deliveryOutcome : undefined;
+    const incidentStatus = typeof req.query.incidentStatus === "string" ? req.query.incidentStatus : undefined;
+    const validDeliveryOutcomes = ["delivered", "failed_or_exhausted", "pending"];
+    const validIncidentStatuses = ["open", "resolved"];
+    if (
+      (deliveryOutcome !== undefined && !validDeliveryOutcomes.includes(deliveryOutcome)) ||
+      (incidentStatus !== undefined && !validIncidentStatuses.includes(incidentStatus))
+    ) {
+      res.status(400).json({ error: "Invalid billing history filter" });
+      return;
+    }
+
+    const failedDelivery = sql<boolean>`coalesce((
+      ${billingSupportNotificationsTable.openDeliveryStatus} = 'failed'
+      OR lower(coalesce(${billingSupportNotificationsTable.openDeliveryError}, '')) LIKE '%exhaust%'
+      OR ${billingSupportNotificationsTable.resolutionDeliveryStatus} = 'failed'
+      OR lower(coalesce(${billingSupportNotificationsTable.resolutionDeliveryError}, '')) LIKE '%exhaust%'
+    ), false)`;
+    const filters: SQL[] = [];
+    if (incidentStatus) filters.push(eq(billingSupportNotificationsTable.status, incidentStatus));
+    if (deliveryOutcome === "failed_or_exhausted") filters.push(failedDelivery);
+    if (deliveryOutcome === "pending") {
+      filters.push(sql<boolean>`NOT ${failedDelivery} AND (
+        ${billingSupportNotificationsTable.openDeliveryStatus} <> 'sent'
+        OR (
+          ${billingSupportNotificationsTable.resolutionDeliveryStatus} IS NOT NULL
+          AND ${billingSupportNotificationsTable.resolutionDeliveryStatus} <> 'sent'
+        )
+      )`);
+    }
+    if (deliveryOutcome === "delivered") {
+      filters.push(sql<boolean>`NOT ${failedDelivery}
+        AND ${billingSupportNotificationsTable.openDeliveryStatus} = 'sent'
+        AND (
+          ${billingSupportNotificationsTable.resolutionDeliveryStatus} IS NULL
+          OR ${billingSupportNotificationsTable.resolutionDeliveryStatus} = 'sent'
+        )`);
+    }
+
+    const rows = await db
+      .select()
+      .from(billingSupportNotificationsTable)
+      .where(filters.length > 0 ? and(...filters) : undefined)
+      .orderBy(desc(billingSupportNotificationsTable.updatedAt));
+    res.json(rows.map((row) => ({
+      notificationId: row.id,
+      alertType: row.alertType,
+      learnerId: row.userId,
+      title: row.title,
+      status: row.status,
+      openDeliveryStatus: row.openDeliveryStatus,
+      openDeliveryError: row.openDeliveryError,
+      resolutionDeliveryStatus: row.resolutionDeliveryStatus,
+      resolutionDeliveryError: row.resolutionDeliveryError,
+      openedAt: row.openedAt.toISOString(),
+      resolvedAt: row.resolvedAt?.toISOString() ?? null,
+      updatedAt: row.updatedAt.toISOString(),
+    })));
+  } catch (err) {
+    logger.error({ err }, "Error getting billing support notifications");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/admin/website-purchase-seats", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const rows = await db.select({
+      seat: websitePurchaseSeatsTable,
+      codePaused: activationCodesTable.isPaused,
+    }).from(websitePurchaseSeatsTable)
+      .leftJoin(activationCodesTable, eq(websitePurchaseSeatsTable.activationCodeId, activationCodesTable.id))
+      .where(or(
+        eq(websitePurchaseSeatsTable.emailStatus, "sending"),
+        eq(websitePurchaseSeatsTable.emailStatus, "needs_review"),
+      ))
+      .orderBy(desc(websitePurchaseSeatsTable.updatedAt))
+      .limit(200);
+    res.setHeader("Cache-Control", "no-store");
+    res.json(rows.map(({ seat, codePaused }) => ({
+      id: seat.id, orderId: seat.orderId, lineItemId: seat.lineItemId, seatId: seat.seatId,
+      email: seat.email, status: seat.status, emailStatus: seat.emailStatus,
+      isPaused: codePaused ?? null, updatedAt: seat.updatedAt.toISOString(),
+      reviewable: purchaseReviewable(seat) && seat.status === "active" && !seat.resolution,
+      resolution: seat.resolution, resolutionNote: seat.resolutionNote,
+      resolvedBy: seat.resolvedBy, resolvedAt: seat.resolvedAt?.toISOString() ?? null,
+    })));
+  } catch (err) {
+    req.log.error({ err }, "Error listing purchase seats requiring review");
+    res.status(500).json({ error: "Could not load purchase seats" });
+  }
+});
+
+router.get("/admin/website-purchase-seats/:id/code", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) { res.status(400).json({ error: "Invalid seat ID" }); return; }
+  try {
+    const [row] = await db.select({
+      seat: websitePurchaseSeatsTable, code: activationCodesTable.code,
+      isPaused: activationCodesTable.isPaused,
+    }).from(websitePurchaseSeatsTable)
+      .innerJoin(activationCodesTable, eq(websitePurchaseSeatsTable.activationCodeId, activationCodesTable.id))
+      .where(eq(websitePurchaseSeatsTable.id, id));
+    if (!row) { res.status(404).json({ error: "Seat or code not found" }); return; }
+    if (row.seat.status !== "active" || row.seat.resolution || !purchaseReviewable(row.seat) || row.isPaused) {
+      res.status(409).json({ error: "Seat is not ready for manual handoff; refresh the review queue" }); return;
+    }
+    res.setHeader("Cache-Control", "no-store");
+    req.log.info({ seatId: id }, "Purchase code revealed for support review");
+    res.json({ code: row.code });
+  } catch (err) {
+    req.log.error({ err, seatId: id }, "Error revealing purchase code");
+    res.status(500).json({ error: "Could not reveal code" });
+  }
+});
+
+router.post("/admin/website-purchase-seats/:id/resolve", async (req, res): Promise<void> => {
+  const actor = getAuthenticatedAdminIdentity(req);
+  if (!actor) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) { res.status(400).json({ error: "Invalid seat ID" }); return; }
+  const parsed = ResolveWebsitePurchaseSeatBody.strict().safeParse(req.body);
+  if (!parsed.success || !parsed.data.note.trim()) {
+    res.status(400).json({ error: "Choose a resolution and provide a note (1–1000 characters)" }); return;
+  }
+  const { resolution, note } = parsed.data;
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [seat] = await tx.select().from(websitePurchaseSeatsTable)
+        .where(eq(websitePurchaseSeatsTable.id, id)).for("update");
+      if (!seat) return "missing" as const;
+      if (seat.status !== "active" || seat.resolution || !purchaseReviewable(seat) || !seat.activationCodeId) {
+        return "conflict" as const;
+      }
+      const [code] = await tx.select({ isPaused: activationCodesTable.isPaused })
+        .from(activationCodesTable).where(eq(activationCodesTable.id, seat.activationCodeId));
+      if (!code || (resolution === "manual_handoff" && code.isPaused)) return "conflict" as const;
+      const [updated] = await tx.update(websitePurchaseSeatsTable).set({
+        resolution, resolutionNote: note.trim(), resolvedBy: actor, resolvedAt: new Date(), updatedAt: new Date(),
+      }).where(and(eq(websitePurchaseSeatsTable.id, id), isNull(websitePurchaseSeatsTable.resolution))).returning({ id: websitePurchaseSeatsTable.id });
+      return updated ? "resolved" as const : "conflict" as const;
+    });
+    if (result === "missing") { res.status(404).json({ error: "Seat not found" }); return; }
+    if (result === "conflict") { res.status(409).json({ error: "Seat changed or cannot be resolved; refresh the review queue" }); return; }
+    req.log.info({ seatId: id, resolution, actor }, "Purchase email reviewed manually");
+    res.json({ resolved: true });
+  } catch (err) {
+    req.log.error({ err, seatId: id }, "Error resolving purchase email");
+    res.status(500).json({ error: "Could not resolve purchase email" });
+  }
 });
 
 router.get("/admin/stats", async (req, res) => {
@@ -74,6 +391,7 @@ router.get("/admin/stats", async (req, res) => {
       allExamAttempts,
       allModules,
       allWaivers,
+      billingAlerts,
     ] = await Promise.all([
       db.select().from(usersTable).where(isNull(usersTable.deletedAt)),
       db.select({ count: count() }).from(usersTable).where(gte(usersTable.lastActivityAt, oneWeekAgo)),
@@ -87,6 +405,7 @@ router.get("/admin/stats", async (req, res) => {
       }).from(examAttemptsTable).orderBy(desc(examAttemptsTable.attemptedAt)),
       db.select().from(modulesTable).where(and(eq(modulesTable.isActive, true), ne(modulesTable.contentType, "pdf"))),
       db.select({ count: count() }).from(waiversTable),
+      getBillingAlerts(),
     ]);
 
     const totalLearners = allUsers.length;
@@ -158,6 +477,8 @@ router.get("/admin/stats", async (req, res) => {
       averagePassScore,
       moduleStats,
       recentActivity,
+      billingAlerts,
+      billingAlertCount: billingAlerts.length,
     });
   } catch (err) {
     logger.error({ err }, "Error getting admin stats");
@@ -176,6 +497,13 @@ router.get("/admin/students", async (req, res) => {
       .select()
       .from(usersTable)
       .where(isNull(usersTable.deletedAt));
+    const subscriptions = await db.select().from(learnerSubscriptionsTable);
+    const subscriptionMap = new Map(subscriptions.map((subscription) => [subscription.userId, subscription]));
+    const currentEnrollmentByUser = new Map<number, number>();
+    for (const user of users) {
+      const current = await db.transaction((tx) => ensureCurrentEnrollment(tx, user));
+      if (current) currentEnrollmentByUser.set(user.id, current.id);
+    }
 
     const [totalModulesResult] = await db
       .select({ count: count() })
@@ -185,7 +513,11 @@ router.get("/admin/students", async (req, res) => {
     const totalModules = Number(totalModulesResult.count);
 
     const waivers = await db.select().from(waiversTable);
-    const waiverMap = new Map(waivers.map((w) => [w.userId, w]));
+    const waiverMap = new Map(
+      waivers
+        .filter((w) => w.enrollmentId !== null && currentEnrollmentByUser.get(w.userId) === w.enrollmentId)
+        .map((w) => [w.userId, w]),
+    );
 
     const progressRecords = await db
       .select()
@@ -194,24 +526,32 @@ router.get("/admin/students", async (req, res) => {
 
     const progressMap = new Map<number, number>();
     for (const p of progressRecords) {
-      progressMap.set(p.userId, (progressMap.get(p.userId) ?? 0) + 1);
+      if (p.enrollmentId !== null && currentEnrollmentByUser.get(p.userId) === p.enrollmentId) {
+        progressMap.set(p.userId, (progressMap.get(p.userId) ?? 0) + 1);
+      }
     }
 
-    const [moduleFeedbackCounts, courseFeedbackCounts, quizAttemptCounts] = await Promise.all([
-      db.select({ userId: moduleFeedbackTable.userId, cnt: count() })
-        .from(moduleFeedbackTable)
-        .groupBy(moduleFeedbackTable.userId),
+    const [allModuleFeedback, courseFeedbackRows, allQuizAttempts] = await Promise.all([
+      db.select().from(moduleFeedbackTable),
       db.select({ userId: appFeedbackTable.userId, cnt: count() })
         .from(appFeedbackTable)
         .groupBy(appFeedbackTable.userId),
-      db.select({ userId: quizAttemptsTable.userId, cnt: count() })
-        .from(quizAttemptsTable)
-        .groupBy(quizAttemptsTable.userId),
+      db.select().from(quizAttemptsTable),
     ]);
 
-    const moduleFeedbackCountMap = new Map(moduleFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
-    const courseFeedbackCountMap = new Map(courseFeedbackCounts.map((r) => [r.userId, Number(r.cnt)]));
-    const quizAttemptCountMap = new Map(quizAttemptCounts.map((r) => [r.userId, Number(r.cnt)]));
+    const moduleFeedbackCountMap = new Map<number, number>();
+    for (const row of allModuleFeedback) {
+      if (row.enrollmentId !== null && currentEnrollmentByUser.get(row.userId) === row.enrollmentId) {
+        moduleFeedbackCountMap.set(row.userId, (moduleFeedbackCountMap.get(row.userId) ?? 0) + 1);
+      }
+    }
+    const courseFeedbackCountMap = new Map(courseFeedbackRows.map((r) => [r.userId, Number(r.cnt)]));
+    const quizAttemptCountMap = new Map<number, number>();
+    for (const row of allQuizAttempts) {
+      if (row.enrollmentId !== null && currentEnrollmentByUser.get(row.userId) === row.enrollmentId) {
+        quizAttemptCountMap.set(row.userId, (quizAttemptCountMap.get(row.userId) ?? 0) + 1);
+      }
+    }
 
     const result = users.map((u) => ({
       id: u.id,
@@ -229,6 +569,8 @@ router.get("/admin/students", async (req, res) => {
       courseFeedbackCount: courseFeedbackCountMap.get(u.id) ?? 0,
       feedbackCount: (moduleFeedbackCountMap.get(u.id) ?? 0) + (courseFeedbackCountMap.get(u.id) ?? 0),
       totalQuizAttempts: quizAttemptCountMap.get(u.id) ?? 0,
+      subscriptionStatus: subscriptionMap.get(u.id)?.status ?? "inactive",
+      subscriptionPaidThroughAt: subscriptionMap.get(u.id)?.paidThroughAt?.toISOString() ?? null,
     }));
 
     res.json(result);
@@ -252,29 +594,36 @@ router.get("/admin/students/:studentId", async (req, res) => {
       res.status(404).json({ error: "Student not found" });
       return;
     }
+    const ensuredEnrollment = await db.transaction((tx) => ensureCurrentEnrollment(tx, user));
+    const currentEnrollmentId = ensuredEnrollment?.id ?? user.currentEnrollmentId ?? null;
+    const enrollmentRows = await db
+      .select()
+      .from(courseEnrolmentsTable)
+      .where(and(eq(courseEnrolmentsTable.userId, studentId), eq(courseEnrolmentsTable.isDeleted, false)))
+      .orderBy(courseEnrolmentsTable.createdAt);
+    const currentEnrollment = enrollmentRows.find((row) => row.id === currentEnrollmentId) ?? enrollmentRows[enrollmentRows.length - 1];
+    const [subscription] = await db
+      .select()
+      .from(learnerSubscriptionsTable)
+      .where(eq(learnerSubscriptionsTable.userId, studentId))
+      .limit(1);
 
-    const [waiver] = await db.select().from(waiversTable).where(eq(waiversTable.userId, studentId));
-
-    const [quizAttempts, examAttempts, progressRecords, moduleFeedback, courseFeedback] = await Promise.all([
-      db.select()
-        .from(quizAttemptsTable)
-        .where(eq(quizAttemptsTable.userId, studentId)),
-      db.select()
-        .from(examAttemptsTable)
-        .where(eq(examAttemptsTable.userId, studentId))
-        .orderBy(examAttemptsTable.attemptedAt),
-      db.select()
-        .from(userProgressTable)
-        .where(eq(userProgressTable.userId, studentId)),
-      db.select()
-        .from(moduleFeedbackTable)
-        .where(eq(moduleFeedbackTable.userId, studentId))
-        .orderBy(desc(moduleFeedbackTable.createdAt)),
-      db.select()
-        .from(appFeedbackTable)
-        .where(eq(appFeedbackTable.userId, studentId))
-        .orderBy(desc(appFeedbackTable.createdAt)),
+    const [allWaivers, allQuizAttempts, allExamAttempts, allProgressRecords, allModuleFeedback, courseFeedback, allVideoEngagement] = await Promise.all([
+      db.select().from(waiversTable).where(eq(waiversTable.userId, studentId)),
+      db.select().from(quizAttemptsTable).where(eq(quizAttemptsTable.userId, studentId)),
+      db.select().from(examAttemptsTable).where(eq(examAttemptsTable.userId, studentId)).orderBy(examAttemptsTable.attemptedAt),
+      db.select().from(userProgressTable).where(eq(userProgressTable.userId, studentId)),
+      db.select().from(moduleFeedbackTable).where(eq(moduleFeedbackTable.userId, studentId)).orderBy(desc(moduleFeedbackTable.createdAt)),
+      db.select().from(appFeedbackTable).where(eq(appFeedbackTable.userId, studentId)).orderBy(desc(appFeedbackTable.createdAt)),
+      db.select().from(videoEngagementTable).where(eq(videoEngagementTable.userId, studentId)),
     ]);
+    const belongsToCurrent = (row: { enrollmentId: number | null }) =>
+      currentEnrollmentId === null || row.enrollmentId === currentEnrollmentId;
+    const waiver = allWaivers.find((row) => belongsToCurrent(row));
+    const quizAttempts = allQuizAttempts.filter(belongsToCurrent);
+    const examAttempts = allExamAttempts.filter(belongsToCurrent);
+    const progressRecords = allProgressRecords.filter(belongsToCurrent);
+    const moduleFeedback = allModuleFeedback.filter(belongsToCurrent);
 
     const modules = await db.select().from(modulesTable).where(eq(modulesTable.isActive, true));
     const moduleMap = new Map(modules.map((m) => [m.id, m]));
@@ -287,6 +636,38 @@ router.get("/admin/students/:studentId", async (req, res) => {
     }
 
     const completedCount = progressRecords.filter((p) => p.videoCompleted && p.quizPassed).length;
+    const enrollments = enrollmentRows.map((enrollment) => {
+      const scopedQuizAttempts = allQuizAttempts.filter((attempt) => attempt.enrollmentId === enrollment.id);
+      const scopedExamAttempts = allExamAttempts.filter((attempt) => attempt.enrollmentId === enrollment.id);
+      const scopedProgress = allProgressRecords.filter((record) => record.enrollmentId === enrollment.id);
+      const passedExam = scopedExamAttempts.find((attempt) => attempt.passed);
+      return {
+        enrollmentId: enrollment.id,
+        purchaseCode: enrollment.purchaseCode,
+        activatedAt: enrollment.activatedAt.toISOString(),
+        accessExpiresAt: enrollment.accessExpiresAt?.toISOString() ?? null,
+        status: enrollment.accessExpiresAt && enrollment.accessExpiresAt <= new Date() ? "expired" : enrollment.status,
+        courseCompletedAt: enrollment.courseCompletedAt?.toISOString() ?? null,
+        certificateIssuedAt: enrollment.certificateIssuedAt?.toISOString() ?? null,
+        isCurrent: enrollment.id === currentEnrollmentId,
+        progress: {
+          completedModules: scopedProgress.filter((record) => record.videoCompleted && record.quizPassed).length,
+          totalProgressRecords: scopedProgress.length,
+          quizAttempts: scopedQuizAttempts.length,
+          examAttempts: scopedExamAttempts.length,
+          examPassed: !!passedExam,
+        },
+        certificate: passedExam ? {
+          reference: certRef(user.id, passedExam.attemptedAt, enrollment.id),
+          completedAt: passedExam.attemptedAt.toISOString(),
+        } : null,
+        quizResults: scopedQuizAttempts,
+        examAttempts: scopedExamAttempts,
+        waiverSigned: allWaivers.some((row) => row.enrollmentId === enrollment.id),
+        moduleFeedback: allModuleFeedback.filter((row) => row.enrollmentId === enrollment.id),
+        videoEngagement: allVideoEngagement.filter((row) => row.enrollmentId === enrollment.id),
+      };
+    });
 
     res.json({
       id: user.id,
@@ -297,12 +678,69 @@ router.get("/admin/students/:studentId", async (req, res) => {
       deviceId: user.deviceId,
       deviceBonded: true,
       waiverSigned: !!waiver,
-      accessExpiresAt: user.accessExpiresAt?.toISOString() ?? null,
-      courseCompletedAt: user.courseCompletedAt?.toISOString() ?? null,
-      certificateIssuedAt: user.certificateIssuedAt?.toISOString() ?? null,
+      accessExpiresAt: currentEnrollment?.accessExpiresAt?.toISOString() ?? null,
+      courseCompletedAt: currentEnrollment?.courseCompletedAt?.toISOString() ?? null,
+      certificateIssuedAt: currentEnrollment?.certificateIssuedAt?.toISOString() ?? null,
+      enrollments,
       subscriptionExpiresAt: user.subscriptionExpiresAt?.toISOString() ?? null,
+      subscription: subscription
+        ? {
+          status: subscription.status,
+          paidThroughAt: subscription.paidThroughAt?.toISOString() ?? null,
+          provider: subscription.provider,
+          providerCustomerId: subscription.providerCustomerId,
+          providerSubscriptionId: subscription.providerSubscriptionId,
+          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        }
+        : {
+          status: "inactive",
+          paidThroughAt: null,
+          provider: null,
+          providerCustomerId: null,
+          providerSubscriptionId: null,
+          cancelAtPeriodEnd: false,
+        },
+      subscriptionHistory: (await db
+        .select()
+        .from(subscriptionBillingEventsTable)
+        .where(eq(subscriptionBillingEventsTable.userId, studentId))
+        .orderBy(desc(subscriptionBillingEventsTable.eventOccurredAt)))
+        .map((event) => ({
+          providerEventId: event.providerEventId,
+          provider: event.provider,
+          providerCustomerId: event.providerCustomerId,
+          providerSubscriptionId: event.providerSubscriptionId,
+          eventType: event.eventType,
+          eventOccurredAt: event.eventOccurredAt.toISOString(),
+          sequence: event.eventSequence,
+          status: event.status,
+          paidThroughAt: event.paidThroughAt?.toISOString() ?? null,
+          cancelAtPeriodEnd: event.cancelAtPeriodEnd,
+          receivedAt: event.receivedAt.toISOString(),
+        })),
+      deliveryAttempts: (await db
+        .select()
+        .from(subscriptionDeliveryAttemptsTable)
+        .where(or(
+          eq(subscriptionDeliveryAttemptsTable.learnerId, studentId),
+          sql`lower(${subscriptionDeliveryAttemptsTable.learnerEmail}) = ${user.email.trim().toLowerCase()}`,
+        ))
+        .orderBy(desc(subscriptionDeliveryAttemptsTable.receivedAt)))
+        .map((attempt) => ({
+          id: attempt.id,
+          providerEventId: attempt.providerEventId,
+          provider: attempt.provider,
+          eventType: attempt.eventType,
+          eventOccurredAt: attempt.eventOccurredAt?.toISOString() ?? null,
+          outcome: attempt.outcome,
+          httpStatus: attempt.httpStatus,
+          duplicate: attempt.duplicate,
+          applied: attempt.applied,
+          errorCode: attempt.errorCode,
+          receivedAt: attempt.receivedAt.toISOString(),
+        })),
       waiverSignedAt: waiver?.signedAt?.toISOString() ?? null,
-      waiverPdfUrl: waiver ? `/api/waiver/pdf/${studentId}` : null,
+      waiverPdfUrl: waiver && currentEnrollment ? `/api/waiver/pdf/${studentId}?enrollmentId=${currentEnrollment.id}` : null,
       completedModules: completedCount,
       quizResults: Array.from(passedAttempts.values()).map((a) => {
         const totalAttempts = quizAttempts.filter((q) => q.moduleId === a.moduleId).length;
@@ -353,6 +791,150 @@ router.get("/admin/students/:studentId", async (req, res) => {
   } catch (err) {
     logger.error({ err }, "Error getting student detail");
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/admin/students/:studentId/subscription-repair", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const studentId = Number.parseInt(req.params.studentId, 10);
+  if (!Number.isInteger(studentId)) {
+    res.status(400).json({ error: "Invalid student ID" });
+    return;
+  }
+  try {
+    const result = await db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${"billing-user:" + studentId}))`);
+      const [user] = await tx.select({ id: usersTable.id }).from(usersTable).where(and(eq(usersTable.id, studentId), isNull(usersTable.deletedAt)));
+      if (!user) return { missing: true as const };
+      const events = await tx.select().from(subscriptionBillingEventsTable)
+        .where(eq(subscriptionBillingEventsTable.userId, studentId));
+      if (events.length === 0) return { noEvents: true as const };
+      const [existing] = await tx.select({ id: learnerSubscriptionsTable.id })
+        .from(learnerSubscriptionsTable)
+        .where(eq(learnerSubscriptionsTable.userId, studentId))
+        .limit(1);
+      const orderedEvents = events
+        .slice()
+        .sort((a, b) => {
+          const receivedDifference = a.receivedAt.getTime() - b.receivedAt.getTime();
+          return receivedDifference !== 0 ? receivedDifference : a.id - b.id;
+        });
+      let replay: {
+        provider: string;
+        providerCustomerId: string | null;
+        providerSubscriptionId: string | null;
+        status: string;
+        paidThroughAt: Date | null;
+        cancelAtPeriodEnd: boolean;
+        lastEventOccurredAt: Date | null;
+        lastEventSequence: number | null;
+      } = {
+        provider: orderedEvents[0]!.provider,
+        providerCustomerId: null,
+        providerSubscriptionId: null,
+        status: "inactive",
+        paidThroughAt: null,
+        cancelAtPeriodEnd: false,
+        lastEventOccurredAt: null,
+        lastEventSequence: null,
+      };
+      const seenProviderSubscriptionIds = new Set<string>();
+      for (const event of orderedEvents) {
+        const occurredAt = event.eventOccurredAt;
+        if (!occurredAt) continue;
+
+        // Keep replay semantics aligned with live ingestion. A provider may
+        // issue a fresh subscription ID for a later paid lifecycle, in which
+        // case its sequence can restart. IDs already encountered belong to a
+        // retired lifecycle once another ID becomes canonical, so delayed
+        // events from them must never move the repaired row backwards.
+        const hasDifferentProviderSubscription =
+          Boolean(replay.lastEventOccurredAt) &&
+          event.providerSubscriptionId !== null &&
+          event.providerSubscriptionId !== replay.providerSubscriptionId;
+        const isGrantingLifecycleEvent =
+          event.paidThroughAt instanceof Date &&
+          !subscriptionStatusEndsAccess(event.status) &&
+          !subscriptionEventClearsPaidThrough(
+            event.status,
+            event.eventType,
+            event.paidThroughAt,
+          );
+        const isNewLifecycle =
+          hasDifferentProviderSubscription &&
+          !seenProviderSubscriptionIds.has(event.providerSubscriptionId!) &&
+          isGrantingLifecycleEvent &&
+          (!replay.lastEventOccurredAt ||
+            occurredAt.getTime() > replay.lastEventOccurredAt.getTime());
+        if (event.providerSubscriptionId) {
+          seenProviderSubscriptionIds.add(event.providerSubscriptionId);
+        }
+        if (hasDifferentProviderSubscription && !isNewLifecycle) continue;
+        if (!isNewLifecycle && !subscriptionEventIsNewer(replay, event.eventSequence, occurredAt)) continue;
+        const clearsPaidThrough = subscriptionEventClearsPaidThrough(
+          event.status,
+          event.eventType,
+          event.paidThroughAt,
+        );
+        replay = {
+          provider: event.provider,
+          providerCustomerId: event.providerCustomerId ?? replay.providerCustomerId,
+          providerSubscriptionId: event.providerSubscriptionId ?? replay.providerSubscriptionId,
+          status: event.status,
+          paidThroughAt: nextSubscriptionPaidThroughAt(
+            replay.paidThroughAt,
+            event.status,
+            event.eventType,
+            event.paidThroughAt,
+            event.paidThroughAtProvided,
+          ),
+          cancelAtPeriodEnd: event.cancelAtPeriodEnd ??
+            (isNewLifecycle || clearsPaidThrough ? false : replay.cancelAtPeriodEnd),
+          lastEventOccurredAt: occurredAt,
+          lastEventSequence: event.eventSequence ?? replay.lastEventSequence,
+        };
+      }
+      const values = {
+        provider: replay.provider,
+        providerCustomerId: replay.providerCustomerId,
+        providerSubscriptionId: replay.providerSubscriptionId,
+        status: replay.status,
+        paidThroughAt: replay.paidThroughAt,
+        cancelAtPeriodEnd: replay.cancelAtPeriodEnd,
+        lastEventOccurredAt: replay.lastEventOccurredAt,
+        lastEventSequence: replay.lastEventSequence,
+        updatedAt: new Date(),
+      };
+      const [subscription] = existing
+        ? await tx.update(learnerSubscriptionsTable).set(values).where(eq(learnerSubscriptionsTable.id, existing.id)).returning()
+        : await tx.insert(learnerSubscriptionsTable).values({ userId: studentId, ...values }).returning();
+      return {
+        repaired: true as const,
+        subscription: {
+          status: subscription.status,
+          paidThroughAt: subscription.paidThroughAt?.toISOString() ?? null,
+          provider: subscription.provider,
+          providerCustomerId: subscription.providerCustomerId,
+          providerSubscriptionId: subscription.providerSubscriptionId,
+          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        },
+      };
+    });
+    if ("missing" in result) {
+      res.status(404).json({ error: "Student not found" });
+      return;
+    }
+    if ("noEvents" in result) {
+      res.status(404).json({ error: "No subscription history to repair" });
+      return;
+    }
+    res.json(result);
+  } catch (err) {
+    logger.error({ err, studentId }, "Error repairing student subscription");
+    res.status(500).json({ error: "Subscription could not be repaired" });
   }
 });
 
@@ -690,7 +1272,10 @@ router.delete("/admin/students/:studentId/delete", async (req, res) => {
   try {
     const users = await db.select().from(usersTable).where(eq(usersTable.id, uid));
     if (users.length === 0) {
-      res.status(404).json({ error: "Student not found" });
+      // Deletion is intentionally idempotent. The dashboard can briefly retain
+      // a cached student detail after a successful delete; a repeated request
+      // must not turn that successful outcome into a misleading failure.
+      res.json({ success: true, message: "Student account already deleted" });
       return;
     }
 
@@ -704,6 +1289,13 @@ router.delete("/admin/students/:studentId/delete", async (req, res) => {
       await tx.delete(riskAssessmentsTable).where(eq(riskAssessmentsTable.userId, uid));
       await tx.delete(videoEngagementTable).where(eq(videoEngagementTable.userId, uid));
       await tx.delete(moduleFeedbackTable).where(eq(moduleFeedbackTable.userId, uid));
+      await tx.delete(subscriptionBillingEventsTable).where(eq(subscriptionBillingEventsTable.userId, uid));
+      await tx.delete(subscriptionDeliveryAttemptsTable).where(or(
+        eq(subscriptionDeliveryAttemptsTable.learnerId, uid),
+        sql`lower(${subscriptionDeliveryAttemptsTable.learnerEmail}) = ${users[0]!.email.trim().toLowerCase()}`,
+      ));
+      await tx.delete(learnerSubscriptionsTable).where(eq(learnerSubscriptionsTable.userId, uid));
+      await tx.delete(courseEnrolmentsTable).where(eq(courseEnrolmentsTable.userId, uid));
       await tx.delete(pushSubscriptionsTable).where(eq(pushSubscriptionsTable.userId, uid));
       await tx.delete(appFeedbackTable).where(eq(appFeedbackTable.userId, uid));
       await tx.delete(usersTable).where(eq(usersTable.id, uid));
@@ -742,34 +1334,114 @@ router.post("/admin/users/:userId/issue-certificate", async (req, res) => {
   if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
   try {
     const uid = parseInt(req.params.userId, 10);
+    const enrollmentId = Number(req.body?.enrollmentId);
+    if (!enrollmentId) { res.status(400).json({ error: "enrollmentId is required" }); return; }
     const [attempt] = await db
       .select()
       .from(examAttemptsTable)
-      .where(and(eq(examAttemptsTable.userId, uid), eq(examAttemptsTable.passed, true)))
+      .where(and(
+        eq(examAttemptsTable.userId, uid),
+        eq(examAttemptsTable.enrollmentId, enrollmentId),
+        eq(examAttemptsTable.passed, true),
+      ))
       .orderBy(examAttemptsTable.attemptedAt)
       .limit(1);
     if (!attempt) { res.status(404).json({ error: "No passing exam attempt found" }); return; }
     const completedAt = attempt.attemptedAt;
-    const expiresAt = new Date(completedAt.getTime() + 90 * 24 * 60 * 60 * 1000);
-    await db.update(usersTable).set({
-      courseCompletedAt: completedAt,
+    const [existingEnrollment] = await db.select().from(courseEnrolmentsTable).where(and(
+      eq(courseEnrolmentsTable.id, enrollmentId),
+      eq(courseEnrolmentsTable.userId, uid),
+      eq(courseEnrolmentsTable.isDeleted, false),
+    ));
+    if (!existingEnrollment) { res.status(404).json({ error: "Enrolment not found" }); return; }
+    const [enrollment] = await db.update(courseEnrolmentsTable).set({
+      courseCompletedAt: existingEnrollment.courseCompletedAt ?? completedAt,
       certificateIssuedAt: completedAt,
-      accessExpiresAt: expiresAt,
-    }).where(eq(usersTable.id, uid));
-    res.json({ success: true, userId: uid, certificateIssuedAt: completedAt, accessExpiresAt: expiresAt });
+    }).where(and(
+      eq(courseEnrolmentsTable.id, enrollmentId),
+      eq(courseEnrolmentsTable.userId, uid),
+      eq(courseEnrolmentsTable.isDeleted, false),
+      isNull(courseEnrolmentsTable.certificateIssuedAt),
+    )).returning();
+    if (!enrollment) {
+      res.status(409).json({ error: "Certificate already issued for this enrolment" });
+      return;
+    }
+    res.json({ success: true, userId: uid, enrollmentId, certificateIssuedAt: completedAt });
   } catch (err) {
     logger.error({ err }, "Error issuing certificate");
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ─── Backup: export learner data as a new Google Sheet ───────────────────────
+// ─── Backup: request-bound readable Sheets and document exports ────────────
+
+router.post("/admin/backup/export", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const started = await startManualBackup();
+    if (!started.started) {
+      res.status(409).json({
+        error: started.error,
+        ...(started.run ? { run: {
+          state: started.run.state,
+          startedAt: started.run.startedAt,
+          source: started.run.source,
+          error: started.run.error,
+          result: started.run.result,
+        } } : {}),
+      });
+      return;
+    }
+    res.status(started.run.state === "running" ? 202 : 200).json({
+      state: started.run.state,
+      startedAt: started.run.startedAt,
+      source: started.run.source,
+      error: started.run.error,
+      result: started.run.result,
+    });
+  } catch (error) {
+    logger.error({ err: error }, "Could not start manual readable backup");
+    res.status(500).json({ error: "The backup could not start. Check the API logs and try again." });
+  }
+});
+
+router.get("/admin/backup/status", async (req, res): Promise<void> => {
+  if (!verifyAdmin(req)) { res.status(401).json({ error: "Unauthorized" }); return; }
+  const [run, latestReadableRun] = await Promise.all([
+    getLatestBackupRun(),
+    getLatestReadableBackupRun(),
+  ]);
+  const latestReadableResult = latestReadableRun?.result
+    ? { ...latestReadableRun.result, driveFileIds: undefined }
+    : null;
+  res.json(run ? {
+    state: run.state,
+    startedAt: run.startedAt,
+    source: run.source,
+    error: run.error,
+    result: run.result,
+    latestReadable: latestReadableResult ? {
+      ...latestReadableResult,
+      at: latestReadableRun!.finishedAt ?? latestReadableRun!.startedAt,
+    } : null,
+  } : {
+    latestReadable: latestReadableResult ? {
+      ...latestReadableResult,
+      at: latestReadableRun!.finishedAt ?? latestReadableRun!.startedAt,
+    } : null,
+  });
+});
+
+// Old Sheet export is no longer a backup. Keep the route but explicitly refuse it.
 
 router.get("/admin/backup/export", async (req, res) => {
   if (!verifyAdmin(req)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  res.status(410).json({ error: "Use the Backup all data action to create readable Sheets and PDFs." });
+  return;
   try {
     const [
       users, progress, waivers, codes,

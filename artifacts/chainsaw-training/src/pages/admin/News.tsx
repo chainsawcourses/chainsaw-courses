@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Loader2, Newspaper, Pencil, Plus, RefreshCw, Search, Trash2, X, XCircle } from "lucide-react";
+import { ArrowLeft, Biohazard, CheckCircle2, ExternalLink, Newspaper, Pencil, Plus, RefreshCw, Search, Trash2, X, XCircle } from "lucide-react";
 import {
   useListNewsItems,
   useListPendingNewsItems,
@@ -22,6 +22,7 @@ import {
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 type Tab = "live" | "pending";
 
@@ -282,7 +283,7 @@ export default function AdminNews() {
             disabled={retagging}
             className="font-mono text-xs uppercase tracking-widest"
           >
-            {retagging ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Newspaper className="w-4 h-4 mr-2" />}
+            {retagging ? <ChainsawLoader className="w-4 h-4 mr-2" /> : <Newspaper className="w-4 h-4 mr-2" />}
             {retagging ? "Tagging…" : "Tag Untagged Articles"}
           </Button>
         </div>
@@ -386,7 +387,7 @@ export default function AdminNews() {
               disabled={purgingOld}
               className="ml-auto font-mono text-xs uppercase tracking-widest text-destructive hover:text-destructive border-destructive/40 hover:border-destructive"
             >
-              {purgingOld ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+              {purgingOld ? <ChainsawLoader className="w-3.5 h-3.5 mr-1.5" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
               {purgingOld ? "Purging…" : `Keep Recent 20 (delete ${(liveItems?.length ?? 0) - 20} older)`}
             </Button>
           )}
@@ -398,7 +399,7 @@ export default function AdminNews() {
               disabled={deletingAll || processingId !== null}
               className="ml-auto font-mono text-xs uppercase tracking-widest text-destructive hover:text-destructive border-destructive/40 hover:border-destructive"
             >
-              {deletingAll ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+              {deletingAll ? <ChainsawLoader className="w-3.5 h-3.5 mr-1.5" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
               {deletingAll ? "Deleting…" : `Delete All (${pendingCount})`}
             </Button>
           )}
@@ -496,12 +497,12 @@ export default function AdminNews() {
                       <Button size="sm" onClick={() => handleApprove(item.id)}
                         disabled={processingId !== null}
                         className="font-mono text-xs bg-green-600 hover:bg-green-700 text-white disabled:opacity-50">
-                        {processingId === item.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5 mr-1" />} Approve
+                        {processingId === item.id ? <ChainsawLoader className="w-3.5 h-3.5 mr-1" /> : <CheckCircle2 className="w-3.5 h-3.5 mr-1" />} Approve
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleReject(item.id)}
                         disabled={processingId !== null}
                         className="font-mono text-xs text-destructive hover:text-destructive disabled:opacity-50">
-                        {processingId === item.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <XCircle className="w-3.5 h-3.5 mr-1" />} Reject
+                        {processingId === item.id ? <ChainsawLoader className="w-3.5 h-3.5 mr-1" /> : <XCircle className="w-3.5 h-3.5 mr-1" />} Reject
                       </Button>
                     </div>
                   </div>

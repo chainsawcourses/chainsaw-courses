@@ -4,6 +4,8 @@ import { modulesTable, userProgressTable, quizQuestionsTable, activationCodesTab
 import { eq, asc, and, sql, count } from "drizzle-orm";
 import { resolveUser } from "./auth";
 import { logger } from "../lib/logger";
+import { hasActiveCourseAccess } from "../lib/courseAccess";
+import { isCertificateTestCode } from "../lib/certificateTestAccess";
 
 const router = Router();
 
@@ -21,10 +23,15 @@ router.get("/modules", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   // Check if this activation code unlocks all modules (e.g. reviewer codes)
   const [codeRow] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
   const allUnlocked = codeRow?.allModulesUnlocked ?? false;
+  const certificateTest = isCertificateTestCode(activationCode);
 
   // Demo mode: return all modules with only the first 3 video modules unlocked
   if (user.id === 0) {
@@ -58,10 +65,10 @@ router.get("/modules", async (req, res) => {
   }
 
   // Reviewer / all-modules-unlocked codes: every module accessible, no sequential gating
-  if (allUnlocked) {
+  if (allUnlocked || certificateTest) {
     const [allMods, progressRecords] = await Promise.all([
       db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
-      db.select().from(userProgressTable).where(eq(userProgressTable.userId, user.id)),
+      db.select().from(userProgressTable).where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId))),
     ]);
     const progressMap = new Map<number, (typeof progressRecords)[number]>();
     for (const progress of progressRecords) {
@@ -83,8 +90,8 @@ router.get("/modules", async (req, res) => {
         subCategory: mod.subCategory ?? null,
         contentType: mod.contentType,
         isLocked: false,
-        isCompleted: !!progress?.videoCompleted,
-        quizPassed: !!progress?.quizPassed,
+        isCompleted: certificateTest || !!progress?.videoCompleted,
+        quizPassed: certificateTest || !!progress?.quizPassed,
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         isHighRisk: mod.isHighRisk,
@@ -99,7 +106,7 @@ router.get("/modules", async (req, res) => {
   try {
     const [modules, progressRecords, quizCounts] = await Promise.all([
       db.select().from(modulesTable).where(eq(modulesTable.isActive, true)).orderBy(asc(modulesTable.order)),
-      db.select().from(userProgressTable).where(eq(userProgressTable.userId, user.id)),
+      db.select().from(userProgressTable).where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId))),
       db.select({
         moduleId: quizQuestionsTable.moduleId,
         count: sql<number>`cast(count(*) as int)`,
@@ -191,10 +198,15 @@ router.get("/modules/:moduleId", async (req, res) => {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+  if (!hasActiveCourseAccess(user)) {
+    res.status(403).json({ error: "access_expired", message: "Course access has ended." });
+    return;
+  }
 
   // Check if this activation code unlocks all modules
   const [codeRow2] = await db.select().from(activationCodesTable).where(eq(activationCodesTable.code, activationCode.trim().toUpperCase()));
   const allUnlocked2 = codeRow2?.allModulesUnlocked ?? false;
+  const certificateTest = isCertificateTestCode(activationCode);
 
   try {
     const [mod] = await db
@@ -232,7 +244,7 @@ router.get("/modules/:moduleId", async (req, res) => {
     }
 
     // Reviewer / all-modules-unlocked: skip locking but still return real quizCount
-    if (allUnlocked2) {
+    if (allUnlocked2 || certificateTest) {
       const [quizCountRow] = await db
         .select({ count: count() })
         .from(quizQuestionsTable)
@@ -246,8 +258,8 @@ router.get("/modules/:moduleId", async (req, res) => {
         subCategory: mod.subCategory ?? null,
         contentType: mod.contentType,
         isLocked: false,
-        isCompleted: false,
-        quizPassed: false,
+        isCompleted: certificateTest,
+        quizPassed: certificateTest,
         duration: mod.duration,
         thumbnailUrl: mod.thumbnailUrl ?? null,
         vimeoId: mod.vimeoId ?? null,
@@ -291,7 +303,7 @@ router.get("/modules/:moduleId", async (req, res) => {
     if (prevMod) {
       const [prevProgressAll, prevQuizCounts] = await Promise.all([
         db.select().from(userProgressTable).where(
-          and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, prevMod.id))
+          and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, prevMod.id))
         ).orderBy(asc(userProgressTable.id)),
         db.select({ count: sql<number>`cast(count(*) as int)` })
           .from(quizQuestionsTable)
@@ -309,7 +321,7 @@ router.get("/modules/:moduleId", async (req, res) => {
         const ownProgressAll = await db
           .select()
           .from(userProgressTable)
-          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
         const ownLatest = ownProgressAll.length > 0
           ? ownProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
           : null;
@@ -327,7 +339,7 @@ router.get("/modules/:moduleId", async (req, res) => {
       const pdfProgressAll = await db
         .select()
         .from(userProgressTable)
-        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+        .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
       const pdfLatest = pdfProgressAll.length > 0
         ? pdfProgressAll.reduce((a, b) => (a.updatedAt ?? a.id) > (b.updatedAt ?? b.id) ? a : b)
         : null;
@@ -336,16 +348,17 @@ router.get("/modules/:moduleId", async (req, res) => {
         await db
           .update(userProgressTable)
           .set({ videoCompleted: true, quizPassed: true, completedAt: new Date(), updatedAt: new Date() })
-          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.moduleId, moduleId)));
+          .where(and(eq(userProgressTable.userId, user.id), eq(userProgressTable.enrollmentId, user.enrollmentId), eq(userProgressTable.moduleId, moduleId)));
       } else {
         await db.insert(userProgressTable).values({
           userId: user.id,
+          enrollmentId: user.enrollmentId,
           moduleId,
           videoCompleted: true,
           quizPassed: true,
           lastTimestamp: 0,
           completedAt: new Date(),
-        });
+        }).onConflictDoNothing();
       }
     }
 
@@ -356,6 +369,7 @@ router.get("/modules/:moduleId", async (req, res) => {
         .where(
           and(
             eq(userProgressTable.userId, user.id),
+            eq(userProgressTable.enrollmentId, user.enrollmentId),
             eq(userProgressTable.moduleId, moduleId)
           )
         ),

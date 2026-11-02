@@ -3,12 +3,14 @@ import { Link, useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp, Sheet, ExternalLink, Loader2, HardDrive } from "lucide-react";
+import { ArrowLeft, Biohazard, Search, Star, X, MessageSquare, ChevronDown, ChevronUp, Sheet, ExternalLink, HardDrive } from "lucide-react";
 import {
   useListFeedback, getListFeedbackQueryKey,
   useListAppFeedback, getListAppFeedbackQueryKey,
 } from "@workspace/api-client-react";
 import { useAdminSession } from "../../contexts/AdminContext";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
+import AdminReadError from "./AdminReadError";
 
 type Tab = "by-student" | "by-module" | "course";
 
@@ -21,11 +23,11 @@ export default function Feedback() {
     if (isReady && !adminToken) setLocation("/admin");
   }, [isReady, adminToken, setLocation]);
 
-  const { data: videoFeedback, isLoading: loadingVideo } = useListFeedback({
+  const { data: videoFeedback, isLoading: loadingVideo, isError: videoError, refetch: retryVideo } = useListFeedback({
     query: { queryKey: getListFeedbackQueryKey(), enabled: !!adminToken },
   });
 
-  const { data: courseFeedback, isLoading: loadingCourse } = useListAppFeedback({
+  const { data: courseFeedback, isLoading: loadingCourse, isError: courseError, refetch: retryCourse } = useListAppFeedback({
     query: { queryKey: getListAppFeedbackQueryKey(), enabled: !!adminToken },
   });
 
@@ -216,7 +218,7 @@ export default function Feedback() {
               className="font-mono text-xs uppercase tracking-widest"
             >
               {exporting
-                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Exporting…</>
+                ? <><ChainsawLoader className="w-4 h-4 mr-2" /> Exporting…</>
                 : <><Sheet className="w-4 h-4 mr-2" /> Export to Sheets</>}
             </Button>
             <Button variant="outline" size="sm" className="font-mono text-xs" asChild>
@@ -248,6 +250,8 @@ export default function Feedback() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6 pt-[110px]">
+        {videoError && <AdminReadError subject="module feedback" retry={() => void retryVideo()} />}
+        {courseError && <AdminReadError subject="course feedback" retry={() => void retryCourse()} />}
 
         {/* Export result / error banner */}
         {sheetUrl && (
@@ -301,7 +305,7 @@ export default function Feedback() {
             {loadingVideo && (
               <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
             )}
-            {!loadingVideo && moduleGroups.length === 0 && (
+            {!loadingVideo && !videoError && moduleGroups.length === 0 && (
               <p className="text-center text-muted-foreground font-mono text-sm py-8">No video feedback submitted yet</p>
             )}
 
@@ -380,7 +384,7 @@ export default function Feedback() {
                 <CardContent className="space-y-3">
                   {loadingCourse ? (
                     <div className="font-mono text-xs text-muted-foreground uppercase tracking-widest">Loading overall course feedback...</div>
-                  ) : filteredCourse && filteredCourse.length > 0 ? (
+                   ) : courseError ? null : filteredCourse && filteredCourse.length > 0 ? (
                     filteredCourse.map((feedback) => (
                       <div key={feedback.id} className="border-t border-primary/20 pt-3 first:border-t-0 first:pt-0">
                         <div className="flex items-center justify-between gap-3">
@@ -428,7 +432,7 @@ export default function Feedback() {
             {loadingVideo && (
               <div className="font-mono text-sm text-muted-foreground uppercase tracking-widest">Loading...</div>
             )}
-            {!loadingVideo && filteredStudentGroups.length === 0 && (
+            {!loadingVideo && !videoError && filteredStudentGroups.length === 0 && (
               <p className="text-center text-muted-foreground font-mono text-sm py-8">
                 {sq ? `No results for "${studentSearch}"` : "No video feedback submitted yet"}
               </p>
@@ -478,7 +482,7 @@ export default function Feedback() {
                                   className={`transition-colors ${driveState === "error" ? "text-destructive hover:text-destructive/80" : "text-muted-foreground hover:text-primary"}`}
                                 >
                                   {driveState === "saving"
-                                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                                    ? <ChainsawLoader className="w-4 h-4" />
                                     : <HardDrive className="w-4 h-4" />}
                                 </button>
                               )

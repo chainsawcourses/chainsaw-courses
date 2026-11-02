@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Chainsaw Courses — Connection problem</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #fff;
+        color: #252525;
+      }
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding:
+          max(2rem, env(safe-area-inset-top))
+          max(1.5rem, env(safe-area-inset-right))
+          max(2rem, env(safe-area-inset-bottom))
+          max(1.5rem, env(safe-area-inset-left));
+        background: linear-gradient(180deg, #fff 0%, #f7f4f1 100%);
+      }
+      main {
+        width: min(100%, 26rem);
+        text-align: center;
+      }
+      .mark {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1.25rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: #e27226;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 800;
+      }
+      h1 {
+        margin: 0 0 .75rem;
+        font-size: 1.5rem;
+        line-height: 1.2;
+      }
+      p {
+        margin: 0 auto 1rem;
+        color: #555;
+        line-height: 1.55;
+      }
+      button {
+        width: 100%;
+        min-height: 3rem;
+        margin-top: .5rem;
+        border: 0;
+        border-radius: .5rem;
+        background: #cf5f17;
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+      }
+      .help {
+        margin-top: 1.25rem;
+        font-size: .875rem;
+      }
+      code {
+        overflow-wrap: anywhere;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">!</div>
+      <h1>Unable to load the app</h1>
+      <p>
+        Chainsaw Courses could not connect. Check your internet connection,
+        then try again.
+      </p>
+      <button type="button" id="retry">Try again</button>
+      <p class="help">
+        If this continues, open <code>https://app.chainsawcourses.com</code>
+        in Safari or Chrome and contact support with your phone model.
+      </p>
+    </main>
+    <script>
+      document.getElementById("retry").addEventListener("click", function () {
+        this.disabled = true;
+        this.textContent = "Connecting…";
+        window.location.replace("https://app.chainsawcourses.com/?native_retry=" + Date.now());
+      });
+    </script>
+  </body>
+</html>

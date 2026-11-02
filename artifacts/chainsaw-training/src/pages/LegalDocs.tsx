@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { FileText, Download, ArrowLeft, Loader2 } from "lucide-react";
+import { FileText, Download, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { downloadPdf } from "../lib/downloadPdf";
 import { useToast } from "@/hooks/use-toast";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 type Doc = {
   title: string;
@@ -154,7 +155,7 @@ function DocCard({ doc, base }: { doc: Doc; base: string }) {
         disabled={loading}
         className="shrink-0 flex items-center gap-1.5 bg-[#e27226] text-white text-xs font-semibold px-3 py-2 rounded-md hover:bg-[#c9621f] transition-colors disabled:opacity-60"
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+        {loading ? <ChainsawLoader className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
         {loading ? "…" : "PDF"}
       </button>
     </div>

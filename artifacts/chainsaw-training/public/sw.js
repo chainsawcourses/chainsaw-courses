@@ -1,5 +1,8 @@
-const CACHE_NAME = "chainsaw-shell-v20";
+const CACHE_NAME = "chainsaw-shell-v24";
 const OFFLINE_URL = "/offline.html";
+// Course assets may be used offline briefly, but a cache must not turn an old
+// installed course into an indefinitely available copy.
+const STATIC_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Do NOT include "/" (index.html) here — we never cache the HTML entry point
 // so that every app open always fetches fresh HTML from the server.
@@ -12,6 +15,16 @@ const PRECACHE_ASSETS = [
   "/icon-maskable-512.png",
   "/apple-touch-icon.png",
 ];
+
+function isAdminPath(pathname) {
+  const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+  // Root-mounted previews can also be reached through the artifact prefix.
+  const bases = scopePath ? [scopePath] : ["", "/chainsaw-training"];
+  return bases.some((base) =>
+    pathname === `${base}/admin` || pathname.startsWith(`${base}/admin/`) ||
+    pathname === `${base}/admin-preview` || pathname.startsWith(`${base}/admin-preview/`)
+  );
+}
 
 // ─── IndexedDB helper for background sync queue ───────────────────────────────
 // Stores failed POST/PUT requests so they can be retried when connectivity returns.
@@ -64,11 +77,11 @@ self.addEventListener("activate", (event) => {
       )
       .then(() => self.clients.claim())
       .then(() =>
-        // Post a message to every open window — the app listens and calls
-        // window.location.reload(true) which bypasses the HTTP cache.
-        // This works on iOS and Android where client.navigate() is unreliable.
+        // Post to learner windows only — their update listener reloads the
+        // page. client.navigate() is unreliable on iOS and Android.
         self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) =>
-          list.forEach((client) => client.postMessage({ type: "SW_UPDATED" }))
+          list.filter((client) => !isAdminPath(new URL(client.url).pathname))
+            .forEach((client) => client.postMessage({ type: "SW_UPDATED" }))
         )
       )
   );
@@ -90,11 +103,34 @@ self.addEventListener("fetch", (event) => {
 
   // Skip non-same-origin requests — CDN, Firebase, API calls handled elsewhere
   if (url.origin !== self.location.origin) return;
+  // The admin portal is online-only, including navigation and static requests
+  // initiated by an admin client. Do not provide an offline shell for it.
+  if (isAdminPath(url.pathname)) return;
   // API calls must always be fresh
   if (url.pathname.startsWith("/api/")) return;
+  if (url.pathname.startsWith("/question-images/")) return;
+  // Course manuals and other learning-content files must never be retained by
+  // the shell cache. They require a live, authorised course session.
+  if (url.pathname.startsWith("/manual-pages/") ||
+      url.pathname.startsWith("/course-content/") ||
+      url.pathname.startsWith("/training-content/")) return;
   // Vite dev server internals — never cache
   if (url.pathname.startsWith("/node_modules/")) return;
   if (url.pathname.startsWith("/@")) return;
+
+  // Bundles are shared URLs: an existing worker can still control an admin
+  // tab, so do not cache or offline-serve its static requests either.
+  if (event.clientId && event.request.mode !== "navigate") {
+    event.respondWith(
+      self.clients.get(event.clientId).then((client) => {
+        if (client && isAdminPath(new URL(client.url).pathname)) {
+          return fetch(event.request);
+        }
+        return fetchAndCache(event.request);
+      })
+    );
+    return;
+  }
 
   // ── HTML navigation — network only, never cached ──────────────────────────
   if (event.request.mode === "navigate") {
@@ -105,18 +141,41 @@ self.addEventListener("fetch", (event) => {
   }
 
   // ── Static assets — network-first, cache on success ──────────────────────
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
+  event.respondWith(fetchAndCache(event.request));
 });
+
+function fetchAndCache(request) {
+  return fetch(request)
+    .then(async (response) => {
+      if (response.ok) await cacheStaticResponse(request, response.clone());
+      return response;
+    })
+    .catch(() => matchFreshStaticResponse(request));
+}
+
+async function cacheStaticResponse(request, response) {
+  const headers = new Headers(response.headers);
+  headers.set("sw-cached-at", String(Date.now()));
+  const cacheableResponse = new Response(await response.arrayBuffer(), {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+  const cache = await caches.open(CACHE_NAME);
+  await cache.put(request, cacheableResponse);
+}
+
+async function matchFreshStaticResponse(request) {
+  const cached = await caches.match(request);
+  if (!cached) return undefined;
+  const cachedAt = Number(cached.headers.get("sw-cached-at"));
+  if (!Number.isFinite(cachedAt) || Date.now() - cachedAt >= STATIC_CACHE_MAX_AGE_MS) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.delete(request);
+    return undefined;
+  }
+  return cached;
+}
 
 // ─── Background Sync — retry queued API requests when connectivity returns ────
 // Fires automatically by the browser when the device comes back online.

@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Plus, Pencil, Trash2, MapPin, Star, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, MapPin, Star, Users, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { getAdminApiError } from "../../lib/adminApiError";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 interface Venue {
   id: number;
@@ -68,9 +69,10 @@ export default function AdminGateway() {
   };
 
   useEffect(() => {
+    if (!adminToken) return;
     if (tab === "venues") loadVenues();
     else loadEnquiries();
-  }, [tab]);
+  }, [adminToken, tab]);
 
   const saveVenue = async () => {
     if (!editingVenue) return;
@@ -182,8 +184,8 @@ export default function AdminGateway() {
                     </div>
                     {editingVenue.id ? (
                       <div className="flex items-center gap-2">
-                        <input type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
-                        <label className="font-mono text-xs">Active (visible on map)</label>
+                        <input id="gateway-venue-active" type="checkbox" checked={editingVenue.active ?? true} onChange={e => setEditingVenue(prev => ({ ...prev!, active: e.target.checked }))} className="accent-[#e27226]" />
+                        <label htmlFor="gateway-venue-active" className="font-mono text-xs">Active (visible on map)</label>
                       </div>
                     ) : (
                       <p className="self-center text-xs font-semibold text-[#e27226]">New venues are added to the map immediately.</p>
@@ -201,14 +203,14 @@ export default function AdminGateway() {
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="font-mono tracking-widest text-xs" onClick={() => { setSaveError(""); setEditingVenue(null); }}>Cancel</Button>
                     <Button size="sm" className="font-mono tracking-widest text-xs" disabled={saving} onClick={saveVenue}>
-                      {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null} Save Venue
+                      {saving ? <ChainsawLoader className="w-3.5 h-3.5 mr-1" /> : null} Save Venue
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {loading ? <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div> : (
+            {loading ? <div className="flex justify-center py-8"><ChainsawLoader className="w-5 h-5 text-muted-foreground" /></div> : (
               <div className="space-y-2">
                 {venues.length === 0 && <p className="font-mono text-xs text-muted-foreground text-center py-8">No venues yet — add one above.</p>}
                 {venues.map(v => (
@@ -225,7 +227,7 @@ export default function AdminGateway() {
                         <Badge variant="outline" className={`font-mono text-[10px] ${v.tier === "gold" ? "border-amber-400/50 text-amber-600" : ""}`}>
                           {v.tier === "gold" ? "⭐ Gold" : "Silver"}
                         </Badge>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditingVenue({ ...v })}>
+                        <Button aria-label={`Edit ${v.name}`} variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setEditingVenue({ ...v })}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => deleteVenue(v.id)}>
@@ -244,7 +246,7 @@ export default function AdminGateway() {
         {tab === "enquiries" && (
           <div className="space-y-3">
             <h2 className="font-mono font-bold uppercase tracking-widest text-sm">Enquiry Pipeline</h2>
-            {loading ? <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div> : (
+            {loading ? <div className="flex justify-center py-8"><ChainsawLoader className="w-5 h-5 text-muted-foreground" /></div> : (
               enquiries.length === 0 ? <p className="font-mono text-xs text-muted-foreground text-center py-8">No enquiries yet.</p> : (
                 <div className="space-y-2">
                   {enquiries.map(({ enquiry, venue, user, passport }) => (

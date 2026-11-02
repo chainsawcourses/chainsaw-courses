@@ -3,11 +3,12 @@ import { Link, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Biohazard, Download, Loader2 } from "lucide-react";
+import { ArrowLeft, Biohazard, Download } from "lucide-react";
 import QRCode from "qrcode";
 import { useAdminSession } from "../../contexts/AdminContext";
 import { deliverFile } from "../../lib/pdfDownload";
 import { useToast } from "@/hooks/use-toast";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 interface ModuleItem {
   id: number;
@@ -84,7 +85,7 @@ function QrCodeCard({
           className="w-full font-mono text-xs uppercase tracking-widest"
         >
           {downloading
-            ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+            ? <ChainsawLoader className="w-3.5 h-3.5 mr-2" />
             : <Download className="w-3.5 h-3.5 mr-2" />}
           {downloading ? "Saving…" : "Download PNG"}
         </Button>
@@ -182,7 +183,7 @@ export default function AdminQrCodes() {
         {/* QR grid */}
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground font-mono text-sm">
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading modules…
+            <ChainsawLoader className="w-4 h-4 mr-2" /> Loading modules…
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

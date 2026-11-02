@@ -14,7 +14,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: `pnpm --filter @workspace/api-server run build && PORT=${apiPort} ADMIN_PASSWORD=gateway-browser-test-password DEMO_MODE=true NODE_ENV=test node artifacts/api-server/dist/index.mjs`,
+      command: `pnpm --filter @workspace/api-server run build && PORT=${apiPort} ADMIN_PASSWORD=gateway-browser-test-password SESSION_SECRET=gateway-browser-test-session-secret DEMO_MODE=true NODE_ENV=test node artifacts/api-server/dist/index.mjs`,
       url: `http://127.0.0.1:${apiPort}/api/healthz`,
       reuseExistingServer: false,
       timeout: 30_000,

@@ -7,6 +7,7 @@ export type ErrorType<T = unknown> = ApiError<T>;
 export type BodyType<T> = T;
 
 export type AuthTokenGetter = () => Promise<string | null> | string | null;
+export type AppHeadersGetter = () => Promise<HeadersInit | null> | HeadersInit | null;
 
 const NO_BODY_STATUS = new Set([204, 205, 304]);
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
@@ -17,6 +18,7 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
+let _appHeadersGetter: AppHeadersGetter | null = null;
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -42,6 +44,10 @@ export function setBaseUrl(url: string | null): void {
  */
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
+}
+
+export function setAppHeadersGetter(getter: AppHeadersGetter | null): void {
+  _appHeadersGetter = getter;
 }
 
 function isRequest(input: RequestInfo | URL): input is Request {
@@ -387,17 +393,27 @@ export async function customFetch<T = unknown>(
     }
   }
 
-  // Add custom app headers (lowercase to match server expectations)
-  if (typeof window !== "undefined") {
-    const deviceId = localStorage.getItem("deviceId");
-    const activationCode = localStorage.getItem("activationCode");
-    const adminToken = localStorage.getItem("adminToken");
+  if (_appHeadersGetter) {
+    const appHeaders = await _appHeadersGetter();
+    if (appHeaders) {
+      new Headers(appHeaders).forEach((value, key) => {
+        if (!headers.has(key)) headers.set(key, value);
+      });
+    }
+  }
 
-    const userId = localStorage.getItem("userId");
-    if (deviceId && !headers.has("deviceid")) headers.set("deviceid", deviceId);
-    if (activationCode && !headers.has("activationcode")) headers.set("activationcode", activationCode);
+  // Legacy browser fallback when no application-specific provider is configured.
+  if (typeof window !== "undefined") {
+    const adminToken = localStorage.getItem("adminToken");
     if (adminToken && !headers.has("admintoken")) headers.set("admintoken", adminToken);
-    if (userId && !headers.has("userid")) headers.set("userid", userId);
+    if (!_appHeadersGetter) {
+      const deviceId = localStorage.getItem("deviceId");
+      const activationCode = localStorage.getItem("activationCode");
+      const userId = localStorage.getItem("userId");
+      if (deviceId && !headers.has("deviceid")) headers.set("deviceid", deviceId);
+      if (activationCode && !headers.has("activationcode")) headers.set("activationcode", activationCode);
+      if (userId && !headers.has("userid")) headers.set("userid", userId);
+    }
   }
 
   const requestInfo = { method, url: resolveUrl(input) };

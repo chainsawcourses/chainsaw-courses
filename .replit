@@ -3,6 +3,7 @@ modules = ["nodejs-24", "python-3.11", "java-graalvm22.3", "postgresql-16"]
 [deployment]
 router = "application"
 deploymentTarget = "autoscale"
+build = ["pnpm", "run", "build"]
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
@@ -31,6 +32,18 @@ args = "api-spec-test"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "check-generated"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "billing-monitoring"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "assessment-media-persistence"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "installed-session-lifecycle"
 
 [[workflows.workflow]]
 name = "check-routes"
@@ -76,6 +89,39 @@ args = "pnpm --filter @workspace/api-spec run check-generated"
 [workflows.workflow.metadata]
 isValidation = true
 
+[[workflows.workflow]]
+name = "billing-monitoring"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run check:billing-monitoring"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "assessment-media-persistence"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run check:assessment-media"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "installed-session-lifecycle"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm run check:lifecycle-browser"
+
+[workflows.workflow.metadata]
+isValidation = true
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
@@ -87,16 +133,7 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
-packages = ["glib", "nspr", "nss", "atk", "at-spi2-atk", "dbus", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "xorg.libxcb", "libxkbcommon", "alsa-lib", "at-spi2-core", "libgbm"]
-
-[userenv]
-
-[userenv.shared]
-ADMIN_PASSWORD = "CHAIN26"
-VAPID_PUBLIC_KEY = "BDR2Y5H4WerxIjaMvMdnBm58GItDh38sSkKQgnjLua-CXFqr_yOfcX-dT_f1MM1nTGRtorMq20klzTujCLSlJHw"
-VAPID_PRIVATE_KEY = "u0PqDiMxZ4TaY-ek_f4tOCPHY4cBk8d-dhYSwyRojGs"
-VAPID_EMAIL = "mailto:admin@chainsawcourses.co.uk"
-VIMEO_ACCESS_TOKEN = "C2Gm8H/RsRrtj5fOEo+rlshfGO0eCRFnX9x/oY6SKFYCaCkJtziGgQsG7xljMG8PU3HqhJv6bpMegByGkVAT1p24lunjveC+7wA+/iwgjmVO4hiEp3nM2EQyiWqrTz2M08149bed7b339eaa98fb29812f94bd6f"
+packages = ["glib", "nspr", "nss", "atk", "at-spi2-atk", "dbus", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "xorg.libxcb", "libxkbcommon", "alsa-lib", "at-spi2-core", "libgbm", "gst_all_1.gstreamer", "gst_all_1.gst-plugins-base", "gst_all_1.gst-plugins-good", "gst_all_1.gst-plugins-bad", "gtk4", "pango", "harfbuzz", "gdk-pixbuf", "cairo", "vulkan-loader", "graphene", "icu", "libxml2", "sqlite", "libxslt", "lcms2", "libevent", "flite", "libwebp", "libavif", "libepoxy", "libjpeg", "libmanette", "enchant", "hyphen", "libsecret", "x264", "icu74", "libatomic_ops", "libgcc", "libopus", "libjpeg_turbo", "libglvnd", "gst_all_1.gst-libav", "harfbuzzFull", "libjpeg8"]
 
 [[ports]]
 localPort = 8080
@@ -113,3 +150,24 @@ externalPort = 3000
 [[ports]]
 localPort = 19478
 externalPort = 3001
+
+[[ports]]
+localPort = 22102
+externalPort = 3003
+
+[objectStorage]
+defaultBucketID = "replit-objstore-47f2533c-8b43-4e6c-908e-b8f90fbab31d"
+
+[userenv]
+
+[userenv.development]
+APPLE_IAP_APP_ID = "6802349883"
+APPLE_IAP_ENABLED = "true"
+APPLE_IAP_ENVIRONMENT = "Sandbox"
+APPLE_IAP_PRODUCT_ID = "com.overleafpublishers.chainsawcourses.sixmonths"
+
+[userenv.production]
+APPLE_IAP_ALLOW_SANDBOX_REVIEW = "false"
+APPLE_IAP_ENABLED = "true"
+APPLE_IAP_ENVIRONMENT = "Sandbox"
+APPLE_IAP_PRODUCTION_APPROVED = "false"

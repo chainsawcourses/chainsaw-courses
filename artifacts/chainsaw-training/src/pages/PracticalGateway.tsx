@@ -2,13 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, MapPin, Star, CheckCircle2, ChevronRight, Loader2, ExternalLink, Award } from "lucide-react";
+import { ArrowLeft, MapPin, Star, CheckCircle2, ChevronRight, ExternalLink, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useUserSession } from "../contexts/UserContext";
 import { useGetProgressSummary, getGetProgressSummaryQueryKey, useGetExamStatus, getGetExamStatusQueryKey } from "@workspace/api-client-react";
 import { IS_DEMO } from "../lib/demo";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 interface Venue {
   id: number;
@@ -234,7 +235,7 @@ export default function PracticalGateway() {
                 <div className="flex gap-2">
                   <Button variant="outline" className="font-mono tracking-widest" onClick={() => setWizardStep(2)}>Back</Button>
                   <Button className="flex-1 font-mono tracking-widest" disabled={!wpPostcode || !wpPhone || !gdprChecked || savingPassport} onClick={savePassport}>
-                    {savingPassport ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</> : <>Access Gateway <ChevronRight className="w-4 h-4 ml-1" /></>}
+                    {savingPassport ? <><ChainsawLoader className="w-4 h-4 mr-2" /> Saving…</> : <>Access Gateway <ChevronRight className="w-4 h-4 ml-1" /></>}
                   </Button>
                 </div>
               </CardContent>
@@ -302,7 +303,7 @@ export default function PracticalGateway() {
           {/* Map */}
           <div className="rounded-lg overflow-hidden border border-border" style={{ height: 420 }}>
             {passportLoading ? (
-              <div className="h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+              <div className="h-full flex items-center justify-center"><ChainsawLoader className="w-6 h-6 text-muted-foreground" /></div>
             ) : (
               <MapContainer center={mapCenter} zoom={mapZoom} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap contributors" />
@@ -332,8 +333,8 @@ export default function PracticalGateway() {
                     }}
                     eventHandlers={{ click: () => setSelectedVenue(venue) }}
                   >
-                    <Popup>
-                      <div className="font-sans text-sm min-w-[200px]">
+                    <Popup keepInView autoPanPadding={[16, 16]}>
+                      <div className="w-[160px] font-sans text-sm sm:w-auto sm:min-w-[200px]">
                         <div className="font-bold">{venue.name}</div>
                         <div className="text-xs text-gray-500">{venue.town}, {venue.county}</div>
                         <div className="text-xs mt-1">{venue.postcode}</div>
@@ -381,7 +382,7 @@ export default function PracticalGateway() {
                       disabled={registeringId === selectedVenue.id}
                     >
                       {registeringId === selectedVenue.id
-                        ? <><Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> Preparing…</>
+                        ? <><ChainsawLoader className="w-3.5 h-3.5 mr-2" /> Preparing…</>
                         : <><MapPin className="w-3.5 h-3.5 mr-2" /> Register Interest</>}
                     </Button>
                   )}

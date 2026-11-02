@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Award, ArrowLeft, FileDown, Loader2 } from "lucide-react";
+import { Award, ArrowLeft, FileDown } from "lucide-react";
 import { useUserSession } from "../contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import { deliverPdf } from "../lib/pdfDownload";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 function PreviewCertificateButton() {
   const { activationCode, deviceId } = useUserSession();
@@ -17,9 +18,12 @@ function PreviewCertificateButton() {
     const device = deviceId ?? "admin-preview-device-001";
     setLoading(true);
     try {
-      const res = await fetch("/api/certificate", {
+      const tokenResponse = await fetch("/api/certificate/access-token", {
         headers: { activationcode: code, deviceid: device },
       });
+      if (!tokenResponse.ok) throw new Error("Failed");
+      const access = await tokenResponse.json() as { viewUrl: string };
+      const res = await fetch(access.viewUrl, { referrerPolicy: "no-referrer" });
       if (!res.ok) throw new Error("Failed");
       const blob = await res.blob();
       const result = await deliverPdf(blob, "Chainsaw_Certificate.pdf");
@@ -47,7 +51,7 @@ function PreviewCertificateButton() {
       disabled={loading}
       className="w-full h-14 font-mono font-bold tracking-widest gap-2"
     >
-      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <FileDown className="w-5 h-5" />}
+      {loading ? <ChainsawLoader className="w-5 h-5" /> : <FileDown className="w-5 h-5" />}
       {loading ? "GENERATING CERTIFICATE…" : "DOWNLOAD CERTIFICATE"}
     </Button>
   );

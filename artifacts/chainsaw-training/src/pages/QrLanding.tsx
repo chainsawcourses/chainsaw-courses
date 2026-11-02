@@ -3,7 +3,8 @@ import { useLocation, useParams } from "wouter";
 import { useGetModule, getGetModuleQueryKey } from "@workspace/api-client-react";
 import { useUserSession } from "../contexts/UserContext";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, ExternalLink } from "lucide-react";
+import { Lock } from "lucide-react";
+import { ChainsawLoader } from "@/components/ui/chainsaw-loader";
 
 export default function QrLanding() {
   const { moduleId } = useParams<{ moduleId: string }>();
@@ -44,25 +45,18 @@ export default function QrLanding() {
             </p>
           </div>
 
-          {/* CTA card */}
+          {/* Neutral access guidance for learners without an active session. */}
           <div className="border border-border rounded-lg bg-card/60 p-6 space-y-4">
             <p className="text-sm font-mono text-foreground">
-              Get the full interactive learning experience here
+              This module is available to activated learners.
             </p>
-            <a
-              href="https://www.chainsawcourses.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 w-full justify-center px-6 py-3 rounded-md bg-primary text-primary-foreground font-mono font-bold text-sm uppercase tracking-widest hover:bg-primary/90 transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              www.chainsawcourses.com
-            </a>
+            <p className="text-xs text-muted-foreground font-mono">
+              Enter your existing access code to continue.
+            </p>
           </div>
 
-          {/* Already purchased? */}
+          {/* Existing learners can activate without leaving the app. */}
           <div className="text-xs text-muted-foreground font-mono space-y-1">
-            <p>Already purchased the course?</p>
             <button
               onClick={() => setLocation("/")}
               className="text-primary underline underline-offset-2 hover:no-underline"
@@ -99,7 +93,7 @@ export default function QrLanding() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16">
         <AuthHeader />
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <ChainsawLoader className="w-6 h-6 text-muted-foreground" />
       </div>
     );
   }
@@ -126,7 +120,7 @@ export default function QrLanding() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-start px-6 pt-16">
         <AuthHeader />
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        <ChainsawLoader className="w-6 h-6 text-muted-foreground" />
       </div>
     );
   }

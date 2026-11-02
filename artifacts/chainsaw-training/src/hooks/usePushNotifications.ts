@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { Capacitor } from "@capacitor/core";
+import { getLearnerAuthHeaders } from "../lib/sessionStorage";
 
 const BASE = import.meta.env.BASE_URL as string;
 const SW_PATH = `${BASE}sw.js`;
@@ -20,14 +22,19 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 async function sendSubscriptionToServer(sub: PushSubscription, method: "POST" | "DELETE") {
   const json = sub.toJSON();
-  await fetch(`${BASE}api/push/subscribe`, {
+  const authHeaders = await getLearnerAuthHeaders();
+  if (!authHeaders) throw new Error("Learner session is unavailable");
+  const headers = new Headers(authHeaders);
+  headers.set("Content-Type", "application/json");
+  const res = await fetch(`${BASE}api/push/subscribe`, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       endpoint: sub.endpoint,
       keys: { p256dh: json.keys?.p256dh ?? "", auth: json.keys?.auth ?? "" },
     }),
   });
+  if (!res.ok) throw new Error(`Push subscription request failed (${res.status})`);
 }
 
 export type NotifState = "unsupported" | "denied" | "subscribed" | "unsubscribed" | "loading";
@@ -36,7 +43,11 @@ export function usePushNotifications() {
   const [state, setState] = useState<NotifState>("loading");
 
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    if (
+      Capacitor.isNativePlatform() ||
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window)
+    ) {
       setState("unsupported");
       return;
     }
@@ -51,7 +62,7 @@ export function usePushNotifications() {
   }, []);
 
   const subscribe = useCallback(async () => {
-    if (!("serviceWorker" in navigator)) return;
+    if (Capacitor.isNativePlatform() || !("serviceWorker" in navigator)) return;
     setState("loading");
     try {
       // Reuse the SW already registered in main.tsx; only register if somehow missing
@@ -74,7 +85,7 @@ export function usePushNotifications() {
   }, []);
 
   const unsubscribe = useCallback(async () => {
-    if (!("serviceWorker" in navigator)) return;
+    if (Capacitor.isNativePlatform() || !("serviceWorker" in navigator)) return;
     setState("loading");
     try {
       const reg = await navigator.serviceWorker.ready;
