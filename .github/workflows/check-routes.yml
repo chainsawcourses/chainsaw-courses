@@ -9,6 +9,9 @@ on:
 jobs:
   check-routes:
     name: Route coverage & stale exemptions
+    # A public recovery snapshot contains source, not private distribution exports.
+    # All pull requests and all other branch pushes retain the full release gate.
+    if: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/heads/recovery/') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -35,3 +38,52 @@ jobs:
 
       - name: Check routes against OpenAPI spec
         run: pnpm --filter @workspace/api-spec run check-routes
+
+  recovery-source:
+    name: Recovery source integrity & API checks
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/recovery/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify every recovery source file
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from "node:fs/promises";
+          import { createHash } from "node:crypto";
+          import path from "node:path";
+          const manifest = JSON.parse(await readFile("SOURCE-MANIFEST.json", "utf8"));
+          if (manifest.format !== "chainsaw-source-snapshot-v1" || !manifest.files.length)
+            throw new Error("Missing or invalid recovery source manifest");
+          const seen = new Set();
+          for (const file of manifest.files) {
+            if (path.isAbsolute(file.path) || file.path.includes("\\") ||
+                file.path.split("/").includes("..") || seen.has(file.path))
+              throw new Error("Unsafe or duplicate source path");
+            seen.add(file.path);
+            const bytes = await readFile(file.path);
+            if (bytes.length !== file.bytes ||
+                createHash("sha256").update(bytes).digest("hex") !== file.sha256)
+              throw new Error(`Recovery source mismatch: ${file.path}`);
+          }
+          console.log(`Verified ${seen.size} recovery source files`);
+          NODE
+      - name: Check release safeguards and mobile package boundaries
+        run: pnpm run check:release-contract && pnpm run check:mobile-packages
+      - name: Check API route coverage
+        run: pnpm --filter @workspace/api-spec run check-routes
+      - name: Typecheck libraries and API
+        run: pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck
+      - name: Test portable providers and recovery encryption
+        run: node --test artifacts/api-server/tests/portable-providers.test.mjs scripts/recovery-crypto.test.mjs
+      - name: Check source for literal managed credentials
+        run: pnpm run check:project-secrets

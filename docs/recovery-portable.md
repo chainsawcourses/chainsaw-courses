@@ -1,5 +1,13 @@
 # Non-Replit recovery: compatible Node/PostgreSQL hosting
 
+Recovery-branch pushes run source-manifest integrity, API route coverage,
+library/API typechecking, portable-provider/encryption tests and credential checks
+in GitHub Actions. They do not claim to validate private native handoff archives
+or perform a production release. Every pull request and every other branch push
+retains the full release workflow; production build entry points still enforce
+`check:release`. Private `exports/` archives must not be published to fix a
+source-only recovery check.
+
 Source branch: [recovery/portable-2026-11-02](https://github.com/chainsawcourses/chainsaw-courses/tree/recovery/portable-2026-11-02).
 Use the commit/checksum receipt saved in the restricted Drive recovery folder
 to pin the exact verified version rather than assuming the default branch is current.

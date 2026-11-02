@@ -1,7 +1,7 @@
 {
   "format": "chainsaw-source-snapshot-v1",
-  "createdAt": "2026-11-02T18:54:30.307Z",
-  "sourceCommit": "3b6b56fd0ffd0cef1b68e45da5acdfe025ca3ac7",
+  "createdAt": "2026-11-02T20:58:55.107Z",
+  "sourceCommit": "e1eed8683145daf49d98389210c2903e25b130f6",
   "purpose": "Current application source and runtime assets, without private uploads or unpushed Git history.",
   "exclusions": [
     "Learner database and documents: kept separately in the restricted recovery folder.",
@@ -13,9 +13,9 @@
     {
       "path": ".github/workflows/check-routes.yml",
       "mode": "100644",
-      "bytes": 806,
-      "sha256": "2a4f6224757cac6ddab29d0f11d5e05fe09be1999c32c78248b21a1d9496b9c8",
-      "gitBlob": "aca8d07a7a18be778276da10c330989a0a24cc18"
+      "bytes": 3438,
+      "sha256": "da9fcdccba8b80b7f79a054641ebf0d45d1cd0ae98e1a0c57926cb9fb6211439",
+      "gitBlob": "5a01498442fb8e9cf6fcef8b06fba79f1c6033f4"
     },
     {
       "path": ".gitignore",
@@ -4577,9 +4577,9 @@
     {
       "path": "docs/recovery-portable.md",
       "mode": "100644",
-      "bytes": 7985,
-      "sha256": "ce4521d73372a7e407ed6b1f966b8b6d95c1c5096c4487d7c0ccf41780892fe9",
-      "gitBlob": "d2065efd8b9d16e3b3374e4a77886bb6fe5eb718"
+      "bytes": 8487,
+      "sha256": "0abaa2e08554f38374ecd1b5a2db19c1e48a8e2d1465dc5f814b73d8277c2b2a",
+      "gitBlob": "b86f0e5c733eeca14671887f19cc7ab5c8956243"
     },
     {
       "path": "docs/recovery.md",
@@ -5879,9 +5879,9 @@
     {
       "path": "scripts/check-release-gate.test.mjs",
       "mode": "100644",
-      "bytes": 22894,
-      "sha256": "cba5e616ccac30c3a3977f64398bde8ee1fb1c6e302137b5ff966f684f8fdb7b",
-      "gitBlob": "e59c6e200ee22bace2cf3e26f1bcb466810664b4"
+      "bytes": 24165,
+      "sha256": "9c8cb576bb13fbc81a274adf7ed74f9d0d46ba56dd797682eb1c363f4c63acf9",
+      "gitBlob": "754d9defc8805d8a8d0a302b530e715ca7300ea9"
     },
     {
       "path": "scripts/extract-mock-questions.ts",

@@ -334,6 +334,11 @@ function assertBlockingReleaseChecks(workflow) {
     'Release workflow must define the required "check-routes" job',
   );
   assert.equal(
+    checkRoutesJob.if,
+    "${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/heads/recovery/') }}",
+    "Only recovery-branch pushes may use source-only checks; every PR and other push must retain release checks",
+  );
+  assert.equal(
     checkRoutesJob["continue-on-error"] ?? false,
     false,
     'Release workflow "check-routes" job must remain blocking',
@@ -359,6 +364,22 @@ function assertBlockingReleaseChecks(workflow) {
     );
   }
 }
+
+test("recovery pushes use blocking source checks without weakening release commands", async () => {
+  const workflow = parse(await readFile(
+    new URL("../.github/workflows/check-routes.yml", import.meta.url), "utf8",
+  ));
+  const job = workflow.jobs["recovery-source"];
+  assert.equal(job.if,
+    "${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/recovery/') }}");
+  assert.equal(job["continue-on-error"] ?? false, false);
+  const commands = job.steps.filter(s => s.run).map(s => s.run);
+  assert.ok(commands.some(c => c.includes('readFile("SOURCE-MANIFEST.json"')));
+  assert.ok(commands.includes("pnpm --filter @workspace/api-spec run check-routes"));
+  assert.ok(commands.includes("pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck"));
+  assert.ok(commands.includes("node --test artifacts/api-server/tests/portable-providers.test.mjs scripts/recovery-crypto.test.mjs"));
+  for (const step of job.steps) assert.equal(step["continue-on-error"] ?? false, false);
+});
 
 test("check:release includes every required release check", async () => {
   const scripts = await readPackageScripts();
